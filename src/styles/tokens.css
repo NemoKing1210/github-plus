@@ -32,13 +32,4 @@
   --gp-shadow: var(--shadow-large, 0 8px 24px rgba(140, 149, 159, 0.2));
   --gp-scrim: var(--overlay-backdrop-bgColor, rgba(31, 35, 40, 0.5));
   --gp-focus: var(--focus-outlineColor, #0969da);
-
-  /* Immersive viewer chrome: deliberately theme-independent (a light stage
-     washes out image colors, so the lightbox is always dark). */
-  --gp-viewer-bg: rgba(13, 17, 23, 0.94);
-  --gp-viewer-bar: rgba(1, 4, 9, 0.72);
-  --gp-viewer-fg: #f0f6fc;
-  --gp-viewer-fg-muted: #9198a1;
-  --gp-viewer-border: rgba(240, 246, 252, 0.18);
-  --gp-viewer-surface: rgba(255, 255, 255, 0.08);
 }

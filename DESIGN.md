@@ -21,8 +21,7 @@ So injected UI does not own a palette:
   properties whose values are `var(--<Primer name>, <literal>)`. The Primer
   variable resolves at use time, so everything we render follows the active
   theme; the literal is the Primer **light** value and only takes effect if
-  GitHub renames or drops the variable. The single deliberate exception is the
-  image viewer's theme-independent chrome (§3).
+  GitHub renames or drops the variable.
 - Component CSS in `src/styles/app.css` reads `var(--gp-*)` and never reads a
   Primer variable or a raw color directly.
 - There is therefore no `prefers-color-scheme` branch, no theme setting, and no
@@ -69,20 +68,12 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: panel, confirm dialog, toast |
 | `--gp-scrim` | `--overlay-backdrop-bgColor` | `rgba(31, 35, 40, 0.5)` | Overlay backdrop behind panel and confirm dialog |
 | `--gp-focus` | `--focus-outlineColor` | `#0969da` | Focus ring color |
-| `--gp-viewer-bg` | — | `rgba(13, 17, 23, 0.94)` | Image viewer backdrop |
-| `--gp-viewer-bar` | — | `rgba(1, 4, 9, 0.72)` | Image viewer bars, nav buttons, status card, thumbs rail |
-| `--gp-viewer-fg` | — | `#f0f6fc` | Text, borders, spinner head, icons inside the viewer |
-| `--gp-viewer-fg-muted` | — | `#9198a1` | Viewer counter and keyboard hint |
-| `--gp-viewer-border` | — | `rgba(240, 246, 252, 0.18)` | Viewer hairlines: bar bottoms, tool/nav/thumb outlines |
-| `--gp-viewer-surface` | — | `rgba(255, 255, 255, 0.08)` | Viewer tool and thumbnail fill |
 
 Rules:
 
 - Never add a token that only one component uses; if a value is used once and
   is not a theme color, inline it in `app.css` (as `.gp-viewer__thumb` does
-  with `border-radius: 4px`).
-- The `--gp-viewer-*` group is the one literal block in `tokens.css` outside
-  the Primer fallbacks. It is intentional — see §3.
+  with an explicit `border-radius` when it needs one).
 
 ## 3. Theming rules
 
@@ -94,13 +85,9 @@ Rules:
   foreground on a solid accent/danger fill is not a theme color — it must stay
   legible on that fill in every theme — so it is deliberately not derived from
   a token. Any other new literal is a bug.
-- The image viewer is the one theme-independent surface. Its chrome is dark in
-  every theme, because a light stage washes out the colors of the image being
-  inspected and a themed bar would make the same picture look different
-  depending on the visitor's GitHub theme. Its values are declared as the
-  `--gp-viewer-*` tokens (never inline in `app.css`) so the exception stays
-  visible in one place; the viewer still uses `--gp-danger` for its error
-  tone, and the shared focus ring rules below.
+- The image viewer is themed like everything else: images sit on
+  `var(--gp-bg-1)` with the bars, hint and thumbnail rail on `var(--gp-bg-2)`,
+  so the gallery reads as part of GitHub in every theme.
 - Nothing else in the script may key off `prefers-color-scheme`; theme
   handling is entirely delegated to GitHub's own variables.
 
@@ -108,19 +95,17 @@ Rules:
 
 | Property | Value | Applied to |
 |---|---|---|
-| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-nav-item`, `.gp-confirm`, `.gp-toast`, `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip |
-| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__footer`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track |
+| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-nav-item`, `.gp-confirm`, `.gp-toast`, `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__stage`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb` |
+| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__footer`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__hint`, `.gp-viewer__thumbs` |
 | Surface, tinted | `var(--gp-accent-soft)` | `.gp-nav-item__icon`, `.gp-about__logo` |
-| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-nav-item`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm` |
-| Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`), `.gp-grid__cell`, `.gp-about__row`, progress track |
-| Border, viewer hairline | `1px solid var(--gp-viewer-border)` | Viewer bar, tools, nav buttons, thumbs rail, thumb, hint |
-| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, toast action), cards, nav items, toasts, grid cells, viewer tools, header button, panel close, viewer status |
+| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-nav-item`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__hint`, `.gp-viewer__thumbs`, `.gp-viewer__status` |
+| Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`), `.gp-grid__cell`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb` |
+| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, toast action), cards, nav items, toasts, grid cells, viewer tools, header button, panel close, viewer status, viewer thumb |
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
 | Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge` |
 | Radius, circle | `50%` | `.gp-header-btn--custom::after` dot, `.gp-viewer__nav`, viewer spinner |
-| Radius, viewer thumb | `4px` | `.gp-viewer__thumb` (inline literal, single use) |
-| Shadow, elevation | `var(--gp-shadow)` | `.gp-panel`, `.gp-confirm`, `.gp-toast` |
-| Shadow, ring | `0 0 0 1px var(--gp-viewer-fg)` | `.gp-viewer__thumb.is-active` |
+| Shadow, elevation | `var(--gp-shadow)` | `.gp-panel`, `.gp-confirm`, `.gp-toast`, `.gp-viewer__status` |
+| Shadow, ring | `0 0 0 1px var(--gp-accent)` | `.gp-viewer__thumb.is-active` |
 
 - Overlays set `box-sizing: border-box` (`.gp-panel-overlay`,
   `.gp-confirm-overlay`, `.gp-textarea`); the stylesheet has no global
@@ -163,8 +148,8 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Confirm title `.gp-confirm__title` | `15px` / `600` / `var(--gp-text)` |
 | Confirm message `.gp-confirm__message` | `13px` / `var(--gp-text-muted)` |
 | About name `.gp-about__name` | `16px` / `600`; tagline `12px` muted; row `13px` |
-| Viewer title `.gp-viewer__title` | `13px` / `600` / `var(--gp-viewer-fg)` |
-| Viewer counter `.gp-viewer__counter` | `12px` / `var(--gp-viewer-fg-muted)` / `tabular-nums` |
+| Viewer title `.gp-viewer__title` | `13px` / `600` / `var(--gp-text)` |
+| Viewer counter `.gp-viewer__counter` | `12px` / `var(--gp-text-muted)` / `tabular-nums` |
 | Viewer tool glyph | `600 14px/1` |
 | Viewer hint `.gp-viewer__hint`, status `.gp-viewer__status` | `12px` muted / `13px` |
 | Viewer nav glyph | `22px` |
@@ -359,31 +344,32 @@ Errors get `role="alert"`, every other type `role="status"`.
 
 ### Image viewer
 
-Theme-independent dark chrome (see §3).
+Full-viewport gallery, themed with the same tokens as the panel (see §3).
 
 | Class | Rules |
 |---|---|
-| `.gp-viewer-overlay` | `fixed; inset: 0; z-index: 1000002`, `background: var(--gp-viewer-bg)`, `color: var(--gp-viewer-fg)`, `var(--gp-font)`; `[hidden]` hides it |
+| `.gp-viewer-overlay` | `fixed; inset: 0; z-index: 1000002`, `background: var(--gp-bg-1)`, `color: var(--gp-text)`, `var(--gp-font)`; `[hidden]` hides it |
 | `.gp-viewer` | Vertical flex, `min-width: 0`, `outline: none`; `role="dialog"`, `aria-modal="true"` |
-| `.gp-viewer__bar` | `padding: 10px 14px`, `gap: 12px`, `var(--gp-viewer-bar)`, bottom hairline |
+| `.gp-viewer__bar` | `padding: 10px 14px`, `gap: 12px`, `var(--gp-bg-2)`, bottom hairline |
 | `.gp-viewer__meta`, `__title`, `__counter` | Baseline row; ellipsized `13px/600` title; `12px` tabular muted counter |
-| `.gp-viewer__tools`, `__tool` | `margin-left: auto`; `30×30` tools, `var(--gp-viewer-surface)` fill, `var(--gp-radius)`, `600 14px/1` |
+| `.gp-viewer__tools`, `__tool` | `margin-left: auto`; `30×30` tools, `var(--gp-bg-1)` fill, `var(--gp-border)` outline, `var(--gp-radius)`, `600 14px/1` |
 | `.gp-viewer__tool--close` | Hover: `var(--gp-danger)` fill and border, white glyph |
-| `.gp-viewer__sep` | `1×18` hairline separator |
-| `.gp-viewer__stage` | `position: relative`, `flex: 1 1 auto`, centered, `overflow: hidden`, `cursor: grab`, `touch-action: none` |
+| `.gp-viewer__sep` | `1×18` divider in `var(--gp-line)` |
+| `.gp-viewer__stage` | `position: relative`, `flex: 1 1 auto`, centered on `var(--gp-bg-1)`, `overflow: hidden`, `cursor: grab`, `touch-action: none` |
 | `.gp-viewer__image` | `max-width/height: 100%`, `object-fit` fit, `transform-origin: center`, opacity `0.15s`, `user-select: none`, `-webkit-user-drag: none`; JS sets `translate(…) scale(…) rotate(…)` |
-| `.gp-viewer__nav` (+`--prev`, `--next`) | `44×44` circular ghost buttons over the stage, `22px` glyphs, `left/right: 16px`, `translateY(-50%)`; `[disabled]` at 0.35 opacity when loop is off and the end is reached; `hidden` for a single image |
-| `.gp-viewer__spinner` | `32×32` ring: 3px `var(--gp-viewer-border)` with a `var(--gp-viewer-fg)` top, `gp-viewer-spin 0.8s linear infinite` |
-| `.gp-viewer__status` | Error card: `1px var(--gp-danger)`, `var(--gp-radius)`, `var(--gp-viewer-bar)`, `13px`; `role="alert"` |
-| `.gp-viewer__hint` | Centered `12px` muted keyboard hint, top hairline |
-| `.gp-viewer__thumbs`, `__thumb`, `__thumb-img` | Horizontal rail (`gap: 6px`, `overflow-x: auto`); `68×48` thumb buttons with `4px` radius, `object-fit: cover` images; hidden with one image or when thumbnails are off |
-| `.gp-viewer__thumb.is-active` | `var(--gp-viewer-fg)` border plus a `0 0 0 1px` ring; the active thumb is scrolled into view |
+| `.gp-viewer__nav` (+`--prev`, `--next`) | `44×44` circular buttons over the stage, `22px` glyphs, `left/right: 16px`, `translateY(-50%)`; `[disabled]` at 0.5 opacity when loop is off and the end is reached; `hidden` for a single image |
+| `.gp-viewer__spinner` | `32×32` ring: 3px `var(--gp-line)` with a `var(--gp-accent)` top, `gp-viewer-spin 0.8s linear infinite` |
+| `.gp-viewer__status` | Error card: `1px var(--gp-danger)`, `var(--gp-radius)`, `var(--gp-bg-1)`, `var(--gp-shadow)`, `13px`; `role="alert"` |
+| `.gp-viewer__hint` | Centered `12px` muted keyboard hint, top hairline on `var(--gp-bg-2)` |
+| `.gp-viewer__thumbs`, `__thumb`, `__thumb-img` | Horizontal rail (`gap: 6px`, `padding: 10px 14px`, `overflow-x: auto`, `overflow-y: hidden`, `justify-content: safe center`, `align-items: center`) so thumbnails are centered while they fit and never raise a vertical scrollbar; `68×48` thumb buttons, `object-fit: cover` images; hidden with one image or when thumbnails are off |
+| `.gp-viewer__thumb.is-active` | `var(--gp-accent)` border plus a `0 0 0 1px` accent ring; the active thumb is scrolled into view |
 
 Pointer and keyboard behavior is implemented in `src/ui/viewer.js`; the CSS
-only has to express it: `is-dragging` → grabbing cursor, `is-zoomed` → move
-cursor, `is-loading` → dimmed image, and the focus rings on `.gp-viewer__tool`.
-The overlay is excluded from page scanning via `isOwnUi()`, and opening it
-takes the shared scroll lock.
+only has to express it: `is-dragging` → grabbing cursor, `is-loading` →
+dimmed image, and the focus rings on `.gp-viewer__tool` / `.gp-viewer__nav`.
+The image is draggable at every zoom and the JS clamps the offset to the
+stage, so panning needs no state class. The overlay is excluded from page
+scanning via `isOwnUi()`, and opening it takes the shared scroll lock.
 
 ### About page
 
@@ -400,13 +386,13 @@ takes the shared scroll lock.
 
 | State | Selector / form | Effect |
 |---|---|---|
-| Hover | `:hover` on `.gp-header-btn`, `.gp-nav-item`, `.gp-page__back`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__nav:not([disabled])`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools and nav lift their border to `var(--gp-viewer-fg)` |
-| Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items and the header button; viewer uses `var(--gp-viewer-fg)` |
-| Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry, `2px` on the switch track, `-1px` on select/input/textarea (inside the box) |
+| Hover | `:hover` on `.gp-header-btn`, `.gp-nav-item`, `.gp-page__back`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools and nav take the highlight fill with a muted border, the thumbnail border moves to the muted text color |
+| Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items, the header button, viewer tools and viewer nav |
+| Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry/viewer controls, `2px` on the switch track, `-1px` on select/input/textarea (inside the box) |
 | Disabled | `.gp-button[disabled]` | `opacity: 0.55`, `cursor: default` |
-| Disabled | `.gp-viewer__nav[disabled]` | `opacity: 0.35`, `cursor: default`, hover suppressed |
-| Active thumb | `.gp-viewer__thumb.is-active` | `var(--gp-viewer-fg)` border + 1px ring |
-| Zoomed / rotated | `.gp-viewer.is-zoomed`, `.gp-viewer.is-rotated` | Toggled by `paint()`; `is-zoomed` switches the stage cursor to `move` |
+| Disabled | `.gp-viewer__nav[disabled]` | `opacity: 0.5`, `cursor: default`, hover suppressed |
+| Active thumb | `.gp-viewer__thumb.is-active` | `var(--gp-accent)` border + 1px accent ring |
+| Rotated | `.gp-viewer.is-rotated` | Toggled by `paint()`; the stage keeps its `grab` cursor because the image is draggable at every zoom |
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
 | Custom settings | `.gp-header-btn--custom` | Corner dot in `var(--gp-accent)` while settings differ from defaults |
@@ -466,9 +452,8 @@ Everything else is fluid by construction and must stay that way:
 ## 10. Accessibility
 
 - **Visible focus everywhere.** Every keyboard-reachable control defines
-  `:focus-visible` with the `2px solid var(--gp-focus)` ring; the viewer uses
-  `var(--gp-viewer-fg)` because `--gp-focus` can vanish against the dark
-  stage. Never remove an outline without replacing it.
+  `:focus-visible` with the `2px solid var(--gp-focus)` ring. Never remove an
+  outline without replacing it.
 - **Roles.** The panel is `role="dialog"` + `aria-modal="true"`; the viewer is
   `role="dialog"` + `aria-modal="true"`; the confirm dialog is
   `role="alertdialog"` + `aria-modal="true"` over a `role="presentation"`
@@ -486,7 +471,7 @@ Everything else is fluid by construction and must stay that way:
 - **Keyboard.** Panel: `Escape` returns home from a page and closes from home;
   the viewer owns `Escape` while open. Viewer: `←`/`→` navigate,
   `Home`/`End` jump, `+`/`=`/`-` zoom, `0` resets, `r` rotates, wheel zooms,
-  drag pans, a fit-zoom swipe navigates, double click toggles 2×, pinch zooms.
+  drag pans at any zoom, double click toggles 2×, pinch zooms.
   Confirm: `Escape` cancels and focus goes to the safe choice, then returns to
   the element that opened it.
 - **Scroll lock.** While a modal is open the page behind is pinned
@@ -499,29 +484,29 @@ Everything else is fluid by construction and must stay that way:
 
 ## 11. The gallery's page-level affordance
 
-The gallery lets you click an image inside GitHub's rendered markdown. That
-needs a cursor and a hover ring on **GitHub's own** `<img>` elements, which no
-selector in `app.css` may target (§1). The exception is therefore generated at
-runtime by `src/gallery/index.js` into a `<style id="gp-gallery-style">` in
-`<head>`, one block per enabled source:
+The gallery lets you click an image inside GitHub's rendered markdown, which
+needs a cursor on **GitHub's own** `<img>` elements — markup no selector in
+`app.css` may target (§1). The exception is therefore generated at runtime by
+`src/gallery/index.js` into a `<style id="gp-gallery-style">` in `<head>`, one
+block per enabled source:
 
 ```css
 <selector> { cursor: zoom-in; }
-<selector>:hover { outline: 2px solid var(--gp-accent, #1f6feb); outline-offset: 1px; }
 ```
 
 - `<selector>` comes from the source registry (`cursorSelector` in
   `src/gallery/sources.js`); the markdown source uses
   `.markdown-body img:not(.emoji), .markdown-body a:has(> img:not(.emoji))`.
+- **Nothing else is added to page images.** No border, outline, overlay or
+  badge: a markdown image keeps exactly the look GitHub gives it, and the only
+  hint that it opens in the gallery is the cursor.
 - The stylesheet is rewritten whenever gallery settings change and **removed
   entirely** when no source is enabled, so a disabled gallery leaves the page
   byte-identical to stock GitHub. There is no global page scan and no
   per-element class injection.
-- Consequences for anyone editing `app.css`: add a new gallery location by
+- Consequence for anyone editing `app.css`: add a new gallery location by
   registering a source with its own `cursorSelector`, never by writing a
-  page-markup rule into `app.css`; and keep the outline offset at `1px` and
-  the color as `var(--gp-accent)` so the affordance matches the panel's focus
-  language.
+  page-markup rule into `app.css`.
 - Our own UI is excluded from this behavior: the click handler ignores any
   target inside `isOwnUi()` and any image wrapped by GitHub's `a.anchor`, so
   the affordance never fights with heading anchors or our overlays.

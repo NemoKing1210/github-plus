@@ -7,6 +7,9 @@ import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
  * zoom, pan, rotate, a thumbnail strip and gallery navigation (ViewerJS-style,
  * GitHub-themed). One instance; opening while open replaces the gallery.
  *
+ * The image can be dragged at any zoom — including when it fits the stage —
+ * and the offset is clamped so it never leaves the stage entirely.
+ *
  * @typedef {Object} ViewerImage
  * @property {string} src        URL to display
  * @property {string} [link]     URL the “open” tool points at (defaults to `src`)
@@ -18,7 +21,8 @@ import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
 const ROOT_ID = 'gp-viewer-overlay';
 const ZOOM_STEP = 0.35;
 const DOUBLE_CLICK_ZOOM = 2;
-const SWIPE_DISTANCE = 60;
+/** Pointer travel that turns a press into a drag (and so not into a click). */
+const DRAG_THRESHOLD = 3;
 const ROTATION_STEP = 90;
 
 const defaults = {
@@ -176,23 +180,20 @@ function paint() {
   if (!state || !dialog || !image) return;
   const { zoom, rotation, offset, images, index } = state;
 
-  if (zoom > 1 || rotation % 360 !== 0) {
-    const stage = image.parentElement;
-    const swapped = rotation % 180 !== 0;
-    const width = (swapped ? image.clientHeight : image.clientWidth) * zoom;
-    const height = (swapped ? image.clientWidth : image.clientHeight) * zoom;
-    const maxX = Math.max(0, (width - stage.clientWidth) / 2);
-    const maxY = Math.max(0, (height - stage.clientHeight) / 2);
-    offset.x = Math.min(maxX, Math.max(-maxX, offset.x));
-    offset.y = Math.min(maxY, Math.max(-maxY, offset.y));
-  } else {
-    offset.x = 0;
-    offset.y = 0;
-  }
-  image.style.transform = zoom === 1 && rotation % 360 === 0
+  // The image can be dragged at any zoom; the offset is clamped so it slides
+  // inside the stage without ever leaving it.
+  const stage = image.parentElement;
+  const swapped = rotation % 180 !== 0;
+  const width = (swapped ? image.clientHeight : image.clientWidth) * zoom;
+  const height = (swapped ? image.clientWidth : image.clientHeight) * zoom;
+  const maxX = Math.abs(stage.clientWidth - width) / 2;
+  const maxY = Math.abs(stage.clientHeight - height) / 2;
+  offset.x = Math.min(maxX, Math.max(-maxX, offset.x));
+  offset.y = Math.min(maxY, Math.max(-maxY, offset.y));
+  const moved = offset.x !== 0 || offset.y !== 0;
+  image.style.transform = !moved && zoom === 1 && rotation % 360 === 0
     ? ''
     : `translate(${offset.x}px, ${offset.y}px) scale(${zoom}) rotate(${rotation}deg)`;
-  dialog.classList.toggle('is-zoomed', zoom > 1);
   dialog.classList.toggle('is-rotated', rotation % 360 !== 0);
 
   if (counter) counter.textContent = images.length > 1 ? t('viewer.counter', { current: index + 1, total: images.length }) : '';
@@ -435,10 +436,10 @@ function onPointerMove(event) {
     setZoom(state.pinch.zoom * (distance / state.pinch.distance));
     return;
   }
-  if (!state.drag || state.drag.id !== event.pointerId || state.zoom <= 1) return;
+  if (!state.drag || state.drag.id !== event.pointerId) return;
   const dx = event.clientX - state.drag.x;
   const dy = event.clientY - state.drag.y;
-  if (Math.abs(dx) > SWIPE_DISTANCE / 4 || Math.abs(dy) > SWIPE_DISTANCE / 4) state.press.moved = true;
+  if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) state.press.moved = true;
   state.offset = { x: state.drag.ox + dx, y: state.drag.oy + dy };
   const { dialog } = parts();
   dialog?.classList.add('is-dragging');
@@ -454,11 +455,6 @@ function onPointerUp(event) {
   state.drag = null;
   parts().stage?.releasePointerCapture?.(event.pointerId);
   parts().dialog?.classList.remove('is-dragging');
-  const dx = event.clientX - drag.x;
-  if (state.zoom <= 1 && Math.abs(dx) >= SWIPE_DISTANCE) {
-    state.press.moved = true;
-    step(dx < 0 ? 1 : -1);
-  }
 }
 
 function onOverlayClick(event) {
@@ -466,7 +462,7 @@ function onOverlayClick(event) {
   if (!(target instanceof Element)) return;
   const pressed = state?.press ?? null;
   if (state) state.press = null;
-  // A drag (pan or swipe) is not a click: never act on it.
+  // A drag (pan) is not a click: never act on it.
   if (pressed?.moved) return;
   const action = target.closest('[data-gp-viewer]')?.dataset.gpViewer;
   if (action === 'close') return close();

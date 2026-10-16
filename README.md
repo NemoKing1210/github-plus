@@ -62,23 +62,24 @@ Every rendered markdown container on GitHub is one gallery set:
 - **Click any image** — in a repository README, a blob view of a `.md` file, a
   wiki page, an issue, a pull request, a review comment (anywhere GitHub
   renders `.markdown-body`) — and it opens fullscreen in the built-in viewer.
-- **Browse the whole set** — `←`/`→` (or the arrows, or a swipe) walk the other
-  images of the same container, a thumbnail strip jumps anywhere, and the
+- **Browse the whole set** — `←`/`→` (or the arrows) walk the other images of
+  the same container, a centered thumbnail strip jumps anywhere, and the
   counter shows where you are.
 - **Zoom and pan** — wheel, `+`/`−`, double click and pinch zoom up to the
-  configured ceiling; drag to move; `0` resets; `r` rotates; the neighbouring
-  images are preloaded so browsing feels instant.
+  configured ceiling; drag to move the image at any zoom; `0` resets; `r`
+  rotates; the neighbouring images are preloaded so browsing feels instant.
 - **Full size on demand** — when an image links to a bigger file (a repository
   file behind a `/blob/` page, an uploaded attachment, any image URL), that
   file is probed and swapped in, so you get the original resolution without a
   broken image if it is unavailable.
 - **Quiet by default** — badges, status snippets, emoji and tiny icons never
-  take a gallery slot, and modified clicks (Ctrl/Cmd/Shift/Alt) plus middle
-  clicks are left to GitHub, so opening a file in a new tab still works exactly
-  as before.
-- **Theme aware** — the viewer chrome is deliberately dark (a light stage
-  washes out image colors); the settings panel adopts whichever GitHub theme
-  you run.
+  take a gallery slot; images keep GitHub's own look (only the cursor hints
+  that they open the gallery), and modified clicks (Ctrl/Cmd/Shift/Alt) plus
+  middle clicks are left to GitHub, so opening a file in a new tab still works
+  exactly as before.
+- **Theme aware** — the gallery and the settings panel render with GitHub's own
+  color variables, so both follow whichever theme you run (light, dark,
+  dimmed).
 
 ### Settings panel
 

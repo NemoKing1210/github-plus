@@ -202,10 +202,11 @@ the viewer never touches page nodes.
 - `applyGallerySettings()` installs the click listener (once) and repaints the
   injected stylesheet.
 - The stylesheet (`#gp-gallery-style`) is built from the registry: one
-  `cursorSelector { cursor: zoom-in }` rule plus a hover outline per enabled
-  source. No enabled source means no stylesheet at all, so a disabled gallery
-  leaves the page as stock GitHub. This is the *only* CSS that targets page
-  markup, and it exists only while the feature is on.
+  `cursorSelector { cursor: zoom-in }` rule per enabled source and nothing
+  else — page images keep GitHub's own look, so no border, outline or overlay
+  is ever added to them. No enabled source means no stylesheet at all, so a
+  disabled gallery leaves the page as stock GitHub. This is the *only* CSS that
+  targets page markup, and it exists only while the feature is on.
 - `onClick` is a capture-phase listener: it ignores modified clicks
   (Ctrl/Cmd/Shift/Alt), middle clicks and already-handled events, resolves the
   source + container, collects the set, and only then calls `preventDefault()`
@@ -221,8 +222,9 @@ GitHub-themed lightbox (one instance per page): `openViewer({ images, index,
 loop, thumbnails, minZoom, maxZoom, labels, resolveImage, onClose })` takes a
 gallery of `{ src, link?, title?, alt?, fullSrc? }`, `closeViewer()` /
 `isViewerOpen()` complete the API. It fits the image to the stage and supports
-zoom (wheel, `+`/`−`, double click, pinch), pan (drag, clamped to the scaled
-size), 90° rotation, a thumbnail strip, prev/next with optional wrap-around,
+zoom (wheel, `+`/`−`, double click, pinch), pan (drag at any zoom — the offset
+is clamped so the image slides inside the stage but never leaves it), 90°
+rotation, a thumbnail strip, prev/next with optional wrap-around,
 preloading of the neighbouring images and a danger-bordered status card when an
 image fails. The optional async `resolveImage(image, index)` hook lets the
 caller upgrade the shown image to a higher resolution after the fact. The
@@ -230,10 +232,10 @@ caller upgrade the shown image to a higher resolution after the fact. The
 `←`/`→`, `Home`/`End`, `+`, `−`, `0`, `r`. The stage captures the pointer while
 panning, so clicks inside it are resolved from the element that was pressed
 (recorded on `pointerdown`) — never from `event.target`, which the capture
-retargets to the stage — and a drag never counts as a click. It locks the page
-behind it with `utils/scrollLock.js`, restores focus on close and renders all
-labels through `viewer.*` locale keys, overridable per call via `labels`.
-Excluded from page interaction (`isOwnUi`).
+retargets to the stage — and any drag past `DRAG_THRESHOLD` never counts as a
+click. It locks the page behind it with `utils/scrollLock.js`, restores focus
+on close and renders all labels through `viewer.*` locale keys, overridable per
+call via `labels`. Excluded from page interaction (`isOwnUi`).
 
 ### `src/ui/toast.js` — notifications
 
@@ -329,8 +331,8 @@ fallbacks, so injected UI follows the visitor's theme (light, dark, dimmed).
 toasts, viewer), imported by `main.js` and applied as `GM_addStyle` by the
 build. Every injected class carries the `gp-` prefix — never add an unprefixed
 class to injected UI. Component styles consume tokens via `var(--gp-*)`; raw
-hexes belong in `tokens.css` only, with one deliberate exception documented
-there (the viewer's immersive dark chrome).
+hexes belong in `tokens.css` only (the viewer is themed like every other
+surface: `--gp-bg-1` stage, `--gp-bg-2` bars).
 
 ## Import direction
 

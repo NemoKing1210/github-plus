@@ -15,8 +15,10 @@ import './sources/markdown.js';
  *
  * How it stays out of the way of GitHub's re-renders:
  * - The click affordance is one injected stylesheet built from the source
- *   registry (no per-image listeners, no DOM mutation, so a React re-render
- *   cannot strip it and a scan loop is never needed).
+ *   registry and it only sets a cursor: page images keep GitHub's own look
+ *   (no border, outline or overlay), and no per-image listeners or DOM
+ *   mutations are needed, so a React re-render cannot strip anything and a
+ *   scan loop is never required.
  * - A single capture-phase click listener resolves the source, collects the
  *   set and opens the viewer; it walks the live DOM on every click, so
  *   content that arrived after load behaves exactly like content that was
@@ -26,7 +28,6 @@ import './sources/markdown.js';
  */
 
 const STYLE_ID = 'gp-gallery-style';
-const HOVER_OUTLINE = 'outline: 2px solid var(--gp-accent, #1f6feb); outline-offset: 1px;';
 
 let installed = false;
 
@@ -46,9 +47,10 @@ function activeSources(settings) {
 }
 
 /**
- * Keep the injected stylesheet in sync: one cursor/hover rule per enabled
- * source. No enabled source means no stylesheet at all, so a disabled
- * gallery leaves the page byte-identical to stock GitHub.
+ * Keep the injected stylesheet in sync: one cursor rule per enabled source.
+ * The images themselves are left untouched — no border, outline or overlay is
+ * added to page markup. No enabled source means no stylesheet at all, so a
+ * disabled gallery leaves the page byte-identical to stock GitHub.
  */
 function paintStyles() {
   const sources = activeSources(getGallerySettings());
@@ -61,7 +63,7 @@ function paintStyles() {
   for (let index = 0; index < sources.length; index += 1) {
     const selector = sources[index].cursorSelector;
     if (!selector) continue;
-    css += `${selector} { cursor: zoom-in; }\n${selector}:hover { ${HOVER_OUTLINE} }\n`;
+    css += `${selector} { cursor: zoom-in; }\n`;
   }
   const style = existing || el('style');
   style.id = STYLE_ID;

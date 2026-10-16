@@ -102,11 +102,12 @@ the gallery first and stopping propagation means a gallery image can never both
 open the viewer and trigger GitHub's link handling, while modified and middle
 clicks stay with the browser.
 
-Why the affordance is generated CSS: the cursor and hover outline are the only
-things that must be applied to page markup, so they live in one stylesheet
-built from the registry (`#gp-gallery-style`). A React re-render cannot strip a
-stylesheet, and images rendered long after load are decorated for free. When no
-source is enabled the stylesheet is removed entirely, leaving the page stock.
+Why the affordance is generated CSS: the zoom-in cursor is the only thing that
+must be applied to page markup — images keep GitHub's own look, with no border
+or overlay added — so it lives in one stylesheet built from the registry
+(`#gp-gallery-style`). A React re-render cannot strip a stylesheet, and images
+rendered long after load are decorated for free. When no source is enabled the
+stylesheet is removed entirely, leaving the page stock.
 
 ## Settings lifecycle
 
