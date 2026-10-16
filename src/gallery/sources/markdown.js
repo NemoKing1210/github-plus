@@ -89,6 +89,9 @@ function collect(container) {
       alt: (node.getAttribute('alt') || '').trim(),
       title: (node.getAttribute('title') || '').trim(),
       href: anchor ? toAbsolute(anchor.getAttribute('href')) : '',
+      // Camo-proxied images carry their real address here; the collector needs
+      // it to tell a badge from content.
+      canonical: (node.getAttribute('data-canonical-src') || '').trim(),
     });
   });
   return items;

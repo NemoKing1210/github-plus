@@ -1,19 +1,69 @@
-import { BADGE_HOSTS, GALLERY_MAX_IMAGES, GALLERY_MIN_SIZE_PX } from '../core/constants.js';
+import {
+  BADGE_HOSTS,
+  GALLERY_BADGE_MAX_HEIGHT_PX,
+  GALLERY_MAX_IMAGES,
+  GALLERY_MIN_SIZE_PX,
+} from '../core/constants.js';
 
-/** True when the URL belongs to a badge/status service. */
-export function isBadgeUrl(url) {
-  if (!url) return false;
-  let host = '';
+/** Paths that only ever serve a status badge, whatever the host. */
+const BADGE_PATHS = [
+  // Workflow status badge: /<owner>/<repo>[/actions]/workflows/<file>/badge.svg
+  /\/workflows\/[^/]+\/badge(\.[a-z0-9]+)?$/i,
+  // The README convention: a repository file called `badge.svg`, `badge.png`, …
+  /\/badge(\.[a-z0-9]+)?$/i,
+];
+
+const CAMO_HOST = /(^|\.)camo\.githubusercontent\.com$/;
+const HEX_PAYLOAD = /^[0-9a-f]+$/;
+
+/**
+ * The real address a proxy carries in its path. GitHub's camo proxy serves
+ * every external image from `camo.githubusercontent.com/<hash>/<hex url>`, so a
+ * shields.io badge hides behind a camo host and must be judged by its decoded
+ * target, never by the proxy.
+ */
+function decodeProxyUrl(url) {
+  if (!url) return '';
+  let parsed;
   try {
-    host = new URL(url, location.href).hostname.toLowerCase();
+    parsed = new URL(url, location.href);
+  } catch {
+    return '';
+  }
+  if (!CAMO_HOST.test(parsed.hostname.toLowerCase())) return '';
+  const segments = parsed.pathname.split('/').filter(Boolean);
+  const payload = segments[segments.length - 1] || '';
+  if (payload.length < 8 || payload.length % 2 !== 0 || !HEX_PAYLOAD.test(payload)) return '';
+  let decoded = '';
+  for (let index = 0; index < payload.length; index += 2) {
+    decoded += String.fromCharCode(parseInt(payload.slice(index, index + 2), 16));
+  }
+  return decoded.startsWith('http') ? decoded : '';
+}
+
+/**
+ * True when the URL belongs to a badge or status service: a known badge host,
+ * a badge-only path, or a proxied address that decodes to one of those.
+ */
+export function isBadgeUrl(url, depth = 0) {
+  if (!url) return false;
+  let parsed;
+  try {
+    parsed = new URL(url, location.href);
   } catch {
     return false;
   }
+  const host = parsed.hostname.toLowerCase();
   for (let index = 0; index < BADGE_HOSTS.length; index += 1) {
     const badge = BADGE_HOSTS[index];
     if (host === badge || host.endsWith(`.${badge}`)) return true;
   }
-  return false;
+  for (let index = 0; index < BADGE_PATHS.length; index += 1) {
+    if (BADGE_PATHS[index].test(parsed.pathname)) return true;
+  }
+  // One level of proxying is all GitHub does; stop there.
+  if (depth > 0) return false;
+  return isBadgeUrl(decodeProxyUrl(url), depth + 1);
 }
 
 /**
@@ -27,9 +77,10 @@ function isDecorative(item, settings) {
   if (node.getAttribute('role') === 'presentation') return true;
   if (node.getAttribute('data-gp-gallery') === 'ignore') return true;
   if (!settings.skipBadges) return false;
-  if (isBadgeUrl(item.src)) return true;
+  if (isBadgeUrl(item.src) || isBadgeUrl(item.canonical)) return true;
   const width = node.naturalWidth || Number(node.getAttribute('width')) || 0;
   const height = node.naturalHeight || Number(node.getAttribute('height')) || 0;
+  if (height > 0 && height <= GALLERY_BADGE_MAX_HEIGHT_PX) return true;
   return width > 0 && height > 0 && width < GALLERY_MIN_SIZE_PX && height < GALLERY_MIN_SIZE_PX;
 }
 

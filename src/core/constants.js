@@ -10,6 +10,13 @@ export const GALLERY_MAX_IMAGES = 500;
 /** An image smaller than this on both axes is chrome (icon, badge), not content. */
 export const GALLERY_MIN_SIZE_PX = 80;
 
+/**
+ * An image at most this tall is a status badge or stripe, however wide it is
+ * (badge services render 20–40 px tall strips). Only applied when the rendered
+ * height is known, so a lazily loaded image is never guessed at.
+ */
+export const GALLERY_BADGE_MAX_HEIGHT_PX = 40;
+
 /** Zoom ceilings offered by the settings panel (largest wins as the cap). */
 export const ZOOM_OPTIONS = [2, 4, 6, 8, 12, 16];
 

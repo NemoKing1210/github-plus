@@ -13,6 +13,7 @@
  * @property {string} [alt]           alt text
  * @property {string} [title]         tooltip text
  * @property {string} [href]          URL of the link wrapping the image, if any
+ * @property {string} [canonical]     original URL when `src` is a proxy address
  *
  * @typedef {Object} GallerySource
  * @property {string} id              stable id, also the settings switch key

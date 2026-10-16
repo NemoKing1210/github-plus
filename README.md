@@ -97,7 +97,7 @@ Stored under `gp_settings_v1`.
 | `language` | `'auto'` | Settings-panel UI language (`'auto'` follows the browser) |
 | `gallery.enabled` | `true` | Master switch for the markdown image gallery |
 | `gallery.sources.markdown` | `true` | Per-source switch (one entry per registered source) |
-| `gallery.skipBadges` | `true` | Skip badge services, emoji and images smaller than 80 px on both axes |
+| `gallery.skipBadges` | `true` | Skip badge services (including badges behind GitHub's camo proxy and Actions status badges), emoji, images ≤ 40 px tall and images smaller than 80 px on both axes |
 | `gallery.upgradeFullSize` | `true` | Probe and load the linked full-size original |
 | `gallery.thumbnails` | `true` | Thumbnail strip in the viewer |
 | `gallery.loop` | `true` | Wrap around from the last image to the first |

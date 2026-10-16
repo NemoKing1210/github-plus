@@ -191,11 +191,26 @@ source, settings)` → `[{ image, node }]`, `matchIndex(entries, node)`.
 
 `collectGallery` is where every gallery rule lives: `data:` URLs are dropped,
 GitHub emoji markup (`img.emoji`), `role="presentation"` images and
-`data-gp-gallery="ignore"` nodes are always skipped; with `skipBadges` on,
-badge hosts and images smaller than `GALLERY_MIN_SIZE_PX` on both axes are
-skipped too; sets are de-duplicated by URL and capped at `GALLERY_MAX_IMAGES`.
-Each entry's `image` is `{ src, link, alt, title, fullSrc? }` — plain data, so
-the viewer never touches page nodes.
+`data-gp-gallery="ignore"` nodes are always skipped; sets are de-duplicated by
+URL and capped at `GALLERY_MAX_IMAGES`. Each entry's `image` is
+`{ src, link, alt, title, fullSrc? }` — plain data, so the viewer never touches
+page nodes.
+
+With `skipBadges` on (the default), decoration is filtered out:
+
+- `isBadgeUrl(url)` matches a `BADGE_HOSTS` host, a badge-only path
+  (`/workflows/<file>/badge.svg` for Actions status badges, any `badge.<ext>`),
+  or a proxied address that decodes to one of those — GitHub serves every
+  external image through `camo.githubusercontent.com/<hash>/<hex url>`, so a
+  shields.io badge hides behind a camo host and is judged by its decoded
+  target. The item's `canonical` (from `data-canonical-src`) is checked too.
+- An image whose rendered height is at most `GALLERY_BADGE_MAX_HEIGHT_PX` (40)
+  is a badge/stripe whatever its width; the check only runs when the height is
+  known, so a lazily loaded image is never guessed at.
+- An image smaller than `GALLERY_MIN_SIZE_PX` on **both** axes is chrome.
+
+Turning the setting off collects all of them again — the filter, not the
+markup, is what keeps badges out.
 
 ### `src/gallery/index.js` — gallery wiring
 
