@@ -4,3 +4,4 @@ tmp/
 *.local
 .DS_Store
 Thumbs.db
+docs/specs/
