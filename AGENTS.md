@@ -48,8 +48,9 @@ github-plus/
 │   │       └── markdown.js # Markdown images source (side-effect registration)
 │   ├── features/
 │   │   └── settings/
-│   │       ├── index.js    # Settings entry: header button, menu command, pages
-│   │       ├── panel.js    # Panel shell: home nav + pages, draft, Save/Reset/Cancel
+│   │       ├── index.js    # Settings entry: header button, user-menu row, pages
+│   │       ├── userMenu.js # Settings row inside GitHub's user (avatar) menu
+│   │       ├── panel.js    # Panel shell: sidebar + pages, draft, Save/Reset/Cancel
 │   │       ├── controls.js # Section / row / field / switch / select / input / button
 │   │       ├── confirm.js  # Promise-based confirm dialog
 │   │       └── tabs/
@@ -89,8 +90,11 @@ github-plus/
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
 listener, so content that GitHub renders after load behaves like
-server-rendered content with no rescanning. Only the header entry re-mounts
-itself (see `features/settings/index.js`).
+server-rendered content with no rescanning. Only the settings entries re-mount
+themselves (see `features/settings/index.js` and `userMenu.js`): the header
+button when GitHub swaps the header, the user-menu row on every open of the
+avatar menu — the latter through one observer on Primer's overlay portal root
+(`#__primerPortalRoot__`), a container that holds overlays and nothing else.
 
 `resetOverlaysOnNavigation()` closes the viewer and the panel when the URL
 changes. GitHub replaces `<body>` on soft navigation while the module state
@@ -273,17 +277,44 @@ report through it.
   shell, `watchNavigation(ensureSettingsButton)` covers client-side navigation,
   `updateSettingsButtonState()` lights the `gp-header-btn--custom` dot when
   settings differ from defaults, and `GM_registerMenuCommand` opens the panel
-  from the manager's menu.
+  from the manager's menu. Both `refreshLabels()` and
+  `updateSettingsButtonState()` also repaint the user-menu row, so the two
+  entries never drift apart.
+- `userMenu.js`: the second entry point, as a row in GitHub's user (avatar)
+  menu next to GitHub's own "Settings" row. That menu is a Primer portal:
+  React mounts it into `#__primerPortalRoot__` when it opens and unmounts it
+  when it closes, whatever opened it and however long its lazy chunk took to
+  arrive. `observePortalRoot()` therefore watches that one container
+  (`{ childList: true, subtree: true }`, always in `main.js`'s "no document-wide
+  observer" spirit: the container holds overlays only, and the callback returns
+  immediately once the row is mounted), while `installUserMenuEntry()` keeps
+  header clicks (capture, filtered to `.AppHeader, #user-links`) as a fallback
+  that starts a bounded wait (20 × 100 ms) for a menu rendered elsewhere. Both
+  paths call `ensureUserMenuItem()`, which is idempotent — a React re-render
+  that drops the row puts it back. The row is matched through the overlay's
+  `aria-labelledby="global-nav-user-menu-header"` hook, or — if GitHub renames
+  it — through GitHub's own `a[href$="/settings/profile"]` item, and placed
+  after that item, else before the last group divider. Clicking the row
+  dispatches the `Escape` keydown the menu already closes on *before* opening
+  the panel, so the panel's own `Escape` listener still sees a closed panel and
+  ignores it. The row carries its own `gp-` classes (GitHub's hashed
+  `ActionList` ones are never copied) and the same "settings differ from
+  defaults" dot as the header entry.
 - `panel.js`: page registry (`registerPage`), one modal overlay
-  (`#gp-settings-panel`, built lazily, `hidden` attribute), header with product
-  name + `v` version chip (from `GM_info.script.version`) + subtitle + ×
-  close, sticky footer with the save hint + Reset / Cancel / Save. The body
-  shows the home list (page buttons with icon, title, description) or one page
-  with a `‹ Back` crumb (`switchPanelPage` / `showHome`). Pages render into the
-  draft on open, and `getDraft()` is what they mutate; nothing is persisted
-  until Save (`saveSettings` + `configureLocale` + every `settings:*` bus
-  event). Cancel, the overlay click and `Escape` (home first) discard the
-  draft. `applyExternalSettings(next)` is the path for settings that arrive
+  (`#gp-settings-panel`), rebuilt on every open (so labels follow the current
+  language) and removed `CLOSE_MS` after close, once its exit animation has
+  played. Text-only header with product name + `v` version chip (from
+  `GM_info.script.version`) + subtitle + close; a sidebar `nav` listing the
+  registered pages (a horizontal tab strip on narrow screens, no hover fill —
+  the open page is marked by its pill, bold label and accent glyph); the body shows
+  the open page under its title/description (`switchPanelPage`); sticky footer
+  with the note + Reset / Cancel / Save. One page is always open — the first
+  registered, then the last used. The footer note switches to `panel.unsaved`
+  while the draft differs from the stored settings (`updateDirty()`, driven by
+  `input`/`change` bubbling from the body). Pages render into the draft on
+  open, and `getDraft()` is what they mutate; nothing is persisted until Save
+  (`saveSettings` + `configureLocale` + every `settings:*` bus event). Cancel,
+  the overlay click and `Escape` discard the draft. `applyExternalSettings(next)` is the path for settings that arrive
   from outside the panel (backup import): it persists, notifies and repaints.
   Scroll locking is the shared counted `utils/scrollLock.js`; `installEscapeClose()`
   ignores `Escape` while the viewer is open (the viewer sits above the panel).
@@ -321,7 +352,7 @@ report through it.
 
 - `dom.js`: `el(tag, className, text)`, `append`, `debounce`, `eachNode`,
   `toArray`, `isOwnUi(node)` (true inside `.gp-panel-overlay`,
-  `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`,
+  `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`, `.gp-user-menu-item`,
   `.gp-viewer-overlay`). `eachNode`/`toArray` exist because DOM collections
   (`NodeList`, `HTMLCollection`, `addedNodes`, `classList`) are **not iterable
   in every engine** a userscript runs in — `for...of` over them throws
@@ -395,6 +426,21 @@ success toast → panel closes and `unlockPageScroll()`.
   most to least specific and always insert *next to* GitHub's own actions
   (never replace, move or restyle them), so a header rework degrades to "no
   button" instead of a broken header.
+- Every GitHub overlay is a Primer portal. `AnchoredOverlay`, `ActionMenu` and
+  their tooltips are mounted into
+  `#__primerPortalRoot__ > div[data-component="Portal"]` when they open and
+  unmounted when they close — nothing about them lives in the header. That
+  container is the reliable hook for the user (avatar) menu:
+  `features/settings/userMenu.js` observes it rather than guessing at mount
+  timing, and falls back to a bounded wait after header clicks for a menu
+  rendered outside it. The menu itself is only read through stable hooks
+  (`aria-labelledby="global-nav-user-menu-header"`, `a[href$="/settings/profile"]`,
+  `[data-component="ActionList"]`, `[data-component="ActionList.Divider"]`);
+  GitHub's hashed `prc-*` class names are never copied. Closing it uses the
+  `Escape` keydown GitHub's own overlay handles, which is why our row opens the
+  panel only after that dispatch. Verify the portal root exists before assuming
+  a mount will be seen: on a layout without it the click fallback is the only
+  trigger.
 - Do not rely on `naturalWidth` alone to classify an image: lazily loaded
   images report `0` until they load, which is why the size check only rejects
   images whose size is known and small.
@@ -532,6 +578,15 @@ and check diagnostics for edited files.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
   that `.gp-settings-btn` is inside it. A header rework on GitHub's side is the
   usual cause — extend the list, never restyle GitHub's own header.
+- Row missing from the avatar menu: check `#__primerPortalRoot__` while the
+  menu is open — the row is injected from that container, so an empty portal
+  root means the overlay is no longer portaled there and only the header-click
+  fallback remains (then check `HEADER_HINT_SELECTOR` matches the header that
+  owns the avatar). The row is found through
+  `a[href$="/settings/profile"]` or `aria-labelledby="global-nav-user-menu-header"`;
+  a menu with neither is not recognised. If the row is there but clicking it
+  leaves the menu open behind the panel, GitHub's overlay stopped closing on
+  the dispatched `Escape`.
 - Locale sanity: diff the key lists of all ten locale files; `t()` falls back
   to `en`, which masks a missing key in one locale — verify, don't eyeball.
 

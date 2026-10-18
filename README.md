@@ -3,13 +3,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel and an image
 gallery for rendered markdown — read every picture of a README, wiki page,
 issue or comment in one fullscreen viewer instead of opening files one by one.
 
-> **Status:** early (`0.1.0`). Settings panel (General · Gallery · Backup ·
+> **Status:** early (`0.3.2`). Settings panel (General · Gallery · Backup ·
 > About) and the markdown image gallery. More GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
@@ -83,10 +83,11 @@ Every rendered markdown container on GitHub is one gallery set:
 
 ### Settings panel
 
-Open it from the image button in the GitHub header (or the userscript
-manager's menu command). Changes are draft-based: nothing is stored until you
-press **Save**; **Cancel**, the overlay click and `Escape` discard the draft;
-**Reset to defaults** asks for confirmation first.
+Open it from the gear button in the GitHub header, from the **GitHub Plus
+settings** row in your avatar menu (right under GitHub's own **Settings**), or
+from the userscript manager's menu command. Changes are draft-based: nothing is
+stored until you press **Save**; **Cancel**, the overlay click and `Escape`
+discard the draft; **Reset to defaults** asks for confirmation first.
 
 ## Settings
 

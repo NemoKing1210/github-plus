@@ -50,6 +50,6 @@ export function toArray(collection) {
 export function isOwnUi(node) {
   return (
     node instanceof Element
-    && !!node.closest('.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn, .gp-viewer-overlay')
+    && !!node.closest('.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn, .gp-user-menu-item, .gp-viewer-overlay')
   );
 }

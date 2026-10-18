@@ -22,8 +22,9 @@ src/
 │   ├── index.js             # delegated click, cursor stylesheet, bus listener
 │   └── sources/markdown.js  # the markdown source (side-effect registration)
 ├── features/settings/
-│   ├── index.js             # settings entry: header button, menu command, pages
-│   ├── panel.js             # panel shell: home + pages, draft, Save/Reset/Cancel
+│   ├── index.js             # settings entry: header button, user-menu row, pages
+│   ├── userMenu.js          # settings row inside GitHub's user (avatar) menu
+│   ├── panel.js             # panel shell: sidebar + pages, draft, Save/Reset/Cancel
 │   ├── controls.js          # section / row / field / switch / select / input / button
 │   ├── confirm.js           # promise-based confirm dialog
 │   └── tabs/                # general.js, gallery.js, backup.js, about.js
@@ -73,8 +74,11 @@ features or the bus; `ui/*` stay reusable primitives that only depend on
 
 There is **no scan loop and no document-wide MutationObserver**. Everything
 that has to survive GitHub's re-renders is either (a) CSS, (b) a delegated
-listener that walks the live DOM at event time, or (c) a re-mount triggered by
-an explicit navigation event.
+listener that walks the live DOM at event time, (c) a re-mount triggered by an
+explicit navigation event, or (d) one observer on a container GitHub itself
+owns — `features/settings/userMenu.js` watches Primer's overlay portal root
+(`#__primerPortalRoot__`), which holds nothing but overlays and stays empty
+otherwise.
 
 ```mermaid
 sequenceDiagram
@@ -119,7 +123,7 @@ sequenceDiagram
   participant B as core/bus.js
   participant F as features (gallery, entry)
 
-  U->>P: header button / menu command
+  U->>P: header button / avatar-menu row / menu command
   P->>S: getSettings()
   S-->>P: persisted state → deep-cloned draft
   U->>P: edit pages (draft only)
@@ -142,7 +146,8 @@ replaces `<body>` while module state lives on. `main.js` subscribes to
 `watchNavigation()` and closes the viewer and the panel on every URL change;
 otherwise a "closed" viewer would keep reporting itself open (and swallow
 `Escape` for the panel) and a pinned page would stay pinned. The settings entry
-subscribes to the same watcher to re-mount its header button.
+subscribes to the same watcher to re-mount its header button; the avatar-menu
+row needs no reset, because GitHub unmounts that menu on navigation itself.
 
 ## Extension points
 

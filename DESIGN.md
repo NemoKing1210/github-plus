@@ -2,7 +2,7 @@
 
 This file is the single source of truth for how GitHub Plus looks and behaves.
 Follow it for every change that adds, moves or restyles an injected element:
-the settings entry button, the settings panel and its controls, the confirm
+the settings entry button, the settings panel (sidebar, pages) and its controls, the confirm
 dialog, toasts, and the image viewer. Every rule below is derived from the
 shipped `src/styles/tokens.css`, `src/styles/app.css` and the components that
 build the markup, so the document and the stylesheet move together.
@@ -28,10 +28,11 @@ So injected UI does not own a palette:
   second palette anywhere in the script.
 
 Scope: every element GitHub Plus itself creates — the entry button and its
-list host, the panel (overlay, shell, home list, pages, cards, rows, controls),
-the confirm dialog, toasts, the image viewer, and the gallery's page-level
-cursor/hover affordance (§11). Anything GitHub already renders is out of scope
-except through that one affordance: no other rule may target page markup.
+list host, the row inside GitHub's user menu, the panel (overlay, shell, home
+list, pages, cards, rows, controls), the confirm dialog, toasts, the image
+viewer, and the gallery's page-level cursor/hover affordance (§11). Anything
+GitHub already renders is out of scope except through that one affordance: no
+other rule may target page markup.
 
 Two invariants hold for every selector:
 
@@ -41,7 +42,8 @@ Two invariants hold for every selector:
 - Every UI-root class that must be excluded from page scanning is listed in
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
-  .gp-viewer-overlay`). Rename a root class and that list must change with it.
+  .gp-user-menu-item, .gp-viewer-overlay`). Rename a root class and that list
+  must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
 
@@ -54,7 +56,7 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-radius` | — | `6px` | Default corner radius (controls, cards, rows, toasts, viewer tools) |
 | `--gp-radius-lg` | — | `12px` | Large surfaces: panel, confirm dialog |
 | `--gp-accent` | `--fgColor-accent` | `#0969da` | Links, primary button fill, checked switch, active/dot accents, icon tints |
-| `--gp-accent-soft` | `--bgColor-accent-muted` | `#ddf4ff` | Tinted icon wells (nav item icon, about logo) |
+| `--gp-accent-soft` | `--bgColor-accent-muted` | `#ddf4ff` | Tinted icon wells (about logo), checked source tiles |
 | `--gp-bg-1` | `--bgColor-default` | `#ffffff` | Default surface: panel, cards, inputs, toasts |
 | `--gp-bg-2` | `--bgColor-muted` | `#f6f8fa` | Subtle surface: header/footer bars, entry button, secondary button, grid cell, about hero |
 | `--gp-text` | `--fgColor-default` | `#1f2328` | Body text, labels and titles (Primer exposes one emphasis level) |
@@ -64,7 +66,7 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-attention` | `--fgColor-attention` | `#9a6700` | Warning icon/progress tones |
 | `--gp-border` | `--borderColor-default` | `#d1d9e0` | Control and surface outlines |
 | `--gp-line` | `--borderColor-muted` | `#d1d9e0b3` | Internal dividers (card head, rows, fields, pills, progress track) |
-| `--gp-highlight` | `--bgColor-neutral-muted` | `rgba(129, 139, 152, 0.12)` | Hover/selected wash on neutral surfaces (entry button, nav item, buttons, toast actions, panel close). Translucent, so it reads as a change over both surfaces |
+| `--gp-highlight` | `--bgColor-neutral-muted` | `rgba(129, 139, 152, 0.12)` | Hover/selected wash on neutral surfaces (entry button, buttons, toast actions, panel close). Translucent, so it reads as a change over both surfaces |
 | `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: panel, confirm dialog, toast |
 | `--gp-scrim` | `--overlay-backdrop-bgColor` | `rgba(31, 35, 40, 0.5)` | Overlay backdrop behind panel and confirm dialog |
 | `--gp-focus` | `--focus-outlineColor` | `#0969da` | Focus ring color |
@@ -95,15 +97,15 @@ Rules:
 
 | Property | Value | Applied to |
 |---|---|---|
-| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-nav-item`, `.gp-confirm`, `.gp-toast`, `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__stage`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb` |
-| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__footer`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__hint`, `.gp-viewer__thumbs` |
-| Surface, tinted | `var(--gp-accent-soft)` | `.gp-nav-item__icon`, `.gp-about__logo` |
-| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-nav-item`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__hint`, `.gp-viewer__thumbs`, `.gp-viewer__status` |
+| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__stage`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb` |
+| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__hint`, `.gp-viewer__thumbs` |
+| Surface, tinted | `var(--gp-accent-soft)` | `.gp-about__logo`, checked `.gp-grid__cell` |
+| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__hint`, `.gp-viewer__thumbs`, `.gp-viewer__status` |
 | Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`), `.gp-grid__cell`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb` |
-| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, toast action), cards, nav items, toasts, grid cells, viewer tools, header button, panel close, viewer status, viewer thumb |
+| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, toast action), cards, sidebar items, toasts, grid cells, viewer tools, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`) |
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
 | Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge` |
-| Radius, circle | `50%` | `.gp-header-btn--custom::after` dot, `.gp-viewer__nav`, viewer spinner |
+| Radius, circle | `50%` | `.gp-header-btn--custom::after` and `.gp-user-menu-item__dot` dots, `.gp-viewer__nav`, viewer spinner |
 | Shadow, elevation | `var(--gp-shadow)` | `.gp-panel`, `.gp-confirm`, `.gp-toast`, `.gp-viewer__status` |
 | Shadow, ring | `0 0 0 1px var(--gp-accent)` | `.gp-viewer__thumb.is-active` |
 
@@ -131,9 +133,9 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Panel title `.gp-panel__title` | `16px` / `600` / `var(--gp-text)` |
 | Version chip `.gp-panel__version`, `.gp-badge` | `500 11px/1.6` mono / `var(--gp-text-muted)` |
 | Panel subtitle `.gp-panel__subtitle` | `12px` / `var(--gp-text-muted)` |
-| Nav item title `.gp-nav-item__title` | `14px` / `600` / `var(--gp-text)` |
-| Nav item description `.gp-nav-item__desc` | `12px` / `var(--gp-text-muted)` |
-| Back link `.gp-page__back` | `500 12px/1.4` / `var(--gp-text-muted)` |
+| Sidebar item `.gp-nav-item` | `14px/1.4` / `var(--gp-text)`; `600` while active |
+| Page title `.gp-page__title` | `20px/1.3` / `600` / `var(--gp-text)` |
+| Page description `.gp-page__desc` | `13px` / `var(--gp-text-muted)` |
 | Card title `.gp-card__title` | `13px` / `600` / `var(--gp-text)` |
 | Card hint `.gp-card__hint`, `.gp-hint` | `12px` (`1.5` for `.gp-hint`) / `var(--gp-text-muted)` |
 | Row label `.gp-row__label` | `13px` / `var(--gp-text)` |
@@ -153,6 +155,7 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Viewer tool glyph | `600 14px/1` |
 | Viewer hint `.gp-viewer__hint`, status `.gp-viewer__status` | `12px` muted / `13px` |
 | Viewer nav glyph | `22px` |
+| Menu row label `.gp-user-menu-item__label` | `14px/1.4` / `var(--gp-text)` (GitHub's `ActionList` size) |
 
 - Weights are only `500` (controls, chrome) and `600` (labels, titles);
   nothing is `700` or heavier.
@@ -170,7 +173,7 @@ exists in `app.css` without a rule is listed as "structural".
 |---|---|
 | `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-2)` |
 | `.gp-settings-btn` | Second class on the same element (built by `src/features/settings/index.js`); the root scanned in `isOwnUi()` |
-| `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the glyph is styled by `.gp-header-btn svg`, `16×16`) |
+| `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the Octicons `gear` glyph, filled with `currentColor`, styled by `.gp-header-btn svg`, `16×16`) |
 | `.gp-settings-item` | `<li>` host when the header target is a `<ul>`; structural, no rules |
 | `.gp-header-btn--custom` | Modifier added while any setting differs from defaults; draws a `6×6` `var(--gp-accent)` dot at top-right 4px |
 
@@ -178,48 +181,71 @@ The button is mounted into `.AppHeader-globalBar-end`, then
 `.AppHeader-globalBar`, then `#user-links`, and is re-mounted when GitHub
 swaps the header. It carries `title` and `aria-label` from `settings.open`.
 
+### Settings entry — user menu row
+
+| Class | Rules |
+|---|---|
+| `.gp-user-menu-item` | The `<li>` injected into GitHub's user (avatar) menu; `display: block`, and the root scanned in `isOwnUi()` |
+| `.gp-user-menu-item__btn` | The row itself: flex, centered, `gap: 8px`, full width, `min-height: 32px`, `padding: 6px 8px`, no border, no fill, `var(--gp-radius)` |
+| `.gp-user-menu-item__icon` | `16×16` leading glyph in `var(--gp-text-muted)`; **structural** wrapper (the Octicons `gear` glyph, filled with `currentColor`, sized by `.gp-user-menu-item__icon svg`) |
+| `.gp-user-menu-item__label` | Flexible label; `14px/1.4` in `var(--gp-text)` |
+| `.gp-user-menu-item__dot` | Trailing `6×6` `var(--gp-accent)` dot, hidden until the modifier below is set |
+| `.gp-user-menu-item--custom` | Modifier added while any setting differs from defaults (the user-menu twin of `.gp-header-btn--custom`) |
+
+The row is built by `src/features/settings/userMenu.js` and inserted after
+GitHub's own "Settings" row — before the last group divider when that row is
+missing. It reproduces GitHub's `ActionList` metrics with our own classes
+rather than copying GitHub's hashed ones, so a GitHub restyle leaves a
+slightly different row instead of a broken menu. Clicking it closes the menu
+with the `Escape` keydown GitHub's own overlay handles, then opens the panel.
+
 ### Panel shell
 
 | Class | Rules |
 |---|---|
-| `.gp-panel-overlay` | `position: fixed; inset: 0; z-index: 1000000`; flex centering; `padding: 24px 16px`; `background: var(--gp-scrim)`; sets `var(--gp-font)`/`var(--gp-text)`. `[hidden]` forces `display: none` |
-| `.gp-panel` | Vertical flex column; `width: min(620px, 100%)`; `max-height: min(88vh, 780px)`; `overflow: hidden`; `var(--gp-bg-1)`; `1px var(--gp-border)`; `var(--gp-radius-lg)`; `var(--gp-shadow)`; base `14px/1.5` |
-| `.gp-panel__header` | Space-between flex, `gap: 12px`, `padding: 16px 18px 14px`, bottom `1px var(--gp-border)`, `var(--gp-bg-2)` |
-| `.gp-panel__brand` | Title + subtitle column; **structural** |
+| `.gp-panel-overlay` | `position: fixed; inset: 0; z-index: 1000000`; flex centering; `padding: 24px 16px`; `background: var(--gp-scrim)`; `backdrop-filter: blur(8px) saturate(120%)` (`-webkit-` prefixed too) so the page behind the scrim is frosted and the panel reads as a layer above it, while a manager without `backdrop-filter` support keeps the plain scrim; sets `var(--gp-font)`/`var(--gp-text)`; fades in with `gp-overlay-in`. `.is-closing` plays `gp-overlay-out` and ignores the pointer until the script removes the element; `.is-dirty` is set while the draft differs from the stored settings |
+| `.gp-panel` | Vertical flex column; `width: min(860px, 100%)`; `height: min(86vh, 680px)` (fixed, so switching pages never resizes it); `overflow: hidden`; entrance `gp-panel-in`, exit `gp-panel-out`; `var(--gp-bg-1)`; `1px var(--gp-border)`; `var(--gp-radius-lg)`; `var(--gp-shadow)`; base `14px/1.5` |
+| `.gp-panel__header` | Flex, `align-items: center`, `gap: 12px`, `padding: 14px 16px`, bottom `1px var(--gp-border)`, `var(--gp-bg-2)` |
+| `.gp-panel__brand` | Title + subtitle column, `flex: 1 1 auto`; **structural** |
 | `.gp-panel__title-row` | Wrapping flex row holding title and version chip |
 | `.gp-panel__title` | `16px/600`, `var(--gp-text)` |
 | `.gp-panel__version`, `.gp-badge` | Pill chip: `1px var(--gp-line)`, `999px` radius, mono `500 11px` |
 | `.gp-panel__subtitle` | `12px` muted, `margin: 4px 0 0` |
-| `.gp-panel__close` | `28×28` ghost square (`border: 1px solid transparent`), `var(--gp-radius)`, `18px` `×` |
-| `.gp-panel__body` | Scroll pane: `flex: 1 1 auto`, `min-height: 0`, `overflow-y: auto`, `overscroll-behavior: contain`, `padding: 16px 18px 20px` |
-| `.gp-panel__footer` | Sticky action bar: `12px 18px`, top `1px var(--gp-border)`, `var(--gp-bg-2)` |
-| `.gp-panel__footer-note` | `margin: 0 auto 0 0` (pushes actions right), `12px` muted |
+| `.gp-panel__close` | `32×32` ghost square (`border: 1px solid transparent`), `var(--gp-radius)`, Octicons `x` glyph `16×16` |
+| `.gp-panel__main` | Row holding the sidebar and the body: `flex: 1 1 auto`, `min-height: 0` |
+| `.gp-panel__body` | Scroll pane: `flex: 1 1 auto`, `min-width: 0`, `overflow-y: auto`, `overscroll-behavior: contain`, `padding: 20px 24px 24px` |
+| `.gp-panel__footer` | Sticky action bar: `12px 16px`, top `1px var(--gp-border)`, `var(--gp-bg-2)` |
+| `.gp-panel__footer-note` | Flex, `margin: 0 auto 0 0` (pushes actions right), `12px` muted; turns `var(--gp-text)` while the draft is dirty and reads `panel.unsaved` instead of the save hint (`aria-live="polite"`) |
+| `.gp-panel__dirty-dot` | `8×8` `var(--gp-accent)` dot before the note; zero width and scaled out until `.is-dirty` |
 
 `.gp-panel [hidden] { display: none }` makes the `hidden` attribute usable on
-any panel descendant (the overlay's own rule covers the root). The panel is
+any panel descendant (the overlay's own rule covers the root). The overlay is
+built on every open (so labels follow the interface language) and removed
+140ms after close, once its exit animation has played. The panel is
 `role="dialog"`, `aria-modal="true"`, `aria-label` = script name, focused on
-open, and closes on `Escape`, the `×`, or an overlay click. Footer order:
+open, and closes on `Escape`, the close button, or an overlay click; focus
+returns to the element that opened it when that element is still in the page. Footer order:
 note, Reset (`.gp-button--ghost`), Cancel (default), Save
 (`.gp-button--primary`).
 
-### Panel home and pages
+### Panel sidebar and pages
 
 | Class | Rules |
 |---|---|
-| `.gp-panel__home` | Structural wrapper of the home list |
-| `.gp-panel__nav` | Vertical flex, `gap: 8px` |
-| `.gp-nav-item` | Full-width card-like button: `gap: 12px`, `padding: 12px 14px`, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)` |
-| `.gp-nav-item__icon` | `32×32` tinted well: `var(--gp-accent-soft)` fill, `var(--gp-accent)` glyph, `16×16` svg |
-| `.gp-nav-item__text` | Column, `gap: 2px`, `min-width: 0` |
-| `.gp-nav-item__title` | `14px/600` strong |
-| `.gp-nav-item__desc` | `12px` muted |
-| `.gp-panel__page` | Structural wrapper of a settings page |
+| `.gp-panel__nav` | Left sidebar, `<nav>`: `flex: 0 0 208px`, column, `gap: 2px`, `padding: 12px 8px 12px 16px`, right `1px var(--gp-border)`, `var(--gp-bg-2)`. Becomes a horizontal tab strip at the mobile breakpoint (§9) |
+| `.gp-nav-item` | Sidebar button: flex, `gap: 8px`, `min-height: 32px`, `padding: 6px 10px`, no border, transparent, `var(--gp-radius)`, `14px/1.4`. `data-page` carries the page id |
+| `.gp-nav-item.is-active` | The open page (also `aria-current="page"`): `600` weight, accent glyph, and a `3px` `var(--gp-accent)` pill on the left edge (`::before`, `scaleY` 0 → 1) |
+| `.gp-nav-item__icon` | `16×16` glyph, `var(--gp-text-muted)`, `var(--gp-accent)` while active; **structural** wrapper |
+| `.gp-nav-item__title` | Ellipsized label |
+| `.gp-panel__page` | Structural wrapper of the open page |
+| `.gp-page__head` | Page header: `margin: 0 0 16px`, `padding: 0 0 12px`, bottom `1px var(--gp-line)` |
+| `.gp-page__title` / `.gp-page__desc` | `20px/600` strong h3 / `13px` muted line (from the page's `labelKey` / `descKey`) |
 | `.gp-page` | Structural content column rendered by the page module |
-| `.gp-page__back` | Text button `‹ Back`: no border/background, `500 12px/1.4`, muted, `margin: 0 0 12px` |
 
-Hover on a nav item swaps the border to `var(--gp-accent)` and the fill to
-`var(--gp-bg-2)`; hovering the back link turns it `var(--gp-accent)`. Neither
-has a transition — see §8.
+Exactly one page is always open: the first registered page on a fresh session,
+afterwards the last one used (kept until reload). Sidebar items carry no hover
+fill — only the pointer cursor and the focus ring. `ArrowUp`/`ArrowDown` (and `ArrowLeft`/`ArrowRight`
+in the tab strip) move between pages with wrap-around.
 
 ### Cards, rows, hints, fields
 
@@ -298,6 +324,8 @@ className)` is the only builder — pass a tone class, never restyle ad hoc.
 | `.gp-grid__cell` | The cell is a `<label>`: flex, `align-items: flex-start`, `gap: 10px`, `padding: 10px 12px`, `1px var(--gp-line)`, `var(--gp-radius)`, `var(--gp-bg-2)` |
 | `.gp-grid__text` | Column, `gap: 2px`, `min-width: 0`, reusing `.gp-row__label` / `.gp-row__hint` for its two lines |
 
+A cell whose switch is on (`:has(.gp-switch__input:checked)`) takes `var(--gp-accent)` as its border and `var(--gp-accent-soft)` as its fill; hover strengthens the border to `var(--gp-border)`.
+
 Cells hold a `.gp-switch` built as markup (not a nested `<label>`, which would
 be invalid HTML); the cell label makes the whole tile clickable. The grid is
 rendered from the gallery source registry, so a new source appears here with
@@ -307,7 +335,7 @@ no CSS change.
 
 | Class | Rules |
 |---|---|
-| `.gp-confirm-overlay` | `fixed; inset: 0; z-index: 1000001`, flex centering, `padding: 24px 16px`, `var(--gp-scrim)`; `role="presentation"` |
+| `.gp-confirm-overlay` | `fixed; inset: 0; z-index: 1000001`, flex centering, `padding: 24px 16px`, `var(--gp-scrim)` (no own blur — it opens above the already frosted panel overlay, and a second `backdrop-filter` would double the effect); `role="presentation"` |
 | `.gp-confirm` | Column, `gap: 10px`, `width: min(400px, 100%)`, `padding: 18px`, `1px var(--gp-border)`, `var(--gp-radius-lg)`, `var(--gp-bg-1)`, `var(--gp-shadow)`, `14px/1.5`; `role="alertdialog"` |
 | `.gp-confirm__title` | `15px/600` strong |
 | `.gp-confirm__message` | `13px` muted |
@@ -386,16 +414,19 @@ scanning via `isOwnUi()`, and opening it takes the shared scroll lock.
 
 | State | Selector / form | Effect |
 |---|---|---|
-| Hover | `:hover` on `.gp-header-btn`, `.gp-nav-item`, `.gp-page__back`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools and nav take the highlight fill with a muted border, the thumbnail border moves to the muted text color |
-| Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items, the header button, viewer tools and viewer nav |
-| Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry/viewer controls, `2px` on the switch track, `-1px` on select/input/textarea (inside the box) |
+| Hover | `:hover` on `.gp-header-btn`, `.gp-user-menu-item__btn`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools and nav take the highlight fill with a muted border, the thumbnail border moves to the muted text color |
+| Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items, the header button, the user-menu row, viewer tools and viewer nav |
+| Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry/viewer controls, `2px` on the switch track, `-1px` on select/input/textarea (inside the box), `-2px` on `.gp-user-menu-item__btn` (inside the row, so it stays inside GitHub's menu) |
 | Disabled | `.gp-button[disabled]` | `opacity: 0.55`, `cursor: default` |
 | Disabled | `.gp-viewer__nav[disabled]` | `opacity: 0.5`, `cursor: default`, hover suppressed |
+| Active page | `.gp-nav-item.is-active` | Bold label, accent glyph and left pill (bottom underline in the tab strip) |
+| Dirty draft | `.gp-panel-overlay.is-dirty` | Footer note switches to "Unsaved changes" with an accent dot |
+| Closing | `.gp-panel-overlay.is-closing` | Exit animation plays, pointer ignored, element removed after 140ms |
 | Active thumb | `.gp-viewer__thumb.is-active` | `var(--gp-accent)` border + 1px accent ring |
 | Rotated | `.gp-viewer.is-rotated` | Toggled by `paint()`; the stage keeps its `grab` cursor because the image is draggable at every zoom |
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
-| Custom settings | `.gp-header-btn--custom` | Corner dot in `var(--gp-accent)` while settings differ from defaults |
+| Custom settings | `.gp-header-btn--custom`, `.gp-user-menu-item--custom` | Dot in `var(--gp-accent)` (corner of the header button, trailing in the menu row) while settings differ from defaults; the menu dot is `display: none` until the modifier is set |
 | Hidden | `[hidden]` on `.gp-panel-overlay`, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__spinner`, `.gp-viewer__status`, or on any descendant of `.gp-panel` | `display: none`, declared explicitly so GitHub's own resets cannot re-show our chrome. Elements outside those scopes (e.g. `.gp-toast__message`) rely on the user-agent `[hidden]` rule |
 
 State classes are the only state mechanism: never add inline styles for state
@@ -411,16 +442,26 @@ shipped exceptions, because both are per-frame values).
 | Toast entrance | `gp-toast-in` — fade + `translateX(±24px)` over `0.2s ease-out`; left placements mirror the offset |
 | Toast exit | `0.18s ease` on opacity and transform, then removal after 180ms |
 | Toast progress | `gp-toast-progress` — `scaleX(1 → 0)`, `linear`, duration set inline from the toast's own `duration`; paused on hover |
+| Panel/confirm overlay | `gp-overlay-in` fade `0.16s` (`0.14s` confirm) ease-out; panel exit `gp-overlay-out` + `gp-panel-out` `0.14s` ease-in |
+| Panel/confirm dialog | `gp-panel-in` — fade + `translateY(10px) scale(0.98)` → rest over `0.2s` (`0.18s` confirm), `cubic-bezier(0.2, 0.8, 0.2, 1)` |
+| Page content | `gp-rise` — the page head and each direct child of the page (cards, hero) fade in with `translateY(6px)` over `0.24s`, staggered `0 / 40 / 80 / 120ms` |
+| Sidebar | Active pill `scaleY` `0.18s`; glyph color `0.12s` |
+| Footer dirty dot | width, margin and scale `0.18s` |
+| Switch knob | `0.2s` spring (`cubic-bezier(0.2, 0.8, 0.2, 1)`); stretches to `20px` while pressed |
+| Controls | Border/fill changes on select, input, textarea, button, panel close and source tiles take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
 
-- Hover color changes on nav items, buttons and header chrome have no
-  transition on purpose: they must feel native, and animated hover on a page
-  we do not own reads as foreign.
+- Hover on elements placed into GitHub's own chrome (the header button and the
+  avatar-menu row) has no transition on purpose: they must feel native, and
+  animated hover on a page we do not own reads as foreign. Surfaces we draw
+  ourselves (panel, dialogs, toasts, viewer) use the short transitions above.
 - Only one coordinated entrance per surface; no loops except the spinner; no
   bounce, no decorative animation.
 - `@media (prefers-reduced-motion: reduce)` disables animation and transition
-  for `.gp-toast`, `.gp-toast--leaving`, `.gp-switch__track`,
-  `.gp-switch__track::after` and `.gp-viewer__image`. The viewer spinner and
+  for the panel and confirm overlays and dialogs, the page head and page
+  children, sidebar items and their pill, the dirty dot, `.gp-toast`,
+  `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after` and
+  `.gp-viewer__image`. The viewer spinner and
   the toast progress bar are outside that list (a spinner and a countdown are
   information, not decoration), so do not "fix" them by adding them to the
   media block without deciding what replaces the information they carry.
@@ -432,11 +473,16 @@ The stylesheet has one breakpoint, `@media (max-width: 640px)`:
 | Selector | Change |
 |---|---|
 | `.gp-panel-overlay` | `padding: 0; align-items: stretch` — the panel fills the viewport |
-| `.gp-panel` | `width: 100%; max-height: 100%; border-radius: 0; border-left: 0; border-right: 0` — edge-to-edge sheet |
+| `.gp-panel` | `width: 100%; height: 100%; border-radius: 0; border-left: 0; border-right: 0` — edge-to-edge sheet |
+| `.gp-panel__main` | `flex-direction: column` — the sidebar sits above the body |
+| `.gp-panel__nav` | Horizontal, scrollable tab strip: `flex-direction: row`, `padding: 8px 12px`, bottom border instead of right; items shrink to content and the active marker becomes a `2px` underline (`scaleX`) |
+| `.gp-panel__body` | `padding: 16px 14px 20px` |
+| `.gp-panel__subtitle` | Hidden |
+| `.gp-panel__footer` / `-note` | Wraps; the note takes its own full-width line |
 
 Everything else is fluid by construction and must stay that way:
 
-- The panel is `min(620px, 100%)` wide and `min(88vh, 780px)` tall, so it
+- The panel is `min(860px, 100%)` wide and `min(86vh, 680px)` tall, so it
   shrinks before the breakpoint and only changes shape at it.
 - The sources grid reflows on its own (`repeat(auto-fit, minmax(180px, 1fr))`);
   no media query is needed for new tiles.
@@ -463,13 +509,14 @@ Everything else is fluid by construction and must stay that way:
 - **Names.** Icon-only controls carry both `title` and `aria-label`
   (`.gp-panel__close` = `common.close`, viewer tools/nav/open, the entry
   button = `settings.open`, the toast close = `×`). Labels come from the
-  locale files, never from hardcoded English in CSS.
+  locale files, never from hardcoded English in CSS. The user-menu row is
+  named by its own visible text, also `settings.open`.
 - **Switch labelling.** `.gp-switch__input` is opacity-hidden, not
   `display: none`, so it stays focusable and its `aria-label` (or the wrapping
   row's text) names it; rows that already show the text pass it as the
   `aria-label`.
-- **Keyboard.** Panel: `Escape` returns home from a page and closes from home;
-  the viewer owns `Escape` while open. Viewer: `←`/`→` navigate,
+- **Keyboard.** Panel: `Escape` closes it; `ArrowUp`/`ArrowDown` (`ArrowLeft`/`ArrowRight`
+  in the tab strip) switch pages from the sidebar; the viewer owns `Escape` while open. Viewer: `←`/`→` navigate,
   `Home`/`End` jump, `+`/`=`/`-` zoom, `0` resets, `r` rotates, wheel zooms,
   drag pans at any zoom, double click toggles 2×, pinch zooms.
   Confirm: `Escape` cancels and focus goes to the safe choice, then returns to

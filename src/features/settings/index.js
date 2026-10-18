@@ -9,14 +9,16 @@ import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
+import { ensureUserMenuItem, installUserMenuEntry, refreshUserMenuItem } from './userMenu.js';
 
 /**
- * Settings entry point: the header button (with a menu-command fallback for
- * userscript managers), the page registry and the mount/remount logic for
- * GitHub's client-side navigation.
+ * Settings entry points: the header button and the user-menu row (with a
+ * menu-command fallback for userscript managers), the page registry and the
+ * mount/remount logic for GitHub's client-side navigation.
  *
  * The button is a sibling of GitHub's own header actions rather than a
  * replacement of them, and it is re-placed whenever the header is swapped.
+ * The user-menu row is owned by `userMenu.js`.
  */
 const BUTTON_CLASS = 'gp-settings-btn';
 const ITEM_CLASS = 'gp-settings-item';
@@ -42,7 +44,7 @@ function buildButton() {
   const node = el('button', `${BUTTON_CLASS} gp-header-btn`);
   node.type = 'button';
   const icon = el('span', 'gp-header-btn__icon');
-  icon.innerHTML = getIconSvg('gallery');
+  icon.innerHTML = getIconSvg('gear');
   node.appendChild(icon);
   node.addEventListener('click', (event) => {
     event.preventDefault();
@@ -72,15 +74,17 @@ function placementHost(target) {
 }
 
 function refreshLabels() {
-  if (!button) return;
-  const label = t('settings.open');
-  button.title = label;
-  button.setAttribute('aria-label', label);
+  if (button) {
+    const label = t('settings.open');
+    button.title = label;
+    button.setAttribute('aria-label', label);
+  }
+  refreshUserMenuItem();
 }
 
 function updateSettingsButtonState() {
-  if (!button) return;
-  button.classList.toggle('gp-header-btn--custom', hasCustomSettings());
+  if (button) button.classList.toggle('gp-header-btn--custom', hasCustomSettings());
+  refreshUserMenuItem();
 }
 
 function stopHeaderPoll() {
@@ -182,7 +186,12 @@ export function initSettingsFeature() {
   ensureSettingsButton();
   pollForHeader();
   observeChrome();
-  watchNavigation(() => ensureSettingsButton());
+  installUserMenuEntry();
+  ensureUserMenuItem();
+  watchNavigation(() => {
+    ensureSettingsButton();
+    installUserMenuEntry();
+  });
   on('settings:gallery', updateSettingsButtonState);
   on('settings:toasts', updateSettingsButtonState);
   on('settings:language', () => {

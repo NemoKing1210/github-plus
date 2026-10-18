@@ -3,7 +3,7 @@ export default {
 
   'settings.open': 'GitHub Plus 设置',
   'panel.subtitle': 'Markdown 图片画廊 · 界面 · 备份',
-  'panel.back': '返回',
+  'panel.unsaved': '有未保存的更改',
 
   'common.auto': '自动',
   'common.close': '关闭',

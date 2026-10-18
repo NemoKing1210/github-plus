@@ -69,6 +69,13 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       the same panel.
 - [ ] The entry survives GitHub's client-side navigation (navigate between
       repository pages and confirm it stays put).
+- [ ] Opening the avatar menu shows a **GitHub Plus settings** row right after
+      GitHub's own **Settings** row; clicking it closes the menu and opens the
+      panel, and the row carries the accent dot while settings differ from
+      defaults (same signal as the header button).
+- [ ] The row also appears when the menu is opened without a header click
+      (keyboard `Enter`/`Space` on the avatar) — that path is the portal-root
+      observer, not the click fallback.
 
 ### Gallery and viewer
 
@@ -92,15 +99,19 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 
 ### Settings panel
 
-- [ ] The panel opens on the home list; the language select relabels the panel
-      after Save.
+- [ ] The panel opens on the General page with the sidebar listing all four
+      pages; switching pages (click and arrow keys) animates the content; the
+      language select relabels the panel after Save.
+- [ ] Changing any control turns the footer note into "Unsaved changes" with
+      an accent dot; undoing the change restores the save hint.
 - [ ] **Save** persists the draft, shows the "Settings saved" toast, closes the
       panel and survives a reload.
 - [ ] **Reset** asks for confirmation, refills the draft with defaults and
       still requires Save.
-- [ ] **Cancel** and an overlay click discard the draft; `Esc` returns to the
-      home list from a page and closes the panel from home. While the viewer is
-      open it keeps `Esc` for itself.
+- [ ] **Cancel** and an overlay click discard the draft; `Esc` closes
+      the panel (exit animation, then the overlay is removed). While the viewer
+      is open it keeps `Esc` for itself. At <= 640px the sidebar becomes a
+      horizontal tab strip.
 
 ### Backup
 

@@ -3,7 +3,7 @@ export default {
 
   'settings.open': 'GitHub Plus 설정',
   'panel.subtitle': 'Markdown 이미지 갤러리 · 인터페이스 · 백업',
-  'panel.back': '뒤로',
+  'panel.unsaved': '저장되지 않은 변경 사항',
 
   'common.auto': '자동',
   'common.close': '닫기',
