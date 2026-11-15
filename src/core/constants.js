@@ -95,6 +95,13 @@ export const PREVIEW_LONG_PRESS_MS = 450;
 export const PREVIEW_LONG_PRESS_MIN_MS = 200;
 export const PREVIEW_LONG_PRESS_MAX_MS = 2000;
 
+/**
+ * The progress ring waits this long before it appears, so a plain click never
+ * flashes it; the fill then runs over the remaining time. A very short hold
+ * time shortens the wait so at least 80 ms of fill remains.
+ */
+export const PREVIEW_RING_DELAY_MS = 150;
+
 /** Movement past this many pixels makes the press a drag, not a long press. */
 export const PREVIEW_LONG_PRESS_MOVE_PX = 8;
 

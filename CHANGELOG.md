@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.2] - 2026-11-15
+
+### Fixed
+
+- Overlay shadows turned into a milky light-grey halo on dark GitHub themes:
+  the elevation token pointed at `--shadow-large`, which GitHub no longer
+  defines, so it always used its light-theme fallback. The toast, confirm
+  dialog, viewer status and help cards, the image download button and the file
+  context menu now use Primer's current floating shadows and their documented
+  dark ramp
+
+[0.17.2]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.17.2
+
+## [0.17.1] - 2026-11-15
+
+### Fixed
+
+- The long-press progress ring appeared the instant the button went down, so
+  even a plain click flashed it. It now waits a short beat (150 ms, shortened
+  for very short hold times) and fills over the remaining time, so a quick
+  click never shows it
+
+[0.17.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.17.1
+
 ## [0.17.0] - 2026-11-15
 
 ### Added

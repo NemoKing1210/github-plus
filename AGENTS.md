@@ -175,7 +175,10 @@ Single place for magic values.
   previews kept for the session), `PREVIEW_PDF_FRAME_TIMEOUT_MS` (how long a
   PDF frame may load before its fallback card shows), `PREVIEW_LONG_PRESS_MS`
   (450, the default hold time), `PREVIEW_LONG_PRESS_MIN_MS` / `_MAX_MS`
-  (200…2000, the bounds a configured hold time is clamped to) and
+  (200…2000, the bounds a configured hold time is clamped to),
+  `PREVIEW_RING_DELAY_MS` (150 — how long the progress ring waits before it
+  appears; a short hold time shortens the wait so at least 80 ms of fill
+  remains) and
   `PREVIEW_LONG_PRESS_MOVE_PX` (8 — movement past it is a drag, not a long
   press).
 - `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
@@ -734,8 +737,10 @@ keys move between siblings.
   `filePreview.longPressMs` (default `PREVIEW_LONG_PRESS_MS`); moving past
   `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a touch pointer
   cancels it and hides the ring, so a drag, a text selection and a plain click
-  keep their normal behavior. With `filePreview.longPressRing` on, the press
-  also shows the hold-progress ring at the pointer. When the timer fires the
+  keep their normal behavior. With `filePreview.longPressRing` on, the ring
+  appears after a short beat (`PREVIEW_RING_DELAY_MS`, so a plain click never
+  flashes it) and its fill runs over the remaining time. When the timer fires
+  the
   handler opens the preview with that link as the anchor (for a listing row the
   whole directory becomes the set; a markdown link opens one file), and the
   following `click` on the link is swallowed once — otherwise the browser would

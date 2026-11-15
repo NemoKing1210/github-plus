@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
@@ -13,7 +13,7 @@ Markdown の画像ギャラリー、GitHub がファイルを一覧するあら�
 ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、そして任意の
 ファイルのクイックプレビューを提供します。
 
-> **ステータス:** 初期段階（`0.17.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.17.2`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
 > ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック

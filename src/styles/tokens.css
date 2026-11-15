@@ -29,11 +29,14 @@
   --gp-line: var(--borderColor-muted, #d1d9e0b3);
   --gp-highlight: var(--bgColor-neutral-muted, rgba(129, 139, 152, 0.12));
 
-  --gp-shadow: var(--shadow-large, 0 8px 24px rgba(140, 149, 159, 0.2));
-  /* Floating menus: Primer's current overlay shadow. Its 1px ring is the
-   * menu's edge, so the menu itself draws no border, and the token resolves
-   * per theme instead of falling back to a light-theme halo on dark pages. */
-  --gp-shadow-float: var(--shadow-floating-small, 0 0 0 1px var(--gp-border), var(--gp-shadow));
+  /* Elevation: Primer's current floating shadows, which carry their own light
+   * and dark ramps. `--shadow-large` no longer exists in GitHub's themes, so
+   * the old token always fell back to a light-theme halo that turned milky on
+   * dark pages. The literal fallbacks repeat the light ramp and are replaced
+   * by the dark ramp in the theme blocks below. `--gp-shadow-float`'s 1px ring
+   * is the menu's edge, so the menu itself draws no border. */
+  --gp-shadow: var(--shadow-floating-medium, 0 8px 16px -4px rgba(31, 35, 40, 0.08), 0 4px 32px -4px rgba(31, 35, 40, 0.08), 0 24px 48px -12px rgba(31, 35, 40, 0.08));
+  --gp-shadow-float: var(--shadow-floating-small, 0 0 0 1px var(--gp-border), 0 6px 12px -3px rgba(31, 35, 40, 0.04), 0 6px 18px 0 rgba(31, 35, 40, 0.12));
   --gp-scrim: var(--overlay-backdrop-bgColor, rgba(31, 35, 40, 0.5));
   --gp-focus: var(--focus-outlineColor, #0969da);
 
@@ -66,9 +69,12 @@
   --gp-code-meta: #59636e;
 }
 
-/* GitHub resolves its "auto" mode with exactly this media query, so the age
- * ramp does the same (DESIGN.md §3). */
+/* GitHub resolves its "auto" mode with exactly this media query, so the age,
+ * code and shadow ramps do the same (DESIGN.md §3). */
 :root[data-color-mode="dark"] {
+  --gp-shadow: var(--shadow-floating-medium, 0 8px 16px -4px rgba(1, 4, 9, 0.4), 0 4px 32px -4px rgba(1, 4, 9, 0.4), 0 24px 48px -12px rgba(1, 4, 9, 0.4));
+  --gp-shadow-float: var(--shadow-floating-small, 0 0 0 1px var(--gp-border), 0 6px 12px -3px rgba(1, 4, 9, 0.4), 0 6px 18px 0 rgba(1, 4, 9, 0.4));
+
   --gp-age-1: #9198a1;
   --gp-age-2: #989ca0;
   --gp-age-3: #9fa0a0;
@@ -93,6 +99,9 @@
 }
 @media (prefers-color-scheme: dark) {
   :root[data-color-mode="auto"] {
+    --gp-shadow: var(--shadow-floating-medium, 0 8px 16px -4px rgba(1, 4, 9, 0.4), 0 4px 32px -4px rgba(1, 4, 9, 0.4), 0 24px 48px -12px rgba(1, 4, 9, 0.4));
+    --gp-shadow-float: var(--shadow-floating-small, 0 0 0 1px var(--gp-border), 0 6px 12px -3px rgba(1, 4, 9, 0.4), 0 6px 18px 0 rgba(1, 4, 9, 0.4));
+
     --gp-age-1: #9198a1;
     --gp-age-2: #989ca0;
     --gp-age-3: #9fa0a0;

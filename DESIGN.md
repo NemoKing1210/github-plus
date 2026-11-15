@@ -71,8 +71,8 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-border` | `--borderColor-default` | `#d1d9e0` | Control and surface outlines |
 | `--gp-line` | `--borderColor-muted` | `#d1d9e0b3` | Internal dividers (card head, rows, fields, pills, progress track) |
 | `--gp-highlight` | `--bgColor-neutral-muted` | `rgba(129, 139, 152, 0.12)` | Hover/selected wash on neutral surfaces (entry button, buttons, toast actions, panel close). Translucent, so it reads as a change over both surfaces |
-| `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: confirm dialog, toast |
-| `--gp-shadow-float` | `--shadow-floating-small` | `0 0 0 1px var(--gp-border), 0 8px 24px rgba(140, 149, 159, 0.2)` | Floating menu elevation; its 1px ring is the menu's edge (no separate border). Resolves to GitHub's current overlay shadow in every theme |
+| `--gp-shadow` | `--shadow-floating-medium` | `0 8px 16px -4px rgba(31, 35, 40, 0.08), 0 4px 32px -4px rgba(31, 35, 40, 0.08), 0 24px 48px -12px rgba(31, 35, 40, 0.08)` | Elevation: confirm dialog, toast, viewer status/help, download button. Resolves to GitHub's current floating-overlay shadow, which carries light and dark ramps |
+| `--gp-shadow-float` | `--shadow-floating-small` | `0 0 0 1px var(--gp-border), 0 6px 12px -3px rgba(31, 35, 40, 0.04), 0 6px 18px 0 rgba(31, 35, 40, 0.12)` | Floating menu elevation; its 1px ring is the menu's edge (no separate border). Resolves to GitHub's current overlay shadow in every theme |
 | `--gp-scrim` | `--overlay-backdrop-bgColor` | `rgba(31, 35, 40, 0.5)` | Overlay backdrop behind panel and confirm dialog |
 | `--gp-focus` | `--focus-outlineColor` | `#0969da` | Focus ring color |
 | `--gp-age-1` | — | `#59636e` | Age scale 1: oldest commit, GitHub's muted grey (light theme) |
@@ -93,7 +93,10 @@ declared under
 inside the same `prefers-color-scheme: dark` query GitHub uses for its own auto
 mode. It is documented in §3. The ten `--gp-code-*` syntax tokens have the same
 three declarations (light, dark, auto) and take GitHub's own code-view colors,
-so a highlighted file matches the blob page.
+so a highlighted file matches the blob page. The two shadow tokens follow the
+same pattern: their literal fallbacks are the light ramp in `:root` and the
+dark ramp under the dark theme selectors, so a renamed Primer variable never
+brings a light-theme halo onto a dark page.
 
 Rules:
 
@@ -717,8 +720,10 @@ Transient feedback for the hold gesture, shown only while
 `filePreview.longPressRing` is on. One host element is mounted into the page
 before the preview's body observers are attached and toggled through `hidden`,
 so showing it adds no direct child to `<body>` mid-gesture (those observers
-treat a body child as an app-shell swap). Hiding cancels the CSS animation, so
-the next press starts the fill again.
+treat a body child as an app-shell swap). It appears after a short beat so a
+plain click never flashes it, and the fill then runs over the remaining time
+(a very short hold time shortens the beat to keep at least 80 ms of fill).
+Hiding cancels the CSS animation, so the next press starts the fill again.
 
 | Class | Rules |
 |---|---|
@@ -745,7 +750,7 @@ the next press starts the fill again.
 | Help open | `.gp-viewer__help:not([hidden])` | The shortcut popover is visible and the help tool reports `aria-expanded="true"`; `Escape` closes it before the viewer |
 | Broken thumb | `.gp-viewer__thumb.is-broken` | The thumbnail image is hidden and the muted `imageOff` fallback is shown |
 | Download hover | `.gp-download-btn:not([hidden])` | The floating button is shown over the hovered markdown image's top-right corner; hidden on pointer-out, scroll, resize and navigation |
-| Hold in progress | `.gp-hold-ring` | A transient disc at the press point whose accent arc fills over `filePreview.longPressMs`; removed when the preview opens, the pointer moves past the drag threshold or the button is released |
+| Hold in progress | `.gp-hold-ring` | A transparent ring at the press point that appears after a short beat and whose accent arc fills over the rest of `filePreview.longPressMs`; hidden when the preview opens, the pointer moves past the drag threshold or the button is released |
 | File download hover | `.gp-file-download:hover` | The icon button takes the `var(--gp-highlight)` fill and a `var(--gp-text)` glyph, like GitHub's own icon buttons |
 | Context menu row hover | `.gp-context-menu__item:hover`, `.gp-context-menu__item:focus-visible` | `var(--gp-highlight)` fill, no outline (the row fill is the focus indicator inside the menu) |
 | Context menu row disabled | `.gp-context-menu__item:disabled` | `var(--gp-text-muted)` label, transparent fill, default cursor |
@@ -780,7 +785,7 @@ each is a per-instance value that CSS cannot know).
 | Switch knob | `0.2s` spring (`cubic-bezier(0.2, 0.8, 0.2, 1)`); stretches to `20px` while pressed |
 | Controls | Border/fill changes on select, input, textarea, button, panel close, source tiles and the page download button take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
-| Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the configured hold time) |
+| Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the hold time minus the appearance delay) |
 
 - Hover on elements placed into GitHub's own chrome (the header button and the
   avatar-menu row) has no transition on purpose: they must feel native, and

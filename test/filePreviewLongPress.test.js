@@ -110,7 +110,7 @@ test('a click on another file right after a long press still navigates', async (
   assert.equal(click.defaultPrevented, false);
 });
 
-test('the hold ring appears at the pointer and hides on release', async (t) => {
+test('the hold ring waits a beat, then fills over the remaining time', async (t) => {
   installDom();
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { installLongPress, uninstallLongPress } = await import(
@@ -119,15 +119,34 @@ test('the hold ring appears at the pointer and hides on release', async (t) => {
   installLongPress(() => {});
   const link = document.querySelector('a[href*="/blob/"]');
   pointer('pointerdown', link, { x: 40, y: 60 });
+  t.mock.timers.tick(149);
+  assert.equal(document.querySelector('.gp-hold-ring'), null);
+  t.mock.timers.tick(1);
   const ring = document.querySelector('.gp-hold-ring');
   assert.ok(ring);
   assert.equal(ring.hidden, false);
   assert.equal(ring.style.left, '40px');
   assert.equal(ring.style.top, '60px');
-  assert.equal(ring.style.getPropertyValue('--gp-hold-duration'), '450ms');
+  assert.equal(ring.style.getPropertyValue('--gp-hold-duration'), '300ms');
   pointer('pointerup', link);
   assert.equal(ring.hidden, true);
   assert.equal(document.querySelectorAll('.gp-hold-ring').length, 1);
+  uninstallLongPress();
+});
+
+test('a plain click never shows the ring', async (t) => {
+  installDom();
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { installLongPress, uninstallLongPress } = await import(
+    '../src/features/filePreview/longPress.js'
+  );
+  installLongPress(() => {});
+  const link = document.querySelector('a[href*="/blob/"]');
+  pointer('pointerdown', link);
+  pointer('pointerup', link);
+  t.mock.timers.tick(300);
+  const ring = document.querySelector('.gp-hold-ring');
+  assert.ok(!ring || ring.hidden);
   uninstallLongPress();
 });
 

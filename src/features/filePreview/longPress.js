@@ -1,10 +1,11 @@
-import { PREVIEW_LONG_PRESS_MOVE_PX } from '../../core/constants.js';
+import { PREVIEW_LONG_PRESS_MOVE_PX, PREVIEW_RING_DELAY_MS } from '../../core/constants.js';
 import { getFilePreviewSettings } from '../../core/settings.js';
 import { isOwnUi } from '../../utils/dom.js';
 import { hideHoldRing, showHoldRing } from './holdRing.js';
 import { resolvePreviewLink } from './surfaces.js';
 
 let timer = null;
+let ringTimer = null;
 let startX = 0;
 let startY = 0;
 let pressed = null;
@@ -16,6 +17,8 @@ let suppressClickUntil = 0;
 function cancel() {
   if (timer !== null) clearTimeout(timer);
   timer = null;
+  if (ringTimer !== null) clearTimeout(ringTimer);
+  ringTimer = null;
   pressed = null;
   hideHoldRing();
 }
@@ -30,9 +33,22 @@ function onPointerDown(event) {
   startY = event.clientY;
   pressed = found;
   const settings = getFilePreviewSettings();
-  if (settings.longPressRing) showHoldRing(event.clientX, event.clientY, settings.longPressMs);
+  const holdMs = settings.longPressMs;
+  const ringDelay = Math.min(PREVIEW_RING_DELAY_MS, Math.max(0, holdMs - 80));
+  if (settings.longPressRing) {
+    // A plain click releases before this fires, so the ring never flashes.
+    ringTimer = setTimeout(() => {
+      ringTimer = null;
+      if (timer === null || !pressed) return;
+      showHoldRing(startX, startY, holdMs - ringDelay);
+    }, ringDelay);
+  }
   timer = setTimeout(() => {
     timer = null;
+    if (ringTimer !== null) {
+      clearTimeout(ringTimer);
+      ringTimer = null;
+    }
     const target = pressed;
     pressed = null;
     hideHoldRing();
@@ -40,7 +56,7 @@ function onPointerDown(event) {
     suppressed = target.link;
     suppressClickUntil = Date.now() + 1000;
     onOpen?.(target);
-  }, settings.longPressMs);
+  }, holdMs);
 }
 
 function onPointerMove(event) {
