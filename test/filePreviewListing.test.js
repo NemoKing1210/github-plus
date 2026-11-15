@@ -52,6 +52,8 @@ test('the preview column leaves a gap at the table edge', async () => {
   const start = css.indexOf('.gp-file-preview-cell,');
   assert.notEqual(start, -1, 'the preview column rule is missing');
   const block = css.slice(start, css.indexOf('}', start));
-  const right = Number(/padding-right:\s*(\d+)px/.exec(block)?.[1] || 0);
-  assert.ok(right >= 8, `the button sits ${right}px from the edge`);
+  // `!important` is required: GitHub's own row-cell rules zero the padding of
+  // a plain `td`, which pulled the button back to the table edge.
+  const right = Number(/padding-right:\s*(\d+)px\s*!important/.exec(block)?.[1] || 0);
+  assert.ok(right >= 12, `the button sits ${right}px from the edge`);
 });

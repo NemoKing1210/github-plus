@@ -2662,12 +2662,13 @@ audio.gp-preview__media {
 }
 
 /* Eye button and its column in the repository listing. */
+/* GitHub's row-cell rules would otherwise win over this column's padding and width. */
 .gp-file-preview-cell,
 .gp-file-preview-head {
-  width: 44px;
-  padding: 0 4px;
+  width: 44px !important;
+  padding: 0 4px !important;
   /* The eye keeps a gap from the table's right edge. */
-  padding-right: 10px;
+  padding-right: 14px !important;
   vertical-align: middle;
   text-align: center;
   white-space: nowrap;

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.2] - 2026-11-15
+
+### Fixed
+
+- The eye button still sat against the table's right edge: GitHub's own row-cell
+  rules won over the injected column's padding, so the column now sets its width
+  and padding with `!important` and keeps a wider gap
+
+[0.14.2]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.14.2
+
 ## [0.14.1] - 2026-11-15
 
 ### Fixed

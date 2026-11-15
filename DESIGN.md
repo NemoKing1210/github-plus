@@ -701,9 +701,10 @@ Highlighting colors come from the `--gp-code-*` tokens and are selected only by
 `.hljs-*` classes inside the preview, so no page markup is ever styled. The eye
 button column (`.gp-file-preview-cell`, `.gp-file-preview-head`,
 `.gp-file-preview-btn`) repeats the file-meta column's rules — a 44px column, a
-28×28 icon button, `font-size: 0` on the header cell — with a `10px` right
-padding so the button keeps a gap from the table's edge, and is hidden below
-`768px`. Folder rows carry the same empty cell, so every row has the same
+28×28 icon button, `font-size: 0` on the header cell — with a `14px` right
+padding so the button keeps a gap from the table's edge (the cell's width and
+padding are `!important`, because GitHub's own row-cell rules otherwise flatten
+them), and is hidden below `768px`. Folder rows carry the same empty cell, so every row has the same
 column count. Below `720px` the header wraps its heading onto its own row.
 
 The copy menu in the header is the shared context menu opened with
