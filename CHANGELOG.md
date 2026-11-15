@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-11-15
+
+### Fixed
+
+- The eye column in a repository listing: folder rows now keep an empty cell so
+  every row has the same column count, the button no longer sits against the
+  table's right edge, and the column header no longer restarts the listing's
+  debounced rescan on every pass — the surface used to rescan endlessly
+
+[0.14.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.14.1
+
 ## [0.14.0] - 2026-11-15
 
 ### Added

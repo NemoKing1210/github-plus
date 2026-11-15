@@ -71,7 +71,10 @@ function processRow(row) {
   const existing = decorated.get(row);
   if (existing && existing.isConnected) return;
   const found = resolvePreviewRow(row);
-  if (!found) return;
+  if (!found) {
+    decorated.set(row, placeCell(row));
+    return;
+  }
   const button = renderPreviewButton({
     name: found.name,
     onOpen: () => openPreviewForTarget({

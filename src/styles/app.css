@@ -2664,8 +2664,10 @@ audio.gp-preview__media {
 /* Eye button and its column in the repository listing. */
 .gp-file-preview-cell,
 .gp-file-preview-head {
-  width: 40px;
+  width: 44px;
   padding: 0 4px;
+  /* The eye keeps a gap from the table's right edge. */
+  padding-right: 10px;
   vertical-align: middle;
   text-align: center;
   white-space: nowrap;

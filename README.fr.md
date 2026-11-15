@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 galerie d'images pour le markdown rendu, des icônes de fichiers colorées partout
@@ -13,7 +13,7 @@ où GitHub liste des fichiers, des couleurs d'âge façon blame pour ces fichier
 la taille des fichiers avec téléchargement en un clic, un menu contextuel pour
 les actions sur les fichiers et un aperçu rapide de tout fichier.
 
-> **Statut :** début (`0.14.0`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.14.1`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Sauvegarde · À propos), la galerie d'images du
 > markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame, la
 > taille des fichiers avec boutons de téléchargement, un menu contextuel de

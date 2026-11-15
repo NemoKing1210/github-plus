@@ -23,10 +23,15 @@ export function renderPreviewButton({ name, onOpen }) {
   return button;
 }
 
-/** Append the button's own last cell to a listing row. */
-export function placeCell(row, button) {
+/**
+ * Append the button's own last cell to a listing row. A folder row gets the
+ * same empty cell, so every row keeps the table's column count.
+ * @param {Element} row
+ * @param {HTMLElement} [button]
+ */
+export function placeCell(row, button = null) {
   const cell = el('td', 'gp-file-preview-cell');
-  cell.appendChild(button);
+  if (button) cell.appendChild(button);
   row.appendChild(cell);
   return cell;
 }
@@ -39,7 +44,9 @@ export function placeHead(headRow, label) {
     head.scope = 'col';
     headRow.appendChild(head);
   }
-  head.textContent = label;
+  // Assigning the same text would still fire the container's observer and
+  // restart its debounced rescan, forever.
+  if (head.textContent !== label) head.textContent = label;
 }
 
 /** Remove every injected cell and header label. */

@@ -710,8 +710,11 @@ and the arrow keys move between siblings.
   `PREVIEW_MAX_SIBLINGS`; returns null when the clicked row is past the cap)
   and `resolvePreviewRow(row)`.
 - `inject.js`: `renderPreviewButton` (28×28 eye, `preventDefault` +
-  `stopPropagation`), `placeCell`, `placeHead` (a visually collapsed header
-  label, like file meta's) and `clearPreviewCells`.
+  `stopPropagation`), `placeCell` (an empty cell for a folder row, so every row
+  keeps the column count), `placeHead` (a visually collapsed header label like
+  file meta's, written only when its text actually changes — a blind
+  `textContent` assignment would fire the container observer and restart its
+  debounced rescan forever) and `clearPreviewCells`.
 - `index.js`: one observer per surface container, the same shell watchers and
   bounded settle wait as the other file features; rows are tracked in a
   `WeakMap`. `visibleSettings()` is `enabled && rowButton`.
