@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
 blame-style age colors for those files, file sizes with one-click downloads,
-and a context menu for file actions.
+a context menu for file actions, and a quick preview for any file.
 
-> **Status:** early (`0.13.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.14.0`). Settings panel with instant search (General ·
 > Gallery · Files · Backup · About), the markdown image gallery, colored file
-> icons, blame-style file age colors, file sizes with download buttons, and a
-> file context menu. More GitHub improvements planned.
+> icons, blame-style file age colors, file sizes with download buttons, a file
+> context menu, and a quick file preview. More GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -175,6 +175,29 @@ GitHub's own menu does not offer any of it. GitHub Plus replaces it for files:
   link, with full arrow-key navigation and focus restored on close; turning the
   feature off restores the browser's menu everywhere.
 
+### Quick file preview
+
+Open any file without leaving the page — from the eye button in a repository
+listing, or from **Preview** in the file context menu:
+
+- **Rendered, not raw** — markdown is rendered and sanitized, source files get
+  syntax highlighting and line numbers, images, video and audio play in place,
+  and PDFs open in the browser's own viewer. Anything else gets an honest card
+  with **Open on GitHub** and **Download** instead of a broken frame.
+- **Move through the folder** — files in the same directory become a set:
+  previous/next buttons and the arrow keys step between them, with the current
+  position in the footer.
+- **Actions in the header** — open the file on GitHub, copy its raw contents,
+  link or path, or download it under its own name.
+- **Markdown preview or source** — a segmented control switches rendered
+  markdown to its original text, highlighted as markdown.
+- **Safe with private repositories** — relative images and links resolve
+  through the same-origin raw route, so a private README keeps its pictures;
+  markdown is sanitized, and every external image loads without a referrer.
+- **Honest limits** — text and markdown up to 2 MiB, PDFs up to 25 MiB, and
+  highlighting capped so a huge file cannot freeze the tab; over the limit the
+  card points at GitHub and the raw file.
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -210,6 +233,8 @@ Stored under `gp_settings_v1`.
 | `fileMeta.sizes` | `true` | Show each file's size in repository listings |
 | `fileMeta.download` | `true` | Download button in the repository file listings |
 | `fileMenu.enabled` | `true` | Master switch for the file context menu |
+| `filePreview.enabled` | `true` | Master switch for the quick file preview |
+| `filePreview.rowButton` | `true` | Eye button in repository listing rows (the context menu always offers **Preview**) |
 
 ## How the gallery is built
 

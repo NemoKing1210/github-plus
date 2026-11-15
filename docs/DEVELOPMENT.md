@@ -26,7 +26,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
 | `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
-| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting, raw-address rewrite), `test/fileMenu.test.js` (file-target parsing, copyable-content check) and `test/download.test.js` (download filenames). |
+| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting), `test/fileTarget.test.js` (raw-address rewrite, file-target parsing), `test/fileMenu.test.js` (copyable-content check), `test/filePreview.test.js` (preview kinds, relative-link rewriting), `test/filePreviewMarkdown.test.js` (markdown sanitizing), `test/filePreviewShell.test.js` (preview modal layering and keys) and `test/download.test.js` (download filenames). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -112,10 +112,10 @@ checks are on `github.com` (the script also matches `gist.github.com`).
       pages under **Preferences** (General, Gallery, Files) and **More**
       (Backup, About); switching pages (click and arrow keys) animates the
       content; the language select relabels the panel after Save.
-- [ ] The Files page holds the four file enhancements as separate cards —
-      icons, ages, sizes and downloads, and the context menu — each with its
-      own master switch in the card header, and the age-scale preview inside
-      the ages card.
+- [ ] The Files page holds the five file enhancements as separate cards —
+      icons, ages, sizes and downloads, the context menu, and the quick
+      preview — each with its own master switch in the card header, and the
+      age-scale preview inside the ages card.
 - [ ] The search field (`/` or `Ctrl`/`Cmd`+`K`) finds settings across pages:
       results are grouped by page, matched text is highlighted, sidebar counts
       match, and choosing a result opens the page and spotlights the row.
@@ -234,6 +234,38 @@ checks are on `github.com` (the script also matches `gist.github.com`).
       on client-side navigation; turning the **File context menu** card off
       restores the native menu everywhere.
 
+### Quick file preview
+
+- [ ] Every repository listing row gains an eye button in its own narrow
+      column; clicking it opens the preview without following the file link,
+      and the header shows the file name with the position in the footer.
+- [ ] **Preview** in the file context menu opens the same modal on a listing
+      row and on a blob or blame page (where the set is the one file).
+- [ ] The files of the current directory form one set: prev/next and the
+      `←`/`→` keys move through them, the counter follows, and the ends are
+      disabled (there is no wrap-around).
+- [ ] Kinds render correctly: Markdown is rendered and sanitized, source files
+      get highlighting and line numbers, images/video/audio play in place, a
+      PDF opens in the browser viewer, and a binary gets the card with **Open
+      on GitHub** and **Download**.
+- [ ] A Markdown file offers Preview/Source; Source shows the original text
+      highlighted as Markdown and the control stays visible in both modes.
+- [ ] Header actions work: open on GitHub, the copy menu (contents, link,
+      path) floats **above** the modal and its arrow keys do not switch files,
+      and download saves under the file's own name.
+- [ ] A file over 2 MiB (text) or 25 MiB (PDF) shows the too-large card with
+      links to GitHub and the raw file; a failed fetch shows the failure card
+      and logs `GP-1501`.
+- [ ] `Esc` closes the preview (but the copy menu first), `Tab` stays inside
+      it, links inside rendered Markdown are clickable, and the page behind it
+      does not scroll.
+- [ ] Relative images in a README of a private repository still load, external
+      images are requested without a referrer, and a soft navigation closes an
+      open preview.
+- [ ] **Row button** off removes the eye column while the context menu still
+      offers **Preview**; the **Quick file preview** card off removes both and
+      closes an open preview.
+
 ## Debugging
 
 Verbose tracing is off by default. Turn it on from the page console:
@@ -265,6 +297,7 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1302` | `FILE_AGES` | A file-ages surface or its selectors failed. |
 | `GP-1303` | `FILE_META` | A file-meta surface or its selectors failed. |
 | `GP-1401` | `FILE_MENU` | A file-menu clipboard write or raw-content fetch failed. |
+| `GP-1501` | `FILE_PREVIEW` | A preview could not fetch or render its file. |
 
 Settings persist under the key `gp_settings_v1` (`SETTINGS_KEY` in
 `src/core/constants.js`): via `GM_setValue` when the manager provides it,
@@ -279,9 +312,11 @@ otherwise via `localStorage`. Delete that key for a cold start:
 - `src/core/constants.js` holds the defaults and limits: `SETTINGS_KEY`, the
   `gp-` class prefix, `GALLERY_MAX_IMAGES` (500), `GALLERY_MIN_SIZE_PX` (80),
   `ZOOM_OPTIONS`, `BADGE_HOSTS`, `IMAGE_EXTENSIONS`, `TOAST_POSITIONS`,
-  `TOAST_MAX_DURATION_MS`, `FILE_COPY_MAX_BYTES` (1 MiB) and `DEFAULT_SETTINGS`
+  `TOAST_MAX_DURATION_MS`, `FILE_COPY_MAX_BYTES` (1 MiB),
+  `PREVIEW_TEXT_MAX_BYTES` (2 MiB), `PREVIEW_PDF_MAX_BYTES` (25 MiB),
+  `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS` and `DEFAULT_SETTINGS`
   / `getDefaults()` (including `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS`,
-  `DEFAULT_FILE_AGES` and `DEFAULT_FILE_MENU`).
+  `DEFAULT_FILE_AGES`, `DEFAULT_FILE_MENU` and `DEFAULT_FILE_PREVIEW`).
 - `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
   change the allowlist in `scripts/build-file-icons.mjs` and run
   `npm run icons:build`. The package is a dev dependency; the shipped bundle
@@ -289,16 +324,21 @@ otherwise via `localStorage`. Delete that key for a cold start:
 - `src/features/fileAges/age.js` owns the commit-age bands and
   `AGE_BUCKET_COUNT` lives in `constants.js`; the ten shade values are in
   `src/styles/tokens.css` (`--gp-age-1` … `--gp-age-10`).
-- `src/features/fileMeta/size.js` owns size formatting (binary units, three
-  significant digits) and `src/features/fileMeta/paths.js` owns the blob → raw
-  address rewrite; both are pure and unit-tested, so keep DOM code out of them.
-  `DEFAULT_FILE_META` lives in `constants.js`.
-- `src/features/fileMenu/paths.js` owns file-target parsing (ref stripping,
-  percent decoding, raw-address rewrite through the file-meta helper) and
-  `src/features/fileMenu/copy.js` owns the text/binary decision; both are pure
-  and unit-tested. `FILE_COPY_MAX_BYTES` and `DEFAULT_FILE_MENU` live in
+- `src/utils/size.js` owns size formatting (binary units, three significant
+  digits) and `src/utils/fileTarget.js` owns the blob → raw address rewrite,
+  file-target parsing (ref stripping, percent decoding) and the shared surface
+  resolver; the pure parts are unit-tested, so keep DOM code out of the
+  parsers. `DEFAULT_FILE_META` lives in `constants.js`.
+- `src/features/fileMenu/copy.js` owns the text/binary decision; it is pure and
+  unit-tested. `FILE_COPY_MAX_BYTES` and `DEFAULT_FILE_MENU` live in
   `constants.js`, and the menu component itself is `src/ui/contextMenu.js` —
-  reusable, so keep file-specific rules out of it.
+  reusable, so keep file-specific rules out of it (pass `elevated: true` only
+  when a menu must float above a modal).
+- `src/features/filePreview/kind.js` owns the file-kind decision and language
+  mapping, and `links.js` owns the relative-link rewrite; both are pure and
+  unit-tested. `DEFAULT_FILE_PREVIEW` and the `PREVIEW_*` limits live in
+  `constants.js`. The modal shell is `src/ui/filePreview.js` and takes a `load`
+  callback, so rendering stays in the feature.
 - `src/i18n/locales/*.js` holds the UI strings, one file per locale (ten in
   total). New strings go into all ten files — see the localization rule in
   [../CONTRIBUTING.md](../CONTRIBUTING.md). The localized `@name` /

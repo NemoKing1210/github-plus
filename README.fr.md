@@ -5,19 +5,20 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 galerie d'images pour le markdown rendu, des icônes de fichiers colorées partout
 où GitHub liste des fichiers, des couleurs d'âge façon blame pour ces fichiers,
-la taille des fichiers avec téléchargement en un clic et un menu contextuel pour
-les actions sur les fichiers.
+la taille des fichiers avec téléchargement en un clic, un menu contextuel pour
+les actions sur les fichiers et un aperçu rapide de tout fichier.
 
-> **Statut :** début (`0.13.0`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.14.0`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Sauvegarde · À propos), la galerie d'images du
 > markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame, la
-> taille des fichiers avec boutons de téléchargement et un menu contextuel de
-> fichiers. D'autres améliorations de GitHub sont prévues.
+> taille des fichiers avec boutons de téléchargement, un menu contextuel de
+> fichiers et un aperçu rapide des fichiers. D'autres améliorations de GitHub
+> sont prévues.
 
 > Les `@updateURL` / `@downloadURL` du script pointent vers `main` sur GitHub —
 > l'URL d'installation ci-dessous mène toujours à la version la plus récente.
@@ -192,6 +193,30 @@ remplace pour les fichiers :
   lien du fichier, avec navigation aux flèches et retour du focus à la
   fermeture ; désactiver la fonction rétablit le menu du navigateur partout.
 
+### Aperçu rapide des fichiers
+
+Ouvrez n'importe quel fichier sans quitter la page — avec le bouton œil d'une
+liste de fichiers ou **Aperçu** dans le menu contextuel du fichier :
+
+- **Rendu, pas brut** — le markdown est rendu et assaini, les fichiers source
+  reçoivent la coloration syntaxique et des numéros de ligne, les images, la
+  vidéo et l'audio se lisent sur place, et les PDF s'ouvrent dans la visionneuse
+  du navigateur. Tout le reste affiche une carte honnête avec **Ouvrir sur
+  GitHub** et **Télécharger** au lieu d'un cadre cassé.
+- **Parcourir le dossier** — les fichiers d'un même dossier forment un ensemble :
+  les boutons précédent/suivant et les flèches du clavier passent de l'un à
+  l'autre, la position actuelle étant indiquée en pied.
+- **Actions dans l'en-tête** — ouvrir le fichier sur GitHub, copier son contenu
+  brut, son lien ou son chemin, ou le télécharger sous son propre nom.
+- **Markdown : aperçu ou source** — un contrôle segmenté bascule entre le
+  markdown rendu et son texte d'origine, coloré comme du markdown.
+- **Sûr avec les dépôts privés** — les images et liens relatifs passent par la
+  route raw de même origine, donc un README privé garde ses images ; le markdown
+  est assaini et les images externes se chargent sans referrer.
+- **Des limites honnêtes** — texte et markdown jusqu'à 2 Mio, PDF jusqu'à
+  25 Mio, et la coloration est plafonnée pour qu'un fichier énorme ne fige pas
+  l'onglet ; au-delà, la carte renvoie vers GitHub et le fichier brut.
+
 ### Panneau de réglages
 
 Ouvrez-le depuis le bouton en forme d'engrenage de l'en-tête GitHub, la ligne
@@ -228,6 +253,8 @@ Stockés sous `gp_settings_v1`.
 | `fileMeta.sizes` | `true` | Afficher la taille de chaque fichier dans les listes du dépôt |
 | `fileMeta.download` | `true` | Bouton de téléchargement dans les listes du dépôt |
 | `fileMenu.enabled` | `true` | Interrupteur principal du menu contextuel des fichiers |
+| `filePreview.enabled` | `true` | Interrupteur principal de l'aperçu rapide des fichiers |
+| `filePreview.rowButton` | `true` | Bouton œil dans les lignes des listes de fichiers (le menu contextuel propose toujours **Aperçu**) |
 
 ## Comment la galerie est construite
 

@@ -58,7 +58,7 @@ github-plus/
 │   │   │   └── tabs/
 │   │   │       ├── general.js   # Interface language, toast notifications
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
-│   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu
+│   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu, preview
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
 │   │   ├── fileIcons/
@@ -75,14 +75,22 @@ github-plus/
 │   │   ├── fileMeta/
 │   │   │   ├── index.js    # Surface observers, lazy size probes, settings reaction
 │   │   │   ├── surfaces.js # File rows with a raw address
-│   │   │   ├── paths.js    # rawUrlFor(fileHref): pure address rewrite
-│   │   │   ├── size.js     # formatSize(bytes): pure size formatting
 │   │   │   └── inject.js   # renderMeta / placeMeta / placeHead / clearMeta
 │   │   ├── fileMenu/
 │   │   │   ├── index.js    # Delegated contextmenu listener, actions, settings reaction
 │   │   │   ├── surfaces.js # Where a right-click resolves to a file
-│   │   │   ├── paths.js    # fileTarget(href, base, ref): href, raw address, path, name
 │   │   │   └── copy.js     # isCopyableContent(type, name): pure content check
+│   │   ├── filePreview/
+│   │   │   ├── index.js    # Surface observers, row buttons, open/close lifecycle
+│   │   │   ├── surfaces.js # Listing rows, current ref, sibling set
+│   │   │   ├── inject.js   # renderPreviewButton / placeCell / placeHead / clearPreviewCells
+│   │   │   ├── kind.js     # previewKind(name, type), highlightLanguage, countLines (pure)
+│   │   │   ├── links.js    # resolveMarkdownTarget(href, ctx, mode): relative → GitHub URL (pure)
+│   │   │   ├── render.js   # loadPreview(file, { mode }): fetch + dispatch per kind
+│   │   │   ├── markdown.js # marked + DOMPurify rendering and link rewriting
+│   │   │   ├── highlight.js# highlight.js core + registered languages
+│   │   │   ├── code.js     # Gutter + highlighted code block
+│   │   │   └── cards.js    # Binary / empty / too-large / failure cards
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
@@ -90,18 +98,21 @@ github-plus/
 │   │   ├── icons.js        # 16×16 stroke SVG set (viewer toolbar, context-menu actions)
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)
+│   │   ├── filePreview.js  # Quick preview modal shell (header, footer, loading, keyboard)
 │   │   └── viewer.js       # Fullscreen image viewer (zoom, pan, rotate, gallery)
 │   └── utils/
-│       ├── dom.js          # el, append, debounce, eachNode, toArray, isOwnUi
+│       ├── dom.js          # el, append, debounce, eachNode, toArray, escapeHtml, isOwnUi
 │       ├── download.js     # File download (fetch → blob → <a download>)
+│       ├── fileTarget.js   # rawUrlFor / fileTarget / resolveFileTarget (pure)
 │       ├── navigation.js   # watchNavigation (turbo/pjax/pushState URL watcher)
-│       └── scrollLock.js   # counted page scroll lock for modal overlays
+│       ├── scrollLock.js   # counted page scroll lock for modal overlays
+│       └── size.js         # formatSize(bytes): pure size formatting
 ├── scripts/
 │   ├── lib/artifacts.mjs   # ARTIFACT_FILES list (single source of truth)
 │   ├── build-file-icons.mjs# material-icon-theme → iconSet.generated.js
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
-├── test/                   # Node test runner (match, age, fileMeta, fileMenu, download)
+├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -118,7 +129,8 @@ github-plus/
 `initGalleryFeature()` + `applyGallerySettings()` → `initFileIconsFeature()` +
 `applyFileIconsSettings()` → `initFileAgesFeature()` + `applyFileAgesSettings()`
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
-+ `applyFileMenuSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
++ `applyFileMenuSettings()` → `initFilePreviewFeature()` +
+`applyFilePreviewSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
@@ -133,8 +145,8 @@ the avatar menu — the latter through one observer on Primer's overlay portal
 root (`#__primerPortalRoot__`), a container that holds overlays and nothing
 else.
 
-`resetOverlaysOnNavigation()` closes the viewer and the panel when the URL
-changes. GitHub replaces `<body>` on soft navigation while the module state
+`resetOverlaysOnNavigation()` closes the viewer, the panel and the quick
+preview when the URL changes. GitHub replaces `<body>` on soft navigation while the module state
 lives on, so without this a "closed" viewer would keep reporting itself open
 (and swallow `Escape`) and a pinned page would stay pinned. The context menu
 is anchored to page coordinates, so `features/fileMenu` closes it through its
@@ -156,12 +168,17 @@ Single place for magic values.
 - File ages: `AGE_BUCKET_COUNT` (10 shades; the threshold table itself lives in
   `features/fileAges/age.js`).
 - File menu: `FILE_COPY_MAX_BYTES` (1 MiB — the ceiling for "copy contents").
+- File preview: `PREVIEW_TEXT_MAX_BYTES` (2 MiB), `PREVIEW_PDF_MAX_BYTES`
+  (25 MiB), `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS` (cap on the
+  sibling set collected from one directory), `PREVIEW_CACHE_ENTRIES` (rendered
+  previews kept for the session).
 - `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
-  `fileMeta`, `fileMenu`) plus `getDefaults()`, which returns a deep clone — never mutate
-  the shared constants. `DEFAULT_FILE_ICONS` is `{ enabled, folders,
-  specialNames }`, `DEFAULT_FILE_AGES` is `{ enabled, folders }`,
-  `DEFAULT_FILE_META` is `{ enabled, sizes, download }` and
-  `DEFAULT_FILE_MENU` is `{ enabled }`.
+  `fileMeta`, `fileMenu`, `filePreview`) plus `getDefaults()`, which returns a
+  deep clone — never mutate the shared constants. `DEFAULT_FILE_ICONS` is
+  `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
+  `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
+  `DEFAULT_FILE_MENU` is `{ enabled }` and `DEFAULT_FILE_PREVIEW` is
+  `{ enabled, rowButton }`.
 
 ### `src/core/settings.js`
 
@@ -169,8 +186,8 @@ Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
-`getFileMenuSettings`, `saveSettings`, `normalizeImportedSettings`,
-`hasCustomSettings`.
+`getFileMenuSettings`, `getFilePreviewSettings`, `saveSettings`,
+`normalizeImportedSettings`, `hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -182,8 +199,8 @@ Key facts that must survive refactors:
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
   from the registry leaves no stale key), and the `fileIcons` / `fileAges` /
-  `fileMeta` / `fileMenu` booleans. Unknown values fall back to defaults, never
-  crash.
+  `fileMeta` / `fileMenu` / `filePreview` booleans. Unknown values fall back to
+  defaults, never crash.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -212,6 +229,11 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:fileMenu` — emitted by the same Save; the file-menu feature listens
   and attaches or removes its delegated `contextmenu` listener (and closes an
   open menu).
+- `settings:filePreview` — emitted by the same Save; the file-preview feature
+  listens to tear down and repaint its listing buttons and to reattach its
+  surface observers, closing an open preview when disabled.
+- The same Save also emits `settings:language`, which the preview feature
+  listens to for repainting its header, footer and card labels.
 
 ### `src/core/debug.js` — diagnostics
 
@@ -224,8 +246,8 @@ building expensive log payloads. Codes in use: `GP-1001` bus listener, `GP-1002`
 persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
 open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1104`
 gallery download button, `GP-1301` file-icons surface, `GP-1302` file-ages
-surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1201` UI
-mount. Rules: log once per user-visible failure at the outermost point; layers
+surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
+file-preview load, `GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point; layers
 below only throw, they never log.
 
 ### `src/gallery/sources.js` — source registry
@@ -349,9 +371,12 @@ report through it.
 
 ### `src/ui/contextMenu.js` — reusable menu
 
-`openContextMenu({ x, y, anchor, keyboard, label, items })`,
+`openContextMenu({ x, y, anchor, keyboard, label, items, elevated })`,
 `closeContextMenu()` and `isContextMenuOpen()` for a fixed-position menu
 appended to `<body>` (one instance at a time; opening replaces an open menu).
+`elevated: true` adds `.gp-context-menu--elevated`, which lifts the menu above
+the quick preview's overlay — the preview's copy menu is the only caller that
+needs it.
 `items` is `[{ label, icon?, disabled?, onSelect }]` with a `null` entry as a
 separator; `label` becomes the menu's `aria-label`, and the entries are plain
 `button[role="menuitem"]` rows (icons are decorative). Pointer opens place the
@@ -557,13 +582,9 @@ page is deliberately not decorated: GitHub already shows a file's size and a
 download button in its own file header, so adding ours would duplicate GitHub's
 chrome.
 
-- `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
-  three significant digits (`2929` → `2.86 KB`). Unit-tested by
-  `test/fileMeta.test.js`.
-- `paths.js`: `rawUrlFor(href, base)` (pure) — rewrites
-  `/o/r/blob|blame|raw/<ref>/<path>` to `/o/r/raw/<ref>/<path>` and returns `''`
-  for anything that is not a file view. The repository may itself be named
-  `blob`; only the segment after the repository is rewritten.
+- `formatSize` and `rawUrlFor` live in `utils/size.js` and `utils/fileTarget.js`
+  and are shared with the file menu and the quick preview (see
+  `src/utils/` below).
 - `surfaces.js`: `repo-tree` (`tr.react-directory-row` inside
   `[data-testid="directory-content"]`, file links only), plus the `header`
   selector of the table header row and the `columnLabelKey` for its label.
@@ -603,13 +624,8 @@ native menu is replaced **only** when the click resolves to a file. Folders,
 submodules, media inside a rendered file and foreign links keep the browser
 menu.
 
-- `paths.js`: `fileTarget(href, base, ref)` (pure) — a file view
-  (`/o/r/blob|blame|raw/<ref>/<path>`) → `{ href, rawUrl, relative, name }`, else
-  `null`. It reuses `rawUrlFor` from `fileMeta/paths.js` for the download
-  address, strips the current ref (`[data-testid="anchor-button"]`) when the
-  path starts with it and otherwise the first path segment, percent-decodes the
-  relative path and keeps a repo named `blob` intact. Unit-tested by
-  `test/fileMenu.test.js`.
+- `utils/fileTarget.js` supplies `fileTarget` (see `src/utils/` below) for the
+  download address and path; the surface resolvers live in `surfaces.js`.
 - `copy.js`: `isCopyableContent(contentType, name)` (pure) — a known content
   type decides; an empty type falls back to a textual extension or a
   well-known name (`Dockerfile`, `Makefile`, …). Binary types win over a
@@ -638,6 +654,72 @@ menu.
   menu on removal), `initFileMenuFeature()` also closes the menu on
   `watchNavigation` and subscribes to `settings:fileMenu`. A failed action logs
   `GP-1401` once and shows an error toast.
+- The first menu entry is **Preview** (`ACTION_ICONS.eye`) when the preview
+  feature is on; it calls `openPreviewForTarget(target)` from
+  `features/filePreview` — the one-way `fileMenu → filePreview` import.
+
+### `src/features/filePreview/` — quick file preview
+
+Opens a file in a modal without leaving the page, from the eye button in a
+repository listing row or from **Preview** in the file context menu. The files
+of the current directory form one set, so the footer's previous/next buttons
+and the arrow keys move between siblings.
+
+- `kind.js`: `previewKind(name, contentType = '')` (pure) — `'markdown'`,
+  `'image'`, `'video'`, `'audio'`, `'pdf'`, `'code'` or `'binary'`. The
+  extension decides first (compound extensions included), the content type is
+  the fallback; `highlightLanguage(name)` maps a filename to a highlight.js
+  language, `countLines(text)` feeds the footer's line count.
+- `links.js`: `resolveMarkdownTarget(href, ctx, mode)` (pure) — a relative
+  link or image inside rendered markdown becomes a same-origin
+  `/owner/repo/(raw|blob)/<ref>/<path>` address, so a private README keeps its
+  images. Fragments, bare schemes and root-absolute paths are left alone;
+  `.`/`..` are normalized and each segment encoded.
+- `markdown.js`: `renderMarkdown(text, context)` runs `marked` (GFM) and
+  sanitizes the result with DOMPurify (created lazily against the page window),
+  then rewrites relative links and images through `links.js`, marks external
+  links `target="_blank" rel="noopener noreferrer"`, sets `loading="lazy"` and
+  `referrerpolicy="no-referrer"` on images, and highlights fenced code.
+- `highlight.js`: the highlight.js core plus its registered language modules;
+  `highlightHtml(text, language)` returns `''` for an unknown language or text
+  over `PREVIEW_HIGHLIGHT_MAX_CHARS`, so a huge file renders as plain text.
+- `code.js`: `renderCode(text, language)` — a line-number gutter beside a
+  `<pre><code>`; highlighted innerHTML, else plain `textContent`.
+- `cards.js`: `renderBinaryCard`, `renderEmptyCard`, `renderTooLargeCard`,
+  `renderFailureCard` — an honest card with **Open on GitHub** and **Download**
+  instead of a broken frame.
+- `render.js`: `loadPreview(file, { mode, signal })` fetches the same-origin raw
+  address and dispatches on `previewKind`; text and markdown are gated by
+  `PREVIEW_TEXT_MAX_BYTES`, PDFs by `PREVIEW_PDF_MAX_BYTES`. Results are cached
+  only when they carry no `dispose` (so a revoked object URL is never re-shown).
+  A failure logs `GP-1501` and returns a failure card; an `AbortError` is
+  rethrown for the caller's staleness check.
+- `surfaces.js`: `PREVIEW_SURFACE` (rows `tr.react-directory-row` inside
+  `[data-testid="directory-content"]`, header `table thead tr`, column label
+  `preview.column`), `currentRef()`, `siblingsForRow(row)` (capped at
+  `PREVIEW_MAX_SIBLINGS`; returns null when the clicked row is past the cap)
+  and `resolvePreviewRow(row)`.
+- `inject.js`: `renderPreviewButton` (28×28 eye, `preventDefault` +
+  `stopPropagation`), `placeCell`, `placeHead` (a visually collapsed header
+  label, like file meta's) and `clearPreviewCells`.
+- `index.js`: one observer per surface container, the same shell watchers and
+  bounded settle wait as the other file features; rows are tracked in a
+  `WeakMap`. `visibleSettings()` is `enabled && rowButton`.
+  `openPreviewForTarget(target)` builds a single-file set or the listing's
+  sibling set and calls `openFilePreview`. `applyFilePreviewSettings()` tears
+  down first, then syncs and settles; `settings:filePreview`,
+  `settings:language` and `watchNavigation` trigger it, and navigation closes
+  an open preview.
+- `ui/filePreview.js`: the modal shell — `openFilePreview({ files, index,
+  load })`, `closeFilePreview()`, `isFilePreviewOpen()`. Header with the file
+  name, a preview/source segmented control for Markdown, and the tools (open on
+  GitHub, copy contents/link/path through an elevated `ui/contextMenu.js`,
+  download through `utils/download.js`); body with a spinner, the rendered
+  result and a `@`-style meta line; footer with the position and prev/next. A
+  stale load is dropped by an abort controller plus a request token, `Escape`
+  and the focus trap are handled only outside the content pane (so links inside
+  stay usable) and all shell keys are ignored while the copy menu is open, it
+  takes the shared scroll lock and closes with a 160 ms exit animation.
 
 ### `src/i18n/`
 
@@ -649,20 +731,28 @@ menu.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 127
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 173
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
 ### `src/utils/`
 
 - `dom.js`: `el(tag, className, text)`, `append`, `debounce`, `eachNode`,
-  `toArray`, `isOwnUi(node)` (true inside `.gp-panel-overlay`,
-  `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`, `.gp-user-menu-item`,
-  `.gp-viewer-overlay`, `.gp-download-btn`, `.gp-context-menu`). `eachNode`/`toArray` exist because DOM collections
+  `toArray`, `escapeHtml(text)`, `isOwnUi(node)` (true inside
+  `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`,
+  `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
+  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`). `eachNode`/`toArray` exist because DOM collections
   (`NodeList`, `HTMLCollection`, `addedNodes`, `classList`) are **not iterable
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
   from the DOM) with them, never `for...of`.
+- `fileTarget.js`: `rawUrlFor(href, base)` and `fileTarget(href, base, ref)`
+  (pure) — the raw address rewrite and file-view parser shared by the file
+  sizes, the file menu and the preview; `resolveFileTarget(node)` is the DOM
+  resolver used by the context menu. Unit-tested by `test/fileTarget.test.js`.
+- `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
+  three significant digits (`2929` → `2.86 KB`). Unit-tested by
+  `test/fileMeta.test.js`.
 - `download.js`: `downloadFile(url, name?)` fetches the bytes and saves them
   through an object URL, so a cross-origin file keeps its filename; a camo URL
   is unwrapped to the proxied file's name, and a blocked fetch falls back to
@@ -698,9 +788,13 @@ must not own feature state. Rules that keep it acyclic:
   caller's job.
 - `gallery` never imports from `features`; `features/settings` imports the
   gallery registry (`listSources`) but not the gallery wiring.
-- `ui/viewer.js`, `ui/toast.js` and `ui/contextMenu.js` import only `i18n`,
-  `utils`, `core` and sibling `ui` helpers — they are reusable, not
-  gallery- or file-specific.
+- `ui/viewer.js`, `ui/toast.js`, `ui/contextMenu.js` and `ui/filePreview.js`
+  import only `i18n`, `utils`, `core` and sibling `ui` helpers — they are
+  reusable, not gallery- or file-specific. The preview shell takes its content
+  loader as a `load` callback, so the feature supplies rendering and the shell
+  never imports it.
+- `features/fileMenu` imports `features/filePreview` (for **Preview**); the
+  reverse is never allowed.
 - Side-effect registrations (the markdown source, page registration in
   `features/settings/index.js`) run at import time — a module that must be
   registered is imported by the module that owns its lifecycle.
@@ -721,9 +815,20 @@ deep clone of persisted settings → page `render(container)` mutates the draft 
 footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:language' |
 'settings:fileIcons' | 'settings:fileAges' | 'settings:fileMeta' |
-'settings:fileMenu')` → gallery repaints its stylesheet,
-file features rescan or tear down, settings entry relabels itself and updates
-its dot → success toast → panel closes and `unlockPageScroll()`.
+'settings:fileMenu' | 'settings:filePreview')` → gallery repaints its
+stylesheet, file features rescan or tear down, settings entry relabels itself
+and updates its dot → success toast → panel closes and `unlockPageScroll()`.
+
+## End-to-end data flow (preview)
+
+eye button click (or **Preview** in the file menu) → `openPreviewForTarget`
+resolves the row's `{ name, rawUrl }` and its sibling set (`siblingsForRow`) →
+`openFilePreview({ files, index, load: loadPreview })` → `show()` aborts any
+stale request, renders a spinner and calls `load(file, { mode, signal })` →
+`loadPreview` probes `HEAD` for unknown kinds, fetches the same-origin raw
+address, and dispatches to the markdown/code/card renderer → the shell swaps in
+`result.node`, updates the meta line and segmented control, and the footer's
+prev/next call `show()` again with the same loader.
 
 ## GitHub DOM notes
 
@@ -787,6 +892,8 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `fileMeta.sizes` | `true` | Show each file's size in its own column |
 | `fileMeta.download` | `true` | Download button in the repository file tree |
 | `fileMenu.enabled` | `true` | Master switch; disabling removes the delegated `contextmenu` listener |
+| `filePreview.enabled` | `true` | Master switch; disabling clears the listing buttons and observers and closes an open preview |
+| `filePreview.rowButton` | `true` | Eye button in listing rows (the context menu always offers **Preview**) |
 
 ## Localization
 
@@ -814,7 +921,7 @@ with English fallback.
 
 All injected UI (settings entry, panel, controls, confirm dialog, toasts,
 context menu, viewer, file icons, file-age dates, the file size column and
-download buttons)
+download buttons, and the quick file preview)
 follows [DESIGN.md](DESIGN.md) — GitHub's
 own visual language through Primer tokens, `gp-`-prefixed classes, colors from
 `src/styles/tokens.css`. File icons are the documented exception: their
@@ -967,6 +1074,17 @@ and check diagnostics for edited files.
   a menu with neither is not recognised. If the row is there but clicking it
   leaves the menu open behind the panel, GitHub's overlay stopped closing on
   the dispatched `Escape`.
+- Quick preview not opening: check **Quick file preview** is on, and — for the
+  eye button — that **Row button** is on; the context menu entry appears
+  regardless. The row must be a `tr.react-directory-row` inside
+  `[data-testid="directory-content"]`; the menu also opens the preview on a blob
+  or blame page, for the file itself. A card saying the file could not be shown
+  means the raw fetch failed (`GP-1501` in the console) or the content type is
+  not text. A preview stuck on "loading" with a huge file means it exceeds
+  `PREVIEW_TEXT_MAX_BYTES` (2 MiB) or `PREVIEW_PDF_MAX_BYTES` (25 MiB) — those
+  show the too-large card, so a real hang means the request never settled. A
+  preview left open after a soft navigation means `watchNavigation` stopped
+  firing.
 - Locale sanity: diff the key lists of all ten locale files; `t()` falls back
   to `en`, which masks a missing key in one locale — verify, don't eyeball.
 

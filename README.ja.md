@@ -5,18 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
 ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
-ワンクリック ダウンロード、そしてファイル操作用のコンテキスト メニューを提供します。
+ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、そして任意の
+ファイルのクイックプレビューを提供します。
 
-> **ステータス:** 初期段階（`0.13.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.14.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
-> ダウンロード ボタン、ファイルのコンテキスト メニュー。今後さらに GitHub の改善を
-> 追加予定です。
+> ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック
+> プレビュー。今後さらに GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -172,6 +173,29 @@ GitHub Plus はその両方をファイルの行に追加します:
   開き、矢印キーで移動でき、閉じるとフォーカスが戻ります。機能をオフにすると、
   どこでもブラウザーのメニューに戻ります。
 
+### ファイルのクイックプレビュー
+
+ページを離れずに任意のファイルを開けます — ファイル一覧の目のボタン、または
+ファイルのコンテキスト メニューの**プレビュー**から:
+
+- **生のテキストではなくレンダリング** — Markdown はレンダリングされ、
+  サニタイズされます。ソース ファイルには構文ハイライトと行番号が付き、画像・
+  動画・音声はその場で再生され、PDF はブラウザー自身のビューアーで開きます。
+  それ以外は壊れたフレームではなく、**GitHub で開く**と**ダウンロード**を備えた
+  正直なカードを表示します。
+- **フォルダー内を移動** — 同じディレクトリのファイルがセットになり、前へ/次へ
+  ボタンと矢印キーで切り替えられます。現在位置はフッターに表示されます。
+- **ヘッダーの操作** — GitHub でファイルを開く、生の内容・リンク・パスをコピー
+  する、元のファイル名でダウンロードする。
+- **Markdown: プレビューまたはソース** — セグメント コントロールで、レンダリング
+  された Markdown と元のテキスト（Markdown としてハイライト）を切り替えます。
+- **プライベート リポジトリでも安全** — 相対画像とリンクは同一オリジンの raw
+  ルートで解決されるため、プライベートな README でも画像が表示されます。
+  Markdown はサニタイズされ、外部画像は referrer なしで読み込まれます。
+- **正直な上限** — テキストと Markdown は 2 MiB、PDF は 25 MiB まで、
+  ハイライトにも上限があり、巨大なファイルでタブが固まりません。上限を超えると、
+  カードから GitHub と生ファイルへ移動できます。
+
 ### 設定パネル
 
 GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
@@ -207,6 +231,8 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `fileMeta.sizes` | `true` | リポジトリのファイル一覧に各ファイルのサイズを表示 |
 | `fileMeta.download` | `true` | リポジトリのファイル一覧のダウンロード ボタン |
 | `fileMenu.enabled` | `true` | ファイルのコンテキスト メニューのマスター スイッチ |
+| `filePreview.enabled` | `true` | ファイルのクイックプレビューのマスター スイッチ |
+| `filePreview.rowButton` | `true` | ファイル一覧の行に目のボタンを表示（コンテキスト メニューでは常に**プレビュー**を選べます） |
 
 ## ギャラリーの仕組み
 

@@ -5,15 +5,15 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
-以及用于文件操作的上下文菜单。
+用于文件操作的上下文菜单，以及任意文件的快速预览。
 
-> **状态：** 早期（`0.13.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
+> **状态：** 早期（`0.14.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
 > 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
-> 文件大小，以及文件上下文菜单。计划加入更多 GitHub 改进。
+> 文件大小、文件上下文菜单，以及快速文件预览。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -147,6 +147,25 @@ GitHub Plus 把两者直接加到文件行上：
 - **也支持键盘** — 上下文菜单键会在文件链接处打开同一菜单，支持方向键导航，关闭后
   焦点会回到原处；关闭该功能后各处都会恢复浏览器菜单。
 
+### 快速文件预览
+
+无需离开页面即可打开任意文件——使用文件列表中的眼睛按钮，或文件右键菜单中的
+**预览**：
+
+- **渲染而非原始文本** — Markdown 会被渲染并净化，源代码文件获得语法高亮和
+  行号，图片、视频和音频就地播放，PDF 在浏览器自带的查看器中打开。其他类型会
+  显示一张诚实的卡片，提供 **在 GitHub 上打开** 和 **下载**，而不是损坏的框架。
+- **在文件夹中切换** — 同一目录中的文件组成一个集合：上一页/下一页按钮和方向键
+  可在其间切换，页脚显示当前位置。
+- **页头操作** — 在 GitHub 上打开文件、复制其原始内容、链接或路径，或以自己的
+  文件名下载。
+- **Markdown：预览或源码** — 分段控件可在渲染后的 Markdown 与其原始文本（按
+  Markdown 高亮）之间切换。
+- **私有仓库也安全** — 相对图片和链接通过同源 raw 路由解析，因此私有 README 的
+  图片仍能显示；Markdown 经过净化，外部图片加载时不发送 referrer。
+- **诚实的限制** — 文本和 Markdown 最大 2 MiB，PDF 最大 25 MiB，高亮也有上限，
+  避免超大文件卡住标签页；超出限制时，卡片会指向 GitHub 和原始文件。
+
 ### 设置面板
 
 可从 GitHub 头部的齿轮按钮、头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub
@@ -181,6 +200,8 @@ GitHub Plus 把两者直接加到文件行上：
 | `fileMeta.sizes` | `true` | 在仓库文件列表中显示每个文件的大小 |
 | `fileMeta.download` | `true` | 仓库文件列表中的下载按钮 |
 | `fileMenu.enabled` | `true` | 文件上下文菜单总开关 |
+| `filePreview.enabled` | `true` | 快速文件预览总开关 |
+| `filePreview.rowButton` | `true` | 文件列表行中的眼睛按钮（右键菜单始终提供**预览**） |
 
 ## 画廊的构建方式
 

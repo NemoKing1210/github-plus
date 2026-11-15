@@ -5,16 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
-blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴를
-제공합니다.
+blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴,
+그리고 모든 파일의 빠른 미리보기를 제공합니다.
 
-> **상태:** 초기(`0.13.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
+> **상태:** 초기(`0.14.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
 > 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
-> 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴. 더 많은 GitHub 개선이 예정되어 있습니다.
+> 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴, 파일 빠른 미리보기. 더 많은 GitHub
+> 개선이 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
@@ -165,6 +166,28 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
   화살표 키로 이동하며 닫으면 포커스가 돌아옵니다. 기능을 끄면 어디서나 브라우저
   메뉴로 돌아갑니다.
 
+### 파일 빠른 미리보기
+
+페이지를 떠나지 않고 모든 파일을 열 수 있습니다 — 파일 목록의 눈 버튼이나 파일
+컨텍스트 메뉴의 **미리보기**에서:
+
+- **원본이 아닌 렌더링** — Markdown은 렌더링되고 정화되며, 소스 파일에는 구문
+  강조와 줄 번호가 붙고, 이미지·동영상·오디오는 그 자리에서 재생되며, PDF는
+  브라우저 자체 뷰어에서 열립니다. 그 밖의 파일은 깨진 프레임 대신 **GitHub에서
+  열기**와 **다운로드**가 있는 정직한 카드를 보여 줍니다.
+- **폴더 안에서 이동** — 같은 디렉터리의 파일이 하나의 집합이 되어 이전/다음
+  버튼과 방향키로 전환할 수 있고, 현재 위치가 바닥글에 표시됩니다.
+- **헤더의 작업** — GitHub에서 파일 열기, 원본 내용·링크·경로 복사, 원래 파일
+  이름으로 다운로드.
+- **Markdown: 미리보기 또는 소스** — 세그먼트 컨트롤로 렌더링된 Markdown과 원본
+  텍스트(Markdown으로 강조)를 전환합니다.
+- **비공개 저장소에서도 안전** — 상대 이미지와 링크가 동일 출처 raw 경로로
+  해석되므로 비공개 README의 이미지도 유지됩니다. Markdown은 정화되고 외부
+  이미지는 referrer 없이 로드됩니다.
+- **정직한 제한** — 텍스트와 Markdown은 최대 2 MiB, PDF는 최대 25 MiB이며,
+  강조에도 상한이 있어 거대한 파일이 탭을 멈추지 않습니다. 한도를 넘으면 카드에서
+  GitHub와 원본 파일로 이동할 수 있습니다.
+
 ### 설정 패널
 
 GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
@@ -199,6 +222,8 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `fileMeta.sizes` | `true` | 저장소 파일 목록에 각 파일의 크기 표시 |
 | `fileMeta.download` | `true` | 저장소 파일 목록의 다운로드 버튼 |
 | `fileMenu.enabled` | `true` | 파일 컨텍스트 메뉴 마스터 스위치 |
+| `filePreview.enabled` | `true` | 파일 빠른 미리보기 마스터 스위치 |
+| `filePreview.rowButton` | `true` | 파일 목록 행의 눈 버튼(컨텍스트 메뉴에서는 항상 **미리보기** 제공) |
 
 ## 갤러리 구조
 

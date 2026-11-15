@@ -5,19 +5,20 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
 GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos,
-tamaños de archivo con descargas en un clic y un menú contextual para acciones
-de archivo.
+tamaños de archivo con descargas en un clic, un menú contextual para acciones
+de archivo y una vista rápida de cualquier archivo.
 
-> **Estado:** temprano (`0.13.0`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.14.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Copia de seguridad · Acerca de), la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
-> antigüedad al estilo blame, los tamaños de archivo con botones de descarga y
-> un menú contextual de archivos. Hay más mejoras de GitHub planificadas.
+> antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
+> menú contextual de archivos y una vista rápida de archivos. Hay más mejoras de
+> GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -194,6 +195,31 @@ para los archivos:
   cerrarlo; al desactivar la función vuelve el menú del navegador en todas
   partes.
 
+### Vista rápida de archivos
+
+Abre cualquier archivo sin salir de la página: con el botón de ojo de una lista
+de archivos o con **Vista previa** en el menú contextual del archivo:
+
+- **Renderizado, no en bruto** — el markdown se renderiza y se sanea, los
+  archivos de código reciben resaltado de sintaxis y números de línea, las
+  imágenes, el vídeo y el audio se reproducen en el sitio, y los PDF se abren en
+  el visor del propio navegador. Todo lo demás muestra una tarjeta honesta con
+  **Abrir en GitHub** y **Descargar** en lugar de un marco roto.
+- **Recorre la carpeta** — los archivos del mismo directorio forman un conjunto:
+  los botones anterior/siguiente y las teclas de flecha cambian entre ellos, con
+  la posición actual en el pie.
+- **Acciones en la cabecera** — abre el archivo en GitHub, copia su contenido
+  sin formato, su enlace o su ruta, o descárgalo con su propio nombre.
+- **Markdown: vista previa o código** — un control segmentado alterna entre el
+  markdown renderizado y su texto original, resaltado como markdown.
+- **Seguro con repositorios privados** — las imágenes y enlaces relativos se
+  resuelven por la ruta raw del mismo origen, así que un README privado conserva
+  sus imágenes; el markdown se sanea y las imágenes externas se cargan sin
+  referrer.
+- **Límites honestos** — texto y markdown hasta 2 MiB, PDF hasta 25 MiB, y el
+  resaltado tiene un tope para que un archivo enorme no congele la pestaña; por
+  encima del límite, la tarjeta lleva a GitHub y al archivo sin formato.
+
 ### Panel de ajustes
 
 Ábrelo con el botón de engranaje de la cabecera de GitHub, con la fila
@@ -230,6 +256,8 @@ Se guardan en `gp_settings_v1`.
 | `fileMeta.sizes` | `true` | Mostrar el tamaño de cada archivo en las listas del repositorio |
 | `fileMeta.download` | `true` | Botón de descarga en las listas del repositorio |
 | `fileMenu.enabled` | `true` | Interruptor principal del menú contextual de archivos |
+| `filePreview.enabled` | `true` | Interruptor principal de la vista rápida de archivos |
+| `filePreview.rowButton` | `true` | Botón de ojo en las filas de la lista de archivos (el menú contextual siempre ofrece **Vista previa**) |
 
 ## Cómo está construida la galería
 

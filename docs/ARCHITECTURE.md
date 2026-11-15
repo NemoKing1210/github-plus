@@ -11,7 +11,7 @@ src/
 ├── core/
 │   ├── constants.js         # DEFAULT_SETTINGS, storage key, limits
 │   ├── settings.js          # load/save + normalization (single source of truth)
-│   └── bus.js               # minimal pub/sub (settings:gallery/toasts/language/fileIcons/fileAges/fileMeta/fileMenu)
+│   └── bus.js               # minimal pub/sub (settings:gallery/toasts/language/fileIcons/fileAges/fileMeta/fileMenu/filePreview)
 ├── i18n/
 │   ├── meta.js              # SUPPORTED_LOCALES, aliases, native names
 │   ├── index.js             # configureLocale(), t()
@@ -42,14 +42,22 @@ src/
 ├── features/fileMeta/
 │   ├── index.js             # per-surface observers, lazy size probes, settings reaction
 │   ├── surfaces.js          # file rows with a raw address + their column header
-│   ├── paths.js             # rawUrlFor(blobHref) — pure address rewrite
-│   ├── size.js              # formatSize — pure size formatting
 │   └── inject.js            # renderMeta / placeMeta / placeHead / clearMeta
 ├── features/fileMenu/
 │   ├── index.js             # delegated contextmenu listener, actions, settings reaction
 │   ├── surfaces.js          # where a right-click resolves to a file
-│   ├── paths.js             # fileTarget — pure href → href/raw/relative/name
 │   └── copy.js              # isCopyableContent — pure type/name check
+├── features/filePreview/
+│   ├── index.js             # listing observers, eye buttons, open/close lifecycle
+│   ├── surfaces.js          # listing rows, current ref, sibling set
+│   ├── inject.js            # renderPreviewButton / placeCell / placeHead / clearPreviewCells
+│   ├── kind.js              # previewKind / highlightLanguage / countLines — pure
+│   ├── links.js             # resolveMarkdownTarget — pure relative-link rewrite
+│   ├── render.js            # loadPreview: HEAD probe + fetch + dispatch
+│   ├── markdown.js          # marked + DOMPurify rendering
+│   ├── highlight.js         # highlight.js core + registered languages
+│   ├── code.js              # gutter + highlighted code block
+│   └── cards.js             # binary / empty / too-large / failure cards
 ├── styles/
 │   ├── tokens.css           # :root design tokens (--gp-* palette)
 │   └── app.css              # injected stylesheet (gp- prefix)
@@ -57,12 +65,15 @@ src/
 │   ├── icons.js             # 16×16 stroke glyphs (viewer toolbar, menu actions)
 │   ├── toast.js             # notifications (positions, dedup, actions)
 │   ├── contextMenu.js       # reusable fixed-position menu
+│   ├── filePreview.js       # quick-preview modal shell (header, footer, keys)
 │   └── viewer.js            # fullscreen image viewer (reusable lightbox)
 └── utils/
-    ├── dom.js               # el, append, debounce, eachNode, toArray, isOwnUi
+    ├── dom.js               # el, append, debounce, eachNode, toArray, escapeHtml, isOwnUi
     ├── download.js          # fetch → blob → <a download>, new-tab fallback
+    ├── fileTarget.js        # rawUrlFor / fileTarget / resolveFileTarget — pure
     ├── navigation.js        # watchNavigation (turbo/pjax/history URL watcher)
-    └── scrollLock.js        # counted page scroll lock for modal overlays
+    ├── scrollLock.js        # counted page scroll lock for modal overlays
+    └── size.js              # formatSize — pure size formatting
 ```
 
 ## Module graph
@@ -75,6 +86,7 @@ graph TD
   main --> fileAges[features/fileAges]
   main --> fileMeta[features/fileMeta]
   main --> fileMenu[features/fileMenu]
+  main --> filePreview[features/filePreview]
   main --> gallery
   main --> ui
   main --> utils
@@ -99,6 +111,11 @@ graph TD
   fileMenu --> ui
   fileMenu --> utils
   fileMenu --> i18n
+  fileMenu --> filePreview
+  filePreview --> core
+  filePreview --> ui
+  filePreview --> utils
+  filePreview --> i18n
   ui --> core
   ui --> utils
   ui --> i18n
@@ -119,8 +136,8 @@ listener that walks the live DOM at event time, (c) a re-mount triggered by an
 explicit navigation event, or (d) one observer on a container GitHub itself
 owns — `features/settings/userMenu.js` watches Primer's overlay portal root
 (`#__primerPortalRoot__`), which holds nothing but overlays and stays empty
-otherwise. `features/fileIcons/`, `features/fileAges/` and `features/fileMeta/`
-follow the same rule at a smaller scale: one observer per known file-list
+otherwise. `features/fileIcons/`, `features/fileAges/`, `features/fileMeta/`
+and `features/filePreview/` follow the same rule at a smaller scale: one observer per known file-list
 container (repository tree, PR header list, last-commit cells, and so on),
 never one on the document, and a surface whose selector stops
 matching turns into a no-op instead of breaking the pagination. File meta adds
@@ -177,6 +194,14 @@ the feature cannot break a right-click it does not own. The menu element itself
 lives in `ui/contextMenu.js`, is appended to `<body>`, and is removed on close,
 outside press, scroll, resize and navigation.
 
+The quick preview is the one feature that both injects a row button and opens
+an overlay. Its observers decorate listing rows with an eye button (the same
+per-container pattern as the other file features), and the click opens
+`ui/filePreview.js` with a `load` callback supplied by
+`features/filePreview/render.js`, so the shell stays a reusable modal and the
+feature owns fetching and rendering. The files of the current directory are
+the modal's set; the footer and the arrow keys move through them.
+
 ## Settings lifecycle
 
 ```mermaid
@@ -194,7 +219,7 @@ sequenceDiagram
   U->>P: Save
   P->>S: saveSettings(draft)
   S-->>P: normalized + persisted state
-  P->>B: emit settings:gallery / toasts / language / fileIcons / fileAges / fileMeta / fileMenu
+  P->>B: emit settings:gallery / toasts / language / fileIcons / fileAges / fileMeta / fileMenu / filePreview
   B->>F: listeners react (repaint stylesheet, rescan rows, relabel entry)
   P-->>U: success toast, panel closed
 ```
@@ -207,7 +232,8 @@ in `core` and reactions in the UI/features, and it is what makes a backup import
 
 GitHub navigates without a reload (Turbo, plus classic `pushState`), and it
 replaces `<body>` while module state lives on. `main.js` subscribes to
-`watchNavigation()` and closes the viewer and the panel on every URL change;
+`watchNavigation()` and closes the viewer, the panel and the quick preview on
+every URL change;
 otherwise a "closed" viewer would keep reporting itself open (and swallow
 `Escape` for the panel) and a pinned page would stay pinned. The settings entry
 subscribes to the same watcher to re-mount its header button; the avatar-menu
@@ -221,7 +247,7 @@ page coordinates that no longer mean anything after the page changes.
 |------|-------|
 | A new place with images (diff view, project board, …) | Register a source in `src/gallery/sources/`, import it from `src/gallery/index.js`, add its default switch in `core/constants.js`, add its two locale keys in all ten locales. The settings panel picks it up from the registry. |
 | A new settings page | `registerPage({ id, icon, labelKey, descKey, render })` and a module in `features/settings/tabs/`. The page reads and mutates `getDraft()`. |
-| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`); if the rows also show a last-commit date, add it to `src/features/fileAges/surfaces.js`; if they link to a file view and do not already show a size or a download button, add it to `src/features/fileMeta/surfaces.js` (`resolve` returns the raw address; the surface's `header` and `columnLabelKey` place the column's label); if a right-click on a row should open the file menu, add the row to `src/features/fileMenu/surfaces.js`. Observers and injection are shared per feature. |
+| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`); if the rows also show a last-commit date, add it to `src/features/fileAges/surfaces.js`; if they link to a file view and do not already show a size or a download button, add it to `src/features/fileMeta/surfaces.js` (`resolve` returns the raw address; the surface's `header` and `columnLabelKey` place the column's label); if a right-click on a row should open the file menu, add the row to `src/features/fileMenu/surfaces.js`; if the row should offer the eye button, add it to `src/features/filePreview/surfaces.js` (`PREVIEW_SURFACE`). Observers and injection are shared per feature. |
 | A new file action | Add an entry to `buildItems()` in `src/features/fileMenu/index.js` (label key, `ACTION_ICONS` glyph, handler), its key in all ten locales, and a toast for the outcome. The menu component itself needs no change. |
 | A context menu elsewhere | `openContextMenu({ x, y, label, items })` from `ui/contextMenu.js` — it is a standalone component; give it an anchor and `keyboard: true` for keyboard-triggered opens. |
 | A new setting | Add it to `DEFAULT_SETTINGS` + a normalizer in `core/settings.js`, expose a getter, add the control to a tab, and document the key in `README.md` / `AGENTS.md`. Emit the matching bus event on Save if a feature must react. |

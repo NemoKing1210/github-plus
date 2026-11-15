@@ -5,18 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
 wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
-i pobieranie jednym kliknięciem oraz menu kontekstowe operacji na plikach.
+i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach oraz szybki
+podgląd dowolnego pliku.
 
-> **Status:** wczesny etap (`0.13.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.14.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
-> plików z przyciskami pobierania oraz menu kontekstowe plików. W planach kolejne
-> ulepszenia GitHuba.
+> plików z przyciskami pobierania, menu kontekstowe plików oraz szybki podgląd
+> plików. W planach kolejne ulepszenia GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
@@ -184,6 +185,30 @@ je dla plików:
   linku do pliku, z nawigacją strzałkami i przywróceniem fokusu po zamknięciu;
   wyłączenie funkcji przywraca menu przeglądarki wszędzie.
 
+### Szybki podgląd plików
+
+Otwórz dowolny plik bez opuszczania strony — przyciskiem oka na liście plików lub
+przez **Podgląd** w menu kontekstowym pliku:
+
+- **Wyrenderowane, nie surowe** — Markdown jest renderowany i oczyszczany, pliki
+  źródłowe otrzymują podświetlanie składni i numery wierszy, obrazy, wideo i audio
+  odtwarzają się na miejscu, a PDF-y otwierają się w przeglądarce. Dla pozostałych
+  plików pojawia się uczciwa karta z **Otwórz na GitHubie** i **Pobierz** zamiast
+  zepsutej ramki.
+- **Przechodzenie po folderze** — pliki z tego samego katalogu tworzą zbiór:
+  przyciski poprzedni/następny i klawisze strzałek przełączają między nimi, a
+  bieżąca pozycja jest w stopce.
+- **Działania w nagłówku** — otwórz plik na GitHubie, skopiuj jego surową treść,
+  link lub ścieżkę albo pobierz go pod jego własną nazwą.
+- **Markdown: podgląd lub źródło** — kontrolka segmentowa przełącza wyrenderowany
+  Markdown na jego oryginalny tekst, podświetlony jako Markdown.
+- **Bezpiecznie w prywatnych repozytoriach** — względne obrazy i linki przechodzą
+  przez trasę raw tego samego originu, więc prywatny README zachowuje obrazy;
+  Markdown jest oczyszczany, a zewnętrzne obrazy ładują się bez referrera.
+- **Uczciwe limity** — tekst i Markdown do 2 MiB, PDF-y do 25 MiB, a podświetlanie
+  ma limit, aby ogromny plik nie zawiesił karty; powyżej limitu karta prowadzi do
+  GitHuba i surowego pliku.
+
 ### Panel ustawień
 
 Otwórz go przyciskiem zębatki w nagłówku GitHuba, wierszem **Ustawienia GitHub Plus**
@@ -219,6 +244,8 @@ Przechowywane pod `gp_settings_v1`.
 | `fileMeta.sizes` | `true` | Pokazuj rozmiar każdego pliku na listach repozytorium |
 | `fileMeta.download` | `true` | Przycisk pobierania na listach repozytorium |
 | `fileMenu.enabled` | `true` | Główny przełącznik menu kontekstowego plików |
+| `filePreview.enabled` | `true` | Główny przełącznik szybkiego podglądu plików |
+| `filePreview.rowButton` | `true` | Przycisk oka w wierszach listy plików (menu kontekstowe zawsze oferuje **Podgląd**) |
 
 ## Jak zbudowana jest galeria
 

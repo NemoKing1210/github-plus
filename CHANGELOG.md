@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-15
+
+### Added
+
+- A quick file preview. Opening a file from the file list's eye button or from
+  **Preview** in the file context menu shows it in a modal without leaving the
+  page: Markdown is rendered and sanitized, source files get syntax highlighting
+  and line numbers, images, video and audio play in place, and PDFs open in the
+  browser's own viewer. Any other file gets an honest card with **Open on
+  GitHub** and **Download** instead of a broken frame
+- Sibling navigation inside the preview: the files of the current directory form
+  one set, so the previous/next buttons and the arrow keys move between them,
+  with the position shown in the footer
+- Header actions in the preview — open on GitHub, copy contents, link or path,
+  and download under the file's own name — plus a preview/source switch for
+  Markdown, which keeps the Preview/Source control available in both modes
+- A **Quick file preview** card on the **Files** settings page with its own
+  master switch (`filePreview.enabled`) and a row button toggle
+  (`filePreview.rowButton`); `preview.*` keys in all ten locales
+- The preview modal is documented in `DESIGN.md` (its own component section,
+  tokens and stacking), and the bundled Markdown, sanitizer and highlighter
+  engines are attributed in `THIRD_PARTY_LICENSES`
+
+### Changed
+
+- `rawUrlFor`, `fileTarget` and `resolveFileTarget` moved to
+  `src/utils/fileTarget.js`, and `formatSize` to `src/utils/size.js`, so the
+  file menu, file sizes and the preview share one implementation
+
+[0.14.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.14.0
+
 ## [0.13.0] - 2026-11-15
 
 ### Added

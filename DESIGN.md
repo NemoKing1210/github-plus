@@ -45,8 +45,8 @@ Two invariants hold for every selector:
 - Every UI-root class that must be excluded from page scanning is listed in
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
-  .gp-user-menu-item, .gp-viewer-overlay, .gp-download-btn, .gp-file-meta,
-  .gp-context-menu`).
+  .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
+  .gp-file-meta, .gp-context-menu`).
   Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
@@ -85,12 +85,15 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-age-8` | — | `#7e6746` | Age scale 8 |
 | `--gp-age-9` | — | `#876739` | Age scale 9 |
 | `--gp-age-10` | — | `#9a6700` | Age scale 10: newest commit, GitHub's attention gold |
+| `--gp-code-keyword` … `--gp-code-meta` | — | GitHub's own syntax palette (light) | Syntax highlighting in the quick preview: keyword, string, comment, number, function, variable, type, attr, tag, meta |
 
 The age scale has a second ramp (`#9198a1` … `#ffd78d`, oldest to newest)
 declared under
 `:root[data-color-mode="dark"]`, and again for `[data-color-mode="auto"]`
 inside the same `prefers-color-scheme: dark` query GitHub uses for its own auto
-mode. It is documented in §3.
+mode. It is documented in §3. The ten `--gp-code-*` syntax tokens have the same
+three declarations (light, dark, auto) and take GitHub's own code-view colors,
+so a highlighted file matches the blob page.
 
 Rules:
 
@@ -514,6 +517,7 @@ and GitHub's own menus do not animate either.
 | `.gp-context-menu__icon` | `flex: none`, `inline-flex`, `var(--gp-text-muted)`; its `svg` is a `16×16` block glyph from `ACTION_ICONS` |
 | `.gp-context-menu__label` | `min-width: 0`, ellipsized in one line |
 | `.gp-context-menu__sep` | `1px` rule in `var(--gp-line)` with `4px` vertical margins |
+| `.gp-context-menu--elevated` | `z-index: 1000003` — the same menu opened from the quick preview, which must float above that overlay (`1000002`) |
 
 The menu root is `role="menu"` and takes an `aria-label` naming the file; the
 icon wrappers are `aria-hidden` (the label carries the meaning). A keyboard
@@ -662,6 +666,44 @@ and the column is hidden.
 
 Turning the feature off removes the cells and the header label, leaving the
 table exactly as GitHub rendered it.
+
+### Quick file preview (`.gp-preview`)
+
+A centered modal above the page with the same anatomy as the panel: a header
+bar (`--gp-bg-2`) with a border-bottom, a scrolling body on `--gp-bg-1`, and a
+footer bar. It is the second-highest overlay (`z-index: 1000002`), above the
+settings panel and the viewer; the context menu it opens still floats above it.
+Width is `min(1080px, 100%)` and height `min(88vh, 820px)`, so a wide file has
+room while the modal never touches the viewport edges; the backdrop is the
+shared `--gp-scrim` with the same blur as the viewer.
+
+| Class | Rules |
+|---|---|
+| `.gp-preview-overlay` | Fixed inset, centered flex, `16px` padding, `var(--gp-scrim)`, `blur(8px) saturate(120%)`, `gp-overlay-in` |
+| `.gp-preview` | Column flex, `var(--gp-bg-1)`, 1px `var(--gp-border)`, `var(--gp-radius-lg)`, `gp-panel-in`; `[hidden]` is declared explicitly |
+| `.gp-preview__header` | Header bar: `10px 12px 10px 16px`, `gap: 12px`, `var(--gp-bg-2)`, bottom border |
+| `.gp-preview__name` | The file name, `h2`-like, truncating with an ellipsis; the meta line beside it is `11px` mono `var(--gp-text-muted)` |
+| `.gp-preview__seg`, `.gp-preview__seg-btn` | Segmented Preview/Source control: 28px pill row on `var(--gp-bg-2)`; the pressed segment takes `var(--gp-bg-1)` with a `var(--gp-border)` ring and `var(--gp-text)` |
+| `.gp-preview__tools`, `.gp-preview__tool` | GitHub icon-button row: `28×28`, `var(--gp-radius)`, transparent fill, `var(--gp-text-muted)` 16px glyphs, `var(--gp-highlight)` + `var(--gp-text)` on hover; close is the same shape with the danger tone on hover |
+| `.gp-preview__content` | The scrolling body, `overflow: auto`, focusable so a long file can be scrolled by keyboard |
+| `.gp-preview__spinner`, `.gp-preview__spinner-ring` | The shared accent spinner while a file loads |
+| `.gp-preview__footer` | Footer bar: `var(--gp-bg-2)`, top border, prev/next at the ends and the position centered |
+| `.gp-preview__nav`, `.gp-preview__counter` | Prev/next are icon buttons with the counter in `11px` tabular `var(--gp-text-muted)`; a `[disabled]` arrow drops to `opacity: 0.5` |
+| `.gp-preview__code`, `.gp-preview__gutter`, `.gp-preview__line-no`, `.gp-preview__pre` | Code view: a gutter of right-aligned `11px` mono line numbers on `var(--gp-bg-2)` beside the highlighted `<pre>` |
+| `.gp-preview__md` | Rendered markdown: the same vertical rhythm and heading scale as GitHub's `.markdown-body`, links in `var(--gp-accent)`, inline code and tables on `var(--gp-bg-2)`, blockquotes with a `var(--gp-border)` rule |
+| `.gp-preview__image`, `.gp-preview__media`, `.gp-preview__pdf` | Image/video/audio are centered and capped to the body; the PDF iframe fills the body with a `var(--gp-bg-2)` fill |
+| `.gp-preview__card`, `.gp-preview__card-icon`, `.gp-preview__card-title/-desc/-meta/-actions/-action` | Honest card for binary, empty, too-large and failed files: a 44px circular icon well, a 16px title, a 13px muted description, a mono meta line and outline actions (28px) |
+
+Highlighting colors come from the `--gp-code-*` tokens and are selected only by
+`.hljs-*` classes inside the preview, so no page markup is ever styled. The eye
+button column (`.gp-file-preview-cell`, `.gp-file-preview-head`,
+`.gp-file-preview-btn`) repeats the file-meta column's rules — a 40px column,
+a 28×28 icon button, `font-size: 0` on the header cell — and is hidden below
+`768px`. Below `720px` the header wraps its heading onto its own row.
+
+The copy menu in the header is the shared context menu opened with
+`elevated: true`, because the preview overlay (`1000002`) would otherwise paint
+over it; it takes `.gp-context-menu--elevated` (`1000003`).
 
 ## 7. States
 

@@ -5,18 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
 wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
-Dateigrößen mit Ein-Klick-Downloads sowie ein Kontextmenü für Dateiaktionen.
+Dateigrößen mit Ein-Klick-Downloads, ein Kontextmenü für Dateiaktionen und eine
+Schnellvorschau für jede Datei.
 
-> **Status:** früh (`0.13.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.14.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
-> Download-Schaltflächen sowie ein Dateikontextmenü. Weitere
-> GitHub-Verbesserungen sind geplant.
+> Download-Schaltflächen, ein Dateikontextmenü und eine Schnellvorschau für
+> Dateien. Weitere GitHub-Verbesserungen sind geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
@@ -191,6 +192,32 @@ und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateie
   Dateilink, mit vollständiger Pfeilnavigation und wiederhergestelltem Fokus
   nach dem Schließen; beim Deaktivieren kehrt überall das Browser-Menü zurück.
 
+### Schnellvorschau für Dateien
+
+Jede Datei lässt sich öffnen, ohne die Seite zu verlassen — über die
+Auge-Schaltfläche in einer Dateiliste oder über **Vorschau** im
+Dateikontextmenü:
+
+- **Gerendert statt roh** — Markdown wird gerendert und bereinigt, Quelldateien
+  erhalten Syntaxhervorhebung und Zeilennummern, Bilder, Video und Audio laufen
+  an Ort und Stelle, und PDFs öffnen im PDF-Betrachter des Browsers. Alles andere
+  zeigt eine ehrliche Karte mit **Auf GitHub öffnen** und **Herunterladen**
+  statt eines kaputten Rahmens.
+- **Durch den Ordner blättern** — Dateien im selben Verzeichnis bilden ein Set:
+  Zurück/Weiter-Schaltflächen und die Pfeiltasten wechseln zwischen ihnen, die
+  Position steht in der Fußzeile.
+- **Aktionen in der Kopfzeile** — die Datei auf GitHub öffnen, ihren rohen
+  Inhalt, Link oder Pfad kopieren oder sie unter ihrem eigenen Namen
+  herunterladen.
+- **Markdown: Vorschau oder Quelle** — ein Segment-Schalter wechselt zwischen
+  gerendertem Markdown und seinem Quelltext mit Markdown-Hervorhebung.
+- **Sicher mit privaten Repositories** — relative Bilder und Links laufen über
+  die Same-Origin-Raw-Route, sodass ein privates README seine Bilder behält;
+  Markdown wird bereinigt und externe Bilder laden ohne Referrer.
+- **Ehrliche Grenzen** — Text und Markdown bis 2 MiB, PDFs bis 25 MiB, und die
+  Hervorhebung ist begrenzt, damit eine riesige Datei den Tab nicht einfriert;
+  über dem Limit verweist die Karte auf GitHub und die Rohdatei.
+
 ### Einstellungsfenster
 
 Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
@@ -227,6 +254,8 @@ Gespeichert unter `gp_settings_v1`.
 | `fileMeta.sizes` | `true` | Die Größe jeder Datei in Repository-Listen anzeigen |
 | `fileMeta.download` | `true` | Download-Schaltfläche in Repository-Listen |
 | `fileMenu.enabled` | `true` | Hauptschalter für das Dateikontextmenü |
+| `filePreview.enabled` | `true` | Hauptschalter für die Schnellvorschau von Dateien |
+| `filePreview.rowButton` | `true` | Auge-Schaltfläche in den Zeilen der Dateiliste (das Kontextmenü bietet **Vorschau** immer an) |
 
 ## Wie die Galerie aufgebaut ist
 

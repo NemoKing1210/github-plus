@@ -5,19 +5,20 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.14.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 galeria de imagens para markdown renderizado, ícones de arquivo coloridos onde o
 GitHub lista arquivos, idades coloridas no estilo blame para esses arquivos,
-tamanhos de arquivo com downloads em um clique e um menu de contexto para ações
-de arquivo.
+tamanhos de arquivo com downloads em um clique, um menu de contexto para ações
+de arquivo e uma pré-visualização rápida de qualquer arquivo.
 
-> **Status:** inicial (`0.13.0`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.14.0`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Backup · Sobre), a galeria de imagens de
 > markdown, ícones de arquivo coloridos, idades coloridas no estilo blame,
-> tamanhos de arquivo com botões de download e um menu de contexto de arquivos.
-> Mais melhorias no GitHub estão planejadas.
+> tamanhos de arquivo com botões de download, um menu de contexto de arquivos e
+> uma pré-visualização rápida de arquivos. Mais melhorias no GitHub estão
+> planejadas.
 
 > As diretivas `@updateURL` / `@downloadURL` do script apontam para `main` no
 > GitHub — a URL de instalação abaixo sempre leva à compilação mais recente.
@@ -188,6 +189,30 @@ Plus o substitui para arquivos:
   link do arquivo, com navegação pelas setas e foco restaurado ao fechar;
   desativar o recurso devolve o menu do navegador em todos os lugares.
 
+### Pré-visualização rápida de arquivos
+
+Abra qualquer arquivo sem sair da página — pelo botão de olho em uma lista de
+arquivos ou por **Pré-visualização** no menu de contexto do arquivo:
+
+- **Renderizado, não bruto** — o markdown é renderizado e sanitizado, arquivos
+  de código ganham realce de sintaxe e números de linha, imagens, vídeo e áudio
+  são reproduzidos no local, e PDFs abrem no visualizador do próprio navegador.
+  Qualquer outra coisa mostra um cartão honesto com **Abrir no GitHub** e
+  **Baixar** em vez de um quadro quebrado.
+- **Navegue pela pasta** — os arquivos do mesmo diretório formam um conjunto: os
+  botões anterior/próximo e as setas do teclado alternam entre eles, com a
+  posição atual no rodapé.
+- **Ações no cabeçalho** — abra o arquivo no GitHub, copie seu conteúdo bruto,
+  link ou caminho, ou baixe-o com o próprio nome.
+- **Markdown: pré-visualização ou fonte** — um controle segmentado alterna entre
+  o markdown renderizado e seu texto original, realçado como markdown.
+- **Seguro com repositórios privados** — imagens e links relativos passam pela
+  rota raw da mesma origem, então um README privado mantém suas imagens; o
+  markdown é sanitizado e imagens externas carregam sem referrer.
+- **Limites honestos** — texto e markdown até 2 MiB, PDFs até 25 MiB, e o realce
+  tem um teto para que um arquivo enorme não congele a aba; acima do limite, o
+  cartão aponta para o GitHub e o arquivo bruto.
+
 ### Painel de configurações
 
 Abra-o pelo botão de engrenagem no cabeçalho do GitHub, pela linha
@@ -224,6 +249,8 @@ Armazenadas em `gp_settings_v1`.
 | `fileMeta.sizes` | `true` | Mostrar o tamanho de cada arquivo nas listagens do repositório |
 | `fileMeta.download` | `true` | Botão de download nas listagens do repositório |
 | `fileMenu.enabled` | `true` | Chave mestra do menu de contexto de arquivos |
+| `filePreview.enabled` | `true` | Chave mestra da pré-visualização rápida de arquivos |
+| `filePreview.rowButton` | `true` | Botão de olho nas linhas da lista de arquivos (o menu de contexto sempre oferece **Pré-visualização**) |
 
 ## Como a galeria é construída
 
