@@ -33,6 +33,8 @@ export const Codes = {
   FILE_META: 'GP-1303',
   /** The file context menu failed to resolve or run an action. */
   FILE_MENU: 'GP-1401',
+  /** A quick-preview file failed to load or render. */
+  FILE_PREVIEW: 'GP-1501',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
 };
