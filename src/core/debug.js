@@ -23,6 +23,8 @@ export const Codes = {
   GALLERY_SOURCE: 'GP-1102',
   /** A gallery image failed to load in the viewer. */
   GALLERY_IMAGE: 'GP-1103',
+  /** A file-icons surface or its selectors failed. */
+  FILE_ICONS: 'GP-1301',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
 };

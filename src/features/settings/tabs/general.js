@@ -33,7 +33,10 @@ export function renderGeneral(container) {
     }),
   }));
 
-  const toasts = createSection({ title: t('general.toasts') });
+  const toasts = createSection({
+    title: t('general.toasts'),
+    hint: t('general.toastsDesc'),
+  });
   toasts.body.appendChild(createSwitchRow({
     checked: draft.toasts.enabled,
     label: t('toasts.enabled'),
@@ -48,6 +51,7 @@ export function renderGeneral(container) {
   }));
   toasts.body.appendChild(createField({
     label: t('toasts.position'),
+    hint: t('toasts.positionDesc'),
     control: createSelect({
       options: positionOptions,
       value: draft.toasts.position,

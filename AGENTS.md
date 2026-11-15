@@ -26,6 +26,7 @@ files; regenerate them with `npm run build`.
 github-plus/
 ├── AGENTS.md               # This file: architecture and repo conventions
 ├── DESIGN.md               # Visual rules for every injected UI element
+├── THIRD_PARTY_LICENSES    # Attribution for the bundled Material Icon Theme
 ├── src/
 │   ├── main.js             # Entry: locale init, feature boot, nav overlay reset
 │   ├── core/
@@ -47,17 +48,24 @@ github-plus/
 │   │   └── sources/
 │   │       └── markdown.js # Markdown images source (side-effect registration)
 │   ├── features/
-│   │   └── settings/
-│   │       ├── index.js    # Settings entry: header button, user-menu row, pages
-│   │       ├── userMenu.js # Settings row inside GitHub's user (avatar) menu
-│   │       ├── panel.js    # Panel shell: sidebar + pages, draft, Save/Reset/Cancel
-│   │       ├── controls.js # Section / row / field / switch / select / input / button
-│   │       ├── confirm.js  # Promise-based confirm dialog
-│   │       └── tabs/
-│   │           ├── general.js # Interface language, toast notifications
-│   │           ├── gallery.js # Master switch, source switches, viewer behavior
-│   │           ├── backup.js  # Settings export (file/clipboard) + validated import
-│   │           └── about.js   # Version, author, repository, license
+│   │   ├── settings/
+│   │   │   ├── index.js    # Settings entry: header button, user-menu row, pages
+│   │   │   ├── userMenu.js # Settings row inside GitHub's user (avatar) menu
+│   │   │   ├── panel.js    # Panel shell: grouped nav, search, pages, draft, Save/Reset/Cancel
+│   │   │   ├── controls.js # Section / row / field / switch / select / input / button
+│   │   │   ├── confirm.js  # Promise-based confirm dialog
+│   │   │   └── tabs/
+│   │   │       ├── general.js   # Interface language, toast notifications
+│   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
+│   │   │       ├── fileIcons.js # Master switch, folder and filename toggles
+│   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
+│   │   │       └── about.js     # Version, author, repository, license
+│   │   └── fileIcons/
+│   │       ├── index.js    # Surface observers, injection, settings reaction
+│   │       ├── surfaces.js # The places GitHub lists files + row readers
+│   │       ├── match.js    # pickIcon(name, kind): filename → icon id (pure)
+│   │       ├── inject.js   # renderIcon / placeIcon / clearIcons DOM primitives
+│   │       └── iconSet.generated.js # Curated Material Icon Theme slice (generated)
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
@@ -70,8 +78,10 @@ github-plus/
 │       └── scrollLock.js   # counted page scroll lock for modal overlays
 ├── scripts/
 │   ├── lib/artifacts.mjs   # ARTIFACT_FILES list (single source of truth)
+│   ├── build-file-icons.mjs# material-icon-theme → iconSet.generated.js
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
+├── test/                   # Node test runner (match.js)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -85,16 +95,20 @@ github-plus/
 ### `src/main.js` — entry
 
 `init()`: `configureLocale(getSettings().language)` → `initSettingsFeature()` →
-`initGalleryFeature()` + `applyGallerySettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
+`initGalleryFeature()` + `applyGallerySettings()` → `initFileIconsFeature()` +
+`applyFileIconsSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
 listener, so content that GitHub renders after load behaves like
-server-rendered content with no rescanning. Only the settings entries re-mount
-themselves (see `features/settings/index.js` and `userMenu.js`): the header
-button when GitHub swaps the header, the user-menu row on every open of the
-avatar menu — the latter through one observer on Primer's overlay portal root
-(`#__primerPortalRoot__`), a container that holds overlays and nothing else.
+server-rendered content with no rescanning. The file-icons feature watches one
+observer per known file-list container (never the document); a surface whose
+selector stops matching is a no-op, not a break. Only the settings entries
+re-mount themselves (see `features/settings/index.js` and `userMenu.js`): the
+header button when GitHub swaps the header, the user-menu row on every open of
+the avatar menu — the latter through one observer on Primer's overlay portal
+root (`#__primerPortalRoot__`), a container that holds overlays and nothing
+else.
 
 `resetOverlaysOnNavigation()` closes the viewer and the panel when the URL
 changes. GitHub replaces `<body>` on soft navigation while the module state
@@ -114,15 +128,17 @@ Single place for magic values.
   values), `GALLERY_DEFAULT_MAX_ZOOM` (8), `BADGE_HOSTS` (badge/status
   services), `IMAGE_EXTENSIONS` (extensions that count as a direct image file).
 - Toasts: `TOAST_POSITIONS`, `TOAST_MAX_DURATION_MS` (120000).
-- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`) plus `getDefaults()`,
-  which returns a deep clone — never mutate the shared constants.
+- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`) plus
+  `getDefaults()`, which returns a deep clone — never mutate the shared
+  constants. `DEFAULT_FILE_ICONS` is `{ enabled, folders, specialNames }`.
 
 ### `src/core/settings.js`
 
 Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getGallerySettings`,
-`saveSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
+`getFileIconsSettings`, `saveSettings`, `normalizeImportedSettings`,
+`hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -133,8 +149,8 @@ Key facts that must survive refactors:
   toast positions from `TOAST_POSITIONS`, toast duration clamped to
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
-  from the registry leaves no stale key). Unknown values fall back to defaults,
-  never crash.
+  from the registry leaves no stale key), and the `fileIcons` booleans. Unknown
+  values fall back to defaults, never crash.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -151,6 +167,8 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:toasts` — emitted by the same Save; reserved for toast listeners.
 - `settings:language` — emitted by the same Save; the settings entry listens to
   relabel its header button.
+- `settings:fileIcons` — emitted by the same Save; the file-icons feature listens
+  to attach or tear down its surface observers.
 
 ### `src/core/debug.js` — diagnostics
 
@@ -161,8 +179,8 @@ Structured console logging. Every failure carries a stable `GP-####` code
 `window.__GP_DEBUG__=true`), and `isVerbose()` for callers that want to skip
 building expensive log payloads. Codes in use: `GP-1001` bus listener, `GP-1002` settings
 persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
-open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1201` UI
-mount. Rules: log once per user-visible failure at the outermost point;
+open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1301`
+file-icons surface, `GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point;
 layers below only throw, they never log.
 
 ### `src/gallery/sources.js` — source registry
@@ -300,39 +318,94 @@ report through it.
   ignores it. The row carries its own `gp-` classes (GitHub's hashed
   `ActionList` ones are never copied) and the same "settings differ from
   defaults" dot as the header entry.
-- `panel.js`: page registry (`registerPage`), one modal overlay
-  (`#gp-settings-panel`), rebuilt on every open (so labels follow the current
-  language) and removed `CLOSE_MS` after close, once its exit animation has
-  played. Text-only header with product name + `v` version chip (from
-  `GM_info.script.version`) + subtitle + close; a sidebar `nav` listing the
-  registered pages (a horizontal tab strip on narrow screens, no hover fill —
-  the open page is marked by its pill, bold label and accent glyph); the body shows
-  the open page under its title/description (`switchPanelPage`); sticky footer
-  with the note + Reset / Cancel / Save. One page is always open — the first
-  registered, then the last used. The footer note switches to `panel.unsaved`
+- `panel.js`: page registry (`registerPage`, each page carries a `group` of
+  `preferences` or `more`), one modal overlay (`#gp-settings-panel`), rebuilt
+  on every open (so labels follow the current language) and removed `CLOSE_MS`
+  after close, once its exit animation has played. Text-only header with
+  product name + `v` version chip (from `GM_info.script.version`) + subtitle,
+  the settings search field and close; a grouped sidebar `nav` listing the
+  registered pages (a horizontal tab strip on narrow screens; the open page is
+  marked by its raised fill, pill, bold label and accent glyph); the body
+  shows the open page under its icon well, title and description
+  (`switchPanelPage`); sticky footer with the note + Reset / Cancel / Save.
+  One page is always open — the first registered, then the last used.
+  The header search indexes the rendered labels, hints and section headers of
+  every page (pages never opened are rendered off-screen once on first
+  search), matches every whitespace-separated term, groups results by page
+  with the matched text highlighted, shows per-page counts in the sidebar and
+  jumps to the chosen row with a temporary `.is-spotlit`. `/` or
+  `Ctrl`/`Cmd`+`K` focuses the field, and `Escape` clears a non-empty query
+  before it closes the panel. The footer note switches to `panel.unsaved`
   while the draft differs from the stored settings (`updateDirty()`, driven by
   `input`/`change` bubbling from the body). Pages render into the draft on
   open, and `getDraft()` is what they mutate; nothing is persisted until Save
   (`saveSettings` + `configureLocale` + every `settings:*` bus event). Cancel,
   the overlay click and `Escape` discard the draft. `applyExternalSettings(next)` is the path for settings that arrive
   from outside the panel (backup import): it persists, notifies and repaints.
-  Scroll locking is the shared counted `utils/scrollLock.js`; `installEscapeClose()`
-  ignores `Escape` while the viewer is open (the viewer sits above the panel).
+  Scroll locking is the shared counted `utils/scrollLock.js`; `installPanelKeys()`
+  ignores `Escape` while the viewer or the confirm dialog is open (both sit
+  above the panel).
 - `confirm.js`: promise-based `confirmDialog({ title, message, confirmLabel,
   cancelLabel, tone })` modal above the panel, used by the footer Reset.
-- `controls.js`: reusable controls — `createSection` (title + hint card),
-  `createRow`, `createField`, `createHint`, `createSwitch`,
+- `controls.js`: reusable controls — `createSection` (title + hint card,
+  optional header `action` and `withBody: false` for a header-only feature
+  card), `createRow`, `createField`, `createHint`, `createSwitch`,
   `createSwitchRow`, `createSwitchCell` (grid cell; the cell is the `label` and
   the switch inside it is plain markup, never a nested `label`), `createSelect`,
   `createNumberInput`, `createTextarea`, `createButton`, `getIconSvg`.
 - `tabs/general.js`: interface language select (`auto` + `SUPPORTED_LOCALES`
   native names), toast switch, corner select, auto-hide seconds input.
-- `tabs/gallery.js`: master switch, source grid from `listSources()`, badge
-  filtering, full-size upgrade, thumbnail strip, wrap-around, zoom ceiling.
+- `tabs/gallery.js`: gallery master switch in the section header, source grid
+  from `listSources()`, badge filtering, full-size upgrade, thumbnail strip,
+  wrap-around, zoom ceiling.
+- `tabs/fileIcons.js`: file-icons master switch in the section header, folder
+  and well-known-filename toggles.
 - `tabs/backup.js`: export to file (`Blob` + `<a download>`) or clipboard,
   import from a textarea through `normalizeImportedSettings` +
   `applyExternalSettings`, with an inline invalid-payload message.
 - `tabs/about.js`: product hero, version, author, repository, license.
+
+### `src/features/fileIcons/` — colored file and folder icons
+
+Replaces GitHub's single grey file/folder glyph with a colored, type-aware
+icon. The feature is registry-driven; every surface degrades on its own.
+
+- `iconSet.generated.js`: a curated slice of Material Icon Theme (MIT),
+  produced by `scripts/build-file-icons.mjs` (`npm run icons:build`). It holds
+  `ICON_BODIES` (SVG inner markup), `EXTENSIONS`, `FILE_NAMES`,
+  `FOLDER_NAMES`, and the default file/folder ids. Committed, never hand-edited.
+  The generator keeps a fixed id allowlist and drops decorative folder-name
+  variants (`_rust`, `-rust`, `__rust__`), while keeping real hidden folders
+  (`.github`, `.vscode`).
+- `match.js`: `pickIcon(name, kind, { folders, specialNames })` — pure, no DOM.
+  Folder names first (exact, case-insensitive), then well-known filenames, then
+  the longest extension suffix (`a.spec.ts` → `spec.ts`, `ts`), else the
+  default. Unit-tested by `test/match.test.js` under `npm test`.
+- `surfaces.js`: the surfaces GitHub lists files on, each independent:
+  `repo-tree` (`[data-testid="directory-content"]`, rows are the two
+  `.react-directory-filename-column` cells, so both screen sizes are
+  decorated), `blob-header`, `pr-file-header`, `diff-file-tree`,
+  `commit-files`, `search-results`, `gist-files`, `release-assets`. A surface
+  declares `containers` (selectors), `rows` (selector) and
+  `resolve(row)` → `{ name, kind, nameNode, nativeIcon }` or null. A selector
+  that stops matching after a GitHub redesign turns that surface into a no-op;
+  it never affects the others.
+- `inject.js`: `renderIcon(id)` builds `<svg class="gp-fi">` from the icon body;
+  `placeIcon()` inserts it right before GitHub's icon (or the filename) and
+  hides the native glyph with an inline `display: none !important` plus the
+  `gp-fi-native` marker; `clearIcons()` removes every `.gp-fi` and restores
+  every native icon. No stylesheet rule ever targets page markup, so the
+  project's CSS invariant holds.
+- `index.js`: one `MutationObserver` per surface container
+  (`{ childList: true, subtree: true }`, processing debounced ~100 ms).
+  `syncSurfaces()` attaches observers to containers that are currently present
+  and prunes disconnected ones; it runs on boot, on `watchNavigation`, and from
+  a body-children observer (`{ childList: true }`, no subtree) that notices an
+  app-shell swap. Rows are tracked in a `WeakMap` (row → injected icon) so a
+  React re-render that drops the icon is decorated again.
+  `applyFileIconsSettings()` is the single entry point: enabled → sync, disabled
+  → disconnect every observer, remove our icons and restore the native ones.
+  `settings:fileIcons` triggers it.
 
 ### `src/i18n/`
 
@@ -344,7 +417,7 @@ report through it.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 93
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 106
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -465,6 +538,9 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `toasts.enabled` | `true` | Master switch for toast notifications |
 | `toasts.position` | `'bottom-right'` | Toast corner: `bottom/top` × `right/left` |
 | `toasts.duration` | `5000` | Auto-hide ms (`0` = sticky until dismissed) |
+| `fileIcons.enabled` | `true` | Master switch; disabling removes every injected icon and observer |
+| `fileIcons.folders` | `true` | Folder-specific icons for common folder names |
+| `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |
 
 ## Localization
 
@@ -485,8 +561,11 @@ with English fallback.
 ## Design
 
 All injected UI (settings entry, panel, controls, confirm dialog, toasts,
-viewer) follows [DESIGN.md](DESIGN.md) — GitHub's own visual language through
-Primer tokens, `gp-`-prefixed classes, colors from `src/styles/tokens.css`.
+viewer, file icons) follows [DESIGN.md](DESIGN.md) — GitHub's own visual
+language through Primer tokens, `gp-`-prefixed classes, colors from
+`src/styles/tokens.css`. File icons are the documented exception: their
+fixed brand colors come from the generated Material Icon Theme data, not from
+tokens.
 Before touching any visible element, read DESIGN.md; visual changes update
 DESIGN.md, `tokens.css` and the stylesheet in the same change, get rebuilt and
 eyeballed on a live GitHub page.
@@ -541,6 +620,8 @@ npm run dev                # vite-plugin-monkey dev server (dev: prefix)
 npm run build              # vite build + copy dist/ → root artifacts
 npm run verify:artifacts   # fail if dist/ and root artifacts differ
 npm run ci                 # build + verify (CI gate, also in GitHub Actions)
+npm run icons:build        # regenerate iconSet.generated.js from the package
+npm test                   # Node test runner (match.js)
 ```
 
 Build facts agents need to know:
@@ -602,7 +683,9 @@ and check diagnostics for edited files.
 
 ## Do not
 
-- Hand-edit `github-plus.user.js` or `github-plus.meta.js`.
+- Hand-edit `github-plus.user.js`, `github-plus.meta.js`, or
+  `src/features/fileIcons/iconSet.generated.js` (regenerate with
+  `npm run icons:build`).
 - Commit `node_modules/`, `dist/`, or development-only update URLs.
 - Add a document-wide MutationObserver or a scan loop; extend the registry and
   the delegated listener instead.

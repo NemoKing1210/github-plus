@@ -3,14 +3,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.3.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-A userscript that improves GitHub with a full settings panel and an image
-gallery for rendered markdown — read every picture of a README, wiki page,
-issue or comment in one fullscreen viewer instead of opening files one by one.
+A userscript that improves GitHub with a full settings panel, an image gallery
+for rendered markdown, and colored file icons wherever GitHub lists files.
 
-> **Status:** early (`0.3.2`). Settings panel (General · Gallery · Backup ·
-> About) and the markdown image gallery. More GitHub improvements planned.
+> **Status:** early (`0.5.0`). Settings panel with instant search (General ·
+> Gallery · File icons · Backup · About), the markdown image gallery and
+> colored file icons. More GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -81,6 +81,29 @@ Every rendered markdown container on GitHub is one gallery set:
   color variables, so both follow whichever theme you run (light, dark,
   dimmed).
 
+### File icons
+
+GitHub draws every file and folder with the same grey glyph, so a `.ts` and a
+`.css` look identical until you read the name. GitHub Plus colors them:
+
+- **Type by extension** — languages, config and data formats, images, media,
+  archives and documents get their own icon; multi-part extensions such as
+  `.d.ts` and `.spec.ts` are matched before the base extension.
+- **Known filenames** — `Dockerfile`, `package.json`, `README`, `.gitignore`,
+  `tsconfig.json` and friends get a dedicated icon.
+- **Folder roles** — `src`, `dist`, `node_modules`, `docs`, `.github`,
+  `components`, `utils` and other common folders are marked too.
+- **Everywhere GitHub lists files** — the repository tree and subfolders, the
+  blob header, pull request file headers and the diff tree, commit file lists,
+  code search, gists and release assets.
+- **Quiet** — the native GitHub glyph is hidden and replaced in place; no
+  layout changes, no extra borders, and disabling the feature restores stock
+  GitHub exactly.
+
+Icons are a curated subset of
+[Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
+(MIT); attribution is in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -106,6 +129,9 @@ Stored under `gp_settings_v1`.
 | `toasts.enabled` | `true` | Toast notifications |
 | `toasts.position` | `'bottom-right'` | `bottom-right`, `bottom-left`, `top-right`, `top-left` |
 | `toasts.duration` | `5000` | Auto-hide delay in ms (`0` keeps a toast until dismissed) |
+| `fileIcons.enabled` | `true` | Master switch for file and folder icons |
+| `fileIcons.folders` | `true` | Folder-specific icons for common folder names |
+| `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |
 
 ## How the gallery is built
 
@@ -161,6 +187,8 @@ npm run dev                # vite-plugin-monkey dev server (dev: prefix)
 npm run build              # vite build + copy dist/ → root artifacts
 npm run verify:artifacts   # fail if dist/ and root artifacts differ
 npm run ci                 # build + verify (CI gate)
+npm run icons:build        # regenerate the embedded icon subset
+npm test                   # Node test runner (icon matching)
 ```
 
 Edit files under `src/` only — `github-plus.user.js` and
@@ -173,5 +201,8 @@ and [DESIGN.md](DESIGN.md) before touching any visible element.
 ## License
 
 [MIT](LICENSE).
+
+Bundled file icons come from Material Icon Theme (MIT); see
+[THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
 An independent project, not affiliated with GitHub, Inc.

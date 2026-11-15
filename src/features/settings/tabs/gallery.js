@@ -6,6 +6,7 @@ import {
   createField,
   createSection,
   createSelect,
+  createSwitch,
   createSwitchCell,
   createSwitchRow,
 } from '../controls.js';
@@ -19,15 +20,18 @@ import { getDraft } from '../panel.js';
 export function renderGallery(container) {
   const draft = getDraft();
 
-  const behavior = createSection({ title: t('gallery.behavior') });
-  behavior.body.appendChild(createSwitchRow({
-    checked: draft.gallery.enabled,
-    label: t('gallery.enabled'),
+  const behavior = createSection({
+    title: t('gallery.enabled'),
     hint: t('gallery.enabledDesc'),
-    onChange: (value) => {
-      draft.gallery.enabled = value;
-    },
-  }));
+    action: createSwitch({
+      checked: draft.gallery.enabled,
+      label: t('gallery.enabled'),
+      onChange: (value) => {
+        draft.gallery.enabled = value;
+      },
+    }),
+    withBody: false,
+  });
 
   const sources = createSection({
     title: t('gallery.sources'),
@@ -46,7 +50,10 @@ export function renderGallery(container) {
   }
   sources.body.appendChild(grid);
 
-  const viewer = createSection({ title: t('gallery.viewer') });
+  const viewer = createSection({
+    title: t('gallery.viewer'),
+    hint: t('gallery.viewerDesc'),
+  });
   viewer.body.append(
     createSwitchRow({
       checked: draft.gallery.skipBadges,

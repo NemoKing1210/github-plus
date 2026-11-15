@@ -95,10 +95,18 @@ const DEFAULT_TOASTS = {
   duration: 5000,
 };
 
+/** File icons: colored type icons for files and folders GitHub lists. */
+const DEFAULT_FILE_ICONS = {
+  enabled: true,
+  folders: true,
+  specialNames: true,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   gallery: DEFAULT_GALLERY,
   toasts: DEFAULT_TOASTS,
+  fileIcons: DEFAULT_FILE_ICONS,
 };
 
 /** Deep-cloned defaults, used on reset. */

@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-02
+
+### Added
+
+- Settings search: a field in the panel header (`/` or `Ctrl`/`Cmd`+`K`
+  focuses it) that finds any setting across every page. Results are grouped by
+  page with the matched text highlighted, the sidebar shows per-page match
+  counts while searching, and choosing a result opens its page and spotlights
+  the setting. `Escape` clears the query before it closes the panel
+- Grouped sidebar navigation: pages are filed under **Preferences** and
+  **More** with section labels
+- Each page opens under a tinted icon well, and master switches (gallery,
+  file icons) sit in their section header instead of a one-row card
+- Section hints for notification behavior, toast position, viewer controls and
+  file-icon matching
+
+### Changed
+
+- Redesigned the settings panel for easier scanning: a wider, taller dialog,
+  subtle section-header surfaces, roomier rows and fields, and stronger label
+  hierarchy
+- `Escape` no longer closes the settings panel behind the reset confirmation
+
+### Removed
+
+- The unused `gallery.behavior` and `icons.behavior` locale keys
+
+[0.5.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.5.0
+
+## [0.4.0] - 2026-10-19
+
+### Added
+
+- File icons: colored, type-aware icons for files and folders wherever GitHub
+  lists them — the repository tree and its subfolders, the blob header, pull
+  request file headers and the diff tree, commit file lists, code search,
+  gists and release assets. Matching covers languages by extension (including
+  multi-part extensions such as `.d.ts` and `.spec.ts`), well-known filenames
+  (`Dockerfile`, `package.json`, `README`, …) and common folder names
+- A **File icons** settings page with a master switch plus folder-icon and
+  well-known-filename toggles, reacting to Save through `settings:fileIcons`
+- The icon set is a curated slice of Material Icon Theme (MIT) embedded in the
+  bundle; `npm run icons:build` regenerates it and `THIRD_PARTY_LICENSES`
+  carries the attribution
+
+[0.4.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.4.0
+
 ## [0.3.2] - 2026-10-19
 
 ### Changed

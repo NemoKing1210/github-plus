@@ -25,6 +25,8 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run build` | Runs `vite build` into `dist/`, then `node scripts/copy-dist.mjs` copies `dist/github-plus.user.js` and `dist/github-plus.meta.js` to the repository root. |
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
+| `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
+| `npm test` | Node test runner, currently `test/match.test.js` (icon matching). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -99,19 +101,25 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 
 ### Settings panel
 
-- [ ] The panel opens on the General page with the sidebar listing all four
-      pages; switching pages (click and arrow keys) animates the content; the
-      language select relabels the panel after Save.
+- [ ] The panel opens on the General page with the sidebar listing all five
+      pages under **Preferences** and **More**; switching pages (click and
+      arrow keys) animates the content; the language select relabels the panel
+      after Save.
+- [ ] The search field (`/` or `Ctrl`/`Cmd`+`K`) finds settings across pages:
+      results are grouped by page, matched text is highlighted, sidebar counts
+      match, and choosing a result opens the page and spotlights the row.
+      `Esc` clears a non-empty query, then closes the panel.
 - [ ] Changing any control turns the footer note into "Unsaved changes" with
       an accent dot; undoing the change restores the save hint.
 - [ ] **Save** persists the draft, shows the "Settings saved" toast, closes the
       panel and survives a reload.
 - [ ] **Reset** asks for confirmation, refills the draft with defaults and
-      still requires Save.
+      still requires Save; `Esc` closes the confirmation without closing the
+      panel.
 - [ ] **Cancel** and an overlay click discard the draft; `Esc` closes
       the panel (exit animation, then the overlay is removed). While the viewer
       is open it keeps `Esc` for itself. At <= 640px the sidebar becomes a
-      horizontal tab strip.
+      horizontal tab strip and the search field takes its own header row.
 
 ### Backup
 
@@ -130,6 +138,23 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 - [ ] Auto-hide follows **Auto-hide after (seconds)**; `0` keeps the toast
       until dismissed; hovering pauses its timer.
 - [ ] Turning **Toast notifications** off makes toasts a silent no-op.
+
+### File icons
+
+- [ ] A repository page shows colored icons for the files and folders in the
+      tree, on both the small-screen and large-screen name cells.
+- [ ] `.ts` / `.tsx` / `.d.ts`, `Dockerfile`, `package.json`, `README.md`,
+      `src/`, `node_modules/` and `.github/` each show the expected icon.
+- [ ] Open a subfolder, go back, and open a file: icons survive client-side
+      navigation and GitHub's re-renders (a row may briefly flash the native
+      glyph, but it must settle on ours).
+- [ ] Pull requests **Files changed** and a commit page show icons in the file
+      list; gists and code search are best effort (see § Surfaces).
+- [ ] **File icons → Folder icons** off gives every folder the generic folder
+      glyph; **Well-known filenames** off makes `package.json` fall back to the
+      JSON icon.
+- [ ] Turning **File icons** off removes every colored glyph, restores GitHub's
+      own icons and leaves no `.gp-fi` nodes or hidden icons behind.
 
 ## Debugging
 
@@ -157,6 +182,7 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1102` | `GALLERY_SOURCE` | A registered gallery source threw while collecting its images. |
 | `GP-1103` | `GALLERY_IMAGE` | A gallery image failed to load in the viewer. |
 | `GP-1201` | `UI_MOUNT` | Mounting the settings entry or panel failed. |
+| `GP-1301` | `FILE_ICONS` | A file-icons surface or its selectors failed. |
 
 Settings persist under the key `gp_settings_v1` (`SETTINGS_KEY` in
 `src/core/constants.js`): via `GM_setValue` when the manager provides it,
@@ -172,6 +198,10 @@ otherwise via `localStorage`. Delete that key for a cold start:
   `gp-` class prefix, `GALLERY_MAX_IMAGES` (500), `GALLERY_MIN_SIZE_PX` (80),
   `ZOOM_OPTIONS`, `BADGE_HOSTS`, `IMAGE_EXTENSIONS`, `TOAST_POSITIONS`,
   `TOAST_MAX_DURATION_MS`, and `DEFAULT_SETTINGS` / `getDefaults()`.
+- `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
+  change the allowlist in `scripts/build-file-icons.mjs` and run
+  `npm run icons:build`. The package is a dev dependency; the shipped bundle
+  carries the icons inline.
 - `src/i18n/locales/*.js` holds the UI strings, one file per locale (ten in
   total). New strings go into all ten files — see the localization rule in
   [../CONTRIBUTING.md](../CONTRIBUTING.md). The localized `@name` /
@@ -182,7 +212,9 @@ otherwise via `localStorage`. Delete that key for a cold start:
 1. Bump `version` in `package.json`.
 2. Run `npm install` to refresh `package-lock.json`.
 3. Add the release entry to `CHANGELOG.md` (Keep a Changelog format).
-4. Run `npm run build` to regenerate the root `github-plus.user.js` and
+4. If the icon set or its mapping changed, run `npm run icons:build` and commit
+   `src/features/fileIcons/iconSet.generated.js`.
+5. Run `npm run build` to regenerate the root `github-plus.user.js` and
    `github-plus.meta.js` with the new version.
-5. Run `npm run ci` — build plus `verify:artifacts`; it must pass before the
+6. Run `npm run ci` — build plus `verify:artifacts`; it must pass before the
    commit is pushed.

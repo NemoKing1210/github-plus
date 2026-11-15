@@ -3,7 +3,8 @@
  *
  * Design rules live in DESIGN.md, colors in tokens.css. Every selector is
  * prefixed `gp-`, and no rule targets page markup except the gallery's own
- * cursor/hover affordance (built at runtime from the source registry).
+ * cursor/hover affordance (built at runtime from the source registry) and the
+ * `.gp-fi` glyphs the file-icons feature inserts as its own elements.
  */
 
 /* == Settings entry — header button ========================================= */
@@ -144,8 +145,8 @@ html.gp-modal-open body {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(860px, 100%);
-  height: min(86vh, 680px);
+  width: min(900px, 100%);
+  height: min(86vh, 720px);
   overflow: hidden;
   background: var(--gp-bg-1);
   border: 1px solid var(--gp-border);
@@ -171,6 +172,96 @@ html.gp-modal-open body {
 .gp-panel__brand {
   flex: 1 1 auto;
   min-width: 0;
+}
+.gp-searchbar {
+  display: flex;
+  flex: 0 1 280px;
+  align-items: center;
+  gap: 6px;
+  min-width: 150px;
+  height: 32px;
+  padding: 0 7px 0 9px;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-1);
+  color: var(--gp-text-muted);
+  transition: border-color 0.12s ease;
+}
+.gp-searchbar:focus-within {
+  border-color: var(--gp-accent);
+  outline: 2px solid var(--gp-focus);
+  outline-offset: -1px;
+}
+.gp-searchbar__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.gp-searchbar__icon svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+.gp-searchbar__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gp-text);
+  font: 13px/1.4 var(--gp-font);
+  outline: none;
+}
+.gp-searchbar__input::placeholder {
+  color: var(--gp-text-muted);
+  opacity: 1;
+}
+.gp-searchbar__input::-webkit-search-cancel-button,
+.gp-searchbar__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.gp-searchbar__kbd {
+  flex: 0 0 auto;
+  padding: 0 5px;
+  border: 1px solid var(--gp-line);
+  border-radius: 4px;
+  background: var(--gp-bg-2);
+  color: var(--gp-text-muted);
+  font: 500 10px/16px var(--gp-mono);
+}
+.gp-searchbar__clear {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gp-radius);
+  background: transparent;
+  color: var(--gp-text-muted);
+  cursor: pointer;
+}
+.gp-searchbar__clear:hover {
+  background: var(--gp-highlight);
+  color: var(--gp-text);
+}
+.gp-searchbar__clear:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: -2px;
+}
+.gp-searchbar__clear svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+.gp-searchbar__input:not(:placeholder-shown) ~ .gp-searchbar__kbd {
+  display: none;
+}
+.gp-searchbar__input:not(:placeholder-shown) ~ .gp-searchbar__clear {
+  display: inline-flex;
 }
 .gp-panel__title-row {
   display: flex;
@@ -277,13 +368,26 @@ html.gp-modal-open body {
 /* == Panel sidebar ========================================================== */
 .gp-panel__nav {
   display: flex;
-  flex: 0 0 208px;
+  flex: 0 0 220px;
   flex-direction: column;
-  gap: 2px;
+  gap: 14px;
   overflow-y: auto;
-  padding: 12px 8px 12px 16px;
+  padding: 14px 10px 14px 14px;
   border-right: 1px solid var(--gp-border);
   background: var(--gp-bg-2);
+}
+.gp-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gp-nav-group__label {
+  padding: 0 10px 5px;
+  color: var(--gp-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .gp-nav-item {
   position: relative;
@@ -291,7 +395,7 @@ html.gp-modal-open body {
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 32px;
+  min-height: 34px;
   padding: 6px 10px;
   border: 0;
   border-radius: var(--gp-radius);
@@ -300,6 +404,10 @@ html.gp-modal-open body {
   font: 14px/1.4 var(--gp-font);
   text-align: left;
   cursor: pointer;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+.gp-nav-item:hover {
+  background: var(--gp-highlight);
 }
 .gp-nav-item::before {
   content: "";
@@ -318,6 +426,8 @@ html.gp-modal-open body {
   outline-offset: -2px;
 }
 .gp-nav-item.is-active {
+  background: var(--gp-bg-1);
+  box-shadow: inset 0 0 0 1px var(--gp-line);
   font-weight: 600;
 }
 .gp-nav-item.is-active::before {
@@ -343,12 +453,47 @@ html.gp-modal-open body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.gp-nav-item__count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  margin-left: auto;
+  padding: 0 5px;
+  border: 1px solid var(--gp-line);
+  border-radius: 999px;
+  background: var(--gp-bg-2);
+  color: var(--gp-text-muted);
+  font: 500 11px/16px var(--gp-font);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
 
 /* == Panel page ============================================================= */
 .gp-page__head {
-  margin: 0 0 16px;
-  padding: 0 0 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 0 0 16px;
   border-bottom: 1px solid var(--gp-line);
+}
+.gp-page__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--gp-radius);
+  background: var(--gp-accent-soft);
+  color: var(--gp-accent);
+}
+.gp-page__icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.gp-page__heading {
+  min-width: 0;
 }
 .gp-page__title {
   margin: 0;
@@ -382,7 +527,8 @@ html.gp-modal-open body {
 
 /* == Cards, rows, hints ===================================================== */
 .gp-card {
-  margin: 0 0 14px;
+  margin: 0 0 16px;
+  overflow: hidden;
   border: 1px solid var(--gp-border);
   border-radius: var(--gp-radius);
   background: var(--gp-bg-1);
@@ -391,13 +537,34 @@ html.gp-modal-open body {
   margin-bottom: 0;
 }
 .gp-card__head {
-  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--gp-line);
+  background: var(--gp-bg-2);
+}
+.gp-card--bare .gp-card__head {
+  padding: 14px 16px;
+  border-bottom: 0;
+}
+.gp-card__head-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.gp-card__head-control {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-top: 1px;
 }
 .gp-card__title {
   color: var(--gp-text);
   font-size: 13px;
   font-weight: 600;
+}
+.gp-card--bare .gp-card__title {
+  font-size: 14px;
 }
 .gp-card__hint {
   margin: 3px 0 0;
@@ -412,7 +579,7 @@ html.gp-modal-open body {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--gp-line);
 }
 .gp-row:last-child {
@@ -427,7 +594,8 @@ html.gp-modal-open body {
 }
 .gp-row__label {
   color: var(--gp-text);
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
 }
 .gp-row__hint {
   color: var(--gp-text-muted);
@@ -449,7 +617,7 @@ html.gp-modal-open body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--gp-line);
 }
 .gp-field:last-child {
@@ -632,7 +800,7 @@ html.gp-modal-open body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 8px;
-  padding: 12px 14px;
+  padding: 12px 16px;
 }
 .gp-grid__cell {
   display: flex;
@@ -657,6 +825,143 @@ html.gp-modal-open body {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+}
+
+/* == Settings search ======================================================== */
+.gp-search {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.gp-search__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gp-text-muted);
+  font-size: 12px;
+}
+.gp-search__summary-count,
+.gp-search__group-count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  padding: 0 5px;
+  border: 1px solid var(--gp-line);
+  border-radius: 999px;
+  background: var(--gp-bg-2);
+  color: var(--gp-text-muted);
+  font: 500 11px/16px var(--gp-font);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.gp-search__group {
+  overflow: hidden;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-1);
+}
+.gp-search__group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--gp-line);
+  background: var(--gp-bg-2);
+  color: var(--gp-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.gp-search__group-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--gp-text-muted);
+}
+.gp-search__group-icon svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+.gp-search__group-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gp-search__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--gp-line);
+  background: transparent;
+  color: var(--gp-text);
+  font-family: var(--gp-font);
+  text-align: left;
+  cursor: pointer;
+}
+.gp-search__item:last-child {
+  border-bottom: 0;
+}
+.gp-search__item:hover {
+  background: var(--gp-highlight);
+}
+.gp-search__item:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: -2px;
+}
+.gp-search__item-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+.gp-search__item-hint {
+  color: var(--gp-text-muted);
+  font-size: 12px;
+}
+.gp-search__mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: var(--gp-accent-soft);
+  color: var(--gp-text);
+}
+.gp-search__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 44px 20px;
+  text-align: center;
+}
+.gp-search__empty-icon {
+  display: inline-flex;
+  color: var(--gp-text-muted);
+}
+.gp-search__empty-icon svg {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+.gp-search__empty-title {
+  margin: 4px 0 0;
+  color: var(--gp-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.gp-search__empty-hint {
+  margin: 0;
+  color: var(--gp-text-muted);
+  font-size: 12px;
+}
+
+/* Jumped-to setting after a search result is chosen. */
+.gp-row.is-spotlit,
+.gp-field.is-spotlit,
+.gp-grid__cell.is-spotlit {
+  animation: gp-spotlight 1.6s ease-out;
+}
+.gp-card__head.is-spotlit {
+  animation: gp-spotlight-head 1.6s ease-out;
 }
 
 /* == Confirm dialog ========================================================= */
@@ -788,6 +1093,20 @@ html.gp-modal-open body {
 }
 @keyframes gp-rise {
   from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes gp-spotlight {
+  0%, 30% {
+    background: var(--gp-accent-soft);
+    box-shadow: inset 0 0 0 2px var(--gp-accent);
+  }
+  100% {
+    background: transparent;
+    box-shadow: inset 0 0 0 2px transparent;
+  }
+}
+@keyframes gp-spotlight-head {
+  0%, 30% { box-shadow: inset 0 0 0 2px var(--gp-accent); }
+  100% { box-shadow: inset 0 0 0 2px transparent; }
 }
 
 /* == Toasts ================================================================ */
@@ -1240,6 +1559,13 @@ html.gp-modal-open body {
     animation: none;
     transition: none;
   }
+  .gp-row.is-spotlit,
+  .gp-field.is-spotlit,
+  .gp-grid__cell.is-spotlit,
+  .gp-card__head.is-spotlit {
+    animation: none;
+    box-shadow: inset 0 0 0 2px var(--gp-accent);
+  }
 }
 
 @media (max-width: 640px) {
@@ -1254,8 +1580,15 @@ html.gp-modal-open body {
     border-left: 0;
     border-right: 0;
   }
+  .gp-panel__header {
+    flex-wrap: wrap;
+  }
   .gp-panel__subtitle {
     display: none;
+  }
+  .gp-searchbar {
+    order: 3;
+    flex: 1 0 100%;
   }
   .gp-panel__main {
     flex-direction: column;
@@ -1270,10 +1603,29 @@ html.gp-modal-open body {
     border-right: 0;
     border-bottom: 1px solid var(--gp-border);
   }
+  .gp-nav-group {
+    display: contents;
+  }
+  .gp-nav-group__label,
+  .gp-nav-item__count {
+    display: none;
+  }
   .gp-nav-item {
     width: auto;
     flex: 0 0 auto;
     white-space: nowrap;
+  }
+  .gp-nav-item.is-active {
+    background: transparent;
+    box-shadow: none;
+  }
+  .gp-page__icon {
+    width: 34px;
+    height: 34px;
+  }
+  .gp-page__icon svg {
+    width: 18px;
+    height: 18px;
   }
   .gp-nav-item::before {
     top: auto;
@@ -1296,4 +1648,19 @@ html.gp-modal-open body {
   .gp-panel__footer-note {
     flex: 1 1 100%;
   }
+}
+
+/* == File icons ============================================================ */
+/* Injected next to a file or folder name on GitHub's own pages. Colors come
+ * from the embedded Material Icon Theme SVGs, not from tokens: these are
+ * third-party marks, like the About-page logos (DESIGN.md §12). */
+.gp-fi {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-right: 4px;
+  vertical-align: text-bottom;
+  user-select: none;
+  pointer-events: none;
 }

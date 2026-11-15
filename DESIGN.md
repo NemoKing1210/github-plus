@@ -28,11 +28,12 @@ So injected UI does not own a palette:
   second palette anywhere in the script.
 
 Scope: every element GitHub Plus itself creates — the entry button and its
-list host, the row inside GitHub's user menu, the panel (overlay, shell, home
-list, pages, cards, rows, controls), the confirm dialog, toasts, the image
-viewer, and the gallery's page-level cursor/hover affordance (§11). Anything
-GitHub already renders is out of scope except through that one affordance: no
-other rule may target page markup.
+list host, the row inside GitHub's user menu, the panel (overlay, shell,
+grouped sidebar, search field and results, pages, cards, rows, controls), the
+confirm dialog, toasts, the image viewer, the `.gp-fi` file and folder glyphs,
+and the gallery's page-level cursor/hover affordance (§11). Anything GitHub
+already renders is out of scope except through that one affordance: no other
+rule may target page markup.
 
 Two invariants hold for every selector:
 
@@ -90,6 +91,12 @@ Rules:
 - The image viewer is themed like everything else: images sit on
   `var(--gp-bg-1)` with the bars, hint and thumbnail rail on `var(--gp-bg-2)`,
   so the gallery reads as part of GitHub in every theme.
+- The `.gp-fi` file and folder glyphs keep the fixed brand colors of the
+  embedded Material Icon Theme slice (generated into
+  `iconSet.generated.js`). They are third-party marks, like a logo: not a
+  theme surface, and not part of the light/dark palette. The rule about raw
+  literals still holds for `app.css`; those colors live in generated data and
+  never in a component rule.
 - Nothing else in the script may key off `prefers-color-scheme`; theme
   handling is entirely delegated to GitHub's own variables.
 
@@ -97,14 +104,14 @@ Rules:
 
 | Property | Value | Applied to |
 |---|---|---|
-| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__stage`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb` |
-| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__hint`, `.gp-viewer__thumbs` |
-| Surface, tinted | `var(--gp-accent-soft)` | `.gp-about__logo`, checked `.gp-grid__cell` |
-| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__hint`, `.gp-viewer__thumbs`, `.gp-viewer__status` |
-| Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`), `.gp-grid__cell`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb` |
-| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, toast action), cards, sidebar items, toasts, grid cells, viewer tools, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`) |
+| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-searchbar`, `.gp-search__group`, `.gp-search__item` (transparent, on its group), `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__stage`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb` |
+| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-card__head`, `.gp-search__group-head`, `.gp-searchbar__kbd`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-nav-item__count`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__hint`, `.gp-viewer__thumbs` |
+| Surface, tinted | `var(--gp-accent-soft)` | `.gp-page__icon`, `.gp-about__logo`, checked `.gp-grid__cell`, search `<mark>` |
+| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-searchbar`, `.gp-search__group`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__hint`, `.gp-viewer__thumbs`, `.gp-viewer__status` |
+| Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`, search counts), `.gp-grid__cell`, `.gp-search__group-head`, `.gp-search__item`, `.gp-searchbar__kbd`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb` |
+| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, search field, toast action), cards, sidebar items, search groups, toasts, grid cells, viewer tools, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`) |
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
-| Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge` |
+| Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge`, `.gp-nav-item__count`, `.gp-search__summary-count`, `.gp-search__group-count` |
 | Radius, circle | `50%` | `.gp-header-btn--custom::after` and `.gp-user-menu-item__dot` dots, `.gp-viewer__nav`, viewer spinner |
 | Shadow, elevation | `var(--gp-shadow)` | `.gp-panel`, `.gp-confirm`, `.gp-toast`, `.gp-viewer__status` |
 | Shadow, ring | `0 0 0 1px var(--gp-accent)` | `.gp-viewer__thumb.is-active` |
@@ -133,12 +140,20 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Panel title `.gp-panel__title` | `16px` / `600` / `var(--gp-text)` |
 | Version chip `.gp-panel__version`, `.gp-badge` | `500 11px/1.6` mono / `var(--gp-text-muted)` |
 | Panel subtitle `.gp-panel__subtitle` | `12px` / `var(--gp-text-muted)` |
+| Sidebar group label `.gp-nav-group__label` | `11px` / `600` / `var(--gp-text-muted)`, uppercase, `0.04em` tracking |
 | Sidebar item `.gp-nav-item` | `14px/1.4` / `var(--gp-text)`; `600` while active |
+| Sidebar count `.gp-nav-item__count` | `500 11px/16px` / `var(--gp-text-muted)`, tabular |
+| Search field `.gp-searchbar__input` | `13px/1.4` / `var(--gp-text)`; placeholder muted |
+| Search shortcut `.gp-searchbar__kbd` | `500 10px/16px` mono / `var(--gp-text-muted)` |
+| Search summary `.gp-search__summary` | `12px` / `var(--gp-text-muted)` |
+| Search group title `.gp-search__group-title` | `12px` / `600` / `var(--gp-text)` |
+| Search result `.gp-search__item-title` | `13px` / `500` / `var(--gp-text)`; hint `12px` muted |
+| Search count chips `.gp-search__summary-count`, `.gp-search__group-count` | `500 11px/16px` / `var(--gp-text-muted)`, tabular |
 | Page title `.gp-page__title` | `20px/1.3` / `600` / `var(--gp-text)` |
 | Page description `.gp-page__desc` | `13px` / `var(--gp-text-muted)` |
-| Card title `.gp-card__title` | `13px` / `600` / `var(--gp-text)` |
+| Card title `.gp-card__title` | `13px` / `600` / `var(--gp-text)`; `14px` in a bare feature card |
 | Card hint `.gp-card__hint`, `.gp-hint` | `12px` (`1.5` for `.gp-hint`) / `var(--gp-text-muted)` |
-| Row label `.gp-row__label` | `13px` / `var(--gp-text)` |
+| Row label `.gp-row__label` | `14px` / `500` / `var(--gp-text)` |
 | Row hint `.gp-row__hint` | `12px` / `var(--gp-text-muted)` |
 | Field label `.gp-field__label` | `13px` / `600` / `var(--gp-text)` |
 | Select/input `.gp-select`, `.gp-input` | `14px/1.4` / `var(--gp-text)` |
@@ -204,14 +219,18 @@ with the `Escape` keydown GitHub's own overlay handles, then opens the panel.
 | Class | Rules |
 |---|---|
 | `.gp-panel-overlay` | `position: fixed; inset: 0; z-index: 1000000`; flex centering; `padding: 24px 16px`; `background: var(--gp-scrim)`; `backdrop-filter: blur(8px) saturate(120%)` (`-webkit-` prefixed too) so the page behind the scrim is frosted and the panel reads as a layer above it, while a manager without `backdrop-filter` support keeps the plain scrim; sets `var(--gp-font)`/`var(--gp-text)`; fades in with `gp-overlay-in`. `.is-closing` plays `gp-overlay-out` and ignores the pointer until the script removes the element; `.is-dirty` is set while the draft differs from the stored settings |
-| `.gp-panel` | Vertical flex column; `width: min(860px, 100%)`; `height: min(86vh, 680px)` (fixed, so switching pages never resizes it); `overflow: hidden`; entrance `gp-panel-in`, exit `gp-panel-out`; `var(--gp-bg-1)`; `1px var(--gp-border)`; `var(--gp-radius-lg)`; `var(--gp-shadow)`; base `14px/1.5` |
-| `.gp-panel__header` | Flex, `align-items: center`, `gap: 12px`, `padding: 14px 16px`, bottom `1px var(--gp-border)`, `var(--gp-bg-2)` |
+| `.gp-panel` | Vertical flex column; `width: min(900px, 100%)`; `height: min(86vh, 720px)` (fixed, so switching pages never resizes it); `overflow: hidden`; entrance `gp-panel-in`, exit `gp-panel-out`; `var(--gp-bg-1)`; `1px var(--gp-border)`; `var(--gp-radius-lg)`; `var(--gp-shadow)`; base `14px/1.5` |
+| `.gp-panel__header` | Flex, `align-items: center`, `gap: 12px`, `padding: 14px 16px`, bottom `1px var(--gp-border)`, `var(--gp-bg-2)`. Wraps at the mobile breakpoint, where the search field takes a full row |
 | `.gp-panel__brand` | Title + subtitle column, `flex: 1 1 auto`; **structural** |
 | `.gp-panel__title-row` | Wrapping flex row holding title and version chip |
 | `.gp-panel__title` | `16px/600`, `var(--gp-text)` |
 | `.gp-panel__version`, `.gp-badge` | Pill chip: `1px var(--gp-line)`, `999px` radius, mono `500 11px` |
 | `.gp-panel__subtitle` | `12px` muted, `margin: 4px 0 0` |
 | `.gp-panel__close` | `32×32` ghost square (`border: 1px solid transparent`), `var(--gp-radius)`, Octicons `x` glyph `16×16` |
+| `.gp-searchbar` | Header search: flex, `flex: 0 1 280px`, `height: 32px`, `padding: 0 7px 0 9px`, `gap: 6px`, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)`; `:focus-within` moves the border to `var(--gp-accent)` and draws the `2px var(--gp-focus)` inset ring |
+| `.gp-searchbar__input` | Borderless, transparent, fills the field; removes WebKit's native search decorations |
+| `.gp-searchbar__kbd` | Decorative `/` chip, hidden once the input has a value (`:not(:placeholder-shown)`) |
+| `.gp-searchbar__clear` | `20×20` ghost close button, hidden until the input has a value |
 | `.gp-panel__main` | Row holding the sidebar and the body: `flex: 1 1 auto`, `min-height: 0` |
 | `.gp-panel__body` | Scroll pane: `flex: 1 1 auto`, `min-width: 0`, `overflow-y: auto`, `overscroll-behavior: contain`, `padding: 20px 24px 24px` |
 | `.gp-panel__footer` | Sticky action bar: `12px 16px`, top `1px var(--gp-border)`, `var(--gp-bg-2)` |
@@ -232,35 +251,44 @@ note, Reset (`.gp-button--ghost`), Cancel (default), Save
 
 | Class | Rules |
 |---|---|
-| `.gp-panel__nav` | Left sidebar, `<nav>`: `flex: 0 0 208px`, column, `gap: 2px`, `padding: 12px 8px 12px 16px`, right `1px var(--gp-border)`, `var(--gp-bg-2)`. Becomes a horizontal tab strip at the mobile breakpoint (§9) |
-| `.gp-nav-item` | Sidebar button: flex, `gap: 8px`, `min-height: 32px`, `padding: 6px 10px`, no border, transparent, `var(--gp-radius)`, `14px/1.4`. `data-page` carries the page id |
-| `.gp-nav-item.is-active` | The open page (also `aria-current="page"`): `600` weight, accent glyph, and a `3px` `var(--gp-accent)` pill on the left edge (`::before`, `scaleY` 0 → 1) |
+| `.gp-panel__nav` | Left sidebar, `<nav>`: `flex: 0 0 220px`, column, `gap: 14px`, `padding: 14px 10px 14px 14px`, right `1px var(--gp-border)`, `var(--gp-bg-2)`. Becomes a horizontal tab strip at the mobile breakpoint (§9) |
+| `.gp-nav-group` | Column of items under one section label: `gap: 2px`. `display: contents` in the tab strip, so items flow into the strip |
+| `.gp-nav-group__label` | Uppercase section caption (`Preferences`, `More`), `11px/600`, muted, `padding: 0 10px 5px`; hidden in the tab strip |
+| `.gp-nav-item` | Sidebar button: flex, `gap: 8px`, `min-height: 34px`, `padding: 6px 10px`, no border, transparent, `var(--gp-radius)`, `14px/1.4`; hover takes `var(--gp-highlight)`. `data-page` carries the page id |
+| `.gp-nav-item.is-active` | The open page (also `aria-current="page"`): `600` weight, accent glyph, `var(--gp-bg-1)` fill with an inset `1px var(--gp-line)` edge, and a `3px` `var(--gp-accent)` pill on the left edge (`::before`, `scaleY` 0 → 1) |
 | `.gp-nav-item__icon` | `16×16` glyph, `var(--gp-text-muted)`, `var(--gp-accent)` while active; **structural** wrapper |
 | `.gp-nav-item__title` | Ellipsized label |
+| `.gp-nav-item__count` | Match-count pill shown in place of the active marker while a search is active (hidden when zero, hidden in the tab strip) |
 | `.gp-panel__page` | Structural wrapper of the open page |
-| `.gp-page__head` | Page header: `margin: 0 0 16px`, `padding: 0 0 12px`, bottom `1px var(--gp-line)` |
+| `.gp-page__head` | Page header: flex, `gap: 12px`, icon well + heading column, `margin: 0 0 18px`, `padding: 0 0 16px`, bottom `1px var(--gp-line)` |
+| `.gp-page__icon` | `38×38` tinted well (`var(--gp-accent-soft)` / `var(--gp-accent)`), `20×20` page glyph; `34×34` at the mobile breakpoint |
+| `.gp-page__heading` | Min-width-0 column holding the title and description; **structural** |
 | `.gp-page__title` / `.gp-page__desc` | `20px/600` strong h3 / `13px` muted line (from the page's `labelKey` / `descKey`) |
 | `.gp-page` | Structural content column rendered by the page module |
 
 Exactly one page is always open: the first registered page on a fresh session,
-afterwards the last one used (kept until reload). Sidebar items carry no hover
-fill — only the pointer cursor and the focus ring. `ArrowUp`/`ArrowDown` (and `ArrowLeft`/`ArrowRight`
-in the tab strip) move between pages with wrap-around.
+afterwards the last one used (kept until reload). Pages are filed under two
+sidebar groups by their `group` in `registerPage`: `preferences` and `more`.
+`ArrowUp`/`ArrowDown` (and `ArrowLeft`/`ArrowRight` in the tab strip) move
+between pages with wrap-around.
 
 ### Cards, rows, hints, fields
 
 | Class | Rules |
 |---|---|
-| `.gp-card` | `margin: 0 0 14px` (last child `0`), `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)` |
-| `.gp-card__head` | `padding: 12px 14px`, bottom `1px var(--gp-line)` |
-| `.gp-card__title` / `.gp-card__hint` | `13px/600` strong / `12px` muted (`margin: 3px 0 0`) |
+| `.gp-card` | `margin: 0 0 16px` (last child `0`), `overflow: hidden`, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)` |
+| `.gp-card__head` | Flex, `gap: 14px`, `padding: 12px 16px`, bottom `1px var(--gp-line)`, `var(--gp-bg-2)` |
+| `.gp-card__head-text` | `flex: 1 1 auto`, `min-width: 0`; **structural** |
+| `.gp-card__head--action` / `.gp-card__head-control` | Header with a control on the right (a master switch); the control holder is `flex: 0 0 auto` |
+| `.gp-card--bare` | Header-only feature card: no body, head `padding: 14px 16px`, no bottom rule (keeps the card radius) |
+| `.gp-card__title` / `.gp-card__hint` | `13px/600` strong (`14px` in a bare card) / `12px` muted (`margin: 3px 0 0`) |
 | `.gp-card__body` | Vertical flex, no padding (rows/fields/grid bring their own) |
-| `.gp-row` | Flex, `align-items: center`, `gap: 14px`, `padding: 12px 14px`, bottom `1px var(--gp-line)` (last child `0`) |
+| `.gp-row` | Flex, `align-items: center`, `gap: 14px`, `padding: 12px 16px`, bottom `1px var(--gp-line)` (last child `0`) |
 | `.gp-row__text` | `flex: 1 1 auto`, column, `gap: 2px`, `min-width: 0` |
-| `.gp-row__label` / `.gp-row__hint` | `13px` strong / `12px` muted |
+| `.gp-row__label` / `.gp-row__hint` | `14px/500` strong / `12px` muted |
 | `.gp-row__control` | `flex: 0 0 auto`, flex, `gap: 8px` |
 | `.gp-hint` | Standalone `12px/1.5` muted paragraph |
-| `.gp-field` | Stacked column, `gap: 6px`, `padding: 12px 14px`, bottom `1px var(--gp-line)` (last child `0`) |
+| `.gp-field` | Stacked column, `gap: 6px`, `padding: 12px 16px`, bottom `1px var(--gp-line)` (last child `0`) |
 | `.gp-field__label` | `13px/600` strong |
 
 A row puts label + hint left and the control right; a field stacks label above
@@ -330,6 +358,30 @@ Cells hold a `.gp-switch` built as markup (not a nested `<label>`, which would
 be invalid HTML); the cell label makes the whole tile clickable. The grid is
 rendered from the gallery source registry, so a new source appears here with
 no CSS change.
+
+### Settings search
+
+The header field searches every registered page. The panel indexes the
+rendered labels, hints and section headers (rows, fields, grid cells and card
+heads) and matches every whitespace-separated term against them. While the
+query is non-empty the body shows results grouped by page instead of the open
+page; the sidebar drops its active fill and shows a per-page count.
+
+| Class | Rules |
+|---|---|
+| `.gp-search` | Results column, `gap: 14px` |
+| `.gp-search__summary` | Result line, flex, `gap: 8px`, `12px` muted; the count chip follows it |
+| `.gp-search__group` | Card-like result group: `1px var(--gp-border)`, `var(--gp-radius)`, `overflow: hidden`, `var(--gp-bg-1)` |
+| `.gp-search__group-head` | Tinted header: flex, `gap: 8px`, `9px 14px`, bottom `1px var(--gp-line)`, `var(--gp-bg-2)`, `12px/600`; page glyph `15×15` muted, count pill trailing |
+| `.gp-search__item` | Full-width result button: column, `gap: 2px`, `10px 14px`, bottom divider, transparent fill, left-aligned text; hover `var(--gp-highlight)`, focus ring inset `-2px` |
+| `.gp-search__mark` | Matched substring: `var(--gp-accent-soft)` background, `2px` radius, text color unchanged |
+| `.gp-search__empty` | Centered empty state: `44px 20px`, muted search glyph `26×26`, `14px/600` title, `12px` muted hint |
+
+Choosing a result clears the query, opens its page and scrolls the matching
+row, field, cell or card head into view. That target receives `.is-spotlit`
+for 1.6 s (`gp-spotlight` / `gp-spotlight-head`), which tints the row and
+draws an accent inset ring. Under reduced motion the ring stays static for the
+same interval.
 
 ### Confirm dialog
 
@@ -410,6 +462,21 @@ scanning via `isOwnUi()`, and opening it takes the shared scroll lock.
 | `.gp-about__tagline` | `12px` muted |
 | `.gp-about__row`, `__label`, `__value` | Two-column row: `13px`, bottom `1px var(--gp-line)` (last row none), fixed `120px` muted label, strong value, accent links underlined on hover |
 
+### File icons (`.gp-fi`)
+
+| Class | Rules |
+|---|---|
+| `.gp-fi` | The injected 16×16 SVG: `display: inline-block`, `width`/`height: 16px`, `flex: none`, `margin-right: 4px`, `vertical-align: text-bottom`, `pointer-events: none`, `user-select: none` |
+| `.gp-fi-native` | Marker on the GitHub icon the feature hid. No rule in `app.css`: the hiding is an inline `display: none !important` written by `src/features/fileIcons/inject.js` |
+
+The glyph itself comes from the embedded Material Icon Theme slice and keeps
+its own colors (§3). The feature inserts `.gp-fi` next to GitHub's own icon and
+hides that icon with an inline style, so `app.css` never selects GitHub's
+markup and the gallery affordance stays the only page-markup stylesheet.
+Disabling the feature removes every `.gp-fi` and restores every native glyph,
+so the page returns to stock GitHub. Both the small-screen and large-screen
+name cells of a repository row are decorated, in that DOM order.
+
 ## 7. States
 
 | State | Selector / form | Effect |
@@ -419,7 +486,9 @@ scanning via `isOwnUi()`, and opening it takes the shared scroll lock.
 | Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry/viewer controls, `2px` on the switch track, `-1px` on select/input/textarea (inside the box), `-2px` on `.gp-user-menu-item__btn` (inside the row, so it stays inside GitHub's menu) |
 | Disabled | `.gp-button[disabled]` | `opacity: 0.55`, `cursor: default` |
 | Disabled | `.gp-viewer__nav[disabled]` | `opacity: 0.5`, `cursor: default`, hover suppressed |
-| Active page | `.gp-nav-item.is-active` | Bold label, accent glyph and left pill (bottom underline in the tab strip) |
+| Active page | `.gp-nav-item.is-active` | Bold label, accent glyph, raised fill and left pill (bottom underline in the tab strip) |
+| Searching | `.gp-panel-overlay.is-searching` | Sidebar drops its active fill, page items show match counts, and the body shows the grouped result list |
+| Search result target | `.is-spotlit` on a row, field, grid cell or card head | Tinted highlight and accent inset ring for 1.6 s after a result is chosen |
 | Dirty draft | `.gp-panel-overlay.is-dirty` | Footer note switches to "Unsaved changes" with an accent dot |
 | Closing | `.gp-panel-overlay.is-closing` | Exit animation plays, pointer ignored, element removed after 140ms |
 | Active thumb | `.gp-viewer__thumb.is-active` | `var(--gp-accent)` border + 1px accent ring |
@@ -445,7 +514,9 @@ shipped exceptions, because both are per-frame values).
 | Panel/confirm overlay | `gp-overlay-in` fade `0.16s` (`0.14s` confirm) ease-out; panel exit `gp-overlay-out` + `gp-panel-out` `0.14s` ease-in |
 | Panel/confirm dialog | `gp-panel-in` — fade + `translateY(10px) scale(0.98)` → rest over `0.2s` (`0.18s` confirm), `cubic-bezier(0.2, 0.8, 0.2, 1)` |
 | Page content | `gp-rise` — the page head and each direct child of the page (cards, hero) fade in with `translateY(6px)` over `0.24s`, staggered `0 / 40 / 80 / 120ms` |
-| Sidebar | Active pill `scaleY` `0.18s`; glyph color `0.12s` |
+| Sidebar | Active pill `scaleY` `0.18s`; glyph color `0.12s`; item background and edge `0.12s` |
+| Search | Field border `0.12s`; result and clear-button hover use the same short ease |
+| Spotlight | `gp-spotlight` (row/field/cell tint) or `gp-spotlight-head` (card-head ring) over `1.6s ease-out`; no motion under reduced motion |
 | Footer dirty dot | width, margin and scale `0.18s` |
 | Switch knob | `0.2s` spring (`cubic-bezier(0.2, 0.8, 0.2, 1)`); stretches to `20px` while pressed |
 | Controls | Border/fill changes on select, input, textarea, button, panel close and source tiles take `0.12s` |
@@ -460,8 +531,9 @@ shipped exceptions, because both are per-frame values).
 - `@media (prefers-reduced-motion: reduce)` disables animation and transition
   for the panel and confirm overlays and dialogs, the page head and page
   children, sidebar items and their pill, the dirty dot, `.gp-toast`,
-  `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after` and
-  `.gp-viewer__image`. The viewer spinner and
+  `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
+  `.gp-viewer__image` and the search result spotlight (which keeps a static
+  accent ring instead). The viewer spinner and
   the toast progress bar are outside that list (a spinner and a countdown are
   information, not decoration), so do not "fix" them by adding them to the
   media block without deciding what replaces the information they carry.
@@ -474,15 +546,21 @@ The stylesheet has one breakpoint, `@media (max-width: 640px)`:
 |---|---|
 | `.gp-panel-overlay` | `padding: 0; align-items: stretch` — the panel fills the viewport |
 | `.gp-panel` | `width: 100%; height: 100%; border-radius: 0; border-left: 0; border-right: 0` — edge-to-edge sheet |
+| `.gp-panel__header` | `flex-wrap: wrap` — brand and close share the first row |
+| `.gp-searchbar` | `order: 3; flex: 1 0 100%` — the search field takes its own full-width row |
 | `.gp-panel__main` | `flex-direction: column` — the sidebar sits above the body |
 | `.gp-panel__nav` | Horizontal, scrollable tab strip: `flex-direction: row`, `padding: 8px 12px`, bottom border instead of right; items shrink to content and the active marker becomes a `2px` underline (`scaleX`) |
+| `.gp-nav-group` | `display: contents`, so group items flow into the strip |
+| `.gp-nav-group__label`, `.gp-nav-item__count` | Hidden |
+| `.gp-nav-item.is-active` | Drops the raised fill and inset edge; the strip keeps only the underline marker |
+| `.gp-page__icon` / `svg` | `34×34` well, `18×18` glyph |
 | `.gp-panel__body` | `padding: 16px 14px 20px` |
 | `.gp-panel__subtitle` | Hidden |
 | `.gp-panel__footer` / `-note` | Wraps; the note takes its own full-width line |
 
 Everything else is fluid by construction and must stay that way:
 
-- The panel is `min(860px, 100%)` wide and `min(86vh, 680px)` tall, so it
+- The panel is `min(900px, 100%)` wide and `min(86vh, 720px)` tall, so it
   shrinks before the breakpoint and only changes shape at it.
 - The sources grid reflows on its own (`repeat(auto-fit, minmax(180px, 1fr))`);
   no media query is needed for new tiles.
@@ -500,12 +578,12 @@ Everything else is fluid by construction and must stay that way:
 - **Visible focus everywhere.** Every keyboard-reachable control defines
   `:focus-visible` with the `2px solid var(--gp-focus)` ring. Never remove an
   outline without replacing it.
-- **Roles.** The panel is `role="dialog"` + `aria-modal="true"`; the viewer is
-  `role="dialog"` + `aria-modal="true"`; the confirm dialog is
-  `role="alertdialog"` + `aria-modal="true"` over a `role="presentation"`
-  overlay; the viewer's failure card and error toasts are `role="alert"`, all
-  other toasts `role="status"`, and the toast container is
-  `aria-live="polite"`.
+- **Roles.** The panel is `role="dialog"` + `aria-modal="true"`; the search
+  field wrapper is `role="search"`; the viewer is `role="dialog"` +
+  `aria-modal="true"`; the confirm dialog is `role="alertdialog"` +
+  `aria-modal="true"` over a `role="presentation"` overlay; the viewer's
+  failure card and error toasts are `role="alert"`, all other toasts
+  `role="status"`, and the toast container is `aria-live="polite"`.
 - **Names.** Icon-only controls carry both `title` and `aria-label`
   (`.gp-panel__close` = `common.close`, viewer tools/nav/open, the entry
   button = `settings.open`, the toast close = `×`). Labels come from the
@@ -515,10 +593,14 @@ Everything else is fluid by construction and must stay that way:
   `display: none`, so it stays focusable and its `aria-label` (or the wrapping
   row's text) names it; rows that already show the text pass it as the
   `aria-label`.
-- **Keyboard.** Panel: `Escape` closes it; `ArrowUp`/`ArrowDown` (`ArrowLeft`/`ArrowRight`
-  in the tab strip) switch pages from the sidebar; the viewer owns `Escape` while open. Viewer: `←`/`→` navigate,
-  `Home`/`End` jump, `+`/`=`/`-` zoom, `0` resets, `r` rotates, wheel zooms,
-  drag pans at any zoom, double click toggles 2×, pinch zooms.
+- **Keyboard.** Panel: `Escape` closes it (`Escape` in a non-empty search
+  field clears the query first); `/` or `Ctrl`/`Cmd`+`K` focuses the search
+  field; `ArrowUp`/`ArrowDown` (`ArrowLeft`/`ArrowRight` in the tab strip)
+  switch pages from the sidebar; in search, `ArrowDown` from the field or
+  `ArrowUp`/`ArrowDown` inside the results moves through matches and `Enter`
+  opens the first one. The viewer owns `Escape` while open. Viewer: `←`/`→`
+  navigate, `Home`/`End` jump, `+`/`=`/`-` zoom, `0` resets, `r` rotates,
+  wheel zooms, drag pans at any zoom, double click toggles 2×, pinch zooms.
   Confirm: `Escape` cancels and focus goes to the safe choice, then returns to
   the element that opened it.
 - **Scroll lock.** While a modal is open the page behind is pinned
@@ -554,6 +636,10 @@ block per enabled source:
 - Consequence for anyone editing `app.css`: add a new gallery location by
   registering a source with its own `cursorSelector`, never by writing a
   page-markup rule into `app.css`.
+- The file-icons feature is the other kind of exception: it does not write a
+  stylesheet rule at all. It inserts its own `.gp-fi` elements and hides
+  GitHub's icon with an inline style, which keeps “no rule targets page
+  markup” literally true.
 - Our own UI is excluded from this behavior: the click handler ignores any
   target inside `isOwnUi()` and any image wrapped by GitHub's `a.anchor`, so
   the affordance never fights with heading anchors or our overlays.

@@ -24,10 +24,16 @@ src/
 ├── features/settings/
 │   ├── index.js             # settings entry: header button, user-menu row, pages
 │   ├── userMenu.js          # settings row inside GitHub's user (avatar) menu
-│   ├── panel.js             # panel shell: sidebar + pages, draft, Save/Reset/Cancel
+│   ├── panel.js             # panel shell: grouped nav, search, pages, draft
 │   ├── controls.js          # section / row / field / switch / select / input / button
 │   ├── confirm.js           # promise-based confirm dialog
-│   └── tabs/                # general.js, gallery.js, backup.js, about.js
+│   └── tabs/                # general.js, gallery.js, fileIcons.js, backup.js, about.js
+├── features/fileIcons/
+│   ├── index.js             # per-surface observers, injection, settings reaction
+│   ├── surfaces.js          # where GitHub lists files + row readers
+│   ├── match.js             # pickIcon(name, kind) — pure filename matching
+│   ├── inject.js            # renderIcon / placeIcon / clearIcons
+│   └── iconSet.generated.js # curated Material Icon Theme slice (generated)
 ├── styles/
 │   ├── tokens.css           # :root design tokens (--gp-* palette)
 │   └── app.css              # injected stylesheet (gp- prefix)
@@ -46,6 +52,7 @@ src/
 graph TD
   main --> core
   main --> settingsFeature[features/settings]
+  main --> fileIcons[features/fileIcons]
   main --> gallery
   main --> ui
   main --> utils
@@ -58,6 +65,8 @@ graph TD
   settingsFeature --> utils
   settingsFeature --> i18n
   settingsFeature --> galleryRegistry[gallery/sources]
+  fileIcons --> core
+  fileIcons --> utils
   ui --> core
   ui --> utils
   ui --> i18n
@@ -78,7 +87,10 @@ listener that walks the live DOM at event time, (c) a re-mount triggered by an
 explicit navigation event, or (d) one observer on a container GitHub itself
 owns — `features/settings/userMenu.js` watches Primer's overlay portal root
 (`#__primerPortalRoot__`), which holds nothing but overlays and stays empty
-otherwise.
+otherwise. `features/fileIcons/` follows the same rule at a smaller scale: one
+observer per known file-list container (repository tree, PR header list, and so
+on), never one on the document, and a surface whose selector stops matching
+turns into a no-op instead of breaking the pagination.
 
 ```mermaid
 sequenceDiagram
@@ -155,6 +167,7 @@ row needs no reset, because GitHub unmounts that menu on navigation itself.
 |------|-------|
 | A new place with images (diff view, project board, …) | Register a source in `src/gallery/sources/`, import it from `src/gallery/index.js`, add its default switch in `core/constants.js`, add its two locale keys in all ten locales. The settings panel picks it up from the registry. |
 | A new settings page | `registerPage({ id, icon, labelKey, descKey, render })` and a module in `features/settings/tabs/`. The page reads and mutates `getDraft()`. |
+| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`). Observers and injection are shared. |
 | A new setting | Add it to `DEFAULT_SETTINGS` + a normalizer in `core/settings.js`, expose a getter, add the control to a tab, and document the key in `README.md` / `AGENTS.md`. Emit the matching bus event on Save if a feature must react. |
 | A lightbox somewhere else | `openViewer({ images })` from `ui/viewer.js` — it is a standalone component with localizable, per-call overridable labels. |
 
@@ -167,5 +180,6 @@ row needs no reset, because GitHub unmounts that menu on navigation itself.
 - Any value read from storage or a backup goes through normalization — unknown
   values fall back to defaults, never crash the page.
 - Injected UI never touches GitHub's own header/markup nodes; it only inserts
-  siblings next to them.
+  siblings next to them. File icons additionally hide GitHub's glyph with an
+  inline style and restore it on teardown, without a page-markup CSS rule.
 - DOM collections are iterated with `eachNode`/`toArray`, never `for...of`.

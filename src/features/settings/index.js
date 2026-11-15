@@ -7,6 +7,7 @@ import { getIconSvg } from './controls.js';
 import { registerPage, togglePanel } from './panel.js';
 import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
+import { renderFileIcons } from './tabs/fileIcons.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
 import { ensureUserMenuItem, installUserMenuEntry, refreshUserMenuItem } from './userMenu.js';
@@ -147,6 +148,7 @@ function installMenuCommand() {
 function registerPages() {
   registerPage({
     id: 'general',
+    group: 'preferences',
     icon: 'general',
     labelKey: 'tab.general',
     descKey: 'tab.general.desc',
@@ -154,13 +156,23 @@ function registerPages() {
   });
   registerPage({
     id: 'gallery',
+    group: 'preferences',
     icon: 'gallery',
     labelKey: 'tab.gallery',
     descKey: 'tab.gallery.desc',
     render: renderGallery,
   });
   registerPage({
+    id: 'fileIcons',
+    group: 'preferences',
+    icon: 'fileIcons',
+    labelKey: 'tab.icons',
+    descKey: 'tab.icons.desc',
+    render: renderFileIcons,
+  });
+  registerPage({
     id: 'backup',
+    group: 'more',
     icon: 'backup',
     labelKey: 'tab.backup',
     descKey: 'tab.backup.desc',
@@ -168,6 +180,7 @@ function registerPages() {
   });
   registerPage({
     id: 'about',
+    group: 'more',
     icon: 'about',
     labelKey: 'tab.about',
     descKey: 'tab.about.desc',
@@ -194,6 +207,7 @@ export function initSettingsFeature() {
   });
   on('settings:gallery', updateSettingsButtonState);
   on('settings:toasts', updateSettingsButtonState);
+  on('settings:fileIcons', updateSettingsButtonState);
   on('settings:language', () => {
     refreshLabels();
     updateSettingsButtonState();

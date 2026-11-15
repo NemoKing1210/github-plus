@@ -4,6 +4,7 @@ import { configureLocale } from './i18n/index.js';
 import { getSettings } from './core/settings.js';
 import { initSettingsFeature } from './features/settings/index.js';
 import { isPanelOpen, togglePanel } from './features/settings/panel.js';
+import { applyFileIconsSettings, initFileIconsFeature } from './features/fileIcons/index.js';
 import { applyGallerySettings, initGalleryFeature } from './gallery/index.js';
 import { closeViewer, isViewerOpen } from './ui/viewer.js';
 import { watchNavigation } from './utils/navigation.js';
@@ -33,6 +34,8 @@ function init() {
   initSettingsFeature();
   initGalleryFeature();
   applyGallerySettings();
+  initFileIconsFeature();
+  applyFileIconsSettings();
   watchNavigation(resetOverlaysOnNavigation);
 }
 

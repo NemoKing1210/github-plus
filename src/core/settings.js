@@ -101,6 +101,15 @@ function normalizeGallery(raw, fallback) {
   };
 }
 
+function normalizeFileIcons(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+    folders: normalizeBoolean(source.folders, fallback.folders),
+    specialNames: normalizeBoolean(source.specialNames, fallback.specialNames),
+  };
+}
+
 /** Normalize a whole settings payload against the shipped defaults. */
 function normalizeSettings(raw) {
   const defaults = getDefaults();
@@ -109,6 +118,7 @@ function normalizeSettings(raw) {
     language: normalizeLocale(source.language, defaults.language),
     gallery: normalizeGallery(source.gallery, defaults.gallery),
     toasts: normalizeToasts(source.toasts, defaults.toasts),
+    fileIcons: normalizeFileIcons(source.fileIcons, defaults.fileIcons),
   };
 }
 
@@ -129,6 +139,10 @@ export function getSettings() {
 
 export function getGallerySettings() {
   return settings.gallery;
+}
+
+export function getFileIconsSettings() {
+  return settings.fileIcons;
 }
 
 /**
