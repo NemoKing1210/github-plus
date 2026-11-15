@@ -14,10 +14,11 @@ import { openPreviewForTarget } from '../filePreview/index.js';
 import { isCopyableContent } from './copy.js';
 
 /**
- * File context menu: right-click a file in the repository listing or on a
- * file page for quick actions. One delegated `contextmenu` listener on the
- * document; the target is resolved from the live DOM at open time, so there
- * is nothing to invalidate on a GitHub re-render.
+ * File context menu: right-click a file in the repository listing, in the file
+ * tree, on a file page or on a file link in rendered markdown for quick
+ * actions. One delegated `contextmenu` listener on the document; the target is
+ * resolved from the live DOM at open time, so there is nothing to invalidate
+ * on a GitHub re-render.
  *
  * The native menu is replaced only on a resolved file target; everywhere else
  * the browser keeps its own menu. The menu itself lives in `ui/contextMenu.js`

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-15
+
+### Added
+
+- File links in rendered markdown (a README, an issue, a discussion or a wiki
+  page) now get the same quick preview as files in a repository listing: hold
+  the left mouse button on the link, or choose **Preview** in its context menu
+- Right-clicking a file link in rendered markdown opens the file context menu
+  instead of the browser's, with open, open in a new tab, download, copy
+  contents, copy link and copy path
+
+[0.16.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.16.0
+
 ## [0.15.1] - 2026-11-15
 
 ### Fixed

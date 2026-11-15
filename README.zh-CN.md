@@ -5,13 +5,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
 用于文件操作的上下文菜单，以及任意文件的快速预览。
 
-> **状态：** 早期（`0.15.1`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
+> **状态：** 早期（`0.16.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
 > 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
 > 文件大小、文件上下文菜单，以及快速文件预览。计划加入更多 GitHub 改进。
 
@@ -136,21 +136,21 @@ GitHub Plus 把两者直接加到文件行上：
 右键单击文件是最快的操作入口——而 GitHub 自带的菜单并不提供这些操作。GitHub Plus
 会为文件替换该菜单：
 
-- **快捷操作** — 在仓库文件列表或文件树侧边栏中右键单击文件，可**打开**、
+- **快捷操作** — 在仓库文件列表、文件树侧边栏或渲染后的 Markdown 中右键单击文件链接，可**打开**、
   **在新标签页中打开**、**下载**、**复制内容**、**复制链接**和**复制路径**。
   在文件页面或 blame 页面中会出现同样的菜单（不含**打开**，因为你已经在该页面）。
 - **复制内容** — 文本文件的内容无需打开页面即可直接进入剪贴板；二进制文件和超过
   1 MiB 的文件会被明确提示拒绝，而不是粘贴乱码或卡住标签页。
 - **复制路径** — 相对于仓库的路径（`src/main.js`），可直接粘贴到终端、导入语句或链接中。
-- **只在有用之处生效** — 文件夹、图片、媒体和普通链接仍使用原生菜单；没有指向文件的
-  右键单击行为与之前完全一致。
+- **只在有用之处生效** — 文件夹、图片、媒体和普通链接（包括不指向仓库文件的
+  Markdown 链接）仍使用原生菜单；没有指向文件的右键单击行为与之前完全一致。
 - **也支持键盘** — 上下文菜单键会在文件链接处打开同一菜单，支持方向键导航，关闭后
   焦点会回到原处；关闭该功能后各处都会恢复浏览器菜单。
 
 ### 快速文件预览
 
-无需离开页面即可打开任意文件——使用文件列表中的眼睛按钮，或文件右键菜单中的
-**预览**：
+无需离开页面即可打开任意文件——使用文件列表中的眼睛按钮、渲染后 Markdown 中的
+文件链接，或文件右键菜单中的**预览**：
 
 - **渲染而非原始文本** — Markdown 会被渲染并净化，源代码文件获得语法高亮和
   行号，图片、视频和音频就地播放，PDF 在 GitHub 页面策略允许嵌入框架时于
@@ -158,8 +158,8 @@ GitHub Plus 把两者直接加到文件行上：
   诚实的卡片，提供 **在 GitHub 上打开** 和 **下载**，而不是损坏的框架。
 - **在文件夹中切换** — 同一目录中的文件组成一个集合：上一页/下一页按钮和方向键
   可在其间切换，页脚显示当前位置。
-- **按住预览** — 在列表中按住文件名的鼠标左键即可打开预览；快速单击仍会打开文件，
-  拖动或选中文本则会取消。
+- **按住预览** — 在列表中的文件名或渲染后 Markdown 中的文件链接上按住鼠标左键即可
+  打开预览；快速单击仍会打开文件，拖动或选中文本则会取消。
 - **页头操作** — 在 GitHub 上打开文件、复制其原始内容、链接或路径，或以自己的
   文件名下载。
 - **Markdown：预览或源码** — 分段控件可在渲染后的 Markdown 与其原始文本（按

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
@@ -13,7 +13,7 @@ GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos
 tamaños de archivo con descargas en un clic, un menú contextual para acciones
 de archivo y una vista rápida de cualquier archivo.
 
-> **Estado:** temprano (`0.15.1`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.16.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Copia de seguridad · Acerca de), la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
@@ -176,8 +176,9 @@ Hacer clic derecho en un archivo es la vía más rápida a lo que quieres hacer 
 él, y el menú propio de GitHub no ofrece nada de eso. GitHub Plus lo sustituye
 para los archivos:
 
-- **Acciones rápidas** — clic derecho en un archivo de una lista del repositorio
-  o de la barra lateral del árbol de archivos abre **Abrir**, **Abrir en una
+- **Acciones rápidas** — clic derecho en un archivo de una lista del repositorio,
+  de la barra lateral del árbol de archivos o en un enlace a un archivo dentro de
+  markdown renderizado abre **Abrir**, **Abrir en una
   pestaña nueva**, **Descargar**, **Copiar contenido**, **Copiar enlace** y
   **Copiar ruta**. En la página de un archivo o de blame aparece el mismo menú
   (sin **Abrir**, porque ya estás allí).
@@ -188,8 +189,9 @@ para los archivos:
 - **Copiar la ruta** — la ruta relativa al repositorio (`src/main.js`), lista
   para pegarla en una terminal, un import o un enlace.
 - **Solo donde ayuda** — el menú nativo sigue intacto para carpetas, imágenes,
-  multimedia y enlaces normales; un clic derecho que no apunta a un archivo se
-  comporta como antes.
+  multimedia y enlaces normales (también los enlaces de markdown que no apuntan
+  a ningún archivo del repositorio); un clic derecho que no apunta a un archivo
+  se comporta como antes.
 - **También con teclado** — la tecla de menú contextual abre el mismo menú en el
   enlace del archivo, con navegación por flechas y el foco restaurado al
   cerrarlo; al desactivar la función vuelve el menú del navegador en todas
@@ -198,7 +200,8 @@ para los archivos:
 ### Vista rápida de archivos
 
 Abre cualquier archivo sin salir de la página: con el botón de ojo de una lista
-de archivos o con **Vista previa** en el menú contextual del archivo:
+de archivos, con un enlace a un archivo en markdown renderizado o con **Vista
+previa** en el menú contextual del archivo:
 
 - **Renderizado, no en bruto** — el markdown se renderiza y se sanea, los
   archivos de código reciben resaltado de sintaxis y números de línea, las
@@ -211,7 +214,8 @@ de archivos o con **Vista previa** en el menú contextual del archivo:
   los botones anterior/siguiente y las teclas de flecha cambian entre ellos, con
   la posición actual en el pie.
 - **Mantén para previsualizar** — mantén pulsado el botón izquierdo sobre el
-  nombre de un archivo en una lista para abrir su vista previa; un clic rápido
+  nombre de un archivo en una lista o sobre un enlace a un archivo en markdown
+  renderizado para abrir su vista previa; un clic rápido
   sigue abriendo el archivo, y arrastrar o seleccionar texto cancela el gesto.
 - **Acciones en la cabecera** — abre el archivo en GitHub, copia su contenido
   sin formato, su enlace o su ruta, o descárgalo con su propio nombre.

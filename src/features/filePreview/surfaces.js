@@ -1,5 +1,5 @@
 import { PREVIEW_MAX_SIBLINGS } from '../../core/constants.js';
-import { fileTarget } from '../../utils/fileTarget.js';
+import { fileTarget, resolveFileTarget } from '../../utils/fileTarget.js';
 
 /**
  * The repository listing is the only place a preview button is injected: each
@@ -74,16 +74,35 @@ export function resolvePreviewRow(row) {
 }
 
 /**
- * The file behind a node inside a listing row's name link, plus that link.
- * Null for folders, other columns and anything outside a listing.
+ * The file behind a node inside a listing row's name link or a file link in
+ * rendered markdown, plus that link. Null for folders, other columns, links
+ * that point at no file and anything outside those surfaces.
  * @param {Node} node
- * @returns {{row: Element, name: string, file: object, link: Element} | null}
+ * @returns {{name: string, file: object, link: Element,
+ *   source: 'listing'|'markdown', row?: Element} | null}
  */
 export function resolvePreviewLink(node) {
-  const link = node instanceof Element ? node.closest('a[href*="/blob/"]') : null;
+  const link = node instanceof Element ? node.closest('a[href]') : null;
   if (!link) return null;
   const row = link.closest(PREVIEW_SURFACE.rows);
-  if (!row || !row.closest(PREVIEW_SURFACE.containers[0])) return null;
-  const found = resolveRow(row);
-  return found ? { ...found, link } : null;
+  if (row && row.closest(PREVIEW_SURFACE.containers[0])) {
+    // Only the row's name link counts, not its commit or other columns.
+    if (!(link.getAttribute('href') || '').includes('/blob/')) return null;
+    const found = resolveRow(row);
+    return found ? { ...found, link, source: 'listing' } : null;
+  }
+  const target = resolveFileTarget(node);
+  if (!target || target.source !== 'markdown') return null;
+  return {
+    name: target.name,
+    file: {
+      name: target.name,
+      href: target.href,
+      rawUrl: target.rawUrl,
+      relative: target.relative,
+      ref: currentRef(),
+    },
+    link,
+    source: 'markdown',
+  };
 }

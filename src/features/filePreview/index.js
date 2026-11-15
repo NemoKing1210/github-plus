@@ -41,7 +41,8 @@ function visibleSettings() {
 
 /**
  * Open the preview for a resolved file target. A listing row opens its whole
- * directory; a sidebar tree row or a blob page opens a single-file set.
+ * directory; a sidebar tree row, a blob page or a markdown file link opens a
+ * single-file set.
  * @param {{name: string, href: string, rawUrl: string, relative: string,
  *   source?: string, anchor?: Element}} target
  */
@@ -116,14 +117,7 @@ function attach(container) {
 }
 
 function openFromLongPress(target) {
-  openPreviewForTarget({
-    name: target.file.name,
-    href: target.file.href,
-    rawUrl: target.file.rawUrl,
-    relative: target.file.relative,
-    source: 'listing',
-    anchor: target.link,
-  });
+  openPreviewForTarget({ ...target.file, source: target.source, anchor: target.link });
 }
 
 function teardown() {

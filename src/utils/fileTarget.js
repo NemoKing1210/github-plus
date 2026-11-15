@@ -83,14 +83,15 @@ export function fileTarget(href, base = 'https://github.com', ref = '') {
  * Where a right-click or a preview request resolves to a file, and to nothing
  * everywhere else.
  *
- * Three surfaces: a file row of the repository listing, a file of the sidebar
- * file tree, and the file view of a blob or blame page. Folders, submodules
- * and anything that is not a file view return null, so the browser keeps its
- * own menu there. Links, images and media inside a rendered file are left
- * alone too — the native menu is the useful one for them — except the file's
- * own header link.
+ * Four surfaces: a file row of the repository listing, a file of the sidebar
+ * file tree, a file link inside rendered markdown, and the file view of a blob
+ * or blame page. Folders, submodules and anything that is not a file view
+ * return null, so the browser keeps its own menu there. Images, media and
+ * ordinary links keep the native menu too, as does everything in the file view
+ * except the file's own header link and now a link to another file.
  */
 const LISTING = '[data-testid="directory-content"]';
+const MARKDOWN_BODY = '.markdown-body';
 const FILE_VIEW_ONLY_PATH = /^\/[^/]+\/[^/]+\/(?:blob|blame)\//;
 const FILE_VIEW_CONTENT = [
   '[data-testid="breadcrumbs"]',
@@ -128,6 +129,40 @@ function ownFileLink(node) {
   } catch {
     return false;
   }
+}
+
+/**
+ * The file behind a rendered markdown link (pure). GitHub rewrites relative
+ * markdown links into repository file views, so the address alone is enough;
+ * a hash-only or query-only link never reaches another file and is left to the
+ * browser, as is a link on a foreign host.
+ * @param {string} href
+ * @param {string} [base] the page the link was rendered on
+ * @param {string} [ref] the page's current branch or tag, when known
+ * @returns {{href: string, rawUrl: string, relative: string, name: string} | null}
+ */
+export function markdownFileTarget(href, base = 'https://github.com', ref = '') {
+  if (!href || href.startsWith('#') || href.startsWith('?')) return null;
+  let url;
+  let host;
+  try {
+    url = new URL(href, base);
+    host = new URL(base).hostname;
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+  if (url.hostname !== 'github.com' && url.hostname !== host) return null;
+  return fileTarget(url.href, base, ref);
+}
+
+function fromMarkdownLink(node) {
+  const link = node.closest('a[href]');
+  if (!link || !link.closest(MARKDOWN_BODY)) return null;
+  if (node.closest(NATIVE_MEDIA)) return null;
+  const target = markdownFileTarget(link.getAttribute('href') || '', location.href, currentRef());
+  if (!target) return null;
+  return { ...target, source: 'markdown', anchor: link };
 }
 
 function fromListing(node) {
@@ -198,9 +233,9 @@ function fromFileView(node) {
 /**
  * @param {EventTarget|null} node
  * @returns {{name: string, href: string, rawUrl: string, relative: string,
- *   source: 'listing'|'tree'|'blob', anchor: Element} | null}
+ *   source: 'listing'|'tree'|'markdown'|'blob', anchor: Element} | null}
  */
 export function resolveFileTarget(node) {
   if (!(node instanceof Element)) return null;
-  return fromListing(node) || fromFileTree(node) || fromFileView(node);
+  return fromListing(node) || fromFileTree(node) || fromMarkdownLink(node) || fromFileView(node);
 }

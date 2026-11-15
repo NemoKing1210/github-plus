@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 galerie d'images pour le markdown rendu, des icônes de fichiers colorées partout
@@ -13,7 +13,7 @@ où GitHub liste des fichiers, des couleurs d'âge façon blame pour ces fichier
 la taille des fichiers avec téléchargement en un clic, un menu contextuel pour
 les actions sur les fichiers et un aperçu rapide de tout fichier.
 
-> **Statut :** début (`0.15.1`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.16.0`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Sauvegarde · À propos), la galerie d'images du
 > markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame, la
 > taille des fichiers avec boutons de téléchargement, un menu contextuel de
@@ -175,8 +175,9 @@ Un clic droit sur un fichier est le chemin le plus court vers ce que vous voulez
 en faire — et le menu de GitHub n'offre rien de tout cela. GitHub Plus le
 remplace pour les fichiers :
 
-- **Actions rapides** — un clic droit sur un fichier d'une liste de dépôt ou de
-  la barre latérale de l'arborescence ouvre **Ouvrir**, **Ouvrir dans un nouvel
+- **Actions rapides** — un clic droit sur un fichier d'une liste de dépôt, de
+  la barre latérale de l'arborescence ou sur un lien vers un fichier dans du
+  markdown rendu ouvre **Ouvrir**, **Ouvrir dans un nouvel
   onglet**, **Télécharger**, **Copier le contenu**, **Copier le lien** et
   **Copier le chemin**. Sur la page d'un fichier ou de blame, le même menu
   apparaît (sans **Ouvrir**, puisque vous y êtes déjà).
@@ -187,8 +188,9 @@ remplace pour les fichiers :
 - **Copier le chemin** — le chemin relatif au dépôt (`src/main.js`), prêt à
   coller dans un terminal, un import ou un lien.
 - **Seulement là où c'est utile** — le menu natif reste intact pour les
-  dossiers, les images, les médias et les liens ordinaires ; un clic droit qui
-  ne vise pas un fichier se comporte comme avant.
+  dossiers, les images, les médias et les liens ordinaires (y compris les liens
+  markdown qui ne visent aucun fichier du dépôt) ; un clic droit qui ne vise pas
+  un fichier se comporte comme avant.
 - **Au clavier aussi** — la touche du menu contextuel ouvre le même menu sur le
   lien du fichier, avec navigation aux flèches et retour du focus à la
   fermeture ; désactiver la fonction rétablit le menu du navigateur partout.
@@ -196,7 +198,8 @@ remplace pour les fichiers :
 ### Aperçu rapide des fichiers
 
 Ouvrez n'importe quel fichier sans quitter la page — avec le bouton œil d'une
-liste de fichiers ou **Aperçu** dans le menu contextuel du fichier :
+liste de fichiers, avec un lien vers un fichier dans du markdown rendu ou
+**Aperçu** dans le menu contextuel du fichier :
 
 - **Rendu, pas brut** — le markdown est rendu et assaini, les fichiers source
   reçoivent la coloration syntaxique et des numéros de ligne, les images, la
@@ -208,7 +211,8 @@ liste de fichiers ou **Aperçu** dans le menu contextuel du fichier :
   les boutons précédent/suivant et les flèches du clavier passent de l'un à
   l'autre, la position actuelle étant indiquée en pied.
 - **Aperçu par appui long** — maintenez le bouton gauche de la souris sur le nom
-  d'un fichier dans une liste pour ouvrir son aperçu ; un clic rapide ouvre
+  d'un fichier dans une liste ou sur un lien vers un fichier dans du markdown
+  rendu pour ouvrir son aperçu ; un clic rapide ouvre
   toujours le fichier, et un glissement ou une sélection de texte annule.
 - **Actions dans l'en-tête** — ouvrir le fichier sur GitHub, copier son contenu
   brut, son lien ou son chemin, ou le télécharger sous son propre nom.

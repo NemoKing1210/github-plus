@@ -61,9 +61,11 @@ function onClick(event) {
 }
 
 /**
- * Watch for a long left-button press on a listing file name. A drag past the
- * movement threshold and a quick click both leave the link alone.
- * @param {(target: {row: Element, name: string, file: object, link: Element}) => void} handler
+ * Watch for a long left-button press on a listing file name or a rendered
+ * markdown file link. A drag past the movement threshold and a quick click both
+ * leave the link alone.
+ * @param {(target: {name: string, file: object, link: Element,
+ *   source: string, row?: Element}) => void} handler
  */
 export function installLongPress(handler) {
   uninstallLongPress();

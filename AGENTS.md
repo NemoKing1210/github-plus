@@ -78,13 +78,12 @@ github-plus/
 │   │   │   └── inject.js   # renderMeta / placeMeta / placeHead / clearMeta
 │   │   ├── fileMenu/
 │   │   │   ├── index.js    # Delegated contextmenu listener, actions, settings reaction
-│   │   │   ├── surfaces.js # Where a right-click resolves to a file
 │   │   │   └── copy.js     # isCopyableContent(type, name): pure content check
 │   │   ├── filePreview/
 │   │   │   ├── index.js    # Surface observers, row buttons, open/close lifecycle
-│   │   │   ├── surfaces.js # Listing rows, current ref, sibling set
+│   │   │   ├── surfaces.js # Listing rows, current ref, sibling set, hold targets
 │   │   │   ├── inject.js   # renderPreviewButton / placeCell / placeHead / clearPreviewCells
-│   │   │   ├── longPress.js# Delegated hold-on-a-file-name gesture
+│   │   │   ├── longPress.js# Delegated hold-on-a-file-link gesture
 │   │   │   ├── kind.js     # previewKind(name, type), highlightLanguage, countLines (pure)
 │   │   │   ├── links.js    # resolveMarkdownTarget(href, ctx, mode): relative → GitHub URL (pure)
 │   │   │   ├── render.js   # loadPreview(file, { mode }): fetch + dispatch per kind
@@ -621,33 +620,37 @@ chrome.
 
 ### `src/features/fileMenu/` — file context menu
 
-Right-clicking a file in the repository listing, in the sidebar file tree or on
-a blob or blame page opens the project's own menu instead of the browser's:
+Right-clicking a file in the repository listing, in the sidebar file tree, on
+a blob or blame page, or on a file link in rendered markdown opens the
+project's own menu instead of the browser's:
 open, open in a new tab, download, copy contents, copy link, copy path. One
 delegated capture-phase `contextmenu` listener on the document — the same shape
 as the gallery's click listener, with no per-row state to invalidate — and the
 native menu is replaced **only** when the click resolves to a file. Folders,
-submodules, media inside a rendered file and foreign links keep the browser
-menu.
+submodules, images, media and foreign links keep the browser menu.
 
-- `utils/fileTarget.js` supplies `fileTarget` (see `src/utils/` below) for the
-  download address and path; the surface resolvers live in `surfaces.js`.
+- `utils/fileTarget.js` supplies `resolveFileTarget(node)` (see `src/utils/`
+  below) for every surface, plus `fileTarget` for the download address and
+  path.
 - `copy.js`: `isCopyableContent(contentType, name)` (pure) — a known content
   type decides; an empty type falls back to a textual extension or a
   well-known name (`Dockerfile`, `Makefile`, …). Binary types win over a
   textual extension.
-- `surfaces.js`: `resolveFileTarget(node)` → `{ name, href, rawUrl, relative,
-  source, anchor }` or `null`. `listing` reads the row's
+- `utils/fileTarget.js`: `resolveFileTarget(node)` → `{ name, href, rawUrl,
+  relative, source, anchor }` or `null`. `listing` reads the row's
   `a[href*="/blob/"]` inside `[data-testid="directory-content"]`; `tree` reads a
   file row of the sidebar file tree (`li[role="treeitem"]` in
   `#repos-file-tree`, path from the row's `-item` id, blob address rebuilt from
-  the page's repo and the current ref); `blob` applies only when the path is a
-  blob or blame view and the node sits inside GitHub's file content
-  (breadcrumbs and the filename heading, code area, `.markdown-body`), skipping
-  native media and foreign links but allowing the file's own header link.
-  `anchor` is the row link or the breadcrumb filename, used for keyboard opens.
-  A tree row for the file already open is reported as `blob`, so it offers no
-  redundant **Open**.
+  the page's repo and the current ref); `markdown` reads a file link inside a
+  `.markdown-body` container — the only surface that resolves a *link* rather
+  than the page it sits on, with hash-only, query-only, media and foreign-host
+  links skipped; `blob` applies only when the path is a blob or blame view and
+  the node sits inside GitHub's file content (breadcrumbs and the filename
+  heading, code area, `.markdown-body`), skipping native media and foreign
+  links but allowing the file's own header link.
+  `anchor` is the row link, the markdown link or the breadcrumb filename, used
+  for keyboard opens. A tree row for the file already open is reported as
+  `blob`, so it offers no redundant **Open**.
 - `index.js`: `buildItems()` builds the action list through `ui/contextMenu.js`
   and `ACTION_ICONS`; open is omitted when the file is the page itself (already
   there), download uses `utils/download.js`, copy contents fetches the
@@ -714,19 +717,21 @@ keys move between siblings.
   `[data-testid="directory-content"]`, header `table thead tr`, column label
   `preview.column`), `currentRef()`, `siblingsForRow(row)` (capped at
   `PREVIEW_MAX_SIBLINGS`; returns null when the clicked row is past the cap),
-  `resolvePreviewRow(row)` and `resolvePreviewLink(node)` (the listing file
-  behind a node inside the row's name link, plus that link — null for folders
-  and other columns).
+  `resolvePreviewRow(row)` and `resolvePreviewLink(node)` (the file behind a
+  node inside the row's name link or a file link in rendered markdown, plus
+  that link and its `source` — null for folders, other columns and links that
+  point at no file).
 - `longPress.js`: `installLongPress(handler)` / `uninstallLongPress()` — one
   delegated capture-phase `pointerdown` listener on the document, the same
   shape as the gallery and the file menu. A left-button press on a listing file
-  name starts a `PREVIEW_LONG_PRESS_MS` timer; moving past
-  `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a touch pointer
-  cancels it, so a drag, a text selection and a plain click keep their normal
-  behavior. When the timer fires the handler opens the preview with that row as
-  the anchor (so the whole directory becomes the set), and the following
-  `click` on the link is swallowed once — otherwise the browser would also
-  navigate to the file.
+  name or a rendered markdown file link starts a `PREVIEW_LONG_PRESS_MS` timer;
+  moving past `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a
+  touch pointer cancels it, so a drag, a text selection and a plain click keep
+  their normal behavior. When the timer fires the handler opens the preview
+  with that link as the anchor (for a listing row the whole directory becomes
+  the set; a markdown link opens one file), and the following `click` on the
+  link is swallowed once — otherwise the browser would also navigate to the
+  file.
 - `inject.js`: `renderPreviewButton` (28×28 eye, `preventDefault` +
   `stopPropagation`), `placeCell` (an empty cell for a folder row, so every row
   keeps the column count), `placeHead` (a visually collapsed header label like
@@ -778,10 +783,13 @@ keys move between siblings.
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
   from the DOM) with them, never `for...of`.
-- `fileTarget.js`: `rawUrlFor(href, base)` and `fileTarget(href, base, ref)`
-  (pure) — the raw address rewrite and file-view parser shared by the file
+- `fileTarget.js`: `rawUrlFor(href, base)`, `fileTarget(href, base, ref)` and
+  `markdownFileTarget(href, base, ref)` (pure) — the raw address rewrite, the
+  file-view parser and the rendered-markdown link parser shared by the file
   sizes, the file menu and the preview; `resolveFileTarget(node)` is the DOM
-  resolver used by the context menu. Unit-tested by `test/fileTarget.test.js`.
+  resolver used by the context menu and by the preview's long press, covering
+  listing rows, the sidebar tree, file links in rendered markdown and the
+  current blob/blame view. Unit-tested by `test/fileTarget.test.js`.
 - `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
   three significant digits (`2929` → `2.86 KB`). Unit-tested by
   `test/fileMeta.test.js`.
@@ -854,8 +862,9 @@ and updates its dot → success toast → panel closes and `unlockPageScroll()`.
 ## End-to-end data flow (preview)
 
 eye button click, **Preview** in the file menu, or a long press on a file name
-→ `openPreviewForTarget`
-resolves the row's `{ name, rawUrl }` and its sibling set (`siblingsForRow`) →
+or a rendered markdown file link → `openPreviewForTarget`
+resolves the file's `{ name, rawUrl }` and, for a listing row, its sibling set
+(`siblingsForRow`) →
 `openFilePreview({ files, index, load: loadPreview })` → `show()` aborts any
 stale request, renders a spinner and calls `load(file, { mode, signal })` →
 `loadPreview` probes `HEAD` for unknown kinds, fetches the same-origin raw
@@ -1084,10 +1093,11 @@ and check diagnostics for edited files.
   that `.gp-settings-btn` is inside it. A header rework on GitHub's side is the
   usual cause — extend the list, never restyle GitHub's own header.
 - File context menu not opening: check **File context menu** is on, the page is a
-  repository listing, the sidebar file tree, or a blob/blame view, and the
-  right-click landed on a file row link, a tree file row or inside the file
-  content — folders, submodules, media and foreign links keep the browser menu
-  by design. The menu claims `#gp-context-menu`; inspect its
+  repository listing, the sidebar file tree, a blob/blame view or rendered
+  markdown, and the right-click landed on a file row link, a tree file row, a
+  file link inside `.markdown-body` or inside the file content — folders,
+  submodules, images, media, hash-only links and foreign links keep the browser
+  menu by design. The menu claims `#gp-context-menu`; inspect its
   `aria-label` for the resolved file name. Copy contents refusing a file means
   `isCopyableContent()` saw a non-text type, the file exceeds
   `FILE_COPY_MAX_BYTES` (1 MiB) or the raw fetch failed (`GP-1401` in the
@@ -1112,8 +1122,9 @@ and check diagnostics for edited files.
   eye button — that **Row button** is on, and — for the hold gesture — that
   **Long-press a file name** is on; the context menu entry appears regardless.
   The hold gesture needs a mouse: touch pointers are ignored, and moving more
-  than 8 px before the 450 ms timer fires turns it into a drag. The row must be
-  a `tr.react-directory-row` inside `[data-testid="directory-content"]`; the
+  than 8 px before the 450 ms timer fires turns it into a drag. The hold works
+  on a file link inside `.markdown-body` too, and the row must be a
+  `tr.react-directory-row` inside `[data-testid="directory-content"]`; the
   menu also opens the preview on a blob
   or blame page, for the file itself. A card saying the file could not be shown
   means the raw fetch failed (`GP-1501` in the console) or the content type is

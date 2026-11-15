@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
@@ -13,7 +13,7 @@ wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
 i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach oraz szybki
 podgląd dowolnego pliku.
 
-> **Status:** wczesny etap (`0.15.1`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.16.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
 > plików z przyciskami pobierania, menu kontekstowe plików oraz szybki podgląd
@@ -167,8 +167,9 @@ Kliknięcie pliku prawym przyciskiem to najkrótsza droga do tego, co chcesz z n
 zrobić — a własne menu GitHuba nie oferuje niczego z tego. GitHub Plus zastępuje
 je dla plików:
 
-- **Szybkie akcje** — kliknięcie pliku prawym przyciskiem na liście repozytorium
-  lub w bocznym panelu drzewa plików otwiera **Otwórz**, **Otwórz w nowej
+- **Szybkie akcje** — kliknięcie pliku prawym przyciskiem na liście repozytorium,
+  w bocznym panelu drzewa plików lub linku do pliku w wyrenderowanym Markdownie
+  otwiera **Otwórz**, **Otwórz w nowej
   karcie**, **Pobierz**, **Kopiuj zawartość**, **Kopiuj link** i **Kopiuj
   ścieżkę**. Na stronie pliku lub blame pojawia się to samo menu (bez
   **Otwórz**, bo już tam jesteś).
@@ -179,7 +180,8 @@ je dla plików:
 - **Kopiowanie ścieżki** — ścieżka względna wobec repozytorium (`src/main.js`),
   gotowa do wklejenia w terminalu, imporcie lub linku.
 - **Tylko tam, gdzie pomaga** — natywne menu pozostaje nietknięte dla folderów,
-  obrazów, multimediów i zwykłych linków; kliknięcie prawym przyciskiem, które
+  obrazów, multimediów i zwykłych linków (w tym linków Markdown, które nie
+  prowadzą do żadnego pliku repozytorium); kliknięcie prawym przyciskiem, które
   nie trafia w plik, działa jak wcześniej.
 - **Także z klawiatury** — klawisz menu kontekstowego otwiera to samo menu przy
   linku do pliku, z nawigacją strzałkami i przywróceniem fokusu po zamknięciu;
@@ -187,8 +189,9 @@ je dla plików:
 
 ### Szybki podgląd plików
 
-Otwórz dowolny plik bez opuszczania strony — przyciskiem oka na liście plików lub
-przez **Podgląd** w menu kontekstowym pliku:
+Otwórz dowolny plik bez opuszczania strony — przyciskiem oka na liście plików,
+linkiem do pliku w wyrenderowanym Markdownie lub przez **Podgląd** w menu
+kontekstowym pliku:
 
 - **Wyrenderowane, nie surowe** — Markdown jest renderowany i oczyszczany, pliki
   źródłowe otrzymują podświetlanie składni i numery wierszy, obrazy, wideo i audio
@@ -200,7 +203,8 @@ przez **Podgląd** w menu kontekstowym pliku:
   przyciski poprzedni/następny i klawisze strzałek przełączają między nimi, a
   bieżąca pozycja jest w stopce.
 - **Podgląd po przytrzymaniu** — przytrzymaj lewy przycisk myszy na nazwie pliku
-  na liście, aby otworzyć jego podgląd; szybkie kliknięcie nadal otwiera plik,
+  na liście lub na linku do pliku w wyrenderowanym Markdownie, aby otworzyć jego
+  podgląd; szybkie kliknięcie nadal otwiera plik,
   a przeciąganie lub zaznaczanie tekstu anuluje gest.
 - **Działania w nagłówku** — otwórz plik na GitHubie, skopiuj jego surową treść,
   link lub ścieżkę albo pobierz go pod jego własną nazwą.

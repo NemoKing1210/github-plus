@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fileTarget, rawUrlFor } from '../src/utils/fileTarget.js';
+import { fileTarget, markdownFileTarget, rawUrlFor } from '../src/utils/fileTarget.js';
 
 test('resolves a blob link into its raw address and relative path', () => {
   const target = fileTarget('/o/r/blob/main/src/a.js', 'https://github.com', 'main');
@@ -86,4 +86,49 @@ test('accepts an absolute address', () => {
 test('does not rewrite a folder link', () => {
   assert.equal(rawUrlFor('/o/r/tree/main/src'), '');
   assert.equal(rawUrlFor(''), '');
+});
+
+test('resolves a markdown link relative to the page it was rendered on', () => {
+  const target = markdownFileTarget(
+    'src/a.js',
+    'https://github.com/o/r/blob/main/docs/README.md',
+    'main',
+  );
+  assert.deepEqual(target, {
+    href: 'https://github.com/o/r/blob/main/docs/src/a.js',
+    rawUrl: '/o/r/raw/main/docs/src/a.js',
+    relative: 'docs/src/a.js',
+    name: 'a.js',
+  });
+});
+
+test('resolves an absolute markdown file link with a branch that has slashes', () => {
+  const target = markdownFileTarget(
+    '/o/r/blob/feat/ui/src/a.js',
+    'https://github.com/o/r/issues/1',
+    'feat/ui',
+  );
+  assert.equal(target.relative, 'src/a.js');
+  assert.equal(target.rawUrl, '/o/r/raw/feat/ui/src/a.js');
+});
+
+test('accepts a github.com file link on a gist page', () => {
+  const target = markdownFileTarget(
+    'https://github.com/o/r/blob/main/a.js',
+    'https://gist.github.com/u/abc',
+    '',
+  );
+  assert.equal(target.relative, 'a.js');
+});
+
+test('ignores markdown links that do not reach a file', () => {
+  const base = 'https://github.com/o/r/blob/main/README.md';
+  assert.equal(markdownFileTarget('#install', base, 'main'), null);
+  assert.equal(markdownFileTarget('?plain=1', base, 'main'), null);
+  assert.equal(markdownFileTarget('/o/r/tree/main/src', base, 'main'), null);
+  assert.equal(markdownFileTarget('mailto:x@example.com', base, 'main'), null);
+  assert.equal(
+    markdownFileTarget('https://gitlab.com/o/r/blob/main/a.js', base, 'main'),
+    null,
+  );
 });

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
@@ -13,7 +13,7 @@ wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
 Dateigrößen mit Ein-Klick-Downloads, ein Kontextmenü für Dateiaktionen und eine
 Schnellvorschau für jede Datei.
 
-> **Status:** früh (`0.15.1`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.16.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
 > Download-Schaltflächen, ein Dateikontextmenü und eine Schnellvorschau für
@@ -175,7 +175,8 @@ Ein Rechtsklick auf eine Datei ist der schnellste Weg zur gewünschten Aktion �
 und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateien:
 
 - **Schnellaktionen** — ein Rechtsklick auf eine Datei in einer
-  Repository-Liste oder in der Dateibaum-Seitenleiste öffnet **Öffnen**,
+  Repository-Liste, in der Dateibaum-Seitenleiste oder auf einen Dateilink in
+  gerendertem Markdown öffnet **Öffnen**,
   **In neuem Tab öffnen**, **Herunterladen**, **Inhalt kopieren**,
   **Link kopieren** und **Pfad kopieren**. Auf einer Datei- oder Blame-Seite
   erscheint dasselbe Menü (ohne **Öffnen**, denn dort bist du schon).
@@ -185,9 +186,10 @@ und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateie
   eingefügt wird noch der Tab hängt.
 - **Pfad kopieren** — der repository-relative Pfad (`src/main.js`), bereit für
   Terminal, Import oder Link.
-- **Nur wo es hilft** — für Ordner, Bilder, Medien und gewöhnliche Links bleibt
-  das native Menü unangetastet; ein Rechtsklick, der keine Datei trifft,
-  verhält sich wie zuvor.
+- **Nur wo es hilft** — für Ordner, Bilder, Medien und gewöhnliche Links (auch
+  Markdown-Links, die auf keine Datei im Repository zeigen) bleibt das native
+  Menü unangetastet; ein Rechtsklick, der keine Datei trifft, verhält sich wie
+  zuvor.
 - **Auch per Tastatur** — die Kontextmenü-Taste öffnet dasselbe Menü am
   Dateilink, mit vollständiger Pfeilnavigation und wiederhergestelltem Fokus
   nach dem Schließen; beim Deaktivieren kehrt überall das Browser-Menü zurück.
@@ -195,8 +197,8 @@ und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateie
 ### Schnellvorschau für Dateien
 
 Jede Datei lässt sich öffnen, ohne die Seite zu verlassen — über die
-Auge-Schaltfläche in einer Dateiliste oder über **Vorschau** im
-Dateikontextmenü:
+Auge-Schaltfläche in einer Dateiliste, über einen Dateilink in gerendertem
+Markdown oder über **Vorschau** im Dateikontextmenü:
 
 - **Gerendert statt roh** — Markdown wird gerendert und bereinigt, Quelldateien
   erhalten Syntaxhervorhebung und Zeilennummern, Bilder, Video und Audio laufen
@@ -208,7 +210,8 @@ Dateikontextmenü:
   Zurück/Weiter-Schaltflächen und die Pfeiltasten wechseln zwischen ihnen, die
   Position steht in der Fußzeile.
 - **Vorschau per Halten** — halten Sie die linke Maustaste auf einem Dateinamen
-  in einer Liste gedrückt, um seine Vorschau zu öffnen; ein kurzer Klick öffnet
+  in einer Liste oder auf einem Dateilink in gerendertem Markdown gedrückt, um
+  seine Vorschau zu öffnen; ein kurzer Klick öffnet
   weiterhin die Datei, Ziehen oder Textauswahl bricht den Griff ab.
 - **Aktionen in der Kopfzeile** — die Datei auf GitHub öffnen, ihren rohen
   Inhalt, Link oder Pfad kopieren oder sie unter ihrem eigenen Namen

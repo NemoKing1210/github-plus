@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.15.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
 blame-style age colors for those files, file sizes with one-click downloads,
 a context menu for file actions, and a quick preview for any file.
 
-> **Status:** early (`0.15.1`). Settings panel with instant search (General ·
+> **Status:** early (`0.16.0`). Settings panel with instant search (General ·
 > Gallery · Files · Backup · About), the markdown image gallery, colored file
 > icons, blame-style file age colors, file sizes with download buttons, a file
 > context menu, and a quick file preview. More GitHub improvements planned.
@@ -159,18 +159,20 @@ and saving one means opening it first. GitHub Plus adds both to the file rows:
 Right-clicking a file is the fastest path to what you want to do with it — and
 GitHub's own menu does not offer any of it. GitHub Plus replaces it for files:
 
-- **Quick actions** — right-click a file in a repository listing or in the file
-  tree sidebar for **Open**, **Open in new tab**, **Download**, **Copy
-  contents**, **Copy link** and **Copy path**. On a file or blame page the same
-  menu appears (without **Open**, since you are already there).
+- **Quick actions** — right-click a file in a repository listing, in the file
+  tree sidebar or a file link in rendered markdown for **Open**, **Open in new
+  tab**, **Download**, **Copy contents**, **Copy link** and **Copy path**. On a
+  file or blame page the same menu appears (without **Open**, since you are
+  already there).
 - **Copy the contents** — a text file's contents go straight to the clipboard
   without opening the page; binary files and anything over 1 MiB are refused
   with a clear toast instead of pasting garbage or freezing the tab.
 - **Copy the path** — the repository-relative path (`src/main.js`), ready to
   paste into a terminal, an import or a link.
 - **Only where it helps** — the native menu stays untouched for folders,
-  images, media and ordinary links; a right-click you did not aim at a file
-  behaves exactly as before.
+  images, media and ordinary links (including markdown links that point at no
+  repository file); a right-click you did not aim at a file behaves exactly as
+  before.
 - **Keyboard too** — the context-menu key opens the same menu at the file's
   link, with full arrow-key navigation and focus restored on close; turning the
   feature off restores the browser's menu everywhere.
@@ -178,7 +180,8 @@ GitHub's own menu does not offer any of it. GitHub Plus replaces it for files:
 ### Quick file preview
 
 Open any file without leaving the page — from the eye button in a repository
-listing, or from **Preview** in the file context menu:
+listing, from a file link in rendered markdown, or from **Preview** in the file
+context menu:
 
 - **Rendered, not raw** — markdown is rendered and sanitized, source files get
   syntax highlighting and line numbers, images, video and audio play in place,
@@ -189,8 +192,8 @@ listing, or from **Preview** in the file context menu:
   previous/next buttons and the arrow keys step between them, with the current
   position in the footer.
 - **Hold to preview** — hold the left mouse button on a file name in a listing
-  to open its preview; a quick click still opens the file, and dragging or
-  selecting text cancels.
+  or on a file link in rendered markdown to open its preview; a quick click
+  still opens the file, and dragging or selecting text cancels.
 - **Actions in the header** — open the file on GitHub, copy its raw contents,
   link or path, or download it under its own name.
 - **Markdown preview or source** — a segmented control switches rendered
