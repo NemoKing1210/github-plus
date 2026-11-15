@@ -5,13 +5,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Юзерскрипт, который улучшает GitHub: полная панель настроек, галерея
 изображений для отрендеренного markdown, цветные иконки файлов везде, где
 GitHub показывает файлы, и раскраска их возраста в стиле blame.
 
-> **Статус:** ранняя стадия (`0.9.0`). Панель настроек с мгновенным поиском
+> **Статус:** ранняя стадия (`0.9.1`). Панель настроек с мгновенным поиском
 > (Общие · Галерея · Иконки файлов · Возраст файлов · Резервная копия · О
 > программе), галерея изображений markdown, цветные иконки файлов и раскраска
 > возраста в стиле blame. В планах — другие улучшения GitHub.

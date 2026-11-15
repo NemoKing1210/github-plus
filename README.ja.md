@@ -5,13 +5,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
 ファイル アイコン、そしてそれらのファイルの blame 風の経過日数カラーを提供します。
 
-> **ステータス:** 初期段階（`0.9.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.9.1`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル アイコン · ファイルの経過日数 · バックアップ · このアプリ
 > について）、Markdown 画像ギャラリー、カラー ファイル アイコン、blame 風の経過
 > 日数カラー。今後さらに GitHub の改善を追加予定です。

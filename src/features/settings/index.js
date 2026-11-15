@@ -40,6 +40,7 @@ const HEADER_POLL_TRIES = 12;
 
 let button = null;
 let chromeObserver = null;
+let chromeBody = null;
 let headerPoll = null;
 
 function buildButton() {
@@ -126,15 +127,19 @@ function pollForHeader() {
 }
 
 /**
- * GitHub replaces body children on soft navigation; watching the body's own
- * children (no subtree) is enough to notice a swapped app shell, and costs
- * nothing on content re-renders.
+ * GitHub replaces the body (or its children) on soft navigation; watching the
+ * current body's own children (no subtree) is enough to notice a swapped app
+ * shell, and costs nothing on content re-renders. The observed body is tracked
+ * because a replaced body leaves the previous observer dead.
  */
 function observeChrome() {
-  if (chromeObserver || typeof MutationObserver !== 'function') return;
-  const schedule = debounce(() => ensureSettingsButton(), CHROME_DEBOUNCE_MS);
-  chromeObserver = new MutationObserver(schedule);
-  chromeObserver.observe(document.body, { childList: true });
+  if (typeof MutationObserver !== 'function') return;
+  const body = document.body;
+  if (!body || (chromeObserver && chromeBody === body)) return;
+  if (chromeObserver) chromeObserver.disconnect();
+  chromeBody = body;
+  chromeObserver = new MutationObserver(debounce(() => ensureSettingsButton(), CHROME_DEBOUNCE_MS));
+  chromeObserver.observe(body, { childList: true });
 }
 
 function installMenuCommand() {
@@ -211,6 +216,7 @@ export function initSettingsFeature() {
   installUserMenuEntry();
   ensureUserMenuItem();
   watchNavigation(() => {
+    observeChrome();
     ensureSettingsButton();
     installUserMenuEntry();
   });

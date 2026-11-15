@@ -326,9 +326,10 @@ report through it.
   sibling of GitHub's own actions — inserted before `.AppHeader-user` when
   present, wrapped in an `li.gp-settings-item` when the target is a `ul`.
   `pollForHeader()` waits a bounded time (12 × 500 ms) for a late-rendered
-  header, `observeChrome()` watches `document.body`'s own children
+  header, `observeChrome()` watches the current `document.body`'s own children
   (`{ childList: true }`, deliberately **no** `subtree`) for a swapped app
-  shell, `watchNavigation(ensureSettingsButton)` covers client-side navigation,
+  shell and re-attaches when GitHub replaces the body element itself,
+  `watchNavigation(ensureSettingsButton)` covers client-side navigation,
   `updateSettingsButtonState()` lights the `gp-header-btn--custom` dot when
   settings differ from defaults, and `GM_registerMenuCommand` opens the panel
   from the manager's menu. Both `refreshLabels()` and
@@ -439,11 +440,17 @@ icon. The feature is registry-driven; every surface degrades on its own.
   (`{ childList: true, subtree: true }`, processing debounced ~100 ms).
   `syncSurfaces()` attaches observers to containers that are currently present
   and prunes disconnected ones; it runs on boot, on `watchNavigation`, and from
-  a body-children observer (`{ childList: true }`, no subtree) that notices an
-  app-shell swap. Rows are tracked in a `WeakMap` (row → injected icon) so a
-  React re-render that drops the icon is decorated again.
-  `applyFileIconsSettings()` is the single entry point: enabled → sync, disabled
-  → disconnect every observer, remove our icons and restore the native ones.
+  direct-children observers on `<html>` and `<body>` that notice an app-shell
+  swap (`{ childList: true }`, no subtree — a replaced body leaves an observer
+  on the old body dead, so the `<html>` one re-attaches it). GitHub mounts the
+  file list *after* the navigation shell, so every navigation event can fire
+  before the surface exists: `settleSurfaces()` retries the registry query on a
+  bounded interval (20 × 250 ms, stopped as soon as a container is attached).
+  That bounded wait is not a scan loop. Rows are tracked in a `WeakMap`
+  (row → injected icon) so a React re-render that drops the icon is decorated
+  again. `applyFileIconsSettings()` is the single entry point: enabled → sync
+  plus settle when nothing is attached yet, disabled → disconnect every
+  observer, remove our icons and restore the native ones.
   `settings:fileIcons` triggers it.
 
 ### `src/features/fileAges/` — blame-style ages for listed files
@@ -468,13 +475,14 @@ as GitHub rendered them and removing the classes restores the original color.
   recognizing folders from GitHub's own `/tree/` links and directory glyphs.
 - `inject.js`: `paintAge(time, bucket)` adds the feature classes to the
   timestamp; `clearAges()` removes them from every painted timestamp.
-- `index.js`: one observer per surface container, same shapes and debounce as
-  file icons. Rows are tracked in a `WeakMap`; a React re-render that drops the
-  classes is repainted. `applyFileAgesSettings()` is the single entry point: it
-  tears down first (which clears every timestamp and observer) and, when
-  enabled, rescans every surface — required because turning the folder toggle
-  off must also recolor folder rows already painted.
-  `settings:fileAges` and `watchNavigation` trigger it.
+- `index.js`: one observer per surface container, same shapes, shell watchers
+  and bounded settle wait as file icons. Rows are tracked in a `WeakMap`; a
+  React re-render that drops the classes is repainted.
+  `applyFileAgesSettings()` is the single entry point: it tears down first
+  (which clears every timestamp and observer) and, when enabled, rescans every
+  surface — required because turning the folder toggle off must also recolor
+  folder rows already painted. `settings:fileAges` and `watchNavigation` trigger
+  it.
 - The palette lives in `src/styles/tokens.css` as `--gp-age-1` … `--gp-age-10`:
   the newest date is warm (GitHub's attention gold on light, `#ffd78d` on dark)
   and older dates fade to that theme's muted grey. A light and a dark ramp are
@@ -791,8 +799,10 @@ and check diagnostics for edited files.
   `src/features/fileIcons/iconSet.generated.js` (regenerate with
   `npm run icons:build`).
 - Commit `node_modules/`, `dist/`, or development-only update URLs.
-- Add a document-wide MutationObserver or a scan loop; extend the registry and
-  the delegated listener instead.
+- Add a document-wide MutationObserver or an endless scan loop; extend the
+  registry and the delegated listener instead. The bounded settle wait after a
+  navigation (`SETTLE_MS × SETTLE_TRIES`, stopped as soon as a surface mounts)
+  is the sanctioned way to catch a late-mounting container.
 - Carry Steam-era `sp-` identifiers, `SP-####` codes or any external project's
   naming into this repository.
 - Break GitHub's header, navigation, or responsive layout — injected UI must

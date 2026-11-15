@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-11-15
+
+### Fixed
+
+- File icons and file ages no longer go missing after navigating away from a
+  repository page and back. GitHub mounts the file list after the navigation
+  shell, sometimes after every navigation event has fired, so the surface query
+  now retries on a bounded interval and watches a swapped `<body>` (and its
+  children) instead of relying on the navigation events alone
+
+[0.9.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.9.1
+
 ## [0.9.0] - 2026-11-15
 
 ### Added

@@ -4,7 +4,11 @@
  * GitHub swaps page content without a full reload (Turbo, plus classic
  * pushState navigation on older surfaces), so features that depend on the
  * current URL subscribe here instead of patching history themselves.
- * Listeners run after the new content is in the DOM.
+ *
+ * Listeners run when the navigation happens, which can be before (or after)
+ * the new content mounts — never assume the page is rendered. Features that
+ * look for a container should retry on a bounded settle window; see the file
+ * icons and file ages surface sync.
  */
 const listeners = new Set();
 let installed = false;
