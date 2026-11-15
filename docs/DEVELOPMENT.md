@@ -20,7 +20,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 
 | Command | What it does |
 |---|---|
-| `npm install` | Installs the dev dependencies (`vite`, `vite-plugin-monkey`, `terser`, `material-icon-theme`) and the bundled runtime dependencies (`marked`, `dompurify`, `highlight.js`). |
+| `npm install` | Installs the dev dependencies (`vite`, `vite-plugin-monkey`, `terser`, `material-icon-theme`, `jsdom`) and the bundled runtime dependencies (`marked`, `dompurify`, `highlight.js`). |
 | `npm run dev` | Starts the Vite dev server. `vite-plugin-monkey` serves a live copy of the script (its URLs carry the `dev:` prefix) that a manager can install and keep updated while you edit `src/`. |
 | `npm run build` | Runs `vite build` into `dist/`, then `node scripts/copy-dist.mjs` copies `dist/github-plus.user.js` and `dist/github-plus.meta.js` to the repository root. |
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
