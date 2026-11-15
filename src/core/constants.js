@@ -70,6 +70,21 @@ export const AGE_BUCKET_COUNT = 10;
 /** Largest file whose contents the context menu puts on the clipboard. */
 export const FILE_COPY_MAX_BYTES = 1024 * 1024;
 
+/** Largest text or markdown file the preview renders from its raw address. */
+export const PREVIEW_TEXT_MAX_BYTES = 2 * 1024 * 1024;
+
+/** Largest PDF the preview embeds. */
+export const PREVIEW_PDF_MAX_BYTES = 25 * 1024 * 1024;
+
+/** Longest code text highlighted; longer files render as plain text. */
+export const PREVIEW_HIGHLIGHT_MAX_CHARS = 500 * 1024;
+
+/** Most sibling files the preview's navigation can span. */
+export const PREVIEW_MAX_SIBLINGS = 500;
+
+/** Rendered previews kept in memory for the session. */
+export const PREVIEW_CACHE_ENTRIES = 12;
+
 /** Toast corner placements. */
 export const TOAST_POSITIONS = [
   'bottom-right',
