@@ -85,13 +85,13 @@ export function isContextMenuOpen() {
 
 /**
  * Open the menu at a point, or next to `anchor` for keyboard opens.
- * @param {{x?: number, y?: number, anchor?: Element|null, keyboard?: boolean, label: string, items: ContextMenuItem[]}} options
+ * @param {{x?: number, y?: number, anchor?: Element|null, keyboard?: boolean, label: string, items: ContextMenuItem[], elevated?: boolean}} options
  */
-export function openContextMenu({ x = 0, y = 0, anchor = null, keyboard = false, label = '', items = [] }) {
+export function openContextMenu({ x = 0, y = 0, anchor = null, keyboard = false, label = '', items = [], elevated = false }) {
   closeContextMenu();
   if (!items.length) return;
 
-  const root = el('div', 'gp-context-menu');
+  const root = el('div', elevated ? 'gp-context-menu gp-context-menu--elevated' : 'gp-context-menu');
   root.id = ROOT_ID;
   root.setAttribute('role', 'menu');
   if (label) root.setAttribute('aria-label', label);

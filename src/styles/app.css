@@ -2159,6 +2159,10 @@ html.gp-modal-open body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* A menu opened from the quick preview has to float above its overlay. */
+.gp-context-menu--elevated {
+  z-index: 1000003;
+}
 .gp-context-menu__sep {
   height: 1px;
   margin: 4px 0;

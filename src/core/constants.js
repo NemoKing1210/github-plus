@@ -142,6 +142,7 @@ const DEFAULT_FILE_MENU = {
   enabled: true,
 };
 
+/** File preview: a modal that renders a file without leaving the page. */
 const DEFAULT_FILE_PREVIEW = {
   enabled: true,
   rowButton: true,

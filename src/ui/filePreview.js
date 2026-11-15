@@ -3,7 +3,7 @@ import { el } from '../utils/dom.js';
 import { downloadFile } from '../utils/download.js';
 import { formatSize } from '../utils/size.js';
 import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
-import { closeContextMenu, openContextMenu } from './contextMenu.js';
+import { closeContextMenu, isContextMenuOpen, openContextMenu } from './contextMenu.js';
 import { ACTION_ICONS, VIEWER_ICONS } from './icons.js';
 import { showToast } from './toast.js';
 
@@ -309,6 +309,8 @@ function openCopyMenu() {
     x: rect.left,
     y: rect.bottom + 4,
     label: t('fileMenu.menuLabel', { name: file.name }),
+    // The preview overlay sits above a normal page menu.
+    elevated: true,
     items: [
       {
         label: t('fileMenu.copyContents'),
@@ -362,7 +364,8 @@ function trapFocus(event) {
 }
 
 function onKeyDown(event) {
-  if (!state) return;
+  // The copy menu owns its keys while it is open.
+  if (!state || isContextMenuOpen()) return;
   const tag = event.target instanceof Element ? event.target.tagName : '';
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
   if (event.key === 'Tab') {
