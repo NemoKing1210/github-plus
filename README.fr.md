@@ -201,8 +201,9 @@ liste de fichiers ou **Aperçu** dans le menu contextuel du fichier :
 - **Rendu, pas brut** — le markdown est rendu et assaini, les fichiers source
   reçoivent la coloration syntaxique et des numéros de ligne, les images, la
   vidéo et l'audio se lisent sur place, et les PDF s'ouvrent dans la visionneuse
-  du navigateur. Tout le reste affiche une carte honnête avec **Ouvrir sur
-  GitHub** et **Télécharger** au lieu d'un cadre cassé.
+  du navigateur lorsque la politique de la page GitHub autorise le cadre. Tout
+  le reste — y compris un PDF que la page bloque — affiche une carte honnête
+  avec **Ouvrir sur GitHub** et **Télécharger** au lieu d'un cadre cassé.
 - **Parcourir le dossier** — les fichiers d'un même dossier forment un ensemble :
   les boutons précédent/suivant et les flèches du clavier passent de l'un à
   l'autre, la position actuelle étant indiquée en pied.

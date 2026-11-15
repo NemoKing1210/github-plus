@@ -85,6 +85,9 @@ export const PREVIEW_MAX_SIBLINGS = 500;
 /** Rendered previews kept in memory for the session. */
 export const PREVIEW_CACHE_ENTRIES = 12;
 
+/** How long the PDF frame may take to load before its fallback card shows. */
+export const PREVIEW_PDF_FRAME_TIMEOUT_MS = 5000;
+
 /** Toast corner placements. */
 export const TOAST_POSITIONS = [
   'bottom-right',

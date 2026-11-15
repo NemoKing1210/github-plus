@@ -203,8 +203,10 @@ de archivos o con **Vista previa** en el menú contextual del archivo:
 - **Renderizado, no en bruto** — el markdown se renderiza y se sanea, los
   archivos de código reciben resaltado de sintaxis y números de línea, las
   imágenes, el vídeo y el audio se reproducen en el sitio, y los PDF se abren en
-  el visor del propio navegador. Todo lo demás muestra una tarjeta honesta con
-  **Abrir en GitHub** y **Descargar** en lugar de un marco roto.
+  el visor del propio navegador cuando la política de la página de GitHub
+  permite el marco. Todo lo demás —incluido un PDF que la página bloquee— muestra
+  una tarjeta honesta con **Abrir en GitHub** y **Descargar** en lugar de un
+  marco roto.
 - **Recorre la carpeta** — los archivos del mismo directorio forman un conjunto:
   los botones anterior/siguiente y las teclas de flecha cambian entre ellos, con
   la posición actual en el pie.

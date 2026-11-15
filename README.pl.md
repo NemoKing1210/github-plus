@@ -192,9 +192,10 @@ przez **Podgląd** w menu kontekstowym pliku:
 
 - **Wyrenderowane, nie surowe** — Markdown jest renderowany i oczyszczany, pliki
   źródłowe otrzymują podświetlanie składni i numery wierszy, obrazy, wideo i audio
-  odtwarzają się na miejscu, a PDF-y otwierają się w przeglądarce. Dla pozostałych
-  plików pojawia się uczciwa karta z **Otwórz na GitHubie** i **Pobierz** zamiast
-  zepsutej ramki.
+  odtwarzają się na miejscu, a PDF-y otwierają się w przeglądarce, gdy polityka
+  strony GitHuba pozwala na osadzenie ramki. W pozostałych przypadkach — także
+  gdy strona blokuje PDF — pojawia się uczciwa karta z **Otwórz na GitHubie**
+  i **Pobierz** zamiast zepsutej ramki.
 - **Przechodzenie po folderze** — pliki z tego samego katalogu tworzą zbiór:
   przyciski poprzedni/następny i klawisze strzałek przełączają między nimi, a
   bieżąca pozycja jest w stopce.

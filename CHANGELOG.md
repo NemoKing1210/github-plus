@@ -35,6 +35,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rawUrlFor`, `fileTarget` and `resolveFileTarget` moved to
   `src/utils/fileTarget.js`, and `formatSize` to `src/utils/size.js`, so the
   file menu, file sizes and the preview share one implementation
+- Toasts now paint above every overlay, so the feedback from a preview action
+  (copy, download) stays visible; the preview's copy menu takes an elevated
+  layer instead of hiding behind the modal
+
+### Fixed
+
+- PDFs showed an empty pane on github.com: the blob kept the raw route's
+  generic type and the page's policy blocks a `blob:` frame. The blob is now
+  typed as a PDF, and a blocked or stalled frame falls back to a card with
+  **Open on GitHub** and the raw file
+- A video or audio file the browser cannot play left an empty player; it now
+  falls back to the binary card
+- Rendered README markdown could carry a `<style>` element and restyle the
+  whole GitHub page; the sanitizer now forbids `style`, `form` and form controls
 
 [0.14.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.14.0
 

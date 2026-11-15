@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { JSDOM } from 'jsdom';
 
 function installDom() {
@@ -60,4 +61,81 @@ test('arrow keys leave the preview alone while its copy menu is open', async () 
   assert.equal(document.querySelector('.gp-preview__name').textContent, 'a.txt');
   closeContextMenu();
   closeFilePreview();
+});
+
+function stubFetch(blob) {
+  globalThis.fetch = async () => ({
+    ok: true,
+    headers: { get: () => null },
+    blob: async () => blob,
+  });
+}
+
+test('a PDF is rebuilt as application/pdf before it is embedded', async () => {
+  installDom();
+  globalThis.Blob = window.Blob;
+  const embedded = [];
+  globalThis.URL.createObjectURL = (blob) => {
+    embedded.push(blob.type);
+    return 'blob:pdf';
+  };
+  globalThis.URL.revokeObjectURL = () => {};
+  stubFetch(new Blob(['%PDF-1.4'], { type: 'application/octet-stream' }));
+  const { loadPreview } = await import('../src/features/filePreview/render.js');
+  const result = await loadPreview({
+    name: 'paper.pdf',
+    href: '/o/r/blob/main/paper.pdf',
+    rawUrl: '/o/r/raw/main/paper.pdf',
+    relative: 'paper.pdf',
+  });
+  assert.deepEqual(embedded, ['application/pdf']);
+  result.dispose();
+});
+
+test('a PDF frame blocked by CSP falls back to a card', async () => {
+  installDom();
+  globalThis.Blob = window.Blob;
+  globalThis.URL.createObjectURL = () => 'blob:blocked-pdf';
+  globalThis.URL.revokeObjectURL = () => {};
+  stubFetch(new Blob(['%PDF-1.4'], { type: 'application/octet-stream' }));
+  const { loadPreview } = await import('../src/features/filePreview/render.js');
+  const result = await loadPreview({
+    name: 'blocked.pdf',
+    href: '/o/r/blob/main/blocked.pdf',
+    rawUrl: '/o/r/raw/main/blocked.pdf',
+    relative: 'blocked.pdf',
+  });
+  assert.equal(result.node.querySelector('.gp-preview__card'), null);
+  const event = new window.Event('securitypolicyviolation');
+  Object.defineProperty(event, 'violatedDirective', { value: 'frame-src' });
+  Object.defineProperty(event, 'blockedURI', { value: 'blob:blocked-pdf' });
+  document.dispatchEvent(event);
+  assert.ok(result.node.querySelector('.gp-preview__card'));
+  result.dispose();
+});
+
+test('media that fails to play falls back to a card', async () => {
+  installDom();
+  const { loadPreview } = await import('../src/features/filePreview/render.js');
+  const result = await loadPreview({
+    name: 'clip.mkv',
+    href: '/o/r/blob/main/clip.mkv',
+    rawUrl: '/o/r/raw/main/clip.mkv',
+    relative: 'clip.mkv',
+  });
+  const media = result.node.querySelector('video');
+  assert.ok(media);
+  media.dispatchEvent(new window.Event('error'));
+  assert.ok(result.node.querySelector('.gp-preview__card'));
+});
+
+test('the toast layer paints above the preview overlay', async () => {
+  const css = await readFile(new URL('../src/styles/app.css', import.meta.url), 'utf8');
+  const zIndex = (selector) => {
+    const start = css.indexOf(`${selector} {`);
+    assert.notEqual(start, -1, `${selector} is missing`);
+    const block = css.slice(start, css.indexOf('}', start));
+    return Number(/z-index:\s*(\d+)/.exec(block)[1]);
+  };
+  assert.ok(zIndex('.gp-toasts') > zIndex('.gp-preview-overlay'));
 });

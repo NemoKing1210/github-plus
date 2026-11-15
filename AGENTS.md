@@ -171,7 +171,8 @@ Single place for magic values.
 - File preview: `PREVIEW_TEXT_MAX_BYTES` (2 MiB), `PREVIEW_PDF_MAX_BYTES`
   (25 MiB), `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS` (cap on the
   sibling set collected from one directory), `PREVIEW_CACHE_ENTRIES` (rendered
-  previews kept for the session).
+  previews kept for the session), `PREVIEW_PDF_FRAME_TIMEOUT_MS` (how long a
+  PDF frame may load before its fallback card shows).
 - `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
   `fileMeta`, `fileMenu`, `filePreview`) plus `getDefaults()`, which returns a
   deep clone — never mutate the shared constants. `DEFAULT_FILE_ICONS` is
@@ -676,7 +677,9 @@ and the arrow keys move between siblings.
   images. Fragments, bare schemes and root-absolute paths are left alone;
   `.`/`..` are normalized and each segment encoded.
 - `markdown.js`: `renderMarkdown(text, context)` runs `marked` (GFM) and
-  sanitizes the result with DOMPurify (created lazily against the page window),
+  sanitizes the result with DOMPurify (created lazily against the page window;
+  `style`, `form` and form controls are forbidden tags — DOMPurify keeps
+  `<style>` by default, which would let repository markdown restyle the page),
   then rewrites relative links and images through `links.js`, marks external
   links `target="_blank" rel="noopener noreferrer"`, sets `loading="lazy"` and
   `referrerpolicy="no-referrer"` on images, and highlights fenced code.
@@ -690,10 +693,17 @@ and the arrow keys move between siblings.
   instead of a broken frame.
 - `render.js`: `loadPreview(file, { mode, signal })` fetches the same-origin raw
   address and dispatches on `previewKind`; text and markdown are gated by
-  `PREVIEW_TEXT_MAX_BYTES`, PDFs by `PREVIEW_PDF_MAX_BYTES`. Results are cached
-  only when they carry no `dispose` (so a revoked object URL is never re-shown).
-  A failure logs `GP-1501` and returns a failure card; an `AbortError` is
-  rethrown for the caller's staleness check.
+  `PREVIEW_TEXT_MAX_BYTES`, PDFs by `PREVIEW_PDF_MAX_BYTES`. A PDF blob is
+  rebuilt with the `application/pdf` type (the raw route may answer
+  `application/octet-stream`, which the browser will not hand to its viewer),
+  and its frame falls back to a failure card when a `frame-src` CSP violation
+  names the blob or the frame does not load within
+  `PREVIEW_PDF_FRAME_TIMEOUT_MS` — github.com's CSP does not allow `blob:`
+  frames. A media element that fires `error` (an unsupported codec, a blocked
+  request) is replaced by the binary card. Results are cached only when they
+  carry no `dispose` (so a revoked object URL is never re-shown). A failure
+  logs `GP-1501` and returns a failure card; an `AbortError` is rethrown for
+  the caller's staleness check.
 - `surfaces.js`: `PREVIEW_SURFACE` (rows `tr.react-directory-row` inside
   `[data-testid="directory-content"]`, header `table thead tr`, column label
   `preview.column`), `currentRef()`, `siblingsForRow(row)` (capped at

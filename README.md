@@ -182,8 +182,9 @@ listing, or from **Preview** in the file context menu:
 
 - **Rendered, not raw** — markdown is rendered and sanitized, source files get
   syntax highlighting and line numbers, images, video and audio play in place,
-  and PDFs open in the browser's own viewer. Anything else gets an honest card
-  with **Open on GitHub** and **Download** instead of a broken frame.
+  and PDFs open in the browser's own viewer when GitHub's page policy allows
+  the frame. Anything else — including a PDF the page blocks — gets an honest
+  card with **Open on GitHub** and **Download** instead of a broken frame.
 - **Move through the folder** — files in the same directory become a set:
   previous/next buttons and the arrow keys step between them, with the current
   position in the footer.

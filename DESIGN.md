@@ -161,11 +161,13 @@ Rules:
   `.gp-confirm-overlay`, `.gp-textarea`); the stylesheet has no global
   `box-sizing` reset and must not add one — GitHub's own page is not ours.
 - Overlay stacking order, highest last: `.gp-panel-overlay` `1000000`,
-  `.gp-confirm-overlay` `1000001`, `.gp-toasts` `1000002`,
-  `.gp-viewer-overlay` `1000002`. The context menu sits below all of them at
-  `999998` (just under the page download button's `999999`) because it is an
-  affordance over the page, not a modal. Keep new full-screen UI inside this
-  band and document it here.
+  `.gp-confirm-overlay` `1000001`, `.gp-viewer-overlay` / `.gp-preview-overlay`
+  `1000002`, `.gp-context-menu--elevated` `1000003`, `.gp-toasts` `1000004`.
+  Toasts are always on top, so feedback raised from a modal stays visible; a
+  menu opened from the preview asks for the elevated variant because the plain
+  context menu sits below all of them at `999998` (just under the page download
+  button's `999999`) — it is an affordance over the page, not a modal. Keep new
+  full-screen UI inside this band and document it here.
 - Modal overlays pin the page with `lockPageScroll()`:
   `html.gp-modal-open, html.gp-modal-open body { overflow: hidden;
   overscroll-behavior: none }` plus `body { position: fixed }` and a
@@ -466,7 +468,7 @@ tone), focus is restored on close, `Escape` and an overlay click resolve
 
 | Class | Rules |
 |---|---|
-| `.gp-toasts` | `fixed; right: 16px; bottom: 16px; z-index: 1000002`; column, `gap: 8px`, `width: min(340px, calc(100vw - 32px))`, `pointer-events: none`, `aria-live="polite"` |
+| `.gp-toasts` | `fixed; right: 16px; bottom: 16px; z-index: 1000004` (above every overlay); column, `gap: 8px`, `width: min(340px, calc(100vw - 32px))`, `pointer-events: none`, `aria-live="polite"` |
 | `.gp-toasts--top-right`, `--top-left` | `top: 16px; bottom: auto` (left variant also `left: 16px; right: auto`) |
 | `.gp-toasts--bottom-left` | `left: 16px; right: auto` (keeps `bottom: 16px`) |
 | `.gp-toast` | `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)`, `var(--gp-shadow)`, `13px/1.45`, `padding: 12px 12px 14px`, `pointer-events: auto`, entrance `gp-toast-in 0.2s ease-out` |
@@ -671,8 +673,9 @@ table exactly as GitHub rendered it.
 
 A centered modal above the page with the same anatomy as the panel: a header
 bar (`--gp-bg-2`) with a border-bottom, a scrolling body on `--gp-bg-1`, and a
-footer bar. It is the second-highest overlay (`z-index: 1000002`), above the
-settings panel and the viewer; the context menu it opens still floats above it.
+footer bar. It shares the highest overlay band (`z-index: 1000002`) with the
+viewer and the confirm dialog, above the settings panel; the context menu it
+opens uses the elevated variant and toasts sit above everything.
 Width is `min(1080px, 100%)` and height `min(88vh, 820px)`, so a wide file has
 room while the modal never touches the viewport edges; the backdrop is the
 shared `--gp-scrim` with the same blur as the viewer.
@@ -691,7 +694,7 @@ shared `--gp-scrim` with the same blur as the viewer.
 | `.gp-preview__nav`, `.gp-preview__counter` | Prev/next are icon buttons with the counter in `11px` tabular `var(--gp-text-muted)`; a `[disabled]` arrow drops to `opacity: 0.5` |
 | `.gp-preview__code`, `.gp-preview__gutter`, `.gp-preview__line-no`, `.gp-preview__pre` | Code view: a gutter of right-aligned `11px` mono line numbers on `var(--gp-bg-2)` beside the highlighted `<pre>` |
 | `.gp-preview__md` | Rendered markdown: the same vertical rhythm and heading scale as GitHub's `.markdown-body`, links in `var(--gp-accent)`, inline code and tables on `var(--gp-bg-2)`, blockquotes with a `var(--gp-border)` rule |
-| `.gp-preview__image`, `.gp-preview__media`, `.gp-preview__pdf` | Image/video/audio are centered and capped to the body; the PDF iframe fills the body with a `var(--gp-bg-2)` fill |
+| `.gp-preview__image`, `.gp-preview__media-wrap`, `.gp-preview__media`, `.gp-preview__pdf-wrap`, `.gp-preview__pdf` | Image/video/audio are centered and capped to the body (the media sits in an unstyled wrapper so it can be replaced by a card); the PDF iframe fills the body with a `var(--gp-bg-2)` fill, and its wrapper takes the same box so a fallback card replaces the frame in place |
 | `.gp-preview__card`, `.gp-preview__card-icon`, `.gp-preview__card-title/-desc/-meta/-actions/-action` | Honest card for binary, empty, too-large and failed files: a 44px circular icon well, a 16px title, a 13px muted description, a mono meta line and outline actions (28px) |
 
 Highlighting colors come from the `--gp-code-*` tokens and are selected only by

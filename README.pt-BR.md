@@ -196,9 +196,10 @@ arquivos ou por **Pré-visualização** no menu de contexto do arquivo:
 
 - **Renderizado, não bruto** — o markdown é renderizado e sanitizado, arquivos
   de código ganham realce de sintaxe e números de linha, imagens, vídeo e áudio
-  são reproduzidos no local, e PDFs abrem no visualizador do próprio navegador.
-  Qualquer outra coisa mostra um cartão honesto com **Abrir no GitHub** e
-  **Baixar** em vez de um quadro quebrado.
+  são reproduzidos no local, e PDFs abrem no visualizador do próprio navegador
+  quando a política da página do GitHub permite o quadro. Qualquer outra coisa —
+  inclusive um PDF que a página bloqueie — mostra um cartão honesto com **Abrir
+  no GitHub** e **Baixar** em vez de um quadro quebrado.
 - **Navegue pela pasta** — os arquivos do mesmo diretório formam um conjunto: os
   botões anterior/próximo e as setas do teclado alternam entre eles, com a
   posição atual no rodapé.

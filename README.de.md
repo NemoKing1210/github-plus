@@ -200,9 +200,10 @@ Dateikontextmenü:
 
 - **Gerendert statt roh** — Markdown wird gerendert und bereinigt, Quelldateien
   erhalten Syntaxhervorhebung und Zeilennummern, Bilder, Video und Audio laufen
-  an Ort und Stelle, und PDFs öffnen im PDF-Betrachter des Browsers. Alles andere
-  zeigt eine ehrliche Karte mit **Auf GitHub öffnen** und **Herunterladen**
-  statt eines kaputten Rahmens.
+  an Ort und Stelle, und PDFs öffnen im Betrachter des Browsers, wenn die
+  Sicherheitsrichtlinie der Seite den Rahmen erlaubt. Alles andere — auch ein
+  PDF, das die Seite blockiert — zeigt eine ehrliche Karte mit **Auf GitHub
+  öffnen** und **Herunterladen** statt eines kaputten Rahmens.
 - **Durch den Ordner blättern** — Dateien im selben Verzeichnis bilden ein Set:
   Zurück/Weiter-Schaltflächen und die Pfeiltasten wechseln zwischen ihnen, die
   Position steht in der Fußzeile.

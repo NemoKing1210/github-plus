@@ -32,7 +32,12 @@ function isExternal(href) {
 export async function renderMarkdown(text, context) {
   const container = el('div', 'gp-preview__md');
   const html = marked.parse(text, { gfm: true, breaks: false, async: false });
-  container.innerHTML = sanitizer().sanitize(html);
+  container.innerHTML = sanitizer().sanitize(html, {
+    // DOMPurify keeps `<style>` by default; repository markdown must not be
+    // able to restyle the page behind the preview. Form controls are inert
+    // here, so they go too.
+    FORBID_TAGS: ['style', 'form', 'input', 'button', 'select', 'textarea'],
+  });
   const target = {
     owner: context.owner,
     repo: context.repo,

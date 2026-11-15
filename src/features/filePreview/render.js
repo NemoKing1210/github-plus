@@ -1,5 +1,6 @@
 import {
   PREVIEW_CACHE_ENTRIES,
+  PREVIEW_PDF_FRAME_TIMEOUT_MS,
   PREVIEW_PDF_MAX_BYTES,
   PREVIEW_TEXT_MAX_BYTES,
 } from '../../core/constants.js';
@@ -123,17 +124,26 @@ function imageResult(file) {
 }
 
 function mediaResult(file, kind) {
-  const node = el(kind === 'video' ? 'video' : 'audio', 'gp-preview__media');
-  node.controls = true;
-  node.preload = 'metadata';
-  node.src = file.rawUrl;
-  if (kind === 'video') node.playsInline = true;
+  const wrapper = el('div', 'gp-preview__media-wrap');
+  const media = el(kind === 'video' ? 'video' : 'audio', 'gp-preview__media');
+  media.controls = true;
+  media.preload = 'metadata';
+  media.src = file.rawUrl;
+  if (kind === 'video') media.playsInline = true;
+  const onError = () => {
+    if (wrapper.querySelector('.gp-preview__card')) return;
+    wrapper.textContent = '';
+    wrapper.appendChild(renderBinaryCard(file));
+  };
+  media.addEventListener('error', onError);
+  wrapper.appendChild(media);
   return {
-    node,
+    node: wrapper,
     dispose() {
-      node.pause();
-      node.removeAttribute('src');
-      node.load();
+      media.removeEventListener('error', onError);
+      media.pause();
+      media.removeAttribute('src');
+      media.load();
     },
   };
 }
@@ -141,14 +151,37 @@ function mediaResult(file, kind) {
 async function pdfResult(file, signal) {
   const { blob, size } = await fetchBlob(file, signal);
   if (size === 0) return { node: renderEmptyCard(), meta: { size: 0 } };
-  const url = URL.createObjectURL(blob);
+  // Server MIME types cannot be trusted here (GitHub's raw route may answer
+  // `application/octet-stream`), and a blob without the PDF type is not handed
+  // to the browser's viewer.
+  const url = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+  const wrapper = el('div', 'gp-preview__pdf-wrap');
   const frame = el('iframe', 'gp-preview__pdf');
   frame.title = file.name;
   frame.src = url;
+  let timer = null;
+  const fallback = () => {
+    clearTimeout(timer);
+    timer = null;
+    if (wrapper.querySelector('.gp-preview__card')) return;
+    wrapper.textContent = '';
+    wrapper.appendChild(renderFailureCard(file));
+  };
+  const onViolation = (event) => {
+    if (event.violatedDirective && event.violatedDirective.split(' ')[0] !== 'frame-src') return;
+    if (!String(event.blockedURI || '').startsWith('blob:')) return;
+    fallback();
+  };
+  frame.addEventListener('load', () => clearTimeout(timer));
+  document.addEventListener('securitypolicyviolation', onViolation);
+  timer = setTimeout(fallback, PREVIEW_PDF_FRAME_TIMEOUT_MS);
+  wrapper.appendChild(frame);
   return {
-    node: frame,
+    node: wrapper,
     meta: { size },
     dispose() {
+      clearTimeout(timer);
+      document.removeEventListener('securitypolicyviolation', onViolation);
       URL.revokeObjectURL(url);
     },
   };

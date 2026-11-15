@@ -1143,7 +1143,8 @@ html.gp-modal-open body {
   position: fixed;
   right: 16px;
   bottom: 16px;
-  z-index: 1000002;
+  /* Above every overlay, so feedback raised from a modal stays visible. */
+  z-index: 1000004;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -2566,6 +2567,10 @@ html.gp-modal-open body {
   margin: 24px auto;
   object-fit: contain;
 }
+.gp-preview__pdf-wrap {
+  width: 100%;
+  height: 100%;
+}
 .gp-preview__pdf {
   display: block;
   width: 100%;
@@ -2573,6 +2578,9 @@ html.gp-modal-open body {
   min-height: 60vh;
   border: 0;
   background: var(--gp-bg-2);
+}
+.gp-preview__media-wrap {
+  display: block;
 }
 .gp-preview__media {
   display: block;
