@@ -1,7 +1,7 @@
 import { on } from '../../core/bus.js';
 import { FILE_COPY_MAX_BYTES } from '../../core/constants.js';
 import { Codes, logError } from '../../core/debug.js';
-import { getFileMenuSettings } from '../../core/settings.js';
+import { getFileMenuSettings, getFilePreviewSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
 import { closeContextMenu, openContextMenu } from '../../ui/contextMenu.js';
 import { ACTION_ICONS } from '../../ui/icons.js';
@@ -10,6 +10,7 @@ import { isOwnUi } from '../../utils/dom.js';
 import { downloadFile } from '../../utils/download.js';
 import { resolveFileTarget } from '../../utils/fileTarget.js';
 import { watchNavigation } from '../../utils/navigation.js';
+import { openPreviewForTarget } from '../filePreview/index.js';
 import { isCopyableContent } from './copy.js';
 
 /**
@@ -76,6 +77,14 @@ async function copyContents(target) {
 
 function buildItems(target) {
   const items = [];
+  if (getFilePreviewSettings().enabled) {
+    items.push({
+      label: t('preview.menuItem'),
+      icon: ACTION_ICONS.eye,
+      onSelect: () => openPreviewForTarget(target),
+    });
+    items.push(null);
+  }
   if (target.source !== 'blob') {
     items.push({
       label: t('fileMenu.open'),
