@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': 'Browse markdown images in the built-in viewer.',
   'tab.icons.desc': 'Colored icons for files and folders on repository pages.',
   'tab.ages.desc': 'Color-code each file’s last commit age, blame-style.',
+  'tab.files': 'Files',
+  'tab.files.desc': 'File sizes and downloads in repository file listings.',
   'tab.backup.desc': 'Export settings to a file and import them back.',
   'tab.about.desc': 'Version, author and source code.',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': 'Colors run from the oldest commit (left) to the newest (right).',
   'ages.older': 'Older',
   'ages.newer': 'Newer',
+
+  'files.enabled': 'File sizes and downloads',
+  'files.enabledDesc': 'Show a size and a download button for the files GitHub lists.',
+  'files.display': 'Size column',
+  'files.displayDesc': 'The extra column added to each file row.',
+  'files.size': 'File size',
+  'files.sizeDesc': 'Fetch the size and show it in the column.',
+  'files.column': 'Size',
+  'files.download': 'Download button',
+  'files.downloadDesc': 'Save a file with one click from the file listing.',
+  'files.downloadFile': 'Download {name}',
 
   'backup.export': 'Export',
   'backup.exportDesc': 'Save the current settings as a JSON file or copy them.',

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-15
+
+### Added
+
+- File sizes and downloads in the repository file tree. Every row gains a last
+  column: file rows show a muted size at the column's left edge and, on its
+  right edge, a download button in GitHub's icon button style; folder rows keep
+  the cell empty. The
+  column is named for assistive tech and narrowed or hidden on smaller windows
+  so GitHub's own columns keep their room; the blob page is left alone because
+  GitHub already shows a size and a download button there. Sizes are probed
+  with a HEAD request on the file's own raw address — never the GitHub API, so
+  the anonymous 60-per-hour limit is untouched — only for rows near the
+  viewport, cached for the session, and simply omitted when they cannot be
+  read; downloading through the same-origin raw route keeps private
+  repositories working
+- A **Files** settings page with a master switch plus **File size** and
+  **Download button** toggles, and new `tab.files` / `files.*` keys in all ten
+  locales
+
+[0.10.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.10.0
+
 ## [0.9.1] - 2026-11-15
 
 ### Fixed

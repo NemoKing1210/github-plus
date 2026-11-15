@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': '내장 뷰어에서 Markdown 이미지를 확인합니다.',
   'tab.icons.desc': '저장소 페이지의 파일과 폴더에 색상 아이콘을 표시합니다.',
   'tab.ages.desc': 'blame처럼 마지막 커밋 시점에 따라 파일의 나이를 색으로 표시합니다.',
+  'tab.files': '파일',
+  'tab.files.desc': '저장소 파일 목록의 파일 크기와 다운로드.',
   'tab.backup.desc': '설정을 파일로 내보내고 다시 가져옵니다.',
   'tab.about.desc': '버전, 제작자와 소스 코드를 확인합니다.',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': '색은 가장 오래된 커밋(왼쪽)에서 가장 최근 커밋(오른쪽)으로 이어집니다.',
   'ages.older': '오래됨',
   'ages.newer': '최신',
+
+  'files.enabled': '파일 크기 및 다운로드',
+  'files.enabledDesc': 'GitHub에 나열된 파일의 크기와 다운로드 버튼을 표시합니다.',
+  'files.display': '크기 열',
+  'files.displayDesc': '각 파일 행에 추가되는 열입니다.',
+  'files.size': '파일 크기',
+  'files.sizeDesc': '크기를 가져와 열에 표시합니다.',
+  'files.column': '크기',
+  'files.download': '다운로드 버튼',
+  'files.downloadDesc': '파일 목록에서 클릭 한 번으로 파일을 저장합니다.',
+  'files.downloadFile': '{name} 다운로드',
 
   'backup.export': '내보내기',
   'backup.exportDesc': '현재 설정을 JSON 파일로 저장하거나 복사합니다.',

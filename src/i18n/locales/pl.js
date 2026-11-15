@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': 'Przeglądaj obrazy z Markdown we wbudowanej przeglądarce.',
   'tab.icons.desc': 'Kolorowe ikony plików i folderów na stronach repozytorium.',
   'tab.ages.desc': 'Koloruj wiek ostatniego commita każdego pliku, jak w blame.',
+  'tab.files': 'Pliki',
+  'tab.files.desc': 'Rozmiary i pobieranie plików w listach repozytorium.',
   'tab.backup.desc': 'Eksportuj ustawienia do pliku i zaimportuj je z powrotem.',
   'tab.about.desc': 'Wersja, autor i kod źródłowy.',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': 'Kolory biegną od najstarszego commita (po lewej) do najnowszego (po prawej).',
   'ages.older': 'Starsze',
   'ages.newer': 'Nowsze',
+
+  'files.enabled': 'Rozmiary i pobieranie plików',
+  'files.enabledDesc': 'Pokazuj rozmiar i przycisk pobierania dla plików listowanych przez GitHub.',
+  'files.display': 'Kolumna rozmiaru',
+  'files.displayDesc': 'Dodatkowa kolumna w każdym wierszu pliku.',
+  'files.size': 'Rozmiar pliku',
+  'files.sizeDesc': 'Pobierz rozmiar i pokaż go w kolumnie.',
+  'files.column': 'Rozmiar',
+  'files.download': 'Przycisk pobierania',
+  'files.downloadDesc': 'Zapisz plik jednym kliknięciem z listy plików.',
+  'files.downloadFile': 'Pobierz {name}',
 
   'backup.export': 'Eksport',
   'backup.exportDesc': 'Zapisz bieżące ustawienia jako plik JSON lub skopiuj je.',

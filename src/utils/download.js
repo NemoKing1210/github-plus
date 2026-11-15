@@ -1,11 +1,12 @@
 /**
- * Save an image under its own filename.
+ * Save a file under its own filename.
  *
  * A plain `<a download>` cannot name a cross-origin file: the browser ignores
- * the attribute and navigates to the image instead. Fetching the bytes first
- * and downloading an object URL keeps the filename for every host; when CORS
- * or a CSP blocks the fetch, the image opens in a new tab so the action still
- * does something visible.
+ * the attribute and navigates to the file instead. Fetching the bytes first
+ * and downloading an object URL keeps the filename for every host and keeps
+ * private repository files readable (the same-origin raw route carries the
+ * session); when CORS or a CSP blocks the fetch, the file opens in a new tab
+ * so the action still does something visible.
  */
 
 const CAMO_HOST = /(^|\.)camo\.githubusercontent\.com$/;
@@ -94,15 +95,15 @@ function saveBlob(blob, url, name) {
 }
 
 /**
- * Download the image at `url`, optionally under an explicit `name`.
+ * Download the file at `url`, optionally under an explicit `name`.
  * @param {string} url
  * @param {string} [name]
  * @returns {Promise<boolean>} whether the bytes were saved directly
  */
-export async function downloadImage(url, name = '') {
+export async function downloadFile(url, name = '') {
   if (!url) return false;
   try {
-    const response = await fetch(url, { credentials: 'omit' });
+    const response = await fetch(url, { credentials: 'same-origin' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const blob = await response.blob();
     saveBlob(blob, url, name);
@@ -111,4 +112,9 @@ export async function downloadImage(url, name = '') {
     window.open(url, '_blank', 'noopener');
     return false;
   }
+}
+
+/** Download the image at `url`; kept for the viewer, which is image-specific. */
+export async function downloadImage(url, name = '') {
+  return downloadFile(url, name);
 }

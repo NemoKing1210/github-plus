@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': 'Explorar imágenes Markdown en el visor integrado.',
   'tab.icons.desc': 'Iconos de color para archivos y carpetas en las páginas del repositorio.',
   'tab.ages.desc': 'Colorea la antigüedad del último commit de cada archivo, al estilo blame.',
+  'tab.files': 'Archivos',
+  'tab.files.desc': 'Tamaños y descargas de archivos en los listados del repositorio.',
   'tab.backup.desc': 'Exportar los ajustes a un archivo e importarlos de nuevo.',
   'tab.about.desc': 'Versión, autor y código fuente.',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': 'Los colores van del commit más antiguo (izquierda) al más reciente (derecha).',
   'ages.older': 'Más antiguo',
   'ages.newer': 'Más reciente',
+
+  'files.enabled': 'Tamaños y descargas',
+  'files.enabledDesc': 'Muestra el tamaño y un botón de descarga para los archivos que lista GitHub.',
+  'files.display': 'Columna de tamaño',
+  'files.displayDesc': 'La columna adicional de cada fila de archivo.',
+  'files.size': 'Tamaño del archivo',
+  'files.sizeDesc': 'Obtener el tamaño y mostrarlo en la columna.',
+  'files.column': 'Tamaño',
+  'files.download': 'Botón de descarga',
+  'files.downloadDesc': 'Guarda un archivo con un clic desde la lista de archivos.',
+  'files.downloadFile': 'Descargar {name}',
 
   'backup.export': 'Exportar',
   'backup.exportDesc': 'Guardar los ajustes actuales como archivo JSON o copiarlos.',

@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': 'Markdown-Bilder im integrierten Viewer durchsehen.',
   'tab.icons.desc': 'Farbige Symbole für Dateien und Ordner auf Repository-Seiten.',
   'tab.ages.desc': 'Das Alter des letzten Commits jeder Datei farblich markieren, wie bei Blame.',
+  'tab.files': 'Dateien',
+  'tab.files.desc': 'Dateigrößen und Downloads in Dateilisten von Repositories.',
   'tab.backup.desc': 'Einstellungen in eine Datei exportieren und wieder importieren.',
   'tab.about.desc': 'Version, Autor und Quellcode.',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': 'Die Farben reichen vom ältesten Commit (links) bis zum neuesten (rechts).',
   'ages.older': 'Älter',
   'ages.newer': 'Neuer',
+
+  'files.enabled': 'Dateigrößen und Downloads',
+  'files.enabledDesc': 'Größe und Download-Schaltfläche für die von GitHub gelisteten Dateien anzeigen.',
+  'files.display': 'Größen-Spalte',
+  'files.displayDesc': 'Die zusätzliche Spalte in jeder Dateizeile.',
+  'files.size': 'Dateigröße',
+  'files.sizeDesc': 'Die Größe ermitteln und in der Spalte anzeigen.',
+  'files.column': 'Größe',
+  'files.download': 'Download-Schaltfläche',
+  'files.downloadDesc': 'Eine Datei mit einem Klick aus der Dateiliste speichern.',
+  'files.downloadFile': '{name} herunterladen',
 
   'backup.export': 'Export',
   'backup.exportDesc': 'Die aktuellen Einstellungen als JSON-Datei speichern oder kopieren.',

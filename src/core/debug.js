@@ -29,6 +29,8 @@ export const Codes = {
   FILE_ICONS: 'GP-1301',
   /** A file-ages surface or its selectors failed. */
   FILE_AGES: 'GP-1302',
+  /** A file-meta surface or its selectors failed. */
+  FILE_META: 'GP-1303',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
 };

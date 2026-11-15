@@ -26,7 +26,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
 | `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
-| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets) and `test/download.test.js` (download filenames). |
+| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting, raw-address rewrite) and `test/download.test.js` (download filenames). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -108,7 +108,7 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 
 ### Settings panel
 
-- [ ] The panel opens on the General page with the sidebar listing all six
+- [ ] The panel opens on the General page with the sidebar listing all seven
       pages under **Preferences** and **More**; switching pages (click and
       arrow keys) animates the content; the language select relabels the panel
       after Save.
@@ -177,6 +177,35 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 - [ ] The tints survive client-side navigation and GitHub's re-renders, and a
       row whose date is missing simply stays unmarked.
 
+### File sizes and downloads
+
+- [ ] A repository listing gets a last column; every file row shows its size
+      at the column's left edge once the row scrolls near the viewport, folder
+      rows keep the cell empty, and the column lines up with its header cell.
+      The header row stays collapsed (no band, no stray label) but exposes
+      "Size" to a screen reader.
+- [ ] Each file row ends with a download button in GitHub's icon-button style,
+      pushed to the column's right edge (also when the size is off or still
+      unknown); hovering it gives the neutral fill and focusing it shows the
+      outline. Clicking it saves the file under its own name and never
+      navigates.
+- [ ] The column adapts: full width with size and button from 1012px, a
+      button-only column between 768px and 1012px, and no column below 768px,
+      with no horizontal scrolling and GitHub's own columns intact at 390px.
+- [ ] Switching the interface language relabels the column header and the
+      buttons' titles without a reload.
+- [ ] A blob page keeps GitHub's own size and download chrome and gains no
+      `.gp-file-meta` cell — the feature deliberately leaves that page alone.
+- [ ] **Files → File sizes** off leaves only the download buttons; **Download
+      buttons** off leaves only the size labels; the **Files** master switch
+      removes every `.gp-file-meta-cell` and header cell.
+- [ ] Sizes survive client-side navigation between folders; a probe that comes
+      back without `Content-Length` (or is blocked) leaves the size out without
+      breaking the cell.
+- [ ] Private-repository downloads work while signed in (the same-origin raw
+      route carries the session); a blocked fetch opens the raw file in a new
+      tab instead.
+
 ## Debugging
 
 Verbose tracing is off by default. Turn it on from the page console:
@@ -206,6 +235,7 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1201` | `UI_MOUNT` | Mounting the settings entry or panel failed. |
 | `GP-1301` | `FILE_ICONS` | A file-icons surface or its selectors failed. |
 | `GP-1302` | `FILE_AGES` | A file-ages surface or its selectors failed. |
+| `GP-1303` | `FILE_META` | A file-meta surface or its selectors failed. |
 
 Settings persist under the key `gp_settings_v1` (`SETTINGS_KEY` in
 `src/core/constants.js`): via `GM_setValue` when the manager provides it,
@@ -220,7 +250,8 @@ otherwise via `localStorage`. Delete that key for a cold start:
 - `src/core/constants.js` holds the defaults and limits: `SETTINGS_KEY`, the
   `gp-` class prefix, `GALLERY_MAX_IMAGES` (500), `GALLERY_MIN_SIZE_PX` (80),
   `ZOOM_OPTIONS`, `BADGE_HOSTS`, `IMAGE_EXTENSIONS`, `TOAST_POSITIONS`,
-  `TOAST_MAX_DURATION_MS`, and `DEFAULT_SETTINGS` / `getDefaults()`.
+  `TOAST_MAX_DURATION_MS`, and `DEFAULT_SETTINGS` / `getDefaults()` (including
+  `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS` and `DEFAULT_FILE_AGES`).
 - `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
   change the allowlist in `scripts/build-file-icons.mjs` and run
   `npm run icons:build`. The package is a dev dependency; the shipped bundle
@@ -228,6 +259,10 @@ otherwise via `localStorage`. Delete that key for a cold start:
 - `src/features/fileAges/age.js` owns the commit-age bands and
   `AGE_BUCKET_COUNT` lives in `constants.js`; the ten shade values are in
   `src/styles/tokens.css` (`--gp-age-1` … `--gp-age-10`).
+- `src/features/fileMeta/size.js` owns size formatting (binary units, three
+  significant digits) and `src/features/fileMeta/paths.js` owns the blob → raw
+  address rewrite; both are pure and unit-tested, so keep DOM code out of them.
+  `DEFAULT_FILE_META` lives in `constants.js`.
 - `src/i18n/locales/*.js` holds the UI strings, one file per locale (ten in
   total). New strings go into all ten files — see the localization rule in
   [../CONTRIBUTING.md](../CONTRIBUTING.md). The localized `@name` /

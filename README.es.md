@@ -5,17 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
-GitHub lista archivos y colores de antigüedad al estilo blame para esos archivos.
+GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos
+y tamaños de archivo con descargas en un clic.
 
-> **Estado:** temprano (`0.9.1`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Iconos de archivo · Antigüedad de archivos · Copia de
-> seguridad · Acerca de), la galería de imágenes de markdown, los iconos de
-> archivo en color y los colores de antigüedad al estilo blame. Hay más mejoras
-> de GitHub planificadas.
+> **Estado:** temprano (`0.10.0`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Iconos de archivo · Antigüedad de archivos · Archivos ·
+> Copia de seguridad · Acerca de), la galería de imágenes de markdown, los
+> iconos de archivo en color, los colores de antigüedad al estilo blame y los
+> tamaños de archivo con botones de descarga. Hay más mejoras de GitHub
+> planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -142,6 +144,30 @@ colorea el propio texto de la fecha:
 - **Discreto** — al desactivar la función vuelve el color propio de GitHub y no
   queda ningún rastro.
 
+### Tamaños y descargas de archivos
+
+La lista de directorios de GitHub muestra cuándo cambió un archivo, pero no su
+tamaño, y para guardarlo hay que abrirlo primero. GitHub Plus añade ambas cosas a
+las filas de archivos:
+
+- **Tamaño de un vistazo** — cada archivo de una lista del repositorio recibe un
+  tamaño atenuado en una columna propia. Los tamaños se piden solo para las
+  filas cercanas a la ventana visible, se guardan en caché para la sesión y un
+  archivo cuyo tamaño no se puede leer simplemente no muestra ninguno.
+- **Descarga en el sitio** — cada fila de archivo muestra su tamaño en el borde
+  izquierdo de la columna y, en el borde derecho, un botón de descarga con el
+  estilo de los botones de icono de GitHub. El archivo se guarda con su propio
+  nombre; la ruta raw del mismo origen mantiene operativos los repositorios
+  privados, y si la petición se bloquea el archivo se abre en una pestaña nueva.
+  La vista blob de GitHub ya muestra el tamaño y su propio botón, así que no se
+  toca.
+- **Sin cuota de API** — los tamaños vienen de una petición HEAD a la dirección
+  raw del propio archivo, no de la API de GitHub, así que el límite anónimo de
+  60 peticiones por hora nunca se toca.
+- **Discreto** — las carpetas mantienen una celda vacía, y al desactivar la
+  función desaparecen todos los tamaños, botones y celdas, dejando el GitHub de
+  siempre.
+
 ### Panel de ajustes
 
 Ábrelo con el botón de engranaje de la cabecera de GitHub, con la fila
@@ -174,6 +200,9 @@ Se guardan en `gp_settings_v1`.
 | `fileIcons.specialNames` | `true` | Iconos propios para nombres de archivo conocidos |
 | `fileAges.enabled` | `true` | Interruptor principal; colores de antigüedad estilo blame para los archivos listados |
 | `fileAges.folders` | `true` | Colorear también las filas de carpetas |
+| `fileMeta.enabled` | `true` | Interruptor principal de tamaños y botones de descarga |
+| `fileMeta.sizes` | `true` | Mostrar el tamaño de cada archivo en las listas del repositorio |
+| `fileMeta.download` | `true` | Botón de descarga en las listas del repositorio |
 
 ## Cómo está construida la galería
 

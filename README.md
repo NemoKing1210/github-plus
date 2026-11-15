@@ -5,16 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
-for rendered markdown, colored file icons wherever GitHub lists files, and
-blame-style age colors for those files.
+for rendered markdown, colored file icons wherever GitHub lists files,
+blame-style age colors for those files, and file sizes with one-click
+downloads.
 
-> **Status:** early (`0.9.1`). Settings panel with instant search (General ·
-> Gallery · File icons · File ages · Backup · About), the markdown image
-> gallery, colored file icons and blame-style file age colors. More GitHub
-> improvements planned.
+> **Status:** early (`0.10.0`). Settings panel with instant search (General ·
+> Gallery · File icons · File ages · Files · Backup · About), the markdown image
+> gallery, colored file icons, blame-style file age colors, and file sizes with
+> download buttons. More GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -132,6 +133,26 @@ text itself:
 - **Quiet** — disabling the feature restores GitHub's own date color and leaves
   no trace.
 
+### File sizes and downloads
+
+GitHub's directory listing shows when a file last changed but not how big it is,
+and saving one means opening it first. GitHub Plus adds both to the file rows:
+
+- **Size at a glance** — every file in a repository listing gets a muted size in
+  its own column. Sizes are fetched only for rows near the viewport, cached for
+  the session, and a file whose size cannot be read simply shows none.
+- **Download in place** — every file row shows its size at the left edge of
+  the column and, at its right edge, a download button in GitHub's icon-button
+  style. The file is saved under its own name; the same-origin raw route keeps
+  private repositories working, and a blocked fetch falls back to opening the
+  file in a new tab. GitHub's own blob page already shows a size and a download
+  button, so it is left untouched.
+- **No API quota** — sizes come from a HEAD request on the file's own raw
+  address, not the GitHub API, so the anonymous 60-requests-per-hour limit is
+  never touched.
+- **Quiet** — folder rows keep an empty cell; disabling the feature removes
+  every size, button and cell, leaving stock GitHub.
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -163,6 +184,9 @@ Stored under `gp_settings_v1`.
 | `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |
 | `fileAges.enabled` | `true` | Master switch; blame-style age colors for listed files |
 | `fileAges.folders` | `true` | Color folder rows too |
+| `fileMeta.enabled` | `true` | Master switch for file sizes and download buttons |
+| `fileMeta.sizes` | `true` | Show each file's size in repository listings |
+| `fileMeta.download` | `true` | Download button in the repository file listings |
 
 ## How the gallery is built
 

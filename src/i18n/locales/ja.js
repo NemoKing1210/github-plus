@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': '組み込みビューアで Markdown 画像を閲覧します。',
   'tab.icons.desc': 'リポジトリページのファイルとフォルダーに色付きアイコンを表示します。',
   'tab.ages.desc': 'blame のように、最終コミットからの経過日数で色分けします。',
+  'tab.files': 'ファイル',
+  'tab.files.desc': 'リポジトリのファイル一覧でのファイルサイズとダウンロード。',
   'tab.backup.desc': '設定をファイルにエクスポートし、インポートして復元します。',
   'tab.about.desc': 'バージョン、作者、ソースコード。',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': '色は最も古いコミット（左）から最も新しいコミット（右）へ変化します。',
   'ages.older': '古い',
   'ages.newer': '新しい',
+
+  'files.enabled': 'ファイルサイズとダウンロード',
+  'files.enabledDesc': 'GitHub が一覧表示するファイルにサイズとダウンロードボタンを表示します。',
+  'files.display': 'サイズ列',
+  'files.displayDesc': '各ファイルの行に追加される列です。',
+  'files.size': 'ファイルサイズ',
+  'files.sizeDesc': 'サイズを取得し、列に表示します。',
+  'files.column': 'サイズ',
+  'files.download': 'ダウンロードボタン',
+  'files.downloadDesc': 'ファイル一覧からワンクリックで保存します。',
+  'files.downloadFile': '{name} をダウンロード',
 
   'backup.export': 'エクスポート',
   'backup.exportDesc': '現在の設定を JSON ファイルとして保存するか、コピーします。',

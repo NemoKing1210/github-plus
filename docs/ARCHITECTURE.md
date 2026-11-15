@@ -11,7 +11,7 @@ src/
 ├── core/
 │   ├── constants.js         # DEFAULT_SETTINGS, storage key, limits
 │   ├── settings.js          # load/save + normalization (single source of truth)
-│   └── bus.js               # minimal pub/sub (settings:gallery/toasts/language/fileIcons/fileAges)
+│   └── bus.js               # minimal pub/sub (settings:gallery/toasts/language/fileIcons/fileAges/fileMeta)
 ├── i18n/
 │   ├── meta.js              # SUPPORTED_LOCALES, aliases, native names
 │   ├── index.js             # configureLocale(), t()
@@ -27,7 +27,7 @@ src/
 │   ├── panel.js             # panel shell: grouped nav, search, pages, draft
 │   ├── controls.js          # section / row / field / switch / select / input / button
 │   ├── confirm.js           # promise-based confirm dialog
-│   └── tabs/                # general.js, gallery.js, fileIcons.js, fileAges.js, backup.js, about.js
+│   └── tabs/                # general.js, gallery.js, fileIcons.js, fileAges.js, files.js, backup.js, about.js
 ├── features/fileIcons/
 │   ├── index.js             # per-surface observers, injection, settings reaction
 │   ├── surfaces.js          # where GitHub lists files + row readers
@@ -39,6 +39,12 @@ src/
 │   ├── surfaces.js          # file rows that carry a last-commit date
 │   ├── age.js               # ageBucket(datetime, now) — pure date → 1…10
 │   └── inject.js            # paintAge / clearAges
+├── features/fileMeta/
+│   ├── index.js             # per-surface observers, lazy size probes, settings reaction
+│   ├── surfaces.js          # file rows with a raw address + their column header
+│   ├── paths.js             # rawUrlFor(blobHref) — pure address rewrite
+│   ├── size.js              # formatSize — pure size formatting
+│   └── inject.js            # renderMeta / placeMeta / placeHead / clearMeta
 ├── styles/
 │   ├── tokens.css           # :root design tokens (--gp-* palette)
 │   └── app.css              # injected stylesheet (gp- prefix)
@@ -61,6 +67,7 @@ graph TD
   main --> settingsFeature[features/settings]
   main --> fileIcons[features/fileIcons]
   main --> fileAges[features/fileAges]
+  main --> fileMeta[features/fileMeta]
   main --> gallery
   main --> ui
   main --> utils
@@ -77,6 +84,10 @@ graph TD
   fileIcons --> utils
   fileAges --> core
   fileAges --> utils
+  fileMeta --> core
+  fileMeta --> ui
+  fileMeta --> utils
+  fileMeta --> i18n
   ui --> core
   ui --> utils
   ui --> i18n
@@ -97,11 +108,14 @@ listener that walks the live DOM at event time, (c) a re-mount triggered by an
 explicit navigation event, or (d) one observer on a container GitHub itself
 owns — `features/settings/userMenu.js` watches Primer's overlay portal root
 (`#__primerPortalRoot__`), which holds nothing but overlays and stays empty
-otherwise. `features/fileIcons/` and `features/fileAges/` follow the same rule
-at a smaller scale: one observer per known file-list container (repository
-tree, PR header list, last-commit cells, and so on), never one on the document,
-and a surface whose selector stops matching turns into a no-op instead of
-breaking the pagination.
+otherwise. `features/fileIcons/`, `features/fileAges/` and `features/fileMeta/`
+follow the same rule at a smaller scale: one observer per known file-list
+container (repository tree, PR header list, last-commit cells, and so on),
+never one on the document, and a surface whose selector stops
+matching turns into a no-op instead of breaking the pagination. File meta adds
+two bounded mechanisms of its own: a shared IntersectionObserver that defers a
+row's HEAD size probe until it is near the viewport, and a small request queue
+that caps concurrent probes.
 
 ```mermaid
 sequenceDiagram
@@ -161,7 +175,7 @@ sequenceDiagram
   U->>P: Save
   P->>S: saveSettings(draft)
   S-->>P: normalized + persisted state
-  P->>B: emit settings:gallery / toasts / language / fileIcons / fileAges
+  P->>B: emit settings:gallery / toasts / language / fileIcons / fileAges / fileMeta
   B->>F: listeners react (repaint stylesheet, rescan rows, relabel entry)
   P-->>U: success toast, panel closed
 ```
@@ -186,7 +200,7 @@ row needs no reset, because GitHub unmounts that menu on navigation itself.
 |------|-------|
 | A new place with images (diff view, project board, …) | Register a source in `src/gallery/sources/`, import it from `src/gallery/index.js`, add its default switch in `core/constants.js`, add its two locale keys in all ten locales. The settings panel picks it up from the registry. |
 | A new settings page | `registerPage({ id, icon, labelKey, descKey, render })` and a module in `features/settings/tabs/`. The page reads and mutates `getDraft()`. |
-| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`); if the rows also show a last-commit date, add it to `src/features/fileAges/surfaces.js`. Observers and injection are shared per feature. |
+| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`); if the rows also show a last-commit date, add it to `src/features/fileAges/surfaces.js`; if they link to a file view and do not already show a size or a download button, add it to `src/features/fileMeta/surfaces.js` (`resolve` returns the raw address; the surface's `header` and `columnLabelKey` place the column's label). Observers and injection are shared per feature. |
 | A new setting | Add it to `DEFAULT_SETTINGS` + a normalizer in `core/settings.js`, expose a getter, add the control to a tab, and document the key in `README.md` / `AGENTS.md`. Emit the matching bus event on Save if a feature must react. |
 | A lightbox somewhere else | `openViewer({ images })` from `ui/viewer.js` — it is a standalone component with localizable, per-call overridable labels. |
 
@@ -200,6 +214,7 @@ row needs no reset, because GitHub unmounts that menu on navigation itself.
   values fall back to defaults, never crash the page.
 - Injected UI never touches GitHub's own header/markup nodes; it only inserts
   siblings next to them. File icons additionally hide GitHub's glyph with an
-  inline style and restore it on teardown, and file ages add their `.gp-age-date`
-  classes to GitHub's own timestamp; neither writes a page-markup CSS rule.
+  inline style and restore it on teardown, file ages add their `.gp-age-date`
+  classes to GitHub's own timestamp, and file meta appends its own `td` to a
+  row and its own `th` to the table header; none writes a page-markup CSS rule.
 - DOM collections are iterated with `eachNode`/`toArray`, never `for...of`.

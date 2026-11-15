@@ -5,16 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 galeria de imagens para markdown renderizado, ícones de arquivo coloridos onde o
-GitHub lista arquivos e idades coloridas no estilo blame para esses arquivos.
+GitHub lista arquivos, idades coloridas no estilo blame para esses arquivos e
+tamanhos de arquivo com downloads em um clique.
 
-> **Status:** inicial (`0.9.1`). Painel de configurações com busca instantânea
-> (Geral · Galeria · Ícones de arquivo · Idade dos arquivos · Backup · Sobre), a
-> galeria de imagens de markdown, ícones de arquivo coloridos e idades coloridas
-> no estilo blame. Mais melhorias no GitHub estão planejadas.
+> **Status:** inicial (`0.10.0`). Painel de configurações com busca instantânea
+> (Geral · Galeria · Ícones de arquivo · Idade dos arquivos · Arquivos · Backup ·
+> Sobre), a galeria de imagens de markdown, ícones de arquivo coloridos, idades
+> coloridas no estilo blame e tamanhos de arquivo com botões de download. Mais
+> melhorias no GitHub estão planejadas.
 
 > As diretivas `@updateURL` / `@downloadURL` do script apontam para `main` no
 > GitHub — a URL de instalação abaixo sempre leva à compilação mais recente.
@@ -138,6 +140,28 @@ o próprio texto da data:
 - **Discreto** — desativar o recurso restaura a cor de data do GitHub e não
   deixa vestígio.
 
+### Tamanhos e downloads de arquivos
+
+A listagem de diretórios do GitHub mostra quando um arquivo mudou, mas não o seu
+tamanho, e para salvá-lo é preciso abri-lo antes. O GitHub Plus adiciona os dois
+diretamente às linhas de arquivo:
+
+- **Tamanho num relance** — cada arquivo de uma listagem do repositório ganha um
+  tamanho discreto em uma coluna própria. Os tamanhos são buscados apenas para as
+  linhas próximas da área visível, guardados em cache para a sessão, e um arquivo
+  cujo tamanho não pode ser lido simplesmente não mostra nenhum.
+- **Download ali mesmo** — cada linha de arquivo mostra o tamanho na borda
+  esquerda da coluna e, na borda direita, um botão de download no estilo dos
+  botões de ícone do GitHub. O arquivo é salvo com o próprio nome; a rota raw de
+  mesma origem mantém os repositórios privados funcionando, e uma busca bloqueada
+  abre o arquivo em uma nova aba. A visualização blob do GitHub já mostra o
+  tamanho e um botão próprio, então ela não é alterada.
+- **Sem cota de API** — os tamanhos vêm de uma requisição HEAD no endereço raw
+  do próprio arquivo, não da API do GitHub, então o limite anônimo de 60
+  requisições por hora nunca é usado.
+- **Discreto** — pastas mantêm uma célula vazia, e desativar o recurso remove
+  cada tamanho, botão e célula, devolvendo o GitHub original.
+
 ### Painel de configurações
 
 Abra-o pelo botão de engrenagem no cabeçalho do GitHub, pela linha
@@ -170,6 +194,9 @@ Armazenadas em `gp_settings_v1`.
 | `fileIcons.specialNames` | `true` | Ícones dedicados para nomes de arquivo conhecidos |
 | `fileAges.enabled` | `true` | Chave mestre; cores de idade no estilo blame para os arquivos listados |
 | `fileAges.folders` | `true` | Colorir também as linhas de pastas |
+| `fileMeta.enabled` | `true` | Chave mestra para tamanhos e botões de download |
+| `fileMeta.sizes` | `true` | Mostrar o tamanho de cada arquivo nas listagens do repositório |
+| `fileMeta.download` | `true` | Botão de download nas listagens do repositório |
 
 ## Como a galeria é construída
 

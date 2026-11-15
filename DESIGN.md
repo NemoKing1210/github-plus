@@ -32,7 +32,8 @@ list host, the row inside GitHub's user menu, the panel (overlay, shell,
 grouped sidebar, search field and results, pages, cards, rows, controls), the
 confirm dialog, toasts, the image viewer, the `.gp-fi` file and folder glyphs,
 the `.gp-age-date` coloring of GitHub's last-commit timestamps and its
-settings-page legend, and the gallery's page-level cursor/hover affordances
+settings-page legend, the `.gp-file-meta` size column added to file rows, and
+the gallery's page-level cursor/hover affordances
 (§11). Anything GitHub already renders is out of scope except through those
 affordances: no other rule may target page markup.
 
@@ -44,8 +45,8 @@ Two invariants hold for every selector:
 - Every UI-root class that must be excluded from page scanning is listed in
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
-  .gp-user-menu-item, .gp-viewer-overlay`). Rename a root class and that list
-  must change with it.
+  .gp-user-menu-item, .gp-viewer-overlay, .gp-download-btn, .gp-file-meta`).
+  Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
 
@@ -209,6 +210,9 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Viewer status text `.gp-viewer__status-text` | `13px` / `var(--gp-text)` |
 | Viewer status link `.gp-viewer__status-link` | `12px` / `var(--gp-accent)` |
 | Page download button `.gp-download-btn` | `16px` glyph in a `30px` button |
+| File size `.gp-file-size` | `11px` / `var(--gp-text-muted)` / tabular |
+| File size column header `.gp-file-meta-head` | `0` (visually collapsed, like GitHub's own header cells) |
+| File download button `.gp-file-download` | `16px` glyph in a `28px` icon button |
 | Age legend label `.gp-age-legend__label` | `12px` / `var(--gp-text-muted)` |
 | Menu row label `.gp-user-menu-item__label` | `14px/1.4` / `var(--gp-text)` (GitHub's `ActionList` size) |
 
@@ -588,6 +592,41 @@ from every timestamp, restoring GitHub's own color, and `app.css` never selects
 a GitHub-owned class: the two exception classes are ours and exist only while
 the feature is on.
 
+### File sizes and downloads (`.gp-file-meta`)
+
+A column of our own: a `th` naming it in the listing's header row and a `td`
+appended to every listing row. File rows fill the cell with the size and the
+button; folder rows keep it empty so every row has the same column count. The
+size starts at the column's left edge and the button is pushed to the right
+edge, so it sits on the table's border. GitHub's
+own cells are never restyled, reordered or nested into, and the column is not
+added to the blob header, where GitHub already shows the size and its own
+download button.
+
+GitHub collapses the listing's header row by setting its cells to
+`font-size: 0`: the labels stay in the DOM for assistive tech but paint
+nothing. Our `th` follows that convention rather than adding a header band of
+its own.
+
+| Class | Rules |
+|---|---|
+| `.gp-file-meta-cell`, `.gp-file-meta-head` | `104px` wide, `0 8px` padding, middle-aligned, nowrap |
+| `.gp-file-meta-head` | `font-size: 0` — the column name is exposed to assistive tech, not painted |
+| `.gp-file-meta` | Full-width flex, `gap: 6px`, `11px/1` tabular `var(--gp-text-muted)`, no fill or border |
+| `.gp-file-size` | The size text, left edge of the column; `[hidden]` while the probe has not answered, so an unknown size leaves no gap |
+| `.gp-file-download` | GitHub's icon-button shape: `28×28`, `var(--gp-radius)`, no border, transparent fill, `var(--gp-text-muted)` glyph; `margin-left: auto` keeps it on the right edge even when the size is absent |
+| `.gp-file-download svg` | `16×16` block glyph (`VIEWER_ICONS.download`) |
+| `.gp-file-download:hover` | `var(--gp-highlight)` fill, `var(--gp-text)` glyph |
+
+The column follows GitHub's own breakpoints. From `1012px` it keeps its full
+width with the size and the button; between `768px` and `1012px` the listing
+shares its width with the repository sidebar, so the column narrows to `40px`
+and keeps only the button; below `768px` GitHub's compact listing has no room
+and the column is hidden.
+
+Turning the feature off removes the cells and the header label, leaving the
+table exactly as GitHub rendered it.
+
 ## 7. States
 
 | State | Selector / form | Effect |
@@ -606,6 +645,7 @@ the feature is on.
 | Help open | `.gp-viewer__help:not([hidden])` | The shortcut popover is visible and the help tool reports `aria-expanded="true"`; `Escape` closes it before the viewer |
 | Broken thumb | `.gp-viewer__thumb.is-broken` | The thumbnail image is hidden and the muted `imageOff` fallback is shown |
 | Download hover | `.gp-download-btn:not([hidden])` | The floating button is shown over the hovered markdown image's top-right corner; hidden on pointer-out, scroll, resize and navigation |
+| File download hover | `.gp-file-download:hover` | The icon button takes the `var(--gp-highlight)` fill and a `var(--gp-text)` glyph, like GitHub's own icon buttons |
 | Rotated | `.gp-viewer.is-rotated` | Toggled by `paint()`; the stage keeps its `grab` cursor because the image is draggable at every zoom |
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
@@ -647,8 +687,8 @@ shipped exceptions, because both are per-frame values).
   for the panel and confirm overlays and dialogs, the page head and page
   children, sidebar items and their pill, the dirty dot, `.gp-toast`,
   `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
-  `.gp-viewer-overlay`, `.gp-viewer__image` and the search result spotlight
-  (which keeps a static accent ring instead). The viewer spinner and
+  `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image` and the search
+  result spotlight (which keeps a static accent ring instead). The viewer spinner and
   the toast progress bar are outside that list (a spinner and a countdown are
   information, not decoration), so do not "fix" them by adding them to the
   media block without deciding what replaces the information they carry.
@@ -712,7 +752,8 @@ Everything else is fluid by construction and must stay that way:
 - **Names.** Icon-only controls carry both `title` and `aria-label`
   (`.gp-panel__close` = `common.close`, viewer tools/nav/open/download, the
   entry button = `settings.open`, the page download button = `viewer.download`,
-  the toast close = `×`). The zoom pill is named by
+  the file download button = `files.downloadFile` with the filename
+  interpolated, the toast close = `×`). The zoom pill is named by
   `viewer.actualSize` / `viewer.fit` depending on what a click will do, and the
   help tool reports `aria-expanded` for the panel it controls. Labels come from
   the locale files, never from hardcoded English in CSS. The user-menu row is
@@ -777,11 +818,13 @@ therefore generated at runtime by `src/gallery/index.js` into a
 - Consequence for anyone editing `app.css`: add a new gallery location by
   registering a source with its own `cursorSelector`, never by writing a
   page-markup rule into `app.css`.
-- The file-icons and file-ages features are the other kind of exception. File
-  icons insert their own `.gp-fi` elements and hide GitHub's glyph with an
-  inline style; file ages add only their own `.gp-age-date` / `.gp-age--N`
-  classes to GitHub's timestamp. Both keep “no rule targets a GitHub-owned
-  class” true, and both remove every trace when disabled.
+- The file-icons, file-ages and file-meta features are the other kind of
+  exception. File icons insert their own `.gp-fi` elements and hide GitHub's
+  glyph with an inline style; file ages add only their own `.gp-age-date` /
+  `.gp-age--N` classes to GitHub's timestamp; file meta appends its own cell
+  and header cell. All three keep
+  “no rule targets a GitHub-owned class” true, and all three remove every trace
+  when disabled.
 - Our own UI is excluded from this behavior: the click and pointer handlers
   ignore any target inside `isOwnUi()` and any image wrapped by GitHub's
   `a.anchor`, so the affordances never fight with heading anchors or our

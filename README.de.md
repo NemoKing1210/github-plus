@@ -5,16 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
-wo GitHub Dateien auflistet, und Altersfarben im Blame-Stil für diese Dateien.
+wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien sowie
+Dateigrößen mit Ein-Klick-Downloads.
 
-> **Status:** früh (`0.9.1`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateisymbole · Dateialter · Sicherung · Info), die
-> Markdown-Bildergalerie, farbige Dateisymbole und Altersfarben im Blame-Stil.
-> Weitere GitHub-Verbesserungen sind geplant.
+> **Status:** früh (`0.10.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateisymbole · Dateialter · Dateien · Sicherung · Info), die
+> Markdown-Bildergalerie, farbige Dateisymbole, Altersfarben im Blame-Stil sowie
+> Dateigrößen mit Download-Schaltflächen. Weitere GitHub-Verbesserungen sind
+> geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
@@ -141,6 +143,30 @@ Blame-Legende und färbt den Datumstext selbst:
 - **Unaufdringlich** — beim Deaktivieren kehrt GitHubs eigene Datumsfarbe zurück
   und es bleibt keine Spur.
 
+### Dateigrößen und Downloads
+
+Die Verzeichnisliste von GitHub zeigt, wann eine Datei zuletzt geändert wurde,
+aber nicht ihre Größe; zum Speichern muss man sie erst öffnen. GitHub Plus fügt
+beides direkt den Dateizeilen hinzu:
+
+- **Größe auf einen Blick** — jede Datei in einer Repository-Liste bekommt eine
+  dezente Größe in einer eigenen Spalte. Größen werden nur für Zeilen nahe dem
+  sichtbaren Bereich abgerufen, für die Sitzung zwischengespeichert, und eine
+  Datei, deren Größe nicht lesbar ist, zeigt einfach keine.
+- **Direkt herunterladen** — jede Dateizeile zeigt ihre Größe am linken Rand
+  der Spalte und rechts daneben, am rechten Rand, eine Download-Schaltfläche im
+  Stil der GitHub-Icon-Buttons. Die Datei wird unter ihrem eigenen Namen
+  gespeichert; die Same-Origin-Raw-Route hält private Repositories
+  funktionsfähig, und ein blockierter Abruf öffnet die Datei in einem neuen Tab.
+  Die Blob-Ansicht von GitHub zeigt Größe und Download bereits selbst und bleibt
+  unverändert.
+- **Kein API-Kontingent** — Größen stammen aus einer HEAD-Anfrage an die eigene
+  Raw-Adresse der Datei, nicht aus der GitHub-API, sodass das anonyme Limit von
+  60 Anfragen pro Stunde unberührt bleibt.
+- **Unauffällig** — Ordner behalten eine leere Spalte, und beim Deaktivieren
+  entfernt die Funktion jede Größe, jede Schaltfläche und jede Zelle und
+  hinterlässt normales GitHub.
+
 ### Einstellungsfenster
 
 Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
@@ -173,6 +199,9 @@ Gespeichert unter `gp_settings_v1`.
 | `fileIcons.specialNames` | `true` | Eigene Symbole für bekannte Dateinamen |
 | `fileAges.enabled` | `true` | Hauptschalter; Blame-artige Altersfarben für aufgelistete Dateien |
 | `fileAges.folders` | `true` | Auch Ordnerzeilen färben |
+| `fileMeta.enabled` | `true` | Hauptschalter für Dateigrößen und Download-Schaltflächen |
+| `fileMeta.sizes` | `true` | Die Größe jeder Datei in Repository-Listen anzeigen |
+| `fileMeta.download` | `true` | Download-Schaltfläche in Repository-Listen |
 
 ## Wie die Galerie aufgebaut ist
 

@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': 'Parcourir les images Markdown dans la visionneuse intégrée.',
   'tab.icons.desc': 'Icônes colorées pour les fichiers et dossiers des pages de dépôt.',
   'tab.ages.desc': 'Colorer l’âge du dernier commit de chaque fichier, façon blame.',
+  'tab.files': 'Fichiers',
+  'tab.files.desc': 'Tailles et téléchargements des fichiers dans les listes de dépôt.',
   'tab.backup.desc': 'Exporter les paramètres dans un fichier et les réimporter.',
   'tab.about.desc': 'Version, auteur et code source.',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': 'Les couleurs vont du commit le plus ancien (à gauche) au plus récent (à droite).',
   'ages.older': 'Plus ancien',
   'ages.newer': 'Plus récent',
+
+  'files.enabled': 'Tailles et téléchargements',
+  'files.enabledDesc': 'Afficher la taille et un bouton de téléchargement pour les fichiers listés par GitHub.',
+  'files.display': 'Colonne de taille',
+  'files.displayDesc': 'La colonne supplémentaire de chaque ligne de fichier.',
+  'files.size': 'Taille du fichier',
+  'files.sizeDesc': 'Récupérer la taille et l’afficher dans la colonne.',
+  'files.column': 'Taille',
+  'files.download': 'Bouton de téléchargement',
+  'files.downloadDesc': 'Enregistrer un fichier en un clic depuis la liste des fichiers.',
+  'files.downloadFile': 'Télécharger {name}',
 
   'backup.export': 'Export',
   'backup.exportDesc': 'Enregistrer les paramètres actuels dans un fichier JSON ou les copier.',

@@ -30,6 +30,8 @@ export default {
   'tab.gallery.desc': '在内置查看器中浏览 Markdown 图片。',
   'tab.icons.desc': '仓库页面中文件和文件夹的彩色图标。',
   'tab.ages.desc': '按最后一次提交的时间显示类似 blame 的颜色渐变。',
+  'tab.files': '文件',
+  'tab.files.desc': '仓库文件列表中的文件大小与下载。',
   'tab.backup.desc': '将设置导出为文件并重新导入。',
   'tab.about.desc': '版本、作者和源代码。',
 
@@ -102,6 +104,17 @@ export default {
   'ages.legendDesc': '颜色从最旧的提交（左侧）到最新的提交（右侧）。',
   'ages.older': '更旧',
   'ages.newer': '更新',
+
+  'files.enabled': '文件大小与下载',
+  'files.enabledDesc': '为 GitHub 列出的文件显示大小和下载按钮。',
+  'files.display': '大小列',
+  'files.displayDesc': '添加到每个文件行的额外列。',
+  'files.size': '文件大小',
+  'files.sizeDesc': '获取大小并显示在该列中。',
+  'files.column': '大小',
+  'files.download': '下载按钮',
+  'files.downloadDesc': '从文件列表一键保存文件。',
+  'files.downloadFile': '下载 {name}',
 
   'backup.export': '导出',
   'backup.exportDesc': '将当前设置保存为 JSON 文件或复制到剪贴板。',

@@ -5,16 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
-wyświetla pliki, oraz kolory wieku tych plików w stylu blame.
+wyświetla pliki, kolory wieku tych plików w stylu blame oraz rozmiary plików
+i pobieranie jednym kliknięciem.
 
-> **Status:** wczesny etap (`0.9.1`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Ikony plików · Wiek plików · Kopia zapasowa ·
-> Informacje), galeria obrazów Markdownu, kolorowe ikony plików i kolory wieku w
-> stylu blame. W planach kolejne ulepszenia GitHuba.
+> **Status:** wczesny etap (`0.10.0`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Ikony plików · Wiek plików · Pliki · Kopia
+> zapasowa · Informacje), galeria obrazów Markdownu, kolorowe ikony plików,
+> kolory wieku w stylu blame oraz rozmiary plików z przyciskami pobierania.
+> W planach kolejne ulepszenia GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
@@ -135,6 +137,28 @@ sam tekst daty:
 - **Dyskretnie** — wyłączenie funkcji przywraca własny kolor daty GitHuba i nie
   pozostawia śladów.
 
+### Rozmiary i pobieranie plików
+
+Lista katalogu w GitHubie pokazuje, kiedy plik się zmienił, ale nie jego rozmiar,
+a aby go zapisać, trzeba go najpierw otworzyć. GitHub Plus dodaje jedno i drugie
+wprost do wierszy plików:
+
+- **Rozmiar na pierwszy rzut oka** — każdy plik na liście repozytorium ma w
+  osobnej kolumnie dyskretny rozmiar. Rozmiary są pobierane tylko dla wierszy
+  blisko widocznego obszaru, buforowane na czas sesji, a plik, którego rozmiaru
+  nie można odczytać, po prostu go nie pokazuje.
+- **Pobieranie na miejscu** — każdy wiersz pliku pokazuje rozmiar przy lewej
+  krawędzi kolumny, a przy prawej przycisk pobierania w stylu ikonowych
+  przycisków GitHuba. Plik zapisuje się pod własną nazwą; trasa raw tego samego
+  originu działa też w prywatnych repozytoriach, a zablokowane żądanie otwiera
+  plik w nowej karcie. Strona pliku (blob) w GitHubie sama pokazuje rozmiar i
+  przycisk pobierania, więc pozostaje nietknięta.
+- **Bez limitu API** — rozmiary pochodzą z żądania HEAD do adresu raw samego
+  pliku, a nie z API GitHuba, więc anonimowy limit 60 żądań na godzinę pozostaje
+  nietknięty.
+- **Dyskretnie** — foldery zachowują pustą kolumnę, a wyłączenie funkcji usuwa
+  każdy rozmiar, przycisk i komórkę, przywracając zwykłego GitHuba.
+
 ### Panel ustawień
 
 Otwórz go przyciskiem zębatki w nagłówku GitHuba, wierszem **Ustawienia GitHub Plus**
@@ -166,6 +190,9 @@ Przechowywane pod `gp_settings_v1`.
 | `fileIcons.specialNames` | `true` | Dedykowane ikony dla znanych nazw plików |
 | `fileAges.enabled` | `true` | Główny przełącznik; kolory wieku w stylu blame dla wyświetlanych plików |
 | `fileAges.folders` | `true` | Koloruj także wiersze folderów |
+| `fileMeta.enabled` | `true` | Główny przełącznik rozmiarów i przycisków pobierania |
+| `fileMeta.sizes` | `true` | Pokazuj rozmiar każdego pliku na listach repozytorium |
+| `fileMeta.download` | `true` | Przycisk pobierania na listach repozytorium |
 
 ## Jak zbudowana jest galeria
 

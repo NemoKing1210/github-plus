@@ -5,16 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 galerie d'images pour le markdown rendu, des icônes de fichiers colorées partout
-où GitHub liste des fichiers et des couleurs d'âge façon blame pour ces fichiers.
+où GitHub liste des fichiers, des couleurs d'âge façon blame pour ces fichiers
+et la taille des fichiers avec téléchargement en un clic.
 
-> **Statut :** début (`0.9.1`). Panneau de réglages avec recherche instantanée
-> (Général · Galerie · Icônes de fichiers · Âge des fichiers · Sauvegarde · À
-> propos), la galerie d'images du markdown, des icônes de fichiers colorées et
-> des couleurs d'âge façon blame. D'autres améliorations de GitHub sont prévues.
+> **Statut :** début (`0.10.0`). Panneau de réglages avec recherche instantanée
+> (Général · Galerie · Icônes de fichiers · Âge des fichiers · Fichiers ·
+> Sauvegarde · À propos), la galerie d'images du markdown, des icônes de
+> fichiers colorées, des couleurs d'âge façon blame et la taille des fichiers
+> avec boutons de téléchargement. D'autres améliorations de GitHub sont prévues.
 
 > Les `@updateURL` / `@downloadURL` du script pointent vers `main` sur GitHub —
 > l'URL d'installation ci-dessous mène toujours à la version la plus récente.
@@ -141,6 +143,29 @@ de blame et colore le texte de la date lui-même :
 - **Discret** — désactiver la fonction restaure la couleur de date de GitHub et
   ne laisse aucune trace.
 
+### Tailles et téléchargements des fichiers
+
+La liste d’un dépôt GitHub indique quand un fichier a changé, mais pas sa taille,
+et pour l’enregistrer il faut d’abord l’ouvrir. GitHub Plus ajoute les deux
+directement aux lignes de fichiers :
+
+- **La taille en un coup d’œil** — chaque fichier d’une liste de dépôt reçoit une
+  taille discrète dans sa propre colonne. Les tailles ne sont demandées que pour
+  les lignes proches de la zone visible, mises en cache pour la session, et un
+  fichier dont la taille est illisible n’en affiche simplement pas.
+- **Télécharger sur place** — chaque ligne de fichier affiche sa taille au bord
+  gauche de la colonne et, au bord droit, un bouton de téléchargement au style
+  des boutons d’icône de GitHub. Le fichier est enregistré sous son propre nom ;
+  la route raw de même origine préserve les dépôts privés, et un accès bloqué
+  ouvre le fichier dans un nouvel onglet. La vue blob de GitHub affiche déjà la
+  taille et son propre bouton : elle reste intacte.
+- **Aucun quota d’API** — les tailles proviennent d’une requête HEAD sur
+  l’adresse raw du fichier, pas de l’API GitHub : la limite anonyme de 60
+  requêtes par heure reste intacte.
+- **Discret** — les dossiers gardent une cellule vide, et désactiver la fonction
+  retire chaque taille, chaque bouton et chaque cellule, laissant GitHub tel
+  quel.
+
 ### Panneau de réglages
 
 Ouvrez-le depuis le bouton en forme d'engrenage de l'en-tête GitHub, la ligne
@@ -173,6 +198,9 @@ Stockés sous `gp_settings_v1`.
 | `fileIcons.specialNames` | `true` | Icônes dédiées aux noms de fichiers connus |
 | `fileAges.enabled` | `true` | Interrupteur principal ; couleurs d’âge façon blame pour les fichiers listés |
 | `fileAges.folders` | `true` | Colorer aussi les lignes de dossiers |
+| `fileMeta.enabled` | `true` | Interrupteur principal des tailles et boutons de téléchargement |
+| `fileMeta.sizes` | `true` | Afficher la taille de chaque fichier dans les listes du dépôt |
+| `fileMeta.download` | `true` | Bouton de téléchargement dans les listes du dépôt |
 
 ## Comment la galerie est construite
 

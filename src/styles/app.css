@@ -1788,6 +1788,7 @@ html.gp-modal-open body {
   .gp-toast--leaving,
   .gp-switch__track,
   .gp-switch__track::after,
+  .gp-file-download,
   .gp-viewer-overlay,
   .gp-viewer__image {
     animation: none;
@@ -2010,4 +2011,87 @@ html.gp-modal-open body {
   color: var(--gp-age-current);
   font-size: 13px;
   line-height: 1;
+}
+
+/* == File sizes and downloads ============================================== */
+/* Our own table column: a `th` in the header row and a `td` in every listing
+ * row (file rows fill it, folders leave it empty). The size starts at the
+ * column's left edge and the download button is pushed to its right edge.
+ *
+ * Width tiers follow GitHub's own breakpoints. The listing shares its width
+ * with the repository sidebar from 768px up, so between 768 and 1012 the
+ * column keeps only the button and gives the commit message its room back;
+ * below 768 GitHub's compact listing has no space for another column. */
+.gp-file-meta-cell,
+.gp-file-meta-head {
+  width: 104px;
+  padding: 0 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+/* GitHub keeps the listing's header row collapsed by setting its cells to
+ * `font-size: 0`; the label stays for assistive tech without adding a band. */
+.gp-file-meta-head {
+  font-size: 0;
+}
+.gp-file-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  color: var(--gp-text-muted);
+  font-family: var(--gp-font);
+  font-size: 11px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.gp-file-size[hidden] {
+  display: none;
+}
+/* GitHub's own icon buttons are 28×28 with a 16px glyph, a 6px radius and no
+ * border; the neutral fill appears only on hover (DESIGN.md §11). */
+.gp-file-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gp-radius);
+  background: transparent;
+  color: var(--gp-text-muted);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+}
+.gp-file-download svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.gp-file-download:hover {
+  background: var(--gp-highlight);
+  color: var(--gp-text);
+}
+.gp-file-download:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: 1px;
+}
+@media (min-width: 768px) and (max-width: 1011.98px) {
+  .gp-file-meta-cell,
+  .gp-file-meta-head {
+    width: 40px;
+    padding: 0 4px;
+  }
+  .gp-file-meta-cell .gp-file-size {
+    display: none;
+  }
+}
+@media (max-width: 767.98px) {
+  .gp-file-meta-cell,
+  .gp-file-meta-head {
+    display: none;
+  }
 }

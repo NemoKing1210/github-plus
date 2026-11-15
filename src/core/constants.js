@@ -112,12 +112,20 @@ const DEFAULT_FILE_AGES = {
   folders: true,
 };
 
+/** File meta: size labels and download buttons in file listings. */
+const DEFAULT_FILE_META = {
+  enabled: true,
+  sizes: true,
+  download: true,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   gallery: DEFAULT_GALLERY,
   toasts: DEFAULT_TOASTS,
   fileIcons: DEFAULT_FILE_ICONS,
   fileAges: DEFAULT_FILE_AGES,
+  fileMeta: DEFAULT_FILE_META,
 };
 
 /** Deep-cloned defaults, used on reset. */

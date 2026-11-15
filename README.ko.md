@@ -5,15 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
-이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘과 그 파일들의
-blame 스타일 나이 색상을 제공합니다.
+이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
+blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드를 제공합니다.
 
-> **상태:** 초기(`0.9.1`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 아이콘 ·
-> 파일 나이 · 백업 · 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일
-> 나이 색상. 더 많은 GitHub 개선이 예정되어 있습니다.
+> **상태:** 초기(`0.10.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 아이콘 ·
+> 파일 나이 · 파일 · 백업 · 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame
+> 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기. 더 많은 GitHub 개선이 예정되어
+> 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
@@ -125,6 +126,23 @@ GitHub는 각 파일이 마지막으로 변경된 지 얼마나 됐는지 이미
   으로 파일에만 적용할 수 있습니다.
 - **조용함** — 기능을 끄면 GitHub의 원래 날짜 색으로 돌아가고 흔적이 남지 않습니다.
 
+### 파일 크기 및 다운로드
+
+GitHub의 디렉터리 목록은 파일이 언제 바뀌었는지는 보여 주지만 크기는 보여 주지 않으며,
+저장하려면 먼저 파일을 열어야 합니다. GitHub Plus는 두 가지를 파일 행에 바로 추가합니다:
+
+- **한눈에 보는 크기** — 저장소 목록의 모든 파일은 전용 열에 은은한 크기를 표시합니다.
+  크기는 뷰포트 근처의 행에 대해서만 요청하고 세션 동안 캐시하며, 크기를 읽을 수 없는
+  파일은 아무것도 표시하지 않습니다.
+- **그 자리에서 다운로드** — 각 행의 왼쪽에는 파일 크기, 오른쪽에는 GitHub의 아이콘 버튼과 같은
+  모양의 다운로드 버튼이 놓입니다. 파일은 원래 이름으로 저장됩니다. 동일 출처 raw 경로 덕분에
+  비공개 저장소에서도 작동하며, 요청이 차단되면 새 탭에서 엽니다. GitHub의 파일 페이지(blob)에는
+  이미 크기와 다운로드 버튼이 있으므로 그대로 둡니다.
+- **API 할당량 없음** — 크기는 GitHub API가 아니라 파일 자체의 raw 주소에 보내는 HEAD
+  요청으로 가져오므로 시간당 60회의 익명 한도를 사용하지 않습니다.
+- **은은함** — 폴더의 열은 비어 있으며, 기능을 끄면 모든 크기, 버튼, 추가한 열이 사라져 원래
+  GitHub로 돌아갑니다.
+
 ### 설정 패널
 
 GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
@@ -155,6 +173,9 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `fileIcons.specialNames` | `true` | 알려진 파일 이름의 전용 아이콘 |
 | `fileAges.enabled` | `true` | 마스터 스위치; 나열된 파일에 blame 스타일 나이 색상 적용 |
 | `fileAges.folders` | `true` | 폴더 행에도 색상 적용 |
+| `fileMeta.enabled` | `true` | 파일 크기와 다운로드 버튼의 총 스위치 |
+| `fileMeta.sizes` | `true` | 저장소 파일 목록에 각 파일의 크기 표시 |
+| `fileMeta.download` | `true` | 저장소 파일 목록의 다운로드 버튼 |
 
 ## 갤러리 구조
 

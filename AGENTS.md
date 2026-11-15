@@ -59,6 +59,7 @@ github-plus/
 │   │   │       ├── general.js   # Interface language, toast notifications
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
 │   │   │       ├── fileIcons.js # Master switch, folder and filename toggles
+│   │   │       ├── files.js     # File sizes and download buttons
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
 │   │   ├── fileIcons/
@@ -67,11 +68,17 @@ github-plus/
 │   │   │   ├── match.js    # pickIcon(name, kind): filename → icon id (pure)
 │   │   │   ├── inject.js   # renderIcon / placeIcon / clearIcons DOM primitives
 │   │   │   └── iconSet.generated.js # Curated Material Icon Theme slice (generated)
-│   │   └── fileAges/
-│   │       ├── index.js    # Surface observers, age injection, settings reaction
-│   │       ├── surfaces.js # File rows that carry a last-commit date
-│   │       ├── age.js      # ageBucket(datetime, now): date → 1–10 (pure)
-│   │       └── inject.js   # paintAge / clearAges timestamp primitives
+│   │   ├── fileAges/
+│   │   │   ├── index.js    # Surface observers, age injection, settings reaction
+│   │   │   ├── surfaces.js # File rows that carry a last-commit date
+│   │   │   ├── age.js      # ageBucket(datetime, now): date → 1–10 (pure)
+│   │   │   └── inject.js   # paintAge / clearAges timestamp primitives
+│   │   └── fileMeta/
+│   │       ├── index.js    # Surface observers, lazy size probes, settings reaction
+│   │       ├── surfaces.js # File rows with a raw address
+│   │       ├── paths.js    # rawUrlFor(blobHref): pure address rewrite
+│   │       ├── size.js     # formatSize(bytes): pure size formatting
+│   │       └── inject.js   # renderMeta / placeMeta / placeHead / clearMeta
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
@@ -81,7 +88,7 @@ github-plus/
 │   │   └── viewer.js       # Fullscreen image viewer (zoom, pan, rotate, gallery)
 │   └── utils/
 │       ├── dom.js          # el, append, debounce, eachNode, toArray, isOwnUi
-│       ├── download.js     # Image download (fetch → blob → <a download>)
+│       ├── download.js     # File download (fetch → blob → <a download>)
 │       ├── navigation.js   # watchNavigation (turbo/pjax/pushState URL watcher)
 │       └── scrollLock.js   # counted page scroll lock for modal overlays
 ├── scripts/
@@ -89,7 +96,7 @@ github-plus/
 │   ├── build-file-icons.mjs# material-icon-theme → iconSet.generated.js
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
-├── test/                   # Node test runner (match.js, download.js)
+├── test/                   # Node test runner (match, age, fileMeta, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -105,7 +112,8 @@ github-plus/
 `init()`: `configureLocale(getSettings().language)` → `initSettingsFeature()` →
 `initGalleryFeature()` + `applyGallerySettings()` → `initFileIconsFeature()` +
 `applyFileIconsSettings()` → `initFileAgesFeature()` + `applyFileAgesSettings()`
-→ `watchNavigation(resetOverlaysOnNavigation)`.
+→ `initFileMetaFeature()` + `applyFileMetaSettings()` →
+`watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
@@ -139,18 +147,19 @@ Single place for magic values.
 - Toasts: `TOAST_POSITIONS`, `TOAST_MAX_DURATION_MS` (120000).
 - File ages: `AGE_BUCKET_COUNT` (10 shades; the threshold table itself lives in
   `features/fileAges/age.js`).
-- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`)
-  plus `getDefaults()`, which returns a deep clone — never mutate the shared
-  constants. `DEFAULT_FILE_ICONS` is `{ enabled, folders, specialNames }` and
-  `DEFAULT_FILE_AGES` is `{ enabled, folders }`.
+- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
+  `fileMeta`) plus `getDefaults()`, which returns a deep clone — never mutate
+  the shared constants. `DEFAULT_FILE_ICONS` is `{ enabled, folders,
+  specialNames }`, `DEFAULT_FILE_AGES` is `{ enabled, folders }` and
+  `DEFAULT_FILE_META` is `{ enabled, sizes, download }`.
 
 ### `src/core/settings.js`
 
 Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getGallerySettings`,
-`getFileIconsSettings`, `getFileAgesSettings`, `saveSettings`,
-`normalizeImportedSettings`, `hasCustomSettings`.
+`getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
+`saveSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -161,8 +170,8 @@ Key facts that must survive refactors:
   toast positions from `TOAST_POSITIONS`, toast duration clamped to
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
-  from the registry leaves no stale key), and the `fileIcons` / `fileAges`
-  booleans. Unknown values fall back to defaults, never crash.
+  from the registry leaves no stale key), and the `fileIcons` / `fileAges` /
+  `fileMeta` booleans. Unknown values fall back to defaults, never crash.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -178,12 +187,16 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   import). The `gallery` feature listens and repaints its stylesheet.
 - `settings:toasts` — emitted by the same Save; reserved for toast listeners.
 - `settings:language` — emitted by the same Save; the settings entry listens to
-  relabel its header button.
+  relabel its header button, and the file-meta feature repaints its localized
+  column label and download labels.
 - `settings:fileIcons` — emitted by the same Save; the file-icons feature listens
   to attach or tear down its surface observers.
 - `settings:fileAges` — emitted by the same Save; the file-ages feature listens
   to rescan its surfaces (the folder toggle needs a full repaint) and reattach
   its surface observers.
+- `settings:fileMeta` — emitted by the same Save; the file-meta feature listens
+  to tear down and repaint its size labels and download buttons, and to
+  reattach its surface observers.
 
 ### `src/core/debug.js` — diagnostics
 
@@ -196,8 +209,9 @@ building expensive log payloads. Codes in use: `GP-1001` bus listener, `GP-1002`
 persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
 open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1104`
 gallery download button, `GP-1301` file-icons surface, `GP-1302` file-ages
-surface, `GP-1201` UI mount. Rules: log once per user-visible failure at the
-outermost point; layers below only throw, they never log.
+surface, `GP-1303` file-meta surface, `GP-1201` UI mount. Rules: log once per
+user-visible failure at the outermost point; layers below only throw, they never
+log.
 
 ### `src/gallery/sources.js` — source registry
 
@@ -490,6 +504,56 @@ as GitHub rendered them and removing the classes restores the original color.
   so the date text keeps a strong contrast in either theme. `app.css` styles
   only the classes this feature adds.
 
+### `src/features/fileMeta/` — file sizes and downloads
+
+Adds a size column to the repository file tree: every listing row gets a last
+cell, file rows fill it with the size and a download button, and folder rows
+keep it empty so the table's column count stays uniform. The size starts at
+the column's left edge and the button is pushed to its right edge, following
+GitHub's own icon buttons (28×28, 6px radius, 16px glyph, neutral fill on
+hover). Our own header cell names the column
+for assistive tech; GitHub collapses its listing header row to `font-size: 0`,
+so the same is done to ours and no header band appears. GitHub's own cells are
+never restyled or reordered, and the column is removed on teardown. The blob
+page is deliberately not decorated: GitHub already shows a file's size and a
+download button in its own file header, so adding ours would duplicate GitHub's
+chrome.
+
+- `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
+  three significant digits (`2929` → `2.86 KB`). Unit-tested by
+  `test/fileMeta.test.js`.
+- `paths.js`: `rawUrlFor(href, base)` (pure) — rewrites
+  `/o/r/blob/<ref>/<path>` to `/o/r/raw/<ref>/<path>` and returns `''` for
+  anything that is not a file view. The repository may itself be named `blob`;
+  only the segment after the repository is rewritten.
+- `surfaces.js`: `repo-tree` (`tr.react-directory-row` inside
+  `[data-testid="directory-content"]`, file links only), plus the `header`
+  selector of the table header row and the `columnLabelKey` for its label.
+  `resolve(row)` returns `{ name, rawUrl }` for a file row and `{}` for any
+  other row, which still gets the empty cell.
+- `inject.js`: `renderMeta` builds the cell's content (size label and/or
+  download button), `placeCell` appends the new last cell with that content (or
+  empty for a folder), `placeHead` names the column in the header row for
+  assistive tech (idempotent; visually collapsed like GitHub's own header
+  cells), `setMetaSize` fills a size that arrived later, and `clearMeta` removes
+  every cell, strip and header label.
+- `index.js`: one observer per surface container (same shapes, shell watchers
+  and bounded settle wait as the other file features). Sizes are not in GitHub's
+  tree markup, so a row's raw address is probed with a `HEAD` request; a shared
+  `IntersectionObserver` defers the probe until the row is near the viewport, a
+  queue caps concurrency at 4, and results are cached per raw address for the
+  session. A failed probe leaves the size out. `applyFileMetaSettings()` tears
+  down first (the two toggles repaint existing rows) and, when enabled with at
+  least one toggle on, syncs the surfaces. `settings:fileMeta`,
+  `settings:language` and `watchNavigation` trigger it. The column follows
+  GitHub's own breakpoints: the full cell is shown from 1012px, the button-only
+  compact cell between 768 and 1012 (the listing shares its width with the
+  repository sidebar there), and the column is hidden below 768.
+- Download goes through `utils/download.js` (`downloadFile`): bytes → object
+  URL → `<a download>` under the file's own name; the same-origin raw route
+  carries the session for private repositories, and a blocked fetch falls back
+  to a new tab.
+
 ### `src/i18n/`
 
 - `meta.js`: `SUPPORTED_LOCALES` (`en ru de es fr pt-BR zh-CN ja ko pl` —
@@ -500,7 +564,7 @@ as GitHub rendered them and removing the classes restores the original color.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 127
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 139
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -514,8 +578,8 @@ as GitHub rendered them and removing the classes restores the original color.
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
   from the DOM) with them, never `for...of`.
-- `download.js`: `downloadImage(url, name?)` fetches the bytes and saves them
-  through an object URL, so a cross-origin image keeps its filename; a camo URL
+- `download.js`: `downloadFile(url, name?)` fetches the bytes and saves them
+  through an object URL, so a cross-origin file keeps its filename; a camo URL
   is unwrapped to the proxied file's name, and a blocked fetch falls back to
   opening the image in a new tab.
 - `navigation.js`: `watchNavigation(fn)` — patches `pushState`/`replaceState`
@@ -632,6 +696,9 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |
 | `fileAges.enabled` | `true` | Master switch; disabling removes every age tint and observer |
 | `fileAges.folders` | `true` | Color folder rows by their last commit age too |
+| `fileMeta.enabled` | `true` | Master switch; disabling removes every size label and download button |
+| `fileMeta.sizes` | `true` | Show each file's size in its own column |
+| `fileMeta.download` | `true` | Download button in the repository file tree |
 
 ## Localization
 
@@ -658,7 +725,8 @@ with English fallback.
 ## Design
 
 All injected UI (settings entry, panel, controls, confirm dialog, toasts,
-viewer, file icons, file-age dates) follows [DESIGN.md](DESIGN.md) — GitHub's
+viewer, file icons, file-age dates, the file size column and download buttons)
+follows [DESIGN.md](DESIGN.md) — GitHub's
 own visual language through Primer tokens, `gp-`-prefixed classes, colors from
 `src/styles/tokens.css`. File icons are the documented exception: their
 fixed brand colors come from the generated Material Icon Theme data, not from
@@ -721,7 +789,7 @@ npm run build              # vite build + copy dist/ → root artifacts
 npm run verify:artifacts   # fail if dist/ and root artifacts differ
 npm run ci                 # build + verify (CI gate, also in GitHub Actions)
 npm run icons:build        # regenerate iconSet.generated.js from the package
-npm test                   # Node test runner (match.js, download.js)
+npm test                   # Node test runner (match, age, fileMeta, download)
 ```
 
 Build facts agents need to know:
@@ -762,6 +830,16 @@ and check diagnostics for edited files.
 - Viewer shows a smaller image than expected: the page's `src` is what is
   rendered; `fullSrc` only upgrades when the wrapping link points at an image
   file and that file actually loads.
+- Size labels or download buttons missing: check **Files** is on and the row is
+  a file link inside `[data-testid="directory-content"]` (folder rows keep an
+  empty cell).
+  A size label with no text means the HEAD probe returned no `Content-Length`
+  (check the Network tab — a blocked request or a file served without a length
+  is the usual cause). The column is a `td` appended to the row and a `th` in
+  the header row (`table thead tr`), and it is hidden below 768px on purpose,
+  so test at a wide window; a GitHub redesign that renames
+  `.react-directory-row` or drops the table header turns the surface into a
+  no-op — extend the registry, never add a document-wide observer.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
   that `.gp-settings-btn` is inside it. A header rework on GitHub's side is the
   usual cause — extend the list, never restyle GitHub's own header.

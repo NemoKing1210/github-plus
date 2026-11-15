@@ -6,6 +6,7 @@ import { initSettingsFeature } from './features/settings/index.js';
 import { isPanelOpen, togglePanel } from './features/settings/panel.js';
 import { applyFileAgesSettings, initFileAgesFeature } from './features/fileAges/index.js';
 import { applyFileIconsSettings, initFileIconsFeature } from './features/fileIcons/index.js';
+import { applyFileMetaSettings, initFileMetaFeature } from './features/fileMeta/index.js';
 import { applyGallerySettings, initGalleryFeature } from './gallery/index.js';
 import { closeViewer, isViewerOpen } from './ui/viewer.js';
 import { watchNavigation } from './utils/navigation.js';
@@ -39,6 +40,8 @@ function init() {
   applyFileIconsSettings();
   initFileAgesFeature();
   applyFileAgesSettings();
+  initFileMetaFeature();
+  applyFileMetaSettings();
   watchNavigation(resetOverlaysOnNavigation);
 }
 

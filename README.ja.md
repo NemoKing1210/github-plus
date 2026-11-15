@@ -5,16 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
-ファイル アイコン、そしてそれらのファイルの blame 風の経過日数カラーを提供します。
+ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
+ワンクリック ダウンロードを提供します。
 
-> **ステータス:** 初期段階（`0.9.1`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル アイコン · ファイルの経過日数 · バックアップ · このアプリ
-> について）、Markdown 画像ギャラリー、カラー ファイル アイコン、blame 風の経過
-> 日数カラー。今後さらに GitHub の改善を追加予定です。
+> **ステータス:** 初期段階（`0.10.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル アイコン · ファイルの経過日数 · ファイル · バックアップ ·
+> このアプリについて）、Markdown 画像ギャラリー、カラー ファイル アイコン、blame
+> 風の経過日数カラー、ファイルサイズとダウンロード ボタン。今後さらに GitHub の
+> 改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -132,6 +134,23 @@ GitHub は各ファイルが最後に変更されてからの時間をすでに�
   示します）。設定でファイルのみに制限できます。
 - **控えめ** — 機能を無効にすると GitHub 本来の日付色に戻り、痕跡は残りません。
 
+### ファイルサイズとダウンロード
+
+GitHub のディレクトリ一覧には最終更新日時はあってもサイズはなく、保存するには一度開く必要があります。
+GitHub Plus はその両方をファイルの行に追加します:
+
+- **サイズが一目で分かる** — リポジトリの一覧にある各ファイルは、専用の列に控えめなサイズを
+  表示します。サイズはビューポート付近の行だけ取得し、セッション中はキャッシュします。
+  サイズを取得できないファイルには何も表示しません。
+- **その場でダウンロード** — 各行の左端にファイル サイズ、右端に GitHub のアイコン ボタンと同じ
+  見た目のダウンロード ボタンが並びます。ファイルは元の名前で保存されます。同一オリジンの raw
+  ルートによりプライベート リポジトリでも動作し、取得がブロックされた場合は新しいタブで開きます。
+  GitHub のファイルページ（blob）はすでにサイズとダウンロード ボタンを表示するため、そのままにしています。
+- **API の割り当てを消費しない** — サイズは GitHub API ではなく、ファイル自身の raw アドレスへの
+  HEAD リクエストで取得するため、匿名の 1 時間 60 リクエストの制限には触れません。
+- **控えめ** — フォルダーの列は空のままです。機能をオフにするとサイズ、ボタン、追加した列が
+  すべて消え、元の GitHub に戻ります。
+
 ### 設定パネル
 
 GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
@@ -163,6 +182,9 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `fileIcons.specialNames` | `true` | 既知のファイル名の専用アイコン |
 | `fileAges.enabled` | `true` | マスター スイッチ。一覧のファイルに blame 風の経過日数カラーを付ける |
 | `fileAges.folders` | `true` | フォルダーの行にも色を付ける |
+| `fileMeta.enabled` | `true` | ファイルサイズとダウンロード ボタンの総合スイッチ |
+| `fileMeta.sizes` | `true` | リポジトリのファイル一覧に各ファイルのサイズを表示 |
+| `fileMeta.download` | `true` | リポジトリのファイル一覧のダウンロード ボタン |
 
 ## ギャラリーの仕組み
 
