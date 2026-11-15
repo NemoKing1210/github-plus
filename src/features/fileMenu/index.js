@@ -8,9 +8,9 @@ import { ACTION_ICONS } from '../../ui/icons.js';
 import { showToast } from '../../ui/toast.js';
 import { isOwnUi } from '../../utils/dom.js';
 import { downloadFile } from '../../utils/download.js';
+import { resolveFileTarget } from '../../utils/fileTarget.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { isCopyableContent } from './copy.js';
-import { resolveFileTarget } from './surfaces.js';
 
 /**
  * File context menu: right-click a file in the repository listing or on a

@@ -1,7 +1,87 @@
-import { fileTarget } from './paths.js';
+/**
+ * The raw-file address behind a blob, blame or raw address, which is what both
+ * the size probe and the download fetch need. GitHub's own raw route resolves
+ * any ref, including branch names that contain slashes, so the path is
+ * rewritten rather than rebuilt from parts.
+ */
+const FILE_VIEW_PATH = /^\/([^/]+)\/([^/]+)\/(?:blob|blame|raw)\/(.+)$/;
 
 /**
- * Where a right-click resolves to a file, and to nothing everywhere else.
+ * Raw path for a file-view link or the current file view, '' when the address
+ * does not point at one.
+ * @param {string} href
+ * @param {string} [base]
+ * @returns {string}
+ */
+export function rawUrlFor(href, base = 'https://github.com') {
+  if (!href) return '';
+  let path;
+  try {
+    path = new URL(href, base).pathname;
+  } catch {
+    return '';
+  }
+  const match = FILE_VIEW_PATH.exec(path);
+  if (!match) return '';
+  return `/${match[1]}/${match[2]}/raw/${match[3]}`;
+}
+
+/**
+ * The addresses behind a file link that the context menu acts on.
+ *
+ * GitHub does not mark where a ref ends inside a file view, and a branch may
+ * contain slashes, so the page's current ref (the branch selector) is passed
+ * in when known; without it the first segment after the marker is assumed to
+ * be the ref, which is right for ordinary branch names.
+ */
+const FILE_PATH = FILE_VIEW_PATH;
+
+function decode(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+/**
+ * @param {string} href blob link or the current blob page
+ * @param {string} [base]
+ * @param {string} [ref] the page's current branch or tag, when known
+ * @returns {{href: string, rawUrl: string, relative: string, name: string} | null}
+ */
+export function fileTarget(href, base = 'https://github.com', ref = '') {
+  if (!href) return null;
+  let url;
+  try {
+    url = new URL(href, base);
+  } catch {
+    return null;
+  }
+  const match = FILE_PATH.exec(url.pathname);
+  if (!match) return null;
+  const rawUrl = rawUrlFor(url.pathname);
+  if (!rawUrl) return null;
+  let rest = match[3];
+  if (ref && rest.startsWith(`${ref}/`)) rest = rest.slice(ref.length + 1);
+  else {
+    const slash = rest.indexOf('/');
+    if (slash < 0) return null;
+    rest = rest.slice(slash + 1);
+  }
+  if (!rest) return null;
+  const relative = decode(rest);
+  return {
+    href: `${url.origin}${url.pathname}`,
+    rawUrl,
+    relative,
+    name: relative.slice(relative.lastIndexOf('/') + 1),
+  };
+}
+
+/**
+ * Where a right-click or a preview request resolves to a file, and to nothing
+ * everywhere else.
  *
  * Three surfaces: a file row of the repository listing, a file of the sidebar
  * file tree, and the file view of a blob or blame page. Folders, submodules
@@ -11,7 +91,7 @@ import { fileTarget } from './paths.js';
  * own header link.
  */
 const LISTING = '[data-testid="directory-content"]';
-const FILE_VIEW_PATH = /^\/[^/]+\/[^/]+\/(?:blob|blame)\//;
+const FILE_VIEW_ONLY_PATH = /^\/[^/]+\/[^/]+\/(?:blob|blame)\//;
 const FILE_VIEW_CONTENT = [
   '[data-testid="breadcrumbs"]',
   '[data-testid="breadcrumbs-filename"]',
@@ -101,7 +181,7 @@ function fromFileTree(node) {
 }
 
 function fromFileView(node) {
-  if (!FILE_VIEW_PATH.test(location.pathname)) return null;
+  if (!FILE_VIEW_ONLY_PATH.test(location.pathname)) return null;
   if (!node.closest(FILE_VIEW_CONTENT)) return null;
   if (node.closest(NATIVE_MEDIA)) return null;
   if (node.closest('a[href]') && !ownFileLink(node)) return null;

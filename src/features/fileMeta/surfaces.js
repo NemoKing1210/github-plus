@@ -1,4 +1,4 @@
-import { rawUrlFor } from './paths.js';
+import { rawUrlFor } from '../../utils/fileTarget.js';
 
 /**
  * Where GitHub lists files with a link that can be resolved to a raw address.

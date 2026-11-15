@@ -4,9 +4,9 @@ import { getFileMetaSettings } from '../../core/settings.js';
 import { debounce } from '../../utils/dom.js';
 import { downloadFile } from '../../utils/download.js';
 import { watchNavigation } from '../../utils/navigation.js';
+import { formatSize } from '../../utils/size.js';
 import { t } from '../../i18n/index.js';
 import { clearMeta, placeCell, placeHead, renderMeta, setMetaSize } from './inject.js';
-import { formatSize } from './size.js';
 import { SURFACES } from './surfaces.js';
 
 /**
