@@ -8,6 +8,19 @@ export function el(tag, className, text) {
   return node;
 }
 
+const HTML_ENTITIES = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+/** Escape text for safe interpolation into an HTML string. */
+export function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, (char) => HTML_ENTITIES[char]);
+}
+
 /** Append a node and return it, for terse DOM building. */
 export function append(parent, node) {
   parent.appendChild(node);
