@@ -5,14 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
-for rendered markdown, and colored file icons wherever GitHub lists files.
+for rendered markdown, colored file icons wherever GitHub lists files, and
+blame-style age colors for those files.
 
-> **Status:** early (`0.8.0`). Settings panel with instant search (General ·
-> Gallery · File icons · Backup · About), the markdown image gallery and
-> colored file icons. More GitHub improvements planned.
+> **Status:** early (`0.9.0`). Settings panel with instant search (General ·
+> Gallery · File icons · File ages · Backup · About), the markdown image
+> gallery, colored file icons and blame-style file age colors. More GitHub
+> improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -110,6 +112,26 @@ Icons are a curated subset of
 [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
 (MIT); attribution is in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
+### File ages
+
+GitHub already shows how long ago each file last changed, but every date looks
+the same at a glance. GitHub Plus borrows the blame legend and colors the date
+text itself:
+
+- **One glance, one age** — the newest dates are warm (`#ffd78d` in the dark
+  theme, attention gold in the light one) and older dates fade to the theme's
+  muted grey, so a four-month-old file already reads as old. The scale is
+  deliberately front-loaded: days, weeks and months stay distinct while
+  anything over a year is plain grey, and each theme gets its own ramp so the
+  color stays strong and readable in both.
+- **Nothing moved** — the date keeps GitHub's own text, relative wording and
+  tooltip; only its color changes, so no row is resized and the accessible
+  label is exactly what GitHub rendered.
+- **Files and folders** — folder rows are colored too (their last change is
+  what the date means), and one setting limits the feature to files.
+- **Quiet** — disabling the feature restores GitHub's own date color and leaves
+  no trace.
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -139,6 +161,8 @@ Stored under `gp_settings_v1`.
 | `fileIcons.enabled` | `true` | Master switch for file and folder icons |
 | `fileIcons.folders` | `true` | Folder-specific icons for common folder names |
 | `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |
+| `fileAges.enabled` | `true` | Master switch; blame-style age colors for listed files |
+| `fileAges.folders` | `true` | Color folder rows too |
 
 ## How the gallery is built
 

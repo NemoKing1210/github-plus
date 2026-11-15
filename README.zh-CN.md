@@ -5,13 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊，以及
-GitHub 列出文件时显示的彩色文件图标。
+一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
+列出文件时显示的彩色文件图标，以及这些文件的 blame 风格年龄着色。
 
-> **状态：** 早期（`0.8.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件图标 ·
-> 备份 · 关于）、Markdown 图片画廊和彩色文件图标。计划加入更多 GitHub 改进。
+> **状态：** 早期（`0.9.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件图标 ·
+> 文件年龄 · 备份 · 关于）、Markdown 图片画廊、彩色文件图标和 blame 风格的年龄
+> 着色。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -99,6 +100,21 @@ GitHub 用同一个灰色字形绘制所有文件和文件夹，所以 `.ts` 和
 图标是 [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
 （MIT）的精简子集；署名见 [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES)。
 
+### 文件年龄
+
+GitHub 已经显示每个文件最后一次更改距今多久，但一眼看去所有日期都一样。GitHub
+Plus 借用 blame 的色阶，直接给日期文字着色：
+
+- **一眼看出年龄**——最新日期是暖色（深色主题为 `#ffd78d`，浅色主题为 GitHub 的
+  注意金色），较旧的日期逐渐褪为主题的低调灰色，因此四个月前的文件已经显得陈旧。
+  色阶有意向近期倾斜：天、周、月仍可区分，超过一年的日期只是灰色。浅色和深色主题
+  各有自己的色带，因此在两种主题下颜色都保持鲜明、清晰可读。
+- **布局不变**——日期保留 GitHub 自己的文字、相对时间和提示；只有颜色改变，所以
+  行不会重新排版，辅助技术读取的标签也仍是 GitHub 渲染的内容。
+- **文件和文件夹**——文件夹行也会着色（日期表示其最后一次更改），一项设置可以只用
+  于文件。
+- **克制**——关闭功能后恢复 GitHub 自己的日期颜色，不留下任何痕迹。
+
 ### 设置面板
 
 可从 GitHub 头部的齿轮按钮、头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub
@@ -127,6 +143,8 @@ GitHub 用同一个灰色字形绘制所有文件和文件夹，所以 `.ts` 和
 | `fileIcons.enabled` | `true` | 文件和文件夹图标总开关 |
 | `fileIcons.folders` | `true` | 常见文件夹名的专属图标 |
 | `fileIcons.specialNames` | `true` | 已知文件名的专属图标 |
+| `fileAges.enabled` | `true` | 总开关；为列出的文件显示 blame 风格年龄颜色 |
+| `fileAges.folders` | `true` | 同时为文件夹行着色 |
 
 ## 画廊的构建方式
 

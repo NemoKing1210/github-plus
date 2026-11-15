@@ -5,16 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
-renderowanego Markdownu i kolorowe ikony plików wszędzie tam, gdzie GitHub
-wyświetla pliki.
+renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
+wyświetla pliki, oraz kolory wieku tych plików w stylu blame.
 
-> **Status:** wczesny etap (`0.8.0`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Ikony plików · Kopia zapasowa · Informacje),
-> galeria obrazów Markdownu i kolorowe ikony plików. W planach kolejne ulepszenia
-> GitHuba.
+> **Status:** wczesny etap (`0.9.0`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Ikony plików · Wiek plików · Kopia zapasowa ·
+> Informacje), galeria obrazów Markdownu, kolorowe ikony plików i kolory wieku w
+> stylu blame. W planach kolejne ulepszenia GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
@@ -115,6 +115,26 @@ Ikony to wyselekcjonowany podzbiór
 (MIT); informacja o autorstwie znajduje się w
 [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
+### Wiek plików
+
+GitHub już pokazuje, jak dawno zmienił się każdy plik, ale na pierwszy rzut oka
+wszystkie daty wyglądają tak samo. GitHub Plus zapożycza legendę blame i koloruje
+sam tekst daty:
+
+- **Jeden rzut oka, jeden wiek** — najnowsze daty są ciepłe (`#ffd78d` w ciemnym
+  motywie, złoto uwagi w jasnym), a starsze blakną do przygaszonego szarości
+  motywu, więc plik sprzed czterech miesięcy wygląda już na stary. Skala jest
+  celowo przesunięta ku teraźniejszości: dni, tygodnie i miesiące pozostają
+  rozróżnialne, a wszystko starsze niż rok jest po prostu szare. Jasny i ciemny
+  motyw mają własną paletę, więc kolor pozostaje mocny i czytelny w obu.
+- **Nic się nie przesuwa** — data zachowuje własny tekst, względne sformułowanie i
+  podpowiedź GitHuba; zmienia się tylko kolor, więc żaden wiersz nie zmienia
+  rozmiaru, a dostępna etykieta pozostaje dokładnie taka, jaką wyrenderował GitHub.
+- **Pliki i foldery** — wiersze folderów też są kolorowane (data oznacza ich
+  ostatnią zmianę), a ustawienie pozwala ograniczyć funkcję do plików.
+- **Dyskretnie** — wyłączenie funkcji przywraca własny kolor daty GitHuba i nie
+  pozostawia śladów.
+
 ### Panel ustawień
 
 Otwórz go przyciskiem zębatki w nagłówku GitHuba, wierszem **Ustawienia GitHub Plus**
@@ -144,6 +164,8 @@ Przechowywane pod `gp_settings_v1`.
 | `fileIcons.enabled` | `true` | Główny przełącznik ikon plików i folderów |
 | `fileIcons.folders` | `true` | Ikony dla popularnych nazw folderów |
 | `fileIcons.specialNames` | `true` | Dedykowane ikony dla znanych nazw plików |
+| `fileAges.enabled` | `true` | Główny przełącznik; kolory wieku w stylu blame dla wyświetlanych plików |
+| `fileAges.folders` | `true` | Koloruj także wiersze folderów |
 
 ## Jak zbudowana jest galeria
 

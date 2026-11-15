@@ -5,14 +5,15 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
-이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘을 제공합니다.
+이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘과 그 파일들의
+blame 스타일 나이 색상을 제공합니다.
 
-> **상태:** 초기(`0.8.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 아이콘 ·
-> 백업 · 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘. 더 많은 GitHub 개선이
-> 예정되어 있습니다.
+> **상태:** 초기(`0.9.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 아이콘 ·
+> 파일 나이 · 백업 · 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일
+> 나이 색상. 더 많은 GitHub 개선이 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
@@ -106,6 +107,24 @@ GitHub는 모든 파일과 폴더를 같은 회색 글리프로 그리므로 이
 (MIT)의 엄선된 부분 집합입니다. 저작자 표시는
 [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES)에 있습니다.
 
+### 파일 나이
+
+GitHub는 각 파일이 마지막으로 변경된 지 얼마나 됐는지 이미 보여 주지만, 한눈에는
+모든 날짜가 똑같아 보입니다. GitHub Plus는 blame 범례를 빌려 날짜 텍스트 자체에
+색을 입힙니다:
+
+- **한눈에 보는 나이** — 최신 날짜는 따뜻한 색(다크 테마는 `#ffd78d`, 라이트
+  테마는 GitHub의 주의 골드)이고 오래된 날짜는 테마의 차분한 회색으로 바래므로,
+  4개월 된 파일도 이미 오래된 것으로 보입니다. 눈금은 의도적으로 현재 쪽에
+  집중되어 있어 일·주·월은 구분되지만 1년이 넘으면 그냥 회색입니다. 라이트와 다크
+  테마에는 각각 전용 색역이 있어 두 테마 모두에서 색이 선명하고 읽기 쉽습니다.
+- **레이아웃은 그대로** — 날짜는 GitHub 자체의 텍스트, 상대 표현, 툴팁을 유지하고
+  색만 바뀝니다. 행 크기가 달라지지 않으며 접근 가능한 레이블도 GitHub가 렌더링한
+  그대로입니다.
+- **파일과 폴더** — 폴더 행도 색이 입혀지며(날짜는 마지막 변경을 뜻합니다), 설정
+  으로 파일에만 적용할 수 있습니다.
+- **조용함** — 기능을 끄면 GitHub의 원래 날짜 색으로 돌아가고 흔적이 남지 않습니다.
+
 ### 설정 패널
 
 GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
@@ -134,6 +153,8 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `fileIcons.enabled` | `true` | 파일 및 폴더 아이콘 마스터 스위치 |
 | `fileIcons.folders` | `true` | 흔한 폴더 이름의 전용 아이콘 |
 | `fileIcons.specialNames` | `true` | 알려진 파일 이름의 전용 아이콘 |
+| `fileAges.enabled` | `true` | 마스터 스위치; 나열된 파일에 blame 스타일 나이 색상 적용 |
+| `fileAges.folders` | `true` | 폴더 행에도 색상 적용 |
 
 ## 갤러리 구조
 

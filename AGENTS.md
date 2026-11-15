@@ -61,12 +61,17 @@ github-plus/
 │   │   │       ├── fileIcons.js # Master switch, folder and filename toggles
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
-│   │   └── fileIcons/
-│   │       ├── index.js    # Surface observers, injection, settings reaction
-│   │       ├── surfaces.js # The places GitHub lists files + row readers
-│   │       ├── match.js    # pickIcon(name, kind): filename → icon id (pure)
-│   │       ├── inject.js   # renderIcon / placeIcon / clearIcons DOM primitives
-│   │       └── iconSet.generated.js # Curated Material Icon Theme slice (generated)
+│   │   ├── fileIcons/
+│   │   │   ├── index.js    # Surface observers, injection, settings reaction
+│   │   │   ├── surfaces.js # The places GitHub lists files + row readers
+│   │   │   ├── match.js    # pickIcon(name, kind): filename → icon id (pure)
+│   │   │   ├── inject.js   # renderIcon / placeIcon / clearIcons DOM primitives
+│   │   │   └── iconSet.generated.js # Curated Material Icon Theme slice (generated)
+│   │   └── fileAges/
+│   │       ├── index.js    # Surface observers, age injection, settings reaction
+│   │       ├── surfaces.js # File rows that carry a last-commit date
+│   │       ├── age.js      # ageBucket(datetime, now): date → 1–10 (pure)
+│   │       └── inject.js   # paintAge / clearAges timestamp primitives
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
@@ -99,7 +104,8 @@ github-plus/
 
 `init()`: `configureLocale(getSettings().language)` → `initSettingsFeature()` →
 `initGalleryFeature()` + `applyGallerySettings()` → `initFileIconsFeature()` +
-`applyFileIconsSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
+`applyFileIconsSettings()` → `initFileAgesFeature()` + `applyFileAgesSettings()`
+→ `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
@@ -131,17 +137,20 @@ Single place for magic values.
   values), `GALLERY_DEFAULT_MAX_ZOOM` (8), `BADGE_HOSTS` (badge/status
   services), `IMAGE_EXTENSIONS` (extensions that count as a direct image file).
 - Toasts: `TOAST_POSITIONS`, `TOAST_MAX_DURATION_MS` (120000).
-- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`) plus
-  `getDefaults()`, which returns a deep clone — never mutate the shared
-  constants. `DEFAULT_FILE_ICONS` is `{ enabled, folders, specialNames }`.
+- File ages: `AGE_BUCKET_COUNT` (10 shades; the threshold table itself lives in
+  `features/fileAges/age.js`).
+- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`)
+  plus `getDefaults()`, which returns a deep clone — never mutate the shared
+  constants. `DEFAULT_FILE_ICONS` is `{ enabled, folders, specialNames }` and
+  `DEFAULT_FILE_AGES` is `{ enabled, folders }`.
 
 ### `src/core/settings.js`
 
 Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getGallerySettings`,
-`getFileIconsSettings`, `saveSettings`, `normalizeImportedSettings`,
-`hasCustomSettings`.
+`getFileIconsSettings`, `getFileAgesSettings`, `saveSettings`,
+`normalizeImportedSettings`, `hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -152,8 +161,8 @@ Key facts that must survive refactors:
   toast positions from `TOAST_POSITIONS`, toast duration clamped to
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
-  from the registry leaves no stale key), and the `fileIcons` booleans. Unknown
-  values fall back to defaults, never crash.
+  from the registry leaves no stale key), and the `fileIcons` / `fileAges`
+  booleans. Unknown values fall back to defaults, never crash.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -172,6 +181,9 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   relabel its header button.
 - `settings:fileIcons` — emitted by the same Save; the file-icons feature listens
   to attach or tear down its surface observers.
+- `settings:fileAges` — emitted by the same Save; the file-ages feature listens
+  to rescan its surfaces (the folder toggle needs a full repaint) and reattach
+  its surface observers.
 
 ### `src/core/debug.js` — diagnostics
 
@@ -183,8 +195,9 @@ Structured console logging. Every failure carries a stable `GP-####` code
 building expensive log payloads. Codes in use: `GP-1001` bus listener, `GP-1002` settings
 persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
 open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1104`
-gallery download button, `GP-1301` file-icons surface, `GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point;
-layers below only throw, they never log.
+gallery download button, `GP-1301` file-icons surface, `GP-1302` file-ages
+surface, `GP-1201` UI mount. Rules: log once per user-visible failure at the
+outermost point; layers below only throw, they never log.
 
 ### `src/gallery/sources.js` — source registry
 
@@ -383,6 +396,8 @@ report through it.
   wrap-around, zoom ceiling.
 - `tabs/fileIcons.js`: file-icons master switch in the section header, folder
   and well-known-filename toggles.
+- `tabs/fileAges.js`: file-ages master switch in the section header, folder
+  toggle and a preview of the ten-shade age scale (`ages.*` keys).
 - `tabs/backup.js`: export to file (`Blob` + `<a download>`) or clipboard,
   import from a textarea through `normalizeImportedSettings` +
   `applyExternalSettings`, with an inline invalid-payload message.
@@ -431,6 +446,42 @@ icon. The feature is registry-driven; every surface degrades on its own.
   → disconnect every observer, remove our icons and restore the native ones.
   `settings:fileIcons` triggers it.
 
+### `src/features/fileAges/` — blame-style ages for listed files
+
+Tints the last-commit date of every file and folder in a repository listing,
+mirroring the GitHub blame legend. The feature never inserts an element or
+changes the date's text: it adds its own `gp-age-date` + `gp-age--N` classes to
+GitHub's timestamp, so the relative wording and its accessibility stay exactly
+as GitHub rendered them and removing the classes restores the original color.
+
+- `age.js`: `ageBucket(datetime, now)` — pure, no DOM, unit-tested by
+  `test/age.test.js`. Returns 1 (oldest) … `AGE_BUCKET_COUNT` (newest), or 0
+  when the timestamp cannot be parsed. The bands are narrow near the present
+  and widen toward the past (`AGE_THRESHOLDS_DAYS`: 3, 7, 14, 30, 60, 90, 120,
+  240, 548 days), so a four-month-old file already reads as old while recent
+  commits stay distinguishable.
+- `surfaces.js`: file-listing rows that carry a timestamp. `repo-tree`
+  (`.react-directory-commit-age` inside `[data-testid="directory-content"]`)
+  and `classic-tree` (`.js-navigation-item` inside `.js-navigation-container`)
+  are independent; `resolve(cell)` returns `{ cell, time, kind }`, reading
+  `relative-time[datetime]` / `time[datetime]` / `time-ago[datetime]` and
+  recognizing folders from GitHub's own `/tree/` links and directory glyphs.
+- `inject.js`: `paintAge(time, bucket)` adds the feature classes to the
+  timestamp; `clearAges()` removes them from every painted timestamp.
+- `index.js`: one observer per surface container, same shapes and debounce as
+  file icons. Rows are tracked in a `WeakMap`; a React re-render that drops the
+  classes is repainted. `applyFileAgesSettings()` is the single entry point: it
+  tears down first (which clears every timestamp and observer) and, when
+  enabled, rescans every surface — required because turning the folder toggle
+  off must also recolor folder rows already painted.
+  `settings:fileAges` and `watchNavigation` trigger it.
+- The palette lives in `src/styles/tokens.css` as `--gp-age-1` … `--gp-age-10`:
+  the newest date is warm (GitHub's attention gold on light, `#ffd78d` on dark)
+  and older dates fade to that theme's muted grey. A light and a dark ramp are
+  selected through GitHub's own `data-color-mode` (and its `auto` media query),
+  so the date text keeps a strong contrast in either theme. `app.css` styles
+  only the classes this feature adds.
+
 ### `src/i18n/`
 
 - `meta.js`: `SUPPORTED_LOCALES` (`en ru de es fr pt-BR zh-CN ja ko pl` —
@@ -441,7 +492,7 @@ icon. The feature is registry-driven; every surface degrades on its own.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 115
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 127
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -510,9 +561,10 @@ probes `fullSrc` and swaps it in when it loads.
 header button / menu command → `togglePanel(true)` → draft =
 deep clone of persisted settings → page `render(container)` mutates the draft →
 footer Save → `saveSettings(draft)` → `configureLocale(language)` →
-`emit('settings:gallery' | 'settings:toasts' | 'settings:language')` → gallery
-repaints its stylesheet, settings entry relabels itself and updates its dot →
-success toast → panel closes and `unlockPageScroll()`.
+`emit('settings:gallery' | 'settings:toasts' | 'settings:language' |
+'settings:fileIcons' | 'settings:fileAges')` → gallery repaints its stylesheet,
+file features rescan or tear down, settings entry relabels itself and updates
+its dot → success toast → panel closes and `unlockPageScroll()`.
 
 ## GitHub DOM notes
 
@@ -570,6 +622,8 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `fileIcons.enabled` | `true` | Master switch; disabling removes every injected icon and observer |
 | `fileIcons.folders` | `true` | Folder-specific icons for common folder names |
 | `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |
+| `fileAges.enabled` | `true` | Master switch; disabling removes every age tint and observer |
+| `fileAges.folders` | `true` | Color folder rows by their last commit age too |
 
 ## Localization
 
@@ -596,11 +650,14 @@ with English fallback.
 ## Design
 
 All injected UI (settings entry, panel, controls, confirm dialog, toasts,
-viewer, file icons) follows [DESIGN.md](DESIGN.md) — GitHub's own visual
-language through Primer tokens, `gp-`-prefixed classes, colors from
+viewer, file icons, file-age dates) follows [DESIGN.md](DESIGN.md) — GitHub's
+own visual language through Primer tokens, `gp-`-prefixed classes, colors from
 `src/styles/tokens.css`. File icons are the documented exception: their
 fixed brand colors come from the generated Material Icon Theme data, not from
-tokens.
+tokens. The file-age scale is the other fixed palette: commit age is data, so
+`--gp-age-1` … `--gp-age-10` are literal shades that run from the theme's muted
+grey (oldest) to a warm accent (newest), with separate light and dark ramps that
+keep the tinted date readable in either theme.
 Before touching any visible element, read DESIGN.md; visual changes update
 DESIGN.md, `tokens.css` and the stylesheet in the same change, get rebuilt and
 eyeballed on a live GitHub page.
@@ -688,6 +745,12 @@ and check diagnostics for edited files.
   plain left click (no modifier), the image is inside a `.markdown-body`
   container, and the image is not a badge, emoji or small icon. Inspect
   `#gp-gallery-style` — no stylesheet means no enabled source.
+- Last-commit dates not colored: check **File ages** is on and, for folder
+  rows, that **Folder rows** is on; the row must carry a
+  `relative-time[datetime]` (or `time[datetime]`) inside one of the containers
+  in `features/fileAges/surfaces.js`. A GitHub redesign that renames
+  `.react-directory-commit-age` turns the surface into a no-op — extend the
+  registry, never add a document-wide observer.
 - Viewer shows a smaller image than expected: the page's `src` is what is
   rendered; `fullSrc` only upgrades when the wrapping link points at an image
   file and that file actually loads.

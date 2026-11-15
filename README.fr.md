@@ -5,16 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
-galerie d'images pour le markdown rendu et des icônes de fichiers colorées
-partout où GitHub liste des fichiers.
+galerie d'images pour le markdown rendu, des icônes de fichiers colorées partout
+où GitHub liste des fichiers et des couleurs d'âge façon blame pour ces fichiers.
 
-> **Statut :** début (`0.8.0`). Panneau de réglages avec recherche instantanée
-> (Général · Galerie · Icônes de fichiers · Sauvegarde · À propos), la galerie
-> d'images du markdown et des icônes de fichiers colorées. D'autres améliorations
-> de GitHub sont prévues.
+> **Statut :** début (`0.9.0`). Panneau de réglages avec recherche instantanée
+> (Général · Galerie · Icônes de fichiers · Âge des fichiers · Sauvegarde · À
+> propos), la galerie d'images du markdown, des icônes de fichiers colorées et
+> des couleurs d'âge façon blame. D'autres améliorations de GitHub sont prévues.
 
 > Les `@updateURL` / `@downloadURL` du script pointent vers `main` sur GitHub —
 > l'URL d'installation ci-dessous mène toujours à la version la plus récente.
@@ -119,6 +119,28 @@ Les icônes sont un sous-ensemble sélectionné de
 [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
 (MIT) ; l'attribution figure dans [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
+### Âge des fichiers
+
+GitHub indique déjà depuis combien de temps chaque fichier a changé, mais toutes
+les dates se ressemblent au premier coup d’œil. GitHub Plus emprunte la légende
+de blame et colore le texte de la date lui-même :
+
+- **Un coup d’œil, un âge** — les dates les plus récentes sont chaudes
+  (`#ffd78d` dans le thème sombre, l’or d’attention dans le clair) et les plus
+  anciennes s’estompent vers le gris atténué du thème : un fichier de quatre
+  mois paraît donc déjà ancien. L’échelle est volontairement concentrée sur le
+  présent : jours, semaines et mois restent distincts, tout ce qui dépasse un an
+  est gris. Les thèmes clair et sombre ont chacun leur dégradé, pour que la
+  couleur reste forte et lisible dans les deux.
+- **Rien ne bouge** — la date conserve le texte, la formulation relative et
+  l’infobulle de GitHub ; seule sa couleur change, donc aucune ligne n’est
+  redimensionnée et l’étiquette accessible reste exactement celle rendue par
+  GitHub.
+- **Fichiers et dossiers** — les lignes de dossiers sont aussi colorées (la date
+  indique leur dernier changement) et un réglage limite la fonction aux fichiers.
+- **Discret** — désactiver la fonction restaure la couleur de date de GitHub et
+  ne laisse aucune trace.
+
 ### Panneau de réglages
 
 Ouvrez-le depuis le bouton en forme d'engrenage de l'en-tête GitHub, la ligne
@@ -149,6 +171,8 @@ Stockés sous `gp_settings_v1`.
 | `fileIcons.enabled` | `true` | Interrupteur principal des icônes de fichiers et de dossiers |
 | `fileIcons.folders` | `true` | Icônes propres aux noms de dossiers courants |
 | `fileIcons.specialNames` | `true` | Icônes dédiées aux noms de fichiers connus |
+| `fileAges.enabled` | `true` | Interrupteur principal ; couleurs d’âge façon blame pour les fichiers listés |
+| `fileAges.folders` | `true` | Colorer aussi les lignes de dossiers |
 
 ## Comment la galerie est construite
 

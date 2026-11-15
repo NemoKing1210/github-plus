@@ -5,16 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
-ファイル アイコンを提供します。
+ファイル アイコン、そしてそれらのファイルの blame 風の経過日数カラーを提供します。
 
-> **ステータス:** 初期段階（`0.8.0`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル アイコン · バックアップ · このアプリについて）、Markdown
-> 画像ギャラリー、カラー ファイル アイコン。今後さらに GitHub の改善を追加予定
-> です。
+> **ステータス:** 初期段階（`0.9.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル アイコン · ファイルの経過日数 · バックアップ · このアプリ
+> について）、Markdown 画像ギャラリー、カラー ファイル アイコン、blame 風の経過
+> 日数カラー。今後さらに GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -113,6 +113,25 @@ GitHub はすべてのファイルとフォルダーを同じ灰色のグリフ�
 （MIT）の厳選されたサブセットです。帰属表示は
 [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES) にあります。
 
+### ファイルの経過日数
+
+GitHub は各ファイルが最後に変更されてからの時間をすでに表示しますが、ひと目では
+どの日付も同じに見えます。GitHub Plus は blame の凡例を借りて、日付のテキスト
+そのものを色付けします:
+
+- **ひと目で経過日数** — 最新の日付は暖色（ダーク テーマでは `#ffd78d`、ライト
+  では GitHub のアテンション ゴールド）で、古い日付はテーマの落ち着いたグレーへ
+  薄れていくため、4 か月前のファイルはすでに古く見えます。スケールは意図的に現在
+  寄りで、日・週・月は区別でき、1 年を超えると単なるグレーになります。ライトと
+  ダークのテーマにはそれぞれ専用の色域があるため、どちらでも色は鮮やかで読みやすい
+  ままです。
+- **レイアウトは変わりません** — 日付は GitHub 自身のテキスト、相対表現、ツール
+  チップを保ち、変わるのは色だけです。行が再配置されることはなく、アクセシブルな
+  ラベルも GitHub が描画したもののままです。
+- **ファイルとフォルダー** — フォルダーの行も色付けされます（日付はその最終変更を
+  示します）。設定でファイルのみに制限できます。
+- **控えめ** — 機能を無効にすると GitHub 本来の日付色に戻り、痕跡は残りません。
+
 ### 設定パネル
 
 GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
@@ -142,6 +161,8 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `fileIcons.enabled` | `true` | ファイルとフォルダーのアイコンのマスター スイッチ |
 | `fileIcons.folders` | `true` | 一般的なフォルダー名の専用アイコン |
 | `fileIcons.specialNames` | `true` | 既知のファイル名の専用アイコン |
+| `fileAges.enabled` | `true` | マスター スイッチ。一覧のファイルに blame 風の経過日数カラーを付ける |
+| `fileAges.folders` | `true` | フォルダーの行にも色を付ける |
 
 ## ギャラリーの仕組み
 

@@ -7,6 +7,7 @@ import { getIconSvg } from './controls.js';
 import { registerPage, togglePanel } from './panel.js';
 import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
+import { renderFileAges } from './tabs/fileAges.js';
 import { renderFileIcons } from './tabs/fileIcons.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
@@ -171,6 +172,14 @@ function registerPages() {
     render: renderFileIcons,
   });
   registerPage({
+    id: 'fileAges',
+    group: 'preferences',
+    icon: 'fileAges',
+    labelKey: 'tab.ages',
+    descKey: 'tab.ages.desc',
+    render: renderFileAges,
+  });
+  registerPage({
     id: 'backup',
     group: 'more',
     icon: 'backup',
@@ -208,6 +217,7 @@ export function initSettingsFeature() {
   on('settings:gallery', updateSettingsButtonState);
   on('settings:toasts', updateSettingsButtonState);
   on('settings:fileIcons', updateSettingsButtonState);
+  on('settings:fileAges', updateSettingsButtonState);
   on('settings:language', () => {
     refreshLabels();
     updateSettingsButtonState();

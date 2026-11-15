@@ -5,15 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
-eine Bildergalerie für gerendertes Markdown und farbige Dateisymbole überall
-dort, wo GitHub Dateien auflistet.
+eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
+wo GitHub Dateien auflistet, und Altersfarben im Blame-Stil für diese Dateien.
 
-> **Status:** früh (`0.8.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateisymbole · Sicherung · Info), die Markdown-Bildergalerie und
-> farbige Dateisymbole. Weitere GitHub-Verbesserungen sind geplant.
+> **Status:** früh (`0.9.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateisymbole · Dateialter · Sicherung · Info), die
+> Markdown-Bildergalerie, farbige Dateisymbole und Altersfarben im Blame-Stil.
+> Weitere GitHub-Verbesserungen sind geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
@@ -117,6 +118,29 @@ Die Symbole sind eine kuratierte Teilmenge von
 [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
 (MIT); die Attribution steht in [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
+### Dateialter
+
+GitHub zeigt bereits, wie lange die letzte Änderung jeder Datei zurückliegt,
+doch auf einen Blick sehen alle Daten gleich aus. GitHub Plus leiht sich die
+Blame-Legende und färbt den Datumstext selbst:
+
+- **Ein Blick, ein Alter** — die neuesten Daten sind warm (`#ffd78d` im dunklen
+  Theme, Attention-Gold im hellen), ältere Daten verblassen zu GitHubs
+  gedämpftem Grau — eine vier Monate alte Datei wirkt dadurch bereits alt. Die
+  Skala ist bewusst auf die jüngste Vergangenheit konzentriert: Tage, Wochen und
+  Monate bleiben unterscheidbar, alles über ein Jahr ist schlicht grau. Helle
+  und dunkle Themes haben jeweils eine eigene Farbrampe, damit die Farbe in
+  beiden kräftig und gut lesbar bleibt.
+- **Nichts verschiebt sich** — das Datum behält GitHubs eigenen Text, die
+  relative Formulierung und den Tooltip; nur die Farbe ändert sich. Keine Zeile
+  wird neu dimensioniert, und die zugängliche Beschriftung bleibt genau die von
+  GitHub gerenderte.
+- **Dateien und Ordner** — auch Ordnerzeilen werden gefärbt (das Datum meint
+  ihre letzte Änderung), und eine Einstellung beschränkt die Funktion auf
+  Dateien.
+- **Unaufdringlich** — beim Deaktivieren kehrt GitHubs eigene Datumsfarbe zurück
+  und es bleibt keine Spur.
+
 ### Einstellungsfenster
 
 Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
@@ -147,6 +171,8 @@ Gespeichert unter `gp_settings_v1`.
 | `fileIcons.enabled` | `true` | Hauptschalter für Datei- und Ordnersymbole |
 | `fileIcons.folders` | `true` | Ordnerspezifische Symbole für gängige Ordnernamen |
 | `fileIcons.specialNames` | `true` | Eigene Symbole für bekannte Dateinamen |
+| `fileAges.enabled` | `true` | Hauptschalter; Blame-artige Altersfarben für aufgelistete Dateien |
+| `fileAges.folders` | `true` | Auch Ordnerzeilen färben |
 
 ## Wie die Galerie aufgebaut ist
 

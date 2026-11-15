@@ -257,6 +257,7 @@ function persist() {
     emit('settings:toasts', saved.toasts);
     emit('settings:language', saved.language);
     emit('settings:fileIcons', saved.fileIcons);
+    emit('settings:fileAges', saved.fileAges);
     showToast({ type: 'success', title: t('toast.saved'), message: t('toast.savedDesc') });
   } catch (error) {
     logError(Codes.SETTINGS_PERSIST, 'saving settings from the panel failed', { error });
@@ -275,6 +276,7 @@ export function applyExternalSettings(next) {
   emit('settings:toasts', saved.toasts);
   emit('settings:language', saved.language);
   emit('settings:fileIcons', saved.fileIcons);
+  emit('settings:fileAges', saved.fileAges);
   if (panelOpen) refreshPanelDraft();
   return saved;
 }

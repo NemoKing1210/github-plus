@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-15
+
+### Added
+
+- Blame-style file ages: the last-commit date of every file and folder in a
+  repository listing is tinted on a blame-style scale — the newest dates are
+  warm (`#ffd78d` in the dark theme, attention gold in the light one) and older
+  dates fade to the theme's muted grey, so a four-month-old file already reads
+  as old. The date keeps GitHub's own text and relative wording; the color is
+  the only addition
+- A **File ages** settings page with a master switch (on by default), a folder
+  toggle and a preview of the age scale, with new `tab.ages` and `ages.*` keys
+  in all ten locales
+
+[0.9.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.9.0
+
 ## [0.8.0] - 2026-11-15
 
 ### Added

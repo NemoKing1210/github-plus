@@ -31,9 +31,10 @@ Scope: every element GitHub Plus itself creates — the entry button and its
 list host, the row inside GitHub's user menu, the panel (overlay, shell,
 grouped sidebar, search field and results, pages, cards, rows, controls), the
 confirm dialog, toasts, the image viewer, the `.gp-fi` file and folder glyphs,
-and the gallery's page-level cursor/hover affordances (§11). Anything GitHub
-already renders is out of scope except through those affordances: no other
-rule may target page markup.
+the `.gp-age-date` coloring of GitHub's last-commit timestamps and its
+settings-page legend, and the gallery's page-level cursor/hover affordances
+(§11). Anything GitHub already renders is out of scope except through those
+affordances: no other rule may target page markup.
 
 Two invariants hold for every selector:
 
@@ -71,6 +72,22 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: confirm dialog, toast |
 | `--gp-scrim` | `--overlay-backdrop-bgColor` | `rgba(31, 35, 40, 0.5)` | Overlay backdrop behind panel and confirm dialog |
 | `--gp-focus` | `--focus-outlineColor` | `#0969da` | Focus ring color |
+| `--gp-age-1` | — | `#59636e` | Age scale 1: oldest commit, GitHub's muted grey (light theme) |
+| `--gp-age-2` | — | `#5d646a` | Age scale 2 |
+| `--gp-age-3` | — | `#626466` | Age scale 3 |
+| `--gp-age-4` | — | `#676561` | Age scale 4 |
+| `--gp-age-5` | — | `#6c665c` | Age scale 5 |
+| `--gp-age-6` | — | `#716656` | Age scale 6 |
+| `--gp-age-7` | — | `#77674f` | Age scale 7 |
+| `--gp-age-8` | — | `#7e6746` | Age scale 8 |
+| `--gp-age-9` | — | `#876739` | Age scale 9 |
+| `--gp-age-10` | — | `#9a6700` | Age scale 10: newest commit, GitHub's attention gold |
+
+The age scale has a second ramp (`#9198a1` … `#ffd78d`, oldest to newest)
+declared under
+`:root[data-color-mode="dark"]`, and again for `[data-color-mode="auto"]`
+inside the same `prefers-color-scheme: dark` query GitHub uses for its own auto
+mode. It is documented in §3.
 
 Rules:
 
@@ -98,8 +115,23 @@ Rules:
   theme surface, and not part of the light/dark palette. The rule about raw
   literals still holds for `app.css`; those colors live in generated data and
   never in a component rule.
-- Nothing else in the script may key off `prefers-color-scheme`; theme
-  handling is entirely delegated to GitHub's own variables.
+- The `--gp-age-1` … `--gp-age-10` scale colors the last-commit date text.
+  Commit age is data, so the ramp is fixed rather than derived from a Primer
+  semantic color, but it is not theme-blind: each theme fades old dates toward
+  its own muted grey and keeps the newest dates warm, with light surfaces using
+  GitHub's attention gold where dark ones can use `#ffd78d`. The ramp is
+  selected through GitHub's own `data-color-mode` and, for its `auto` mode, the
+  same `prefers-color-scheme` media query GitHub itself uses. Every light-theme
+  shade stays at or above
+  roughly 4.5:1 on `#ffffff`; every dark-theme shade stays at or above 5:1 on
+  `#0d1117`. This is the **only** place the script may mirror that media query —
+  it does not invent a theme of its own. The values live in `tokens.css`, never
+  in a component rule.
+- Nothing else in the script may key off `prefers-color-scheme`. The single
+  exception is the age scale's `[data-color-mode="auto"]` block, which mirrors
+  the query GitHub itself uses to resolve `auto`; the selected light and dark
+  themes still come from GitHub's `data-color-mode` attribute, not from an
+  invented theme of our own.
 
 ## 4. Surfaces, rounding, borders, shadows
 
@@ -177,6 +209,7 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Viewer status text `.gp-viewer__status-text` | `13px` / `var(--gp-text)` |
 | Viewer status link `.gp-viewer__status-link` | `12px` / `var(--gp-accent)` |
 | Page download button `.gp-download-btn` | `16px` glyph in a `30px` button |
+| Age legend label `.gp-age-legend__label` | `12px` / `var(--gp-text-muted)` |
 | Menu row label `.gp-user-menu-item__label` | `14px/1.4` / `var(--gp-text)` (GitHub's `ActionList` size) |
 
 - Weights are only `500` (controls, chrome) and `600` (labels, titles);
@@ -531,6 +564,30 @@ Disabling the feature removes every `.gp-fi` and restores every native glyph,
 so the page returns to stock GitHub. Both the small-screen and large-screen
 name cells of a repository row are decorated, in that DOM order.
 
+### File ages (`.gp-age-date`)
+
+A blame-style tint applied to the last-commit date GitHub already renders. The
+newest dates carry the warm accent and older ones fade to the theme's muted
+grey, so a stale row steps back and a fresh one stands out. The feature inserts
+nothing: it adds its own classes to the `<relative-time>` element, so the text,
+its layout and its accessibility are untouched.
+
+| Class | Rules |
+|---|---|
+| `.gp-age-date`, `.gp-age-date *` | `color: var(--gp-age-current, inherit) !important`, so the color also wins over a nested span or link; the font and its weight stay GitHub's own |
+| `.gp-age--1` … `.gp-age--10` | Set `--gp-age-current` to the matching `--gp-age-N` token; `1` is the oldest band, `10` the newest |
+| `.gp-age-legend` | Settings preview: flex row, `gap: 8px`, `padding: 12px 16px` |
+| `.gp-age-legend__label` | End labels (`Older` / `Newer`), `12px` muted |
+| `.gp-age-legend__scale` | Inline-flex, `gap: 6px`; `aria-hidden` |
+| `.gp-age-legend__sample` | Colored `Aa` sample, `13px/1`, same `gp-age--N` classes so it previews the real ramp |
+
+The colored text is redundant with the relative wording GitHub already shows
+(“last month”, “2 days ago”), so age remains understandable without color and
+no `aria-*` attribute is added. Turning **File ages** off removes both classes
+from every timestamp, restoring GitHub's own color, and `app.css` never selects
+a GitHub-owned class: the two exception classes are ours and exist only while
+the feature is on.
+
 ## 7. States
 
 | State | Selector / form | Effect |
@@ -660,6 +717,11 @@ Everything else is fluid by construction and must stay that way:
   help tool reports `aria-expanded` for the panel it controls. Labels come from
   the locale files, never from hardcoded English in CSS. The user-menu row is
   named by its own visible text, also `settings.open`.
+- **File-age date color.** The tint is applied to GitHub's own relative date,
+  so its text and accessible name are unchanged and the color is redundant with
+  the words. The settings-page samples are decorative (`aria-hidden`) and carry
+  text end labels; the per-theme ramps in §3 keep the date at a readable
+  contrast in either theme.
 - **Switch labelling.** `.gp-switch__input` is opacity-hidden, not
   `display: none`, so it stays focusable and its `aria-label` (or the wrapping
   row's text) names it; rows that already show the text pass it as the
@@ -715,10 +777,11 @@ therefore generated at runtime by `src/gallery/index.js` into a
 - Consequence for anyone editing `app.css`: add a new gallery location by
   registering a source with its own `cursorSelector`, never by writing a
   page-markup rule into `app.css`.
-- The file-icons feature is the other kind of exception: it does not write a
-  stylesheet rule at all. It inserts its own `.gp-fi` elements and hides
-  GitHub's icon with an inline style, which keeps “no rule targets page
-  markup” literally true.
+- The file-icons and file-ages features are the other kind of exception. File
+  icons insert their own `.gp-fi` elements and hide GitHub's glyph with an
+  inline style; file ages add only their own `.gp-age-date` / `.gp-age--N`
+  classes to GitHub's timestamp. Both keep “no rule targets a GitHub-owned
+  class” true, and both remove every trace when disabled.
 - Our own UI is excluded from this behavior: the click and pointer handlers
   ignore any target inside `isOwnUi()` and any image wrapped by GitHub's
   `a.anchor`, so the affordances never fight with heading anchors or our

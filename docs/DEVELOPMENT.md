@@ -26,7 +26,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
 | `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
-| `npm test` | Node test runner: `test/match.test.js` (icon matching) and `test/download.test.js` (download filenames). |
+| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets) and `test/download.test.js` (download filenames). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -108,7 +108,7 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 
 ### Settings panel
 
-- [ ] The panel opens on the General page with the sidebar listing all five
+- [ ] The panel opens on the General page with the sidebar listing all six
       pages under **Preferences** and **More**; switching pages (click and
       arrow keys) animates the content; the language select relabels the panel
       after Save.
@@ -163,6 +163,20 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 - [ ] Turning **File icons** off removes every colored glyph, restores GitHub's
       own icons and leaves no `.gp-fi` nodes or hidden icons behind.
 
+### File ages
+
+- [ ] A repository page tints the last-commit date of every file and folder;
+      the text keeps GitHub's own wording and tooltip.
+- [ ] Recent commits are warm (`#ffd78d` in the dark theme, attention gold in
+      the light one) and older commits fade to GitHub's muted grey, matching
+      the **File ages → Age scale** preview; a four-month-old row is already
+      visibly desaturated and a file older than a year is plain grey.
+- [ ] **Folder rows** off restores GitHub's date color on folders while files
+      keep theirs; turning **File ages** off removes every `.gp-age-date` class
+      and leaves no observers behind.
+- [ ] The tints survive client-side navigation and GitHub's re-renders, and a
+      row whose date is missing simply stays unmarked.
+
 ## Debugging
 
 Verbose tracing is off by default. Turn it on from the page console:
@@ -191,6 +205,7 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1104` | `GALLERY_DOWNLOAD` | The page-level download button could not be shown for an image. |
 | `GP-1201` | `UI_MOUNT` | Mounting the settings entry or panel failed. |
 | `GP-1301` | `FILE_ICONS` | A file-icons surface or its selectors failed. |
+| `GP-1302` | `FILE_AGES` | A file-ages surface or its selectors failed. |
 
 Settings persist under the key `gp_settings_v1` (`SETTINGS_KEY` in
 `src/core/constants.js`): via `GM_setValue` when the manager provides it,
@@ -210,6 +225,9 @@ otherwise via `localStorage`. Delete that key for a cold start:
   change the allowlist in `scripts/build-file-icons.mjs` and run
   `npm run icons:build`. The package is a dev dependency; the shipped bundle
   carries the icons inline.
+- `src/features/fileAges/age.js` owns the commit-age bands and
+  `AGE_BUCKET_COUNT` lives in `constants.js`; the ten shade values are in
+  `src/styles/tokens.css` (`--gp-age-1` … `--gp-age-10`).
 - `src/i18n/locales/*.js` holds the UI strings, one file per locale (ten in
   total). New strings go into all ten files — see the localization rule in
   [../CONTRIBUTING.md](../CONTRIBUTING.md). The localized `@name` /

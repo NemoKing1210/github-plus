@@ -5,16 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.9.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
-de imágenes para el markdown renderizado y iconos de archivo en color allí
-donde GitHub lista archivos.
+de imágenes para el markdown renderizado, iconos de archivo en color allí donde
+GitHub lista archivos y colores de antigüedad al estilo blame para esos archivos.
 
-> **Estado:** temprano (`0.8.0`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Iconos de archivo · Copia de seguridad · Acerca de), la
-> galería de imágenes de markdown y los iconos de archivo en color. Hay más
-> mejoras de GitHub planificadas.
+> **Estado:** temprano (`0.9.0`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Iconos de archivo · Antigüedad de archivos · Copia de
+> seguridad · Acerca de), la galería de imágenes de markdown, los iconos de
+> archivo en color y los colores de antigüedad al estilo blame. Hay más mejoras
+> de GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -120,6 +121,27 @@ Los iconos son un subconjunto curado de
 [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
 (MIT); la atribución está en [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
 
+### Antigüedad de archivos
+
+GitHub ya muestra cuánto tiempo hace que cambió cada archivo, pero todas las
+fechas se ven iguales de un vistazo. GitHub Plus toma la leyenda de blame y
+colorea el propio texto de la fecha:
+
+- **Un vistazo, una edad** — las fechas más recientes son cálidas (`#ffd78d` en
+  el tema oscuro, el dorado de atención en el claro) y las antiguas se difuminan
+  hacia el gris atenuado del tema, así que un archivo de hace cuatro meses ya se
+  ve antiguo. La escala está deliberadamente cargada hacia el presente: días,
+  semanas y meses siguen siendo distinguibles y todo lo que supera un año es
+  gris liso. Los temas claros y oscuros tienen su propia gama, así que el color
+  sigue siendo fuerte y legible en ambos.
+- **Nada se mueve** — la fecha conserva el texto, la redacción relativa y la
+  información emergente de GitHub; solo cambia su color, así que ninguna fila se
+  redimensiona y la etiqueta accesible es exactamente la que GitHub renderizó.
+- **Archivos y carpetas** — las filas de carpetas también se colorean (la fecha
+  indica su último cambio) y un ajuste limita la función a los archivos.
+- **Discreto** — al desactivar la función vuelve el color propio de GitHub y no
+  queda ningún rastro.
+
 ### Panel de ajustes
 
 Ábrelo con el botón de engranaje de la cabecera de GitHub, con la fila
@@ -150,6 +172,8 @@ Se guardan en `gp_settings_v1`.
 | `fileIcons.enabled` | `true` | Interruptor principal de los iconos de archivo y carpeta |
 | `fileIcons.folders` | `true` | Iconos específicos para nombres de carpeta comunes |
 | `fileIcons.specialNames` | `true` | Iconos propios para nombres de archivo conocidos |
+| `fileAges.enabled` | `true` | Interruptor principal; colores de antigüedad estilo blame para los archivos listados |
+| `fileAges.folders` | `true` | Colorear también las filas de carpetas |
 
 ## Cómo está construida la galería
 

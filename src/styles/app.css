@@ -4,7 +4,7 @@
  * Design rules live in DESIGN.md, colors in tokens.css. Every selector is
  * prefixed `gp-`, and no rule targets page markup except the gallery's own
  * cursor/hover affordance (built at runtime from the source registry) and the
- * `.gp-fi` glyphs the file-icons feature inserts as its own elements.
+ * `.gp-fi` glyphs and the `.gp-age-date` class the file features own.
  */
 
 /* == Settings entry — header button ========================================= */
@@ -1951,4 +1951,63 @@ html.gp-modal-open body {
   vertical-align: text-bottom;
   user-select: none;
   pointer-events: none;
+}
+
+/* == File ages ============================================================= */
+/* The feature adds its own `gp-age-date` class to GitHub's timestamp and
+ * colors that text; no GitHub selector is ever targeted (DESIGN.md §3). */
+.gp-age-date,
+.gp-age-date * {
+  color: var(--gp-age-current, inherit) !important;
+}
+.gp-age--1 {
+  --gp-age-current: var(--gp-age-1);
+}
+.gp-age--2 {
+  --gp-age-current: var(--gp-age-2);
+}
+.gp-age--3 {
+  --gp-age-current: var(--gp-age-3);
+}
+.gp-age--4 {
+  --gp-age-current: var(--gp-age-4);
+}
+.gp-age--5 {
+  --gp-age-current: var(--gp-age-5);
+}
+.gp-age--6 {
+  --gp-age-current: var(--gp-age-6);
+}
+.gp-age--7 {
+  --gp-age-current: var(--gp-age-7);
+}
+.gp-age--8 {
+  --gp-age-current: var(--gp-age-8);
+}
+.gp-age--9 {
+  --gp-age-current: var(--gp-age-9);
+}
+.gp-age--10 {
+  --gp-age-current: var(--gp-age-10);
+}
+
+/* Age-scale preview on the settings page: ten colored text samples. */
+.gp-age-legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.gp-age-legend__label {
+  color: var(--gp-text-muted);
+  font-size: 12px;
+}
+.gp-age-legend__scale {
+  display: inline-flex;
+  gap: 6px;
+}
+.gp-age-legend__sample {
+  color: var(--gp-age-current);
+  font-size: 13px;
+  line-height: 1;
 }

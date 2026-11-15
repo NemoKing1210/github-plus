@@ -64,6 +64,9 @@ export const IMAGE_EXTENSIONS = [
   'svg',
 ];
 
+/** Shades in the file-age colour scale (1 = oldest, N = newest). */
+export const AGE_BUCKET_COUNT = 10;
+
 /** Toast corner placements. */
 export const TOAST_POSITIONS = [
   'bottom-right',
@@ -103,11 +106,18 @@ const DEFAULT_FILE_ICONS = {
   specialNames: true,
 };
 
+/** File ages: blame-style age colors next to each last-commit date. */
+const DEFAULT_FILE_AGES = {
+  enabled: true,
+  folders: true,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   gallery: DEFAULT_GALLERY,
   toasts: DEFAULT_TOASTS,
   fileIcons: DEFAULT_FILE_ICONS,
+  fileAges: DEFAULT_FILE_AGES,
 };
 
 /** Deep-cloned defaults, used on reset. */
