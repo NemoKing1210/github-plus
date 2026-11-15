@@ -7,6 +7,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-15
+
+### Added
+
+- Download images from the viewer toolbar and from a floating button that
+  appears over a markdown image while it is hovered. Both save the image under
+  its own filename — a camo proxy address is unwrapped to the proxied file's
+  name — and fall back to opening the image in a new tab when the bytes cannot
+  be fetched
+- A `gallery.download` setting (on by default) that hides both download
+  buttons, with new `gallery.download`, `gallery.downloadDesc` and
+  `viewer.download` keys in all ten locales
+
+[0.8.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.8.0
+
+## [0.7.1] - 2026-11-15
+
+### Fixed
+
+- The viewer's thumbnail strip could be squeezed — and its images cropped —
+  when the open image was large. The rail now keeps its full height
+  (`flex: none`) and only the image stage flexes
+
+[0.7.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.7.1
+
+## [0.7.0] - 2026-11-15
+
+### Added
+
+- The viewer can now zoom out below the fit-to-screen size, down to a quarter
+  of it, so even a small image can be shown smaller than its own pixels. The
+  percentage keeps falling below 100%, and the new stops (25%, 50% and 75% of
+  fit) are reachable from the buttons, the wheel, pinch and the keyboard
+
+[0.7.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.7.0
+
+## [0.6.1] - 2026-11-15
+
+### Removed
+
+- The keyboard hint bar under the viewer's thumbnail strip. The same keys are
+  listed in the `?` shortcut popover, so the footer no longer takes up space
+
+[0.6.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.6.1
+
+## [0.6.0] - 2026-11-15
+
+### Added
+
+- The viewer toolbar now uses a proper 16×16 SVG icon set (close, zoom,
+  rotate, fit, open in a new tab, help, broken image) instead of text glyphs;
+  the tools are quiet ghost buttons that light up on hover
+- Zoom is shown as a real percentage relative to the image's natural pixels.
+  Clicking the percentage toggles between fit-to-screen and actual size, and
+  wheel, double-click and pinch zoom stay anchored on the pointer
+- A keyboard-shortcut popover (`?` or the toolbar help button) and `Tab` focus
+  trapping while the viewer is open
+- The viewer bar shows the loaded image's pixel size, the counter is a pill
+  announced by screen readers, and the thumbnail strip marks images that
+  failed to load
+- The viewer adapts to narrow screens: compact toolbar (shortcut help hidden),
+  smaller navigation buttons, a full-width help card and a hidden keyboard hint
+
+### Changed
+
+- The viewer stage sits on the subtle surface so a white image keeps a visible
+  edge, the zoom indicator and thumbnail rail are easier to read, and the
+  failure card now has an icon and a link to open the original image
+- New `viewer.help`, `viewer.size`, `viewer.actualSize`, `viewer.fit`,
+  `viewer.imageTitle`, `viewer.shortcutBrowse` and `viewer.shortcutZoom` keys
+  in all ten locales
+
+[0.6.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.6.0
+
+## [0.5.4] - 2026-11-15
+
+### Added
+
+- README translations in all ten UI locales — Russian, German, Spanish, French,
+  Brazilian Portuguese, Simplified Chinese, Japanese, Korean and Polish — each
+  with a language switcher at the top; English stays the reference and the
+  version badge and status line stay in sync across every file
+
+[0.5.4]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.5.4
+
 ## [0.5.3] - 2026-11-15
 
 ### Fixed

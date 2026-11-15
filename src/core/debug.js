@@ -23,6 +23,8 @@ export const Codes = {
   GALLERY_SOURCE: 'GP-1102',
   /** A gallery image failed to load in the viewer. */
   GALLERY_IMAGE: 'GP-1103',
+  /** The page-level download button could not be shown for an image. */
+  GALLERY_DOWNLOAD: 'GP-1104',
   /** A file-icons surface or its selectors failed. */
   FILE_ICONS: 'GP-1301',
   /** Mounting the settings entry or panel failed. */

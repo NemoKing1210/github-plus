@@ -13,8 +13,9 @@ Tampermonkey, Violentmonkey, ScriptCat, and compatible managers.
 - Version source of truth: `package.json`
 - Generated install artifacts: `github-plus.user.js` and
   `github-plus.meta.js` (produced only by `npm run build`)
-- Docs: `README.md`, `CHANGELOG.md` (Keep a Changelog + SemVer), and
-  `DESIGN.md` (visual rules for all injected UI — see Design below)
+- Docs: `README.md` plus its translations `README.<locale>.md` in the ten UI
+  locales, `CHANGELOG.md` (Keep a Changelog + SemVer), and `DESIGN.md` (visual
+  rules for all injected UI — see Design below)
 - License: MIT
 
 Edit files under `src/`. Never hand-edit generated `.user.js` / `.meta.js`
@@ -70,10 +71,12 @@ github-plus/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
 │   ├── ui/
+│   │   ├── icons.js        # 16×16 stroke SVG set for the viewer toolbar
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   └── viewer.js       # Fullscreen image viewer (zoom, pan, rotate, gallery)
 │   └── utils/
 │       ├── dom.js          # el, append, debounce, eachNode, toArray, isOwnUi
+│       ├── download.js     # Image download (fetch → blob → <a download>)
 │       ├── navigation.js   # watchNavigation (turbo/pjax/pushState URL watcher)
 │       └── scrollLock.js   # counted page scroll lock for modal overlays
 ├── scripts/
@@ -81,7 +84,7 @@ github-plus/
 │   ├── build-file-icons.mjs# material-icon-theme → iconSet.generated.js
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
-├── test/                   # Node test runner (match.js)
+├── test/                   # Node test runner (match.js, download.js)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -179,8 +182,8 @@ Structured console logging. Every failure carries a stable `GP-####` code
 `window.__GP_DEBUG__=true`), and `isVerbose()` for callers that want to skip
 building expensive log payloads. Codes in use: `GP-1001` bus listener, `GP-1002` settings
 persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
-open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1301`
-file-icons surface, `GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point;
+open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1104`
+gallery download button, `GP-1301` file-icons surface, `GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point;
 layers below only throw, they never log.
 
 ### `src/gallery/sources.js` — source registry
@@ -236,8 +239,8 @@ markup, is what keeps badges out.
 
 ### `src/gallery/index.js` — gallery wiring
 
-- `applyGallerySettings()` installs the click listener (once) and repaints the
-  injected stylesheet.
+- `applyGallerySettings()` installs the click and pointer listeners (once),
+  repaints the injected stylesheet and hides the page download button.
 - The stylesheet (`#gp-gallery-style`) is built from the registry: one
   `cursorSelector { cursor: zoom-in }` rule per enabled source and nothing
   else — page images keep GitHub's own look, so no border, outline or overlay
@@ -250,29 +253,49 @@ markup, is what keeps badges out.
   + `stopPropagation()` so GitHub's own delegated handlers never see the click.
   Everything runs against the live DOM at click time — there is no per-image
   state to invalidate.
+- The page-level download button is one floating `.gp-download-btn` appended
+  to `<body>`, driven by delegated `pointerover`/`pointerout` listeners. It is
+  shown only while an eligible image is hovered — the same `locate` +
+  `collectGallery` + `matchIndex` path as a click, gated by `gallery.enabled`
+  and `gallery.download` — positioned over the image's top-right corner, and
+  hidden on pointer-out, scroll, resize and navigation. It is never inserted
+  into GitHub's markup, and `isOwnUi()` keeps the gallery from treating its
+  click as an image click.
 - `upgradeImage(item)` (used as the viewer's `resolveImage` hook) probes
   `item.fullSrc` and returns it only if it loads; failures fall back silently.
 
 ### `src/ui/viewer.js` — fullscreen image viewer
 
 GitHub-themed lightbox (one instance per page): `openViewer({ images, index,
-loop, thumbnails, minZoom, maxZoom, labels, resolveImage, onClose })` takes a
+loop, thumbnails, download, minZoom, maxZoom, labels, resolveImage, onClose })` takes a
 gallery of `{ src, link?, title?, alt?, fullSrc? }`, `closeViewer()` /
-`isViewerOpen()` complete the API. It fits the image to the stage and supports
-zoom (wheel, `+`/`−`, double click, pinch), pan (drag at any zoom — the offset
-is clamped so the image slides inside the stage but never leaves it), 90°
-rotation, a thumbnail strip, prev/next with optional wrap-around,
-preloading of the neighbouring images and a danger-bordered status card when an
-image fails. The optional async `resolveImage(image, index)` hook lets the
-caller upgrade the shown image to a higher resolution after the fact. The
-`open` tool links to `item.link || item.src` in a new tab. Keyboard: `Esc`,
-`←`/`→`, `Home`/`End`, `+`, `−`, `0`, `r`. The stage captures the pointer while
+`isViewerOpen()` complete the API. The toolbar is built from the 16×16 stroke
+glyphs in `ui/icons.js` (no text glyphs), and the stage supports zoom (wheel
+around the pointer, `+`/`−`, double click, pinch), pan (drag at any zoom — the
+offset is clamped so the image slides inside the stage but never leaves it),
+90° rotation, a thumbnail strip with a broken-image fallback, prev/next with
+optional wrap-around, preloading of the neighbouring images and a
+danger-bordered status card when an image fails, with a link to the original.
+The zoom pill shows the scale relative to the image's natural pixels and
+clicking it jumps to actual size / back to fit; the scale can go below
+fit-to-screen (down to a quarter of it), so an image can shrink below its own
+size. The loaded image's pixel size appears next to the title. A `?` shortcut popover (also in the toolbar) lists
+the keys, `Escape` closes it before the viewer, and `Tab` stays inside the open
+viewer. The optional async `resolveImage(image, index)` hook lets the caller
+upgrade the shown image to a higher resolution after the fact. The `open` tool
+links to `item.link || item.src` in a new tab; the `download` tool saves the
+shown image under its own filename through `utils/download.js`, and
+`openViewer({ download: false })` hides it. The toolbar and its labels adapt to
+the call's `labels`. Keyboard: `Esc`, `←`/`→`,
+`Home`/`End`, `+`, `−`, `0`, `r`, `?`/`h`. The stage captures the pointer while
 panning, so clicks inside it are resolved from the element that was pressed
 (recorded on `pointerdown`) — never from `event.target`, which the capture
 retargets to the stage — and any drag past `DRAG_THRESHOLD` never counts as a
-click. It locks the page behind it with `utils/scrollLock.js`, restores focus
-on close and renders all labels through `viewer.*` locale keys, overridable per
-call via `labels`. Excluded from page interaction (`isOwnUi`).
+click. Controls and links inside the stage are exempt from the capture, so the
+nav arrows, the error link and the help card keep their own clicks. It locks
+the page behind it with `utils/scrollLock.js`, restores focus on close and
+renders all labels through `viewer.*` locale keys, overridable per call via
+`labels`. Excluded from page interaction (`isOwnUi`).
 
 ### `src/ui/toast.js` — notifications
 
@@ -418,7 +441,7 @@ icon. The feature is registry-driven; every surface degrades on its own.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 106
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 115
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -427,11 +450,15 @@ icon. The feature is registry-driven; every surface degrades on its own.
 - `dom.js`: `el(tag, className, text)`, `append`, `debounce`, `eachNode`,
   `toArray`, `isOwnUi(node)` (true inside `.gp-panel-overlay`,
   `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`, `.gp-user-menu-item`,
-  `.gp-viewer-overlay`). `eachNode`/`toArray` exist because DOM collections
+  `.gp-viewer-overlay`, `.gp-download-btn`). `eachNode`/`toArray` exist because DOM collections
   (`NodeList`, `HTMLCollection`, `addedNodes`, `classList`) are **not iterable
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
   from the DOM) with them, never `for...of`.
+- `download.js`: `downloadImage(url, name?)` fetches the bytes and saves them
+  through an object URL, so a cross-origin image keeps its filename; a camo URL
+  is unwrapped to the proxied file's name, and a blocked fetch falls back to
+  opening the image in a new tab.
 - `navigation.js`: `watchNavigation(fn)` — patches `pushState`/`replaceState`
   (guarded against double wrapping), listens to `popstate`, `hashchange`,
   `turbo:load`, `turbo:render` and `pjax:end`, and notifies with the current
@@ -463,8 +490,8 @@ must not own feature state. Rules that keep it acyclic:
   caller's job.
 - `gallery` never imports from `features`; `features/settings` imports the
   gallery registry (`listSources`) but not the gallery wiring.
-- `ui/viewer.js` and `ui/toast.js` import only `i18n`, `utils` and `core`
-  helpers — they are reusable, not gallery-specific.
+- `ui/viewer.js` and `ui/toast.js` import only `i18n`, `utils`, `core` and
+  sibling `ui` helpers — they are reusable, not gallery-specific.
 - Side-effect registrations (the markdown source, page registration in
   `features/settings/index.js`) run at import time — a module that must be
   registered is imported by the module that owns its lifecycle.
@@ -533,6 +560,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `gallery.sources.markdown` | `true` | Per-source switches keyed by source id |
 | `gallery.skipBadges` | `true` | Skip badge hosts, emoji and images smaller than `GALLERY_MIN_SIZE_PX` |
 | `gallery.upgradeFullSize` | `true` | Probe and load the linked original |
+| `gallery.download` | `true` | Download button in the viewer and on hovered markdown images |
 | `gallery.thumbnails` | `true` | Thumbnail strip in the viewer |
 | `gallery.loop` | `true` | Wrap around at the ends |
 | `gallery.maxZoom` | `8` | Zoom ceiling, clamped to 2…`GALLERY_MAX_ZOOM` |
@@ -558,6 +586,12 @@ with English fallback.
 - Localized `@name` / `@description` metadata in `vite.config.js` must stay
   aligned when the product description changes (generated into the userscript
   header).
+- The README mirrors the ten UI locales as `README.md` plus nine
+  `README.<locale>.md` files (English is the reference). Keep them in sync
+  section for section when the description, install instructions, features,
+  settings table or version change. Command blocks, setting keys, paths and
+  URLs stay untranslated; the language switcher lists all ten entries with the
+  current one in bold.
 
 ## Design
 
@@ -606,10 +640,10 @@ Keep the version synchronized in `package.json` and `package-lock.json` (edit
 versions with it: record every user-visible change under `[Unreleased]`; when
 bumping, move those bullets into a new `## [X.Y.Z] - YYYY-MM-DD` section (with
 a matching link reference at the bottom) and leave `[Unreleased]` empty. Keep
-the version badge and the Status line in `README.md` synchronized with the
-bumped version. The userscript metadata is generated from `package.json`; run
-`npm run build` after every bump so the root `.user.js` / `.meta.js` headers
-carry the new version.
+the version badge and the Status line in `README.md` and in every
+`README.<locale>.md` synchronized with the bumped version. The userscript
+metadata is generated from `package.json`; run `npm run build` after every bump
+so the root `.user.js` / `.meta.js` headers carry the new version.
 
 ## Build and verification
 
@@ -622,7 +656,7 @@ npm run build              # vite build + copy dist/ → root artifacts
 npm run verify:artifacts   # fail if dist/ and root artifacts differ
 npm run ci                 # build + verify (CI gate, also in GitHub Actions)
 npm run icons:build        # regenerate iconSet.generated.js from the package
-npm test                   # Node test runner (match.js)
+npm test                   # Node test runner (match.js, download.js)
 ```
 
 Build facts agents need to know:
@@ -660,6 +694,12 @@ and check diagnostics for edited files.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
   that `.gp-settings-btn` is inside it. A header rework on GitHub's side is the
   usual cause — extend the list, never restyle GitHub's own header.
+- Page download button missing: the gallery and `gallery.download` must both be
+  on, the image must sit inside an enabled source container and pass the
+  collector's filters (badges, emoji and tiny images are skipped), and the
+  pointer must be a mouse or pen — touch has no hover, so the viewer's download
+  tool is the path there. A download whose fetch is blocked by CORS or a CSP
+  falls back to opening the image in a new tab.
 - Row missing from the avatar menu: check `#__primerPortalRoot__` while the
   menu is open — the row is injected from that container, so an empty portal
   root means the overlay is no longer portaled there and only the header-click

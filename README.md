@@ -1,14 +1,16 @@
 # GitHub Plus
 
+**English** · [Русский](README.ru.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [中文（简体）](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Polski](README.pl.md)
+
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.5.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, and colored file icons wherever GitHub lists files.
 
-> **Status:** early (`0.5.3`). Settings panel with instant search (General ·
+> **Status:** early (`0.8.0`). Settings panel with instant search (General ·
 > Gallery · File icons · Backup · About), the markdown image gallery and
 > colored file icons. More GitHub improvements planned.
 
@@ -72,6 +74,10 @@ Every rendered markdown container on GitHub is one gallery set:
   file behind a `/blob/` page, an uploaded attachment, any image URL), that
   file is probed and swapped in, so you get the original resolution without a
   broken image if it is unavailable.
+- **Download what you see** — hover a markdown image for a download button, or
+  use the one in the viewer toolbar; the file is saved under its own name (a
+  proxied address is unwrapped to the original filename), and one setting hides
+  both buttons.
 - **Quiet by default** — badges, status snippets, emoji and tiny icons never
   take a gallery slot; images keep GitHub's own look (only the cursor hints
   that they open the gallery), and modified clicks (Ctrl/Cmd/Shift/Alt) plus
@@ -123,6 +129,7 @@ Stored under `gp_settings_v1`.
 | `gallery.sources.markdown` | `true` | Per-source switch (one entry per registered source) |
 | `gallery.skipBadges` | `true` | Skip badge services (including badges behind GitHub's camo proxy and Actions status badges), emoji, images ≤ 40 px tall and images smaller than 80 px on both axes |
 | `gallery.upgradeFullSize` | `true` | Probe and load the linked full-size original |
+| `gallery.download` | `true` | Download button in the viewer and on hovered markdown images |
 | `gallery.thumbnails` | `true` | Thumbnail strip in the viewer |
 | `gallery.loop` | `true` | Wrap around from the last image to the first |
 | `gallery.maxZoom` | `8` | Zoom ceiling (2× … 16×) |
@@ -140,10 +147,10 @@ adding a new place never touches the gallery itself:
 
 | File | Role |
 |------|------|
-| `src/ui/viewer.js` | The lightbox: `openViewer({ images, index, loop, thumbnails, minZoom, maxZoom, resolveImage, labels, onClose })`, plus `closeViewer()` / `isViewerOpen()`. Self-contained — it can be reused by any feature. |
+| `src/ui/viewer.js` | The lightbox: `openViewer({ images, index, loop, thumbnails, download, minZoom, maxZoom, resolveImage, labels, onClose })`, plus `closeViewer()` / `isViewerOpen()`. Self-contained — it can be reused by any feature. |
 | `src/gallery/sources.js` | Source registry: `registerSource`, `listSources`. |
 | `src/gallery/collect.js` | Collection: normalization, filtering (badges/emoji/small icons), de-duplication, cap. |
-| `src/gallery/index.js` | Wiring: one capture-phase click listener, the generated cursor affordance stylesheet, settings listener. |
+| `src/gallery/index.js` | Wiring: one capture-phase click listener, the generated cursor affordance stylesheet, delegated hover listeners for the download button, settings listener. |
 | `src/gallery/sources/markdown.js` | The markdown source: containers, image lookup, full-size resolution. |
 
 Because the affordance is CSS built from the registry and the click handling is
@@ -188,7 +195,7 @@ npm run build              # vite build + copy dist/ → root artifacts
 npm run verify:artifacts   # fail if dist/ and root artifacts differ
 npm run ci                 # build + verify (CI gate)
 npm run icons:build        # regenerate the embedded icon subset
-npm test                   # Node test runner (icon matching)
+npm test                   # Node test runner (unit tests)
 ```
 
 Edit files under `src/` only — `github-plus.user.js` and

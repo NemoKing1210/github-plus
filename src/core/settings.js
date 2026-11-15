@@ -95,6 +95,7 @@ function normalizeGallery(raw, fallback) {
     sources: normalizeSources(source.sources, fallback.sources),
     skipBadges: normalizeBoolean(source.skipBadges, fallback.skipBadges),
     upgradeFullSize: normalizeBoolean(source.upgradeFullSize, fallback.upgradeFullSize),
+    download: normalizeBoolean(source.download, fallback.download),
     thumbnails: normalizeBoolean(source.thumbnails, fallback.thumbnails),
     loop: normalizeBoolean(source.loop, fallback.loop),
     maxZoom: normalizeZoom(source.maxZoom, fallback.maxZoom),

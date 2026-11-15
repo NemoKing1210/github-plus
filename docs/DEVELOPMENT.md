@@ -26,7 +26,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
 | `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
-| `npm test` | Node test runner, currently `test/match.test.js` (icon matching). |
+| `npm test` | Node test runner: `test/match.test.js` (icon matching) and `test/download.test.js` (download filenames). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -96,6 +96,13 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       markdown image wrapped in a link to a repository `/blob/` file is swapped
       for its `/raw/` version; a link that does not load is dropped instead of
       showing a broken image.
+- [ ] Hovering a markdown image shows the floating download button at its
+      top-right corner; leaving the image hides it, and clicking the button
+      saves the file under its own name (a camo address is unwrapped) without
+      opening the viewer.
+- [ ] The viewer toolbar's download tool saves the image currently shown; with
+      **Download images** off neither the tool nor the hover button appears.
+      When the host blocks the fetch, the image opens in a new tab instead.
 - [ ] With **Image gallery** off, clicking a markdown image behaves like stock
       GitHub and no stylesheet is injected.
 
@@ -181,6 +188,7 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1101` | `GALLERY_FAILED` | Collecting or opening a gallery failed (logged once at the click). |
 | `GP-1102` | `GALLERY_SOURCE` | A registered gallery source threw while collecting its images. |
 | `GP-1103` | `GALLERY_IMAGE` | A gallery image failed to load in the viewer. |
+| `GP-1104` | `GALLERY_DOWNLOAD` | The page-level download button could not be shown for an image. |
 | `GP-1201` | `UI_MOUNT` | Mounting the settings entry or panel failed. |
 | `GP-1301` | `FILE_ICONS` | A file-icons surface or its selectors failed. |
 

@@ -1,8 +1,12 @@
 import { on } from '../core/bus.js';
 import { Codes, logWarn } from '../core/debug.js';
 import { getGallerySettings } from '../core/settings.js';
+import { t } from '../i18n/index.js';
+import { VIEWER_ICONS } from '../ui/icons.js';
 import { openViewer } from '../ui/viewer.js';
 import { el, isOwnUi } from '../utils/dom.js';
+import { downloadImage } from '../utils/download.js';
+import { watchNavigation } from '../utils/navigation.js';
 import { collectGallery, matchIndex, resolveContainer } from './collect.js';
 import { listSources } from './sources.js';
 // Registers the markdown source (side effect).
@@ -19,6 +23,9 @@ import './sources/markdown.js';
  *   (no border, outline or overlay), and no per-image listeners or DOM
  *   mutations are needed, so a React re-render cannot strip anything and a
  *   scan loop is never required.
+ * - The one extra affordance is a floating download button of our own, shown
+ *   while an eligible image is hovered. It lives in `<body>`, never inside
+ *   GitHub's markup, and delegated pointer listeners drive it.
  * - A single capture-phase click listener resolves the source, collects the
  *   set and opens the viewer; it walks the live DOM on every click, so
  *   content that arrived after load behaves exactly like content that was
@@ -28,8 +35,15 @@ import './sources/markdown.js';
  */
 
 const STYLE_ID = 'gp-gallery-style';
+const DOWNLOAD_CLASS = 'gp-download-btn';
+/** Grace period for the pointer to travel from the image onto the button. */
+const DOWNLOAD_HIDE_MS = 140;
 
 let installed = false;
+
+let downloadButton = null;
+let downloadNode = null;
+let downloadTimer = null;
 
 function isSourceEnabled(source, settings) {
   return settings.sources[source.id] !== false;
@@ -99,6 +113,7 @@ async function upgradeImage(item) {
 }
 
 function openGallery(entries, index, settings) {
+  hideDownloadButton();
   const images = [];
   for (let i = 0; i < entries.length; i += 1) images.push(entries[i].image);
   openViewer({
@@ -106,9 +121,150 @@ function openGallery(entries, index, settings) {
     index,
     loop: settings.loop,
     thumbnails: settings.thumbnails,
+    download: settings.download,
     maxZoom: settings.maxZoom,
     resolveImage: settings.upgradeFullSize ? upgradeImage : null,
   });
+}
+
+function cancelDownloadHide() {
+  if (downloadTimer) {
+    clearTimeout(downloadTimer);
+    downloadTimer = null;
+  }
+}
+
+function hideDownloadButton() {
+  cancelDownloadHide();
+  downloadNode = null;
+  if (downloadButton) downloadButton.hidden = true;
+}
+
+function scheduleDownloadHide() {
+  cancelDownloadHide();
+  downloadTimer = setTimeout(hideDownloadButton, DOWNLOAD_HIDE_MS);
+}
+
+/** Drop the element entirely: GitHub replaces `<body>` on soft navigation. */
+function removeDownloadButton() {
+  cancelDownloadHide();
+  downloadNode = null;
+  if (downloadButton) downloadButton.remove();
+  downloadButton = null;
+}
+
+function ensureDownloadButton() {
+  if (downloadButton && downloadButton.isConnected) return downloadButton;
+  const button = el('button', DOWNLOAD_CLASS);
+  button.type = 'button';
+  button.hidden = true;
+  button.innerHTML = VIEWER_ICONS.download;
+  button.addEventListener('pointerenter', cancelDownloadHide);
+  button.addEventListener('pointerleave', scheduleDownloadHide);
+  button.addEventListener('click', onDownloadClick);
+  document.body.appendChild(button);
+  downloadButton = button;
+  return button;
+}
+
+function positionDownloadButton() {
+  if (!downloadButton || !downloadNode) return;
+  const rect = downloadNode.getBoundingClientRect();
+  const size = downloadButton.offsetWidth || 30;
+  const margin = 8;
+  if (rect.width < size || rect.height < size || rect.bottom < 0 || rect.top > window.innerHeight) {
+    hideDownloadButton();
+    return;
+  }
+  const top = Math.max(margin, Math.min(window.innerHeight - size - margin, rect.top + margin));
+  const left = Math.max(margin, Math.min(window.innerWidth - size - margin, rect.right - size - margin));
+  downloadButton.style.top = `${Math.round(top)}px`;
+  downloadButton.style.left = `${Math.round(left)}px`;
+}
+
+function showDownloadButton(node) {
+  const button = ensureDownloadButton();
+  cancelDownloadHide();
+  downloadNode = node;
+  const label = t('viewer.download');
+  button.title = label;
+  button.setAttribute('aria-label', label);
+  button.hidden = false;
+  positionDownloadButton();
+}
+
+function onDownloadClick(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const node = downloadNode;
+  hideDownloadButton();
+  if (!node) return;
+  const src = node.currentSrc || node.src || '';
+  if (src) void downloadImage(src);
+}
+
+/** Keep the button while the pointer is on it or on the image's own link. */
+function isDownloadHover(node) {
+  if (!(node instanceof Node)) return false;
+  if (downloadButton && downloadButton.contains(node)) return true;
+  const anchor = downloadNode?.closest('a');
+  return !!(anchor && anchor.contains(node));
+}
+
+function onPointerOver(event) {
+  if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+  // A React re-render can replace the image under the pointer without a
+  // pointerout, leaving the button pinned over content that is gone.
+  if (downloadNode && !downloadNode.isConnected) hideDownloadButton();
+  const target = event.target;
+  if (!(target instanceof Element) || isOwnUi(target)) return;
+  const node = target.closest('img');
+  if (!node) {
+    if (downloadNode && isDownloadHover(target)) cancelDownloadHide();
+    return;
+  }
+  if (node === downloadNode) {
+    cancelDownloadHide();
+    return;
+  }
+  if (node.closest('a.anchor')) {
+    hideDownloadButton();
+    return;
+  }
+  const settings = getGallerySettings();
+  if (!settings.enabled || !settings.download) {
+    hideDownloadButton();
+    return;
+  }
+  try {
+    const hit = locate(node, settings);
+    if (!hit) {
+      hideDownloadButton();
+      return;
+    }
+    const entries = collectGallery(hit.container, hit.source, settings);
+    if (matchIndex(entries, node) < 0) {
+      hideDownloadButton();
+      return;
+    }
+    showDownloadButton(node);
+  } catch (error) {
+    hideDownloadButton();
+    logWarn(Codes.GALLERY_DOWNLOAD, 'could not show the image download button', {
+      error,
+      src: node.getAttribute('src'),
+    });
+  }
+}
+
+function onPointerOut(event) {
+  if (!downloadNode) return;
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const surface = downloadNode.closest('a') || downloadNode;
+  if (target !== downloadNode && !surface.contains(target)) return;
+  if (isDownloadHover(event.relatedTarget)) return;
+  scheduleDownloadHide();
 }
 
 function onClick(event) {
@@ -142,12 +298,17 @@ function install() {
   installed = true;
   // Capture phase: GitHub's own delegated handlers must never see the click.
   document.addEventListener('click', onClick, true);
+  document.addEventListener('pointerover', onPointerOver, true);
+  document.addEventListener('pointerout', onPointerOut, true);
+  window.addEventListener('scroll', hideDownloadButton, true);
+  window.addEventListener('resize', hideDownloadButton);
 }
 
 /** Apply the current settings: install listeners and repaint the stylesheet. */
 export function applyGallerySettings() {
   install();
   paintStyles();
+  hideDownloadButton();
 }
 
 /** Boot the gallery feature (idempotent). */
@@ -155,4 +316,5 @@ export function initGalleryFeature() {
   install();
   paintStyles();
   on('settings:gallery', applyGallerySettings);
+  watchNavigation(removeDownloadButton);
 }

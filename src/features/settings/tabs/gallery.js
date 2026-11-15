@@ -72,6 +72,14 @@ export function renderGallery(container) {
       },
     }),
     createSwitchRow({
+      checked: draft.gallery.download,
+      label: t('gallery.download'),
+      hint: t('gallery.downloadDesc'),
+      onChange: (value) => {
+        draft.gallery.download = value;
+      },
+    }),
+    createSwitchRow({
       checked: draft.gallery.thumbnails,
       label: t('gallery.thumbnails'),
       hint: t('gallery.thumbnailsDesc'),

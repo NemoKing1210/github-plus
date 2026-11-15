@@ -1,6 +1,8 @@
 import { t } from '../i18n/index.js';
 import { el } from '../utils/dom.js';
+import { downloadImage } from '../utils/download.js';
 import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
+import { VIEWER_ICONS } from './icons.js';
 
 /**
  * Fullscreen image viewer for injected content: fit-to-screen by default with
@@ -19,18 +21,43 @@ import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
  */
 
 const ROOT_ID = 'gp-viewer-overlay';
-const ZOOM_STEP = 0.35;
-const DOUBLE_CLICK_ZOOM = 2;
+const HELP_ID = 'gp-viewer-help';
+/** Smallest scale relative to fit, so an image can shrink below its own size. */
+const MIN_ZOOM = 0.25;
+/** Zoom stops shared by the buttons and the keyboard. */
+const ZOOM_LEVELS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16];
 /** Pointer travel that turns a press into a drag (and so not into a click). */
 const DRAG_THRESHOLD = 3;
 const ROTATION_STEP = 90;
+
+const HELP_ROWS = [
+  { keys: ['←', '→'], labelKey: 'shortcutBrowse' },
+  { keys: ['+', '−'], labelKey: 'shortcutZoom' },
+  { keys: ['R'], labelKey: 'rotate' },
+  { keys: ['0'], labelKey: 'reset' },
+  { keys: ['?'], labelKey: 'help' },
+  { keys: ['Esc'], labelKey: 'close' },
+];
+
+const LABEL_KEYS = {
+  'zoom-out': 'zoomOut',
+  'zoom-in': 'zoomIn',
+  rotate: 'rotate',
+  fit: 'reset',
+  close: 'close',
+  prev: 'prev',
+  next: 'next',
+  open: 'open',
+  download: 'download',
+};
 
 const defaults = {
   images: [],
   index: 0,
   loop: true,
   thumbnails: true,
-  minZoom: 1,
+  download: true,
+  minZoom: MIN_ZOOM,
   maxZoom: 8,
   labels: null,
   resolveImage: null,
@@ -58,6 +85,7 @@ function buildState(options) {
     zoom: 1,
     rotation: 0,
     offset: { x: 0, y: 0 },
+    helpOpen: false,
     pointers: new Map(),
     drag: null,
     pinch: null,
@@ -67,8 +95,8 @@ function buildState(options) {
   };
 }
 
-function label(key) {
-  return state?.opts.labels?.[key] || t(`viewer.${key}`);
+function label(key, vars) {
+  return state?.opts.labels?.[key] || t(`viewer.${key}`, vars);
 }
 
 function parts() {
@@ -77,26 +105,33 @@ function parts() {
     root,
     dialog: root?.querySelector('.gp-viewer'),
     title: root?.querySelector('[data-gp-viewer="title"]'),
+    size: root?.querySelector('[data-gp-viewer="size"]'),
     counter: root?.querySelector('[data-gp-viewer="counter"]'),
     stage: root?.querySelector('[data-gp-viewer="stage"]'),
     image: root?.querySelector('[data-gp-viewer="image"]'),
     spinner: root?.querySelector('[data-gp-viewer="spinner"]'),
     status: root?.querySelector('[data-gp-viewer="status"]'),
-    hint: root?.querySelector('[data-gp-viewer="hint"]'),
+    statusText: root?.querySelector('[data-gp-viewer="status-text"]'),
+    statusLink: root?.querySelector('[data-gp-viewer="status-link"]'),
     thumbs: root?.querySelector('[data-gp-viewer="thumbs"]'),
+    help: root?.querySelector('[data-gp-viewer="help-card"]'),
+    helpButton: root?.querySelector('[data-gp-viewer="help"]'),
     prev: root?.querySelector('[data-gp-viewer="prev"]'),
     next: root?.querySelector('[data-gp-viewer="next"]'),
     open: root?.querySelector('[data-gp-viewer="open"]'),
+    download: root?.querySelector('[data-gp-viewer="download"]'),
+    zoom: root?.querySelector('[data-gp-viewer="zoom"]'),
   };
 }
 
-function toolButton(action, glyph, labelKey, extraClass = '') {
-  const button = el('button', `gp-viewer__tool ${extraClass}`.trim(), glyph);
-  button.type = 'button';
-  button.dataset.gpViewer = action;
-  button.title = label(labelKey);
-  button.setAttribute('aria-label', label(labelKey));
-  return button;
+function toolButton(action, icon, labelKey, extraClass = '', tag = 'button') {
+  const node = el(tag, `gp-viewer__tool ${extraClass}`.trim());
+  if (tag === 'button') node.type = 'button';
+  node.dataset.gpViewer = action;
+  node.innerHTML = VIEWER_ICONS[icon] || '';
+  node.title = label(labelKey);
+  node.setAttribute('aria-label', label(labelKey));
+  return node;
 }
 
 function ensureOverlay() {
@@ -111,44 +146,66 @@ function ensureOverlay() {
   dialog.setAttribute('role', 'dialog');
   dialog.setAttribute('aria-modal', 'true');
   dialog.setAttribute('aria-label', t('viewer.title'));
+  dialog.tabIndex = -1;
 
   const bar = el('div', 'gp-viewer__bar');
   const meta = el('div', 'gp-viewer__meta');
-  const title = el('span', 'gp-viewer__title', '');
+  const title = el('span', 'gp-viewer__title');
   title.dataset.gpViewer = 'title';
-  const counter = el('span', 'gp-viewer__counter', '');
+  const size = el('span', 'gp-viewer__size');
+  size.dataset.gpViewer = 'size';
+  size.hidden = true;
+  const counter = el('span', 'gp-viewer__counter');
   counter.dataset.gpViewer = 'counter';
-  meta.append(title, counter);
-  const openTool = el('a', 'gp-viewer__tool', '↗');
-  openTool.dataset.gpViewer = 'open';
+  counter.setAttribute('aria-live', 'polite');
+  counter.hidden = true;
+  meta.append(title, size, counter);
+
+  const zoom = el('button', 'gp-viewer__zoom');
+  zoom.type = 'button';
+  zoom.dataset.gpViewer = 'zoom';
+  zoom.textContent = '100%';
+
+  const openTool = toolButton('open', 'external', 'open', '', 'a');
   openTool.target = '_blank';
   openTool.rel = 'noopener noreferrer';
   openTool.hidden = true;
-  openTool.title = label('open');
-  openTool.setAttribute('aria-label', label('open'));
+
+  const downloadTool = toolButton('download', 'download', 'download');
+  downloadTool.hidden = true;
+
+  const helpTool = toolButton('help', 'help', 'help', 'gp-viewer__tool--help');
+  helpTool.setAttribute('aria-expanded', 'false');
+  helpTool.setAttribute('aria-controls', HELP_ID);
+
   const tools = el('div', 'gp-viewer__tools');
   tools.append(
-    toolButton('zoom-out', '−', 'zoomOut'),
-    toolButton('zoom-in', '+', 'zoomIn'),
+    toolButton('zoom-out', 'zoomOut', 'zoomOut'),
+    zoom,
+    toolButton('zoom-in', 'zoomIn', 'zoomIn'),
     el('span', 'gp-viewer__sep'),
-    toolButton('rotate', '⟳', 'rotate'),
-    toolButton('reset', '⤢', 'reset'),
+    toolButton('rotate', 'rotate', 'rotate'),
+    toolButton('fit', 'fit', 'reset'),
     el('span', 'gp-viewer__sep'),
     openTool,
-    toolButton('close', '×', 'close', 'gp-viewer__tool--close'),
+    downloadTool,
+    helpTool,
+    toolButton('close', 'close', 'close', 'gp-viewer__tool--close'),
   );
   bar.append(meta, tools);
 
   const stage = el('div', 'gp-viewer__stage');
   stage.dataset.gpViewer = 'stage';
-  const prev = el('button', 'gp-viewer__nav gp-viewer__nav--prev', '‹');
+  const prev = el('button', 'gp-viewer__nav gp-viewer__nav--prev');
   prev.type = 'button';
   prev.dataset.gpViewer = 'prev';
+  prev.innerHTML = VIEWER_ICONS.chevronLeft;
   prev.title = label('prev');
   prev.setAttribute('aria-label', label('prev'));
-  const next = el('button', 'gp-viewer__nav gp-viewer__nav--next', '›');
+  const next = el('button', 'gp-viewer__nav gp-viewer__nav--next');
   next.type = 'button';
   next.dataset.gpViewer = 'next';
+  next.innerHTML = VIEWER_ICONS.chevronRight;
   next.title = label('next');
   next.setAttribute('aria-label', label('next'));
   const image = el('img', 'gp-viewer__image');
@@ -157,52 +214,96 @@ function ensureOverlay() {
   image.draggable = false;
   const spinner = el('span', 'gp-viewer__spinner');
   spinner.dataset.gpViewer = 'spinner';
-  const status = el('p', 'gp-viewer__status', '');
+
+  const status = el('div', 'gp-viewer__status');
   status.dataset.gpViewer = 'status';
   status.hidden = true;
   status.setAttribute('role', 'alert');
-  stage.append(prev, image, spinner, status, next);
+  const statusIcon = el('span', 'gp-viewer__status-icon');
+  statusIcon.innerHTML = VIEWER_ICONS.imageOff;
+  const statusText = el('p', 'gp-viewer__status-text');
+  statusText.dataset.gpViewer = 'status-text';
+  const statusLink = el('a', 'gp-viewer__status-link');
+  statusLink.dataset.gpViewer = 'status-link';
+  statusLink.target = '_blank';
+  statusLink.rel = 'noopener noreferrer';
+  statusLink.hidden = true;
+  status.append(statusIcon, statusText, statusLink);
 
-  const hint = el('p', 'gp-viewer__hint', t('viewer.hint'));
-  hint.dataset.gpViewer = 'hint';
+  const help = el('div', 'gp-viewer__help');
+  help.id = HELP_ID;
+  help.dataset.gpViewer = 'help-card';
+  help.hidden = true;
+  help.tabIndex = -1;
+  help.setAttribute('role', 'dialog');
+  help.setAttribute('aria-label', label('help'));
+
+  stage.append(prev, image, spinner, status, next, help);
+
   const thumbs = el('div', 'gp-viewer__thumbs');
   thumbs.dataset.gpViewer = 'thumbs';
   thumbs.setAttribute('aria-label', t('viewer.thumbs'));
 
-  dialog.append(bar, stage, thumbs, hint);
+  dialog.append(bar, stage, thumbs);
   root.appendChild(dialog);
   document.body.appendChild(root);
   return root;
 }
 
+/** Displayed scale relative to the image's natural pixels (1 = 100%). */
+function baseScale() {
+  const { image } = parts();
+  if (!state || !image || !image.naturalWidth || !image.clientWidth) return 1;
+  return image.clientWidth / image.naturalWidth;
+}
+
+function zoomPercent() {
+  if (!state) return 100;
+  return Math.max(1, Math.round(baseScale() * state.zoom * 100));
+}
+
 function paint() {
-  const { dialog, image, counter, thumbs, prev, next, open } = parts();
+  const { dialog, image, counter, thumbs, prev, next, open, download, zoom } = parts();
   if (!state || !dialog || !image) return;
-  const { zoom, rotation, offset, images, index } = state;
+  const { zoom: scale, rotation, offset, images, index } = state;
 
   // The image can be dragged at any zoom; the offset is clamped so it slides
   // inside the stage without ever leaving it.
   const stage = image.parentElement;
   const swapped = rotation % 180 !== 0;
-  const width = (swapped ? image.clientHeight : image.clientWidth) * zoom;
-  const height = (swapped ? image.clientWidth : image.clientHeight) * zoom;
+  const width = (swapped ? image.clientHeight : image.clientWidth) * scale;
+  const height = (swapped ? image.clientWidth : image.clientHeight) * scale;
   const maxX = Math.abs(stage.clientWidth - width) / 2;
   const maxY = Math.abs(stage.clientHeight - height) / 2;
   offset.x = Math.min(maxX, Math.max(-maxX, offset.x));
   offset.y = Math.min(maxY, Math.max(-maxY, offset.y));
   const moved = offset.x !== 0 || offset.y !== 0;
-  image.style.transform = !moved && zoom === 1 && rotation % 360 === 0
+  image.style.transform = !moved && scale === 1 && rotation % 360 === 0
     ? ''
-    : `translate(${offset.x}px, ${offset.y}px) scale(${zoom}) rotate(${rotation}deg)`;
+    : `translate(${offset.x}px, ${offset.y}px) scale(${scale}) rotate(${rotation}deg)`;
   dialog.classList.toggle('is-rotated', rotation % 360 !== 0);
 
-  if (counter) counter.textContent = images.length > 1 ? t('viewer.counter', { current: index + 1, total: images.length }) : '';
+  if (counter) {
+    const multiple = images.length > 1;
+    counter.hidden = !multiple;
+    counter.textContent = multiple ? label('counter', { current: index + 1, total: images.length }) : '';
+  }
+  if (zoom) {
+    const atActualSize = Math.abs(zoomPercent() - 100) <= 1;
+    const target = atActualSize ? 'fit' : 'actualSize';
+    zoom.textContent = `${zoomPercent()}%`;
+    zoom.title = label(target);
+    zoom.setAttribute('aria-label', label(target));
+  }
   if (open) {
     const item = images[index];
     const href = (item && (item.link || item.src)) || '';
     open.hidden = !href;
     if (href) open.href = href;
     else open.removeAttribute('href');
+  }
+  if (download) {
+    download.hidden = state.opts.download === false || !(images[index] && images[index].src);
   }
   const multiple = images.length > 1;
   if (prev) prev.hidden = !multiple;
@@ -228,19 +329,8 @@ function preload() {
   if (previous) new Image().src = previous.src;
 }
 
-const LABEL_KEYS = {
-  'zoom-out': 'zoomOut',
-  'zoom-in': 'zoomIn',
-  rotate: 'rotate',
-  reset: 'reset',
-  close: 'close',
-  prev: 'prev',
-  next: 'next',
-  open: 'open',
-};
-
 function refreshLabels() {
-  const { root, dialog } = parts();
+  const { root, dialog, help, helpButton } = parts();
   if (!root) return;
   const nodes = root.querySelectorAll('[data-gp-viewer]');
   for (let i = 0; i < nodes.length; i += 1) {
@@ -250,8 +340,60 @@ function refreshLabels() {
     nodes[i].setAttribute('aria-label', label(key));
   }
   if (dialog) dialog.setAttribute('aria-label', label('title'));
+  if (help) help.setAttribute('aria-label', label('help'));
+  if (helpButton) {
+    helpButton.title = label('help');
+    helpButton.setAttribute('aria-label', label('help'));
+  }
   const thumbs = root.querySelector('[data-gp-viewer="thumbs"]');
   if (thumbs) thumbs.setAttribute('aria-label', label('thumbs'));
+  buildHelp();
+}
+
+function buildHelp() {
+  const { help } = parts();
+  if (!help) return;
+  help.textContent = '';
+  const head = el('div', 'gp-viewer__help-head');
+  const title = el('span', 'gp-viewer__help-title', label('help'));
+  const close = el('button', 'gp-viewer__help-close');
+  close.type = 'button';
+  close.dataset.gpViewer = 'help-close';
+  close.innerHTML = VIEWER_ICONS.close;
+  close.title = label('close');
+  close.setAttribute('aria-label', label('close'));
+  head.append(title, close);
+  const list = el('div', 'gp-viewer__help-list');
+  for (let i = 0; i < HELP_ROWS.length; i += 1) {
+    const row = el('div', 'gp-viewer__help-row');
+    const text = el('span', 'gp-viewer__help-label', label(HELP_ROWS[i].labelKey));
+    const keys = el('span', 'gp-viewer__help-keys');
+    for (let k = 0; k < HELP_ROWS[i].keys.length; k += 1) {
+      keys.appendChild(el('kbd', null, HELP_ROWS[i].keys[k]));
+    }
+    row.append(text, keys);
+    list.appendChild(row);
+  }
+  help.append(head, list);
+}
+
+function syncHelpButton() {
+  const { helpButton } = parts();
+  if (helpButton) helpButton.setAttribute('aria-expanded', state?.helpOpen ? 'true' : 'false');
+}
+
+function toggleHelp(open) {
+  if (!state) return;
+  const next = typeof open === 'boolean' ? open : !state.helpOpen;
+  state.helpOpen = next;
+  const { help, helpButton } = parts();
+  if (help) {
+    const hadFocus = help.contains(document.activeElement);
+    help.hidden = !next;
+    if (next) help.focus();
+    else if (hadFocus) helpButton?.focus();
+  }
+  syncHelpButton();
 }
 
 function buildThumbs() {
@@ -263,12 +405,20 @@ function buildThumbs() {
     const button = el('button', 'gp-viewer__thumb');
     button.type = 'button';
     button.dataset.gpViewerThumb = String(index);
-    button.title = item.title || '';
+    button.title = item.title || item.alt || label('imageTitle', { current: index + 1 });
+    button.setAttribute('aria-label', label('imageTitle', { current: index + 1 }));
     const image = el('img', 'gp-viewer__thumb-img');
     image.src = item.src;
     image.alt = '';
     image.loading = 'lazy';
-    button.appendChild(image);
+    image.draggable = false;
+    const fallback = el('span', 'gp-viewer__thumb-fallback');
+    fallback.innerHTML = VIEWER_ICONS.imageOff;
+    image.addEventListener('error', () => {
+      button.classList.add('is-broken');
+      image.hidden = true;
+    });
+    button.append(image, fallback);
     thumbs.appendChild(button);
   }
 }
@@ -284,15 +434,20 @@ function show(index) {
   if (!state || !state.images.length) return;
   state.index = wrap(index);
   state.token += 1;
+  state.helpOpen = false;
   const item = state.images[state.index];
-  const { image, spinner, status, title } = parts();
+  const { image, spinner, status, title, size, help, open } = parts();
   resetView();
-  if (title) title.textContent = item.title || '';
-  if (status) {
-    status.hidden = true;
-    status.textContent = '';
+  if (help) help.hidden = true;
+  syncHelpButton();
+  if (title) title.textContent = item.title || item.alt || label('imageTitle', { current: state.index + 1 });
+  if (size) {
+    size.hidden = true;
+    size.textContent = '';
   }
+  if (status) status.hidden = true;
   if (spinner) spinner.hidden = false;
+  if (open) open.hidden = true;
   image.classList.add('is-loading');
   image.src = item.src;
   image.alt = item.alt || item.title || '';
@@ -314,14 +469,22 @@ async function upgrade(token, index, item) {
   } catch {
     return;
   }
-  const { image, spinner, thumbs } = parts();
+  const { image, spinner, thumbs, size } = parts();
   if (!better || better === item.src || !state || state.token !== token || state.index !== index) return;
   state.images[index] = { ...item, src: better };
   if (spinner) spinner.hidden = false;
+  if (size) {
+    size.hidden = true;
+    size.textContent = '';
+  }
   image?.classList.add('is-loading');
   if (image) image.src = better;
   const thumb = thumbs?.querySelector(`[data-gp-viewer-thumb="${index}"] img`);
-  if (thumb) thumb.src = better;
+  if (thumb) {
+    thumb.hidden = false;
+    thumb.parentElement?.classList.remove('is-broken');
+    thumb.src = better;
+  }
 }
 
 function wrap(index) {
@@ -338,9 +501,84 @@ function step(delta) {
   show(next);
 }
 
-function setZoom(zoom) {
+function zoomLevels() {
+  const levels = [];
+  for (let i = 0; i < ZOOM_LEVELS.length; i += 1) {
+    const level = ZOOM_LEVELS[i];
+    if (level >= state.opts.minZoom && level <= state.opts.maxZoom) levels.push(level);
+  }
+  if (!levels.length) levels.push(state.opts.minZoom);
+  return levels;
+}
+
+/**
+ * Move one stop up or down. An anchor (stage-relative point) keeps the pixel
+ * under the cursor fixed while the scale changes.
+ */
+function zoomStep(direction, anchor = null) {
   if (!state) return;
-  state.zoom = Math.min(state.opts.maxZoom, Math.max(state.opts.minZoom, Number(zoom.toFixed(3))));
+  const levels = zoomLevels();
+  const current = state.zoom;
+  let next = current;
+  if (direction > 0) {
+    for (let i = 0; i < levels.length; i += 1) {
+      if (levels[i] > current + 0.001) {
+        next = levels[i];
+        break;
+      }
+    }
+    if (next === current) next = levels[levels.length - 1];
+  } else {
+    for (let i = levels.length - 1; i >= 0; i -= 1) {
+      if (levels[i] < current - 0.001) {
+        next = levels[i];
+        break;
+      }
+    }
+    if (next === current) next = levels[0];
+  }
+  setZoom(next, anchor);
+}
+
+function setZoom(zoom, anchor = null) {
+  if (!state) return;
+  const from = state.zoom;
+  const to = Math.min(state.opts.maxZoom, Math.max(state.opts.minZoom, Number(zoom.toFixed(3))));
+  if (anchor && from > 0) {
+    const factor = to / from;
+    state.offset = {
+      x: anchor.x + factor * (state.offset.x - anchor.x),
+      y: anchor.y + factor * (state.offset.y - anchor.y),
+    };
+  }
+  state.zoom = to;
+  paint();
+}
+
+/** Stage-relative coordinates of a pointer, for anchored zoom. */
+function anchorAt(event) {
+  const stage = parts().stage;
+  if (!stage) return null;
+  const rect = stage.getBoundingClientRect();
+  return {
+    x: event.clientX - rect.left - rect.width / 2,
+    y: event.clientY - rect.top - rect.height / 2,
+  };
+}
+
+/** Toggle between fit-to-screen and the image's natural pixels. */
+function toggleActualSize(anchor = null) {
+  if (!state) return;
+  if (Math.abs(zoomPercent() - 100) <= 1) {
+    resetView();
+    return;
+  }
+  setZoom(1 / baseScale(), anchor);
+}
+
+function rotate() {
+  if (!state) return;
+  state.rotation = (state.rotation + ROTATION_STEP) % 360;
   paint();
 }
 
@@ -356,26 +594,66 @@ function close() {
   opts.onClose?.();
 }
 
+function focusables() {
+  const { root } = parts();
+  if (!root) return [];
+  const nodes = root.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+  const list = [];
+  for (let i = 0; i < nodes.length; i += 1) {
+    const node = nodes[i];
+    if (node.hidden || node.disabled || !node.getClientRects().length) continue;
+    list.push(node);
+  }
+  return list;
+}
+
+function trapFocus(event) {
+  const list = focusables();
+  if (!list.length) return;
+  const first = list[0];
+  const last = list[list.length - 1];
+  const active = document.activeElement;
+  const inside = list.indexOf(active) >= 0;
+  if (event.shiftKey) {
+    if (!inside || active === first) {
+      event.preventDefault();
+      last.focus();
+    }
+  } else if (!inside || active === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
 function onKeyDown(event) {
   if (!state) return;
   const tag = event.target instanceof Element ? event.target.tagName : '';
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+  if (event.key === 'Tab') {
+    trapFocus(event);
+    return;
+  }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    if (state.helpOpen) toggleHelp(false);
+    else close();
+    return;
+  }
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   const keys = {
-    Escape: close,
     ArrowLeft: () => step(-1),
     ArrowRight: () => step(1),
     Home: () => show(0),
     End: () => show(state.images.length - 1),
-    '+': () => setZoom(state.zoom + ZOOM_STEP),
-    '=': () => setZoom(state.zoom + ZOOM_STEP),
-    '-': () => setZoom(state.zoom - ZOOM_STEP),
+    '+': () => zoomStep(1),
+    '=': () => zoomStep(1),
+    '-': () => zoomStep(-1),
     '0': resetView,
-    r: () => {
-      state.rotation = (state.rotation + ROTATION_STEP) % 360;
-      paint();
-    },
+    r: rotate,
+    '?': () => toggleHelp(),
+    h: () => toggleHelp(),
   };
-  const action = keys[event.key];
+  const action = keys[key];
   if (!action) return;
   event.preventDefault();
   action();
@@ -384,13 +662,17 @@ function onKeyDown(event) {
 function onWheel(event) {
   if (!state) return;
   event.preventDefault();
-  setZoom(state.zoom + (event.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP));
+  // Continuous zoom: a mouse notch and a trackpad's small deltas both feel
+  // proportional. deltaMode 1/2 are lines/pages and need normalizing.
+  const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1;
+  setZoom(state.zoom * Math.exp(-event.deltaY * unit * 0.0015), anchorAt(event));
 }
 
-function onDoubleClick() {
+function onDoubleClick(event) {
   if (!state) return;
-  if (state.zoom > 1) resetView();
-  else setZoom(DOUBLE_CLICK_ZOOM);
+  const target = event.target instanceof Element ? event.target : null;
+  if (target?.closest('button, a[href], .gp-viewer__help')) return;
+  toggleActualSize(anchorAt(event));
 }
 
 /** Two active pointers as `[a, b]` (pinch), or null. */
@@ -403,12 +685,15 @@ function activePair() {
 function onPointerDown(event) {
   if (!state) return;
   const pressed = event.target instanceof Element ? event.target : null;
-  // Controls inside the stage (arrows) own their clicks: capturing the
-  // pointer here would retarget the click to the stage and close the viewer.
-  const onControl = !!(pressed && pressed.closest('button'));
+  // Controls inside the stage (arrows, the status link) own their clicks:
+  // capturing the pointer here would retarget the click to the stage and
+  // close the viewer or swallow the link.
+  const onControl = !!(pressed && pressed.closest('button, a[href]'));
   state.press = {
     control: onControl,
     image: !!(pressed && pressed.closest('[data-gp-viewer="image"]')),
+    help: !!(pressed && pressed.closest('.gp-viewer__help')),
+    status: !!(pressed && pressed.closest('.gp-viewer__status')),
     moved: false,
   };
   if (onControl) return;
@@ -464,16 +749,29 @@ function onOverlayClick(event) {
   if (state) state.press = null;
   // A drag (pan) is not a click: never act on it.
   if (pressed?.moved) return;
+  // The error card and its link own their clicks for the same reason.
+  if (pressed?.status) return;
   const action = target.closest('[data-gp-viewer]')?.dataset.gpViewer;
+  if (action === 'help-close') return toggleHelp(false);
+  // A click on the help card itself must not fall through to "close".
+  if (pressed?.help && action !== 'help') return;
+  if (state?.helpOpen && !target.closest('.gp-viewer__help') && action !== 'help') {
+    toggleHelp(false);
+    if (!action || action === 'stage' || action === 'image') return;
+  }
   if (action === 'close') return close();
   if (action === 'prev') return step(-1);
   if (action === 'next') return step(1);
-  if (action === 'zoom-in') return setZoom(state.zoom + ZOOM_STEP);
-  if (action === 'zoom-out') return setZoom(state.zoom - ZOOM_STEP);
-  if (action === 'reset') return resetView();
-  if (action === 'rotate') {
-    state.rotation = (state.rotation + ROTATION_STEP) % 360;
-    return paint();
+  if (action === 'zoom-in') return zoomStep(1);
+  if (action === 'zoom-out') return zoomStep(-1);
+  if (action === 'zoom') return toggleActualSize();
+  if (action === 'fit') return resetView();
+  if (action === 'rotate') return rotate();
+  if (action === 'help') return toggleHelp();
+  if (action === 'download') {
+    const item = state?.images[state.index];
+    if (item && item.src) void downloadImage(item.src);
+    return;
   }
   const thumb = target.closest('[data-gp-viewer-thumb]');
   if (thumb) return show(Number(thumb.dataset.gpViewerThumb));
@@ -484,27 +782,37 @@ function onOverlayClick(event) {
 }
 
 function onImageLoad() {
-  const { spinner, status } = parts();
+  const { spinner, status, size, image } = parts();
   if (spinner) spinner.hidden = true;
   if (status) status.hidden = true;
-  parts().image?.classList.remove('is-loading');
+  image?.classList.remove('is-loading');
+  if (size && image && image.naturalWidth) {
+    size.textContent = label('size', { width: image.naturalWidth, height: image.naturalHeight });
+    size.hidden = false;
+  }
   paint();
 }
 
 function onImageError() {
-  const { spinner, status, image } = parts();
+  const { spinner, status, statusText, statusLink, image } = parts();
   if (spinner) spinner.hidden = true;
   image?.classList.remove('is-loading');
-  if (status) {
-    status.textContent = label('failed');
-    status.hidden = false;
+  const item = state?.images[state.index];
+  const href = (item && (item.link || item.src)) || '';
+  if (statusText) statusText.textContent = label('failed');
+  if (statusLink) {
+    statusLink.textContent = label('open');
+    statusLink.hidden = !href;
+    if (href) statusLink.href = href;
+    else statusLink.removeAttribute('href');
   }
+  if (status) status.hidden = false;
 }
 
 function installListeners() {
   if (listenersInstalled) return;
   listenersInstalled = true;
-  const { root, stage, image, thumbs } = parts();
+  const { root, stage, image, thumbs, help } = parts();
   root?.addEventListener('click', onOverlayClick);
   stage?.addEventListener('wheel', onWheel, { passive: false });
   stage?.addEventListener('pointerdown', onPointerDown);
@@ -514,6 +822,10 @@ function installListeners() {
   stage?.addEventListener('dblclick', onDoubleClick);
   image?.addEventListener('load', onImageLoad);
   image?.addEventListener('error', onImageError);
+  // The help card floats over the stage; wheel/drag there must not reach the
+  // zoom and pan handlers.
+  help?.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
+  help?.addEventListener('pointerdown', (event) => event.stopPropagation());
   thumbs?.addEventListener('wheel', (event) => event.stopPropagation());
 }
 
@@ -531,10 +843,9 @@ export function openViewer(options = {}) {
     lockPageScroll();
   }
   state = next;
-  const { root, dialog, hint } = parts();
+  const { root, dialog } = parts();
   root.hidden = false;
   refreshLabels();
-  if (hint) hint.textContent = label('hint');
   buildThumbs();
   show(next.index);
   dialog?.focus?.();

@@ -84,6 +84,7 @@ const DEFAULT_GALLERY = {
   },
   skipBadges: true,
   upgradeFullSize: true,
+  download: true,
   thumbnails: true,
   loop: true,
   maxZoom: GALLERY_DEFAULT_MAX_ZOOM,

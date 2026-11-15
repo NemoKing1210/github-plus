@@ -31,8 +31,8 @@ Scope: every element GitHub Plus itself creates — the entry button and its
 list host, the row inside GitHub's user menu, the panel (overlay, shell,
 grouped sidebar, search field and results, pages, cards, rows, controls), the
 confirm dialog, toasts, the image viewer, the `.gp-fi` file and folder glyphs,
-and the gallery's page-level cursor/hover affordance (§11). Anything GitHub
-already renders is out of scope except through that one affordance: no other
+and the gallery's page-level cursor/hover affordances (§11). Anything GitHub
+already renders is out of scope except through those affordances: no other
 rule may target page markup.
 
 Two invariants hold for every selector:
@@ -88,9 +88,10 @@ Rules:
   foreground on a solid accent/danger fill is not a theme color — it must stay
   legible on that fill in every theme — so it is deliberately not derived from
   a token. Any other new literal is a bug.
-- The image viewer is themed like everything else: images sit on
-  `var(--gp-bg-1)` with the bars, hint and thumbnail rail on `var(--gp-bg-2)`,
-  so the gallery reads as part of GitHub in every theme.
+- The image viewer is themed like everything else: the image sits on a
+  `var(--gp-bg-2)` stage (so a white image keeps a visible edge), and the bars,
+  hint, thumbnail rail and help popover use the same surfaces, so the gallery
+  reads as part of GitHub in every theme.
 - The `.gp-fi` file and folder glyphs keep the fixed brand colors of the
   embedded Material Icon Theme slice (generated into
   `iconSet.generated.js`). They are third-party marks, like a logo: not a
@@ -104,16 +105,16 @@ Rules:
 
 | Property | Value | Applied to |
 |---|---|---|
-| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-searchbar`, `.gp-search__group`, `.gp-search__item` (transparent, on its group), `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__stage`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb` |
-| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-card__head`, `.gp-search__group-head`, `.gp-searchbar__kbd`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-nav-item__count`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__hint`, `.gp-viewer__thumbs` |
+| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-searchbar`, `.gp-search__group`, `.gp-search__item` (transparent, on its group), `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb`, `.gp-viewer__help`, `.gp-viewer__counter` |
+| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-card__head`, `.gp-search__group-head`, `.gp-searchbar__kbd`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-nav-item__count`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__stage`, `.gp-viewer__thumbs`, `.gp-viewer__help-keys kbd` |
 | Surface, tinted | `var(--gp-accent-soft)` | `.gp-page__icon`, `.gp-about__logo`, checked `.gp-grid__cell`, search `<mark>` |
-| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-searchbar`, `.gp-search__group`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__tool`, `.gp-viewer__nav`, `.gp-viewer__hint`, `.gp-viewer__thumbs`, `.gp-viewer__status` |
-| Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`, search counts), `.gp-grid__cell`, `.gp-search__group-head`, `.gp-search__item`, `.gp-searchbar__kbd`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb` |
-| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, search field, toast action), cards, sidebar items, search groups, toasts, grid cells, viewer tools, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`) |
+| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-searchbar`, `.gp-search__group`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter` |
+| Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`, search counts), `.gp-grid__cell`, `.gp-search__group-head`, `.gp-search__item`, `.gp-searchbar__kbd`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb`, `.gp-viewer__help-head`, `.gp-viewer__help-keys kbd` |
+| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, search field, toast action), cards, sidebar items, search groups, toasts, grid cells, viewer tools, viewer zoom pill, viewer help, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`) |
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
-| Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge`, `.gp-nav-item__count`, `.gp-search__summary-count`, `.gp-search__group-count` |
+| Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge`, `.gp-nav-item__count`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-viewer__counter` |
 | Radius, circle | `50%` | `.gp-header-btn--custom::after` and `.gp-user-menu-item__dot` dots, `.gp-viewer__nav`, viewer spinner |
-| Shadow, elevation | `var(--gp-shadow)` | `.gp-confirm`, `.gp-toast`, `.gp-viewer__status` (the panel has none — its frosted scrim does the lifting) |
+| Shadow, elevation | `var(--gp-shadow)` | `.gp-confirm`, `.gp-toast`, `.gp-viewer__help`, `.gp-viewer__status` (the panel has none — its frosted scrim does the lifting) |
 | Shadow, ring | `0 0 0 1px var(--gp-accent)` | `.gp-viewer__thumb.is-active` |
 
 - Overlays set `box-sizing: border-box` (`.gp-panel-overlay`,
@@ -166,10 +167,16 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | Confirm message `.gp-confirm__message` | `13px` / `var(--gp-text-muted)` |
 | About name `.gp-about__name` | `16px` / `600`; tagline `12px` muted; row `13px` |
 | Viewer title `.gp-viewer__title` | `13px` / `600` / `var(--gp-text)` |
-| Viewer counter `.gp-viewer__counter` | `12px` / `var(--gp-text-muted)` / `tabular-nums` |
-| Viewer tool glyph | `600 14px/1` |
-| Viewer hint `.gp-viewer__hint`, status `.gp-viewer__status` | `12px` muted / `13px` |
-| Viewer nav glyph | `22px` |
+| Viewer size `.gp-viewer__size` | `11px` / `var(--gp-text-muted)` / tabular |
+| Viewer counter `.gp-viewer__counter` | `500 11px/16px` / `var(--gp-text-muted)` / tabular |
+| Viewer tool and nav icons | `16px` glyph in a `30px` tool, `18px` glyph in the `44px` nav circle, `currentColor` |
+| Viewer zoom pill `.gp-viewer__zoom` | `500 12px/1` / `var(--gp-text-muted)` / tabular |
+| Viewer help title `.gp-viewer__help-title` | `12px` / `600` / `var(--gp-text)` |
+| Viewer help row `.gp-viewer__help-row` | `12px`; label in `var(--gp-text)`, keys muted |
+| Viewer keycap `.gp-viewer__help-keys kbd` | `500 11px/16px` mono / `var(--gp-text-muted)` |
+| Viewer status text `.gp-viewer__status-text` | `13px` / `var(--gp-text)` |
+| Viewer status link `.gp-viewer__status-link` | `12px` / `var(--gp-accent)` |
+| Page download button `.gp-download-btn` | `16px` glyph in a `30px` button |
 | Menu row label `.gp-user-menu-item__label` | `14px/1.4` / `var(--gp-text)` (GitHub's `ActionList` size) |
 
 - Weights are only `500` (controls, chrome) and `600` (labels, titles);
@@ -430,34 +437,71 @@ with a `key` refreshes instead of stacking; the progress animation pauses on
 `.gp-toast:hover`; `duration: 0` renders no progress bar and pins the toast.
 Errors get `role="alert"`, every other type `role="status"`.
 
+### Page image download button
+
+A single floating button of ours, never part of GitHub's markup: it is appended
+to `<body>` and positioned over the hovered image's top-right corner. It exists
+only while an eligible markdown image is hovered (see §11).
+
+| Class | Rules |
+|---|---|
+| `.gp-download-btn` | `position: fixed`, `z-index: 999999` (above page chrome, below the panel's `1000000`), `30×30`, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)`, `var(--gp-shadow)`, `var(--gp-text-muted)` glyph, `var(--gp-font)`, `cursor: pointer` |
+| `.gp-download-btn svg` | `16×16` block glyph |
+| `.gp-download-btn:hover` | `var(--gp-highlight)` fill and `var(--gp-text)` glyph |
+| `.gp-download-btn[hidden]` | `display: none` |
+
 ### Image viewer
 
 Full-viewport gallery, themed with the same tokens as the panel (see §3).
 
 | Class | Rules |
 |---|---|
-| `.gp-viewer-overlay` | `fixed; inset: 0; z-index: 1000002`, `background: var(--gp-bg-1)`, `color: var(--gp-text)`, `var(--gp-font)`; `[hidden]` hides it |
-| `.gp-viewer` | Vertical flex, `min-width: 0`, `outline: none`; `role="dialog"`, `aria-modal="true"` |
-| `.gp-viewer__bar` | `padding: 10px 14px`, `gap: 12px`, `var(--gp-bg-2)`, bottom hairline |
-| `.gp-viewer__meta`, `__title`, `__counter` | Baseline row; ellipsized `13px/600` title; `12px` tabular muted counter |
-| `.gp-viewer__tools`, `__tool` | `margin-left: auto`; `30×30` tools, `var(--gp-bg-1)` fill, `var(--gp-border)` outline, `var(--gp-radius)`, `600 14px/1` |
+| `.gp-viewer-overlay` | `fixed; inset: 0; z-index: 1000002`, `background: var(--gp-bg-1)`, `color: var(--gp-text)`, `var(--gp-font)`; fades in with `gp-overlay-in`; `[hidden]` hides it |
+| `.gp-viewer` | Relative flex column, `min-width: 0`, `outline: none`, `tabindex="-1"` as the focus target; `role="dialog"`, `aria-modal="true"` |
+| `.gp-viewer [hidden]` | `display: none` for every descendant, so `hidden` works on the tool bar, the counter, the pixel size, the status card, the help popover and a broken thumbnail |
+| `.gp-viewer__bar` | `min-height: 48px`, `padding: 8px 12px`, `gap: 12px`, `var(--gp-bg-2)`, bottom hairline |
+| `.gp-viewer__meta`, `__title`, `__size`, `__counter` | Flexible baseline row: ellipsized `13px/600` title, `11px` tabular muted pixel size, and an `11px` pill counter (`var(--gp-bg-1)` fill, `var(--gp-line)` edge) that announces changes (`aria-live="polite"`) |
+| `.gp-viewer__tools`, `__tool`, `__zoom` | `flex: none`, `gap: 2px`; `30×30` ghost tools and a `52px`-wide zoom pill — transparent fill and border, `var(--gp-text-muted)` glyph, `var(--gp-radius)`; the pill shows the scale relative to the image's natural pixels |
+| `.gp-viewer__tool svg` | `16×16` block glyph |
+| Hover on `.gp-viewer__tool`, `.gp-viewer__zoom` | `var(--gp-highlight)` fill and `var(--gp-text)` glyph |
 | `.gp-viewer__tool--close` | Hover: `var(--gp-danger)` fill and border, white glyph |
-| `.gp-viewer__sep` | `1×18` divider in `var(--gp-line)` |
-| `.gp-viewer__stage` | `position: relative`, `flex: 1 1 auto`, centered on `var(--gp-bg-1)`, `overflow: hidden`, `cursor: grab`, `touch-action: none` |
+| `.gp-viewer__sep` | `1×18` divider in `var(--gp-line)` with a `4px` side margin |
+| `.gp-viewer__stage` | `position: relative`, `flex: 1 1 auto`, centered on `var(--gp-bg-2)` (so a white image reads against it), `overflow: hidden`, `cursor: grab`, `touch-action: none` |
 | `.gp-viewer__image` | `max-width/height: 100%`, `object-fit` fit, `transform-origin: center`, opacity `0.15s`, `user-select: none`, `-webkit-user-drag: none`; JS sets `translate(…) scale(…) rotate(…)` |
-| `.gp-viewer__nav` (+`--prev`, `--next`) | `44×44` circular buttons over the stage, `22px` glyphs, `left/right: 16px`, `translateY(-50%)`; `[disabled]` at 0.5 opacity when loop is off and the end is reached; `hidden` for a single image |
+| `.gp-viewer__nav` (+`--prev`, `--next`) | `44×44` circular buttons over the stage with an `18px` chevron, `left/right: 16px`, `translateY(-50%)`; muted glyph that lifts to `var(--gp-text)` on hover; `[disabled]` at 0.5 opacity when loop is off and the end is reached; `hidden` for a single image |
 | `.gp-viewer__spinner` | `32×32` ring: 3px `var(--gp-line)` with a `var(--gp-accent)` top, `gp-viewer-spin 0.8s linear infinite` |
-| `.gp-viewer__status` | Error card: `1px var(--gp-danger)`, `var(--gp-radius)`, `var(--gp-bg-1)`, `var(--gp-shadow)`, `13px`; `role="alert"` |
-| `.gp-viewer__hint` | Centered `12px` muted keyboard hint, top hairline on `var(--gp-bg-2)` |
-| `.gp-viewer__thumbs`, `__thumb`, `__thumb-img` | Horizontal rail (`gap: 6px`, `padding: 10px 14px`, `overflow-x: auto`, `overflow-y: hidden`, `justify-content: safe center`, `align-items: center`) so thumbnails are centered while they fit and never raise a vertical scrollbar; `68×48` thumb buttons, `object-fit: cover` images; hidden with one image or when thumbnails are off |
+| `.gp-viewer__status` | Error card centered over the stage: column, `gap: 8px`, `18px 20px`, `1px var(--gp-danger)`, `var(--gp-radius)`, `var(--gp-bg-1)`, `var(--gp-shadow)`, centered text with a `28px` danger glyph, the message and an accent link to the image; `role="alert"` |
+| `.gp-viewer__help` | Shortcut popover floating at the stage's top-right: `min(300px, 100% - 24px)`, `12px 14px`, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-1)`, `var(--gp-shadow)`; a head with the title and a ghost close button, then label/key rows. Hidden until the help tool or `?` opens it |
+| `.gp-viewer__help-keys kbd` | Keycap: `11px` mono, `1px var(--gp-line)` with a `2px` bottom edge, `4px` radius, `var(--gp-bg-2)` fill |
+| `.gp-viewer__thumbs`, `__thumb`, `__thumb-img` | Horizontal rail (`flex: none` so a tall image never squeezes it, `gap: 8px`, `padding: 10px 12px`, `overflow-x: auto`, `overflow-y: hidden`, `justify-content: safe center`, `align-items: center`) so thumbnails are centered while they fit and never raise a vertical scrollbar; `68×48` thumb buttons, `object-fit: cover` images; hidden with one image or when thumbnails are off |
 | `.gp-viewer__thumb.is-active` | `var(--gp-accent)` border plus a `0 0 0 1px` accent ring; the active thumb is scrolled into view |
+| `.gp-viewer__thumb-fallback` | Broken-thumbnail glyph: an absolutely centered `imageOff` icon shown only when the button has `.is-broken` (its image is hidden then) |
+
+The toolbar is built from `VIEWER_ICONS` (`src/ui/icons.js`): 16×16
+`currentColor` stroke glyphs with round caps, the same outline language the
+settings pages use. Tools are ghost buttons — transparent until hovered — so
+the bar stays quiet over the themed surface.
+
+Zoom is expressed in real pixels: the pill shows the displayed scale relative
+to the image's natural width, and clicking it jumps to actual size (or back to
+fit-to-screen when already at 100%). The scale can go below the fit size — down
+to a quarter of it — so an image can always be shown smaller than its own
+pixels, and the percentage keeps falling below 100%. Wheel, double click and
+pinch zoom stay anchored on the pointer, so the spot under the cursor does not
+drift; the buttons and the keyboard walk the shared stops (`0.25, 0.5, 0.75, 1,
+1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 16`, limited by the `minZoom` option
+and `maxZoom`).
 
 Pointer and keyboard behavior is implemented in `src/ui/viewer.js`; the CSS
 only has to express it: `is-dragging` → grabbing cursor, `is-loading` →
-dimmed image, and the focus rings on `.gp-viewer__tool` / `.gp-viewer__nav`.
+dimmed image, and the focus rings on `.gp-viewer__tool`, `.gp-viewer__zoom`,
+`.gp-viewer__nav`, `.gp-viewer__thumb` and `.gp-viewer__help-close`.
 The image is draggable at every zoom and the JS clamps the offset to the
-stage, so panning needs no state class. The overlay is excluded from page
-scanning via `isOwnUi()`, and opening it takes the shared scroll lock.
+stage, so panning needs no state class. While open the viewer keeps keyboard
+focus inside itself (`Tab`/`Shift`+`Tab` wrap over the visible controls), the
+help popover is a nested dialog that `Escape` closes first, and the overlay is
+excluded from page scanning via `isOwnUi()`; opening it takes the shared scroll
+lock.
 
 ### About page
 
@@ -491,7 +535,7 @@ name cells of a repository row are decorated, in that DOM order.
 
 | State | Selector / form | Effect |
 |---|---|---|
-| Hover | `:hover` on `.gp-header-btn`, `.gp-user-menu-item__btn`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools and nav take the highlight fill with a muted border, the thumbnail border moves to the muted text color |
+| Hover | `:hover` on `.gp-header-btn`, `.gp-user-menu-item__btn`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__zoom`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-viewer__help-close`, `.gp-viewer__status-link`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools, the zoom pill and help close take the highlight fill with a strong glyph, the thumbnail border moves to the muted text color, and the status link underlines |
 | Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items, the header button, the user-menu row, viewer tools and viewer nav |
 | Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry/viewer controls, `2px` on the switch track, `-1px` on select/input/textarea (inside the box), `-2px` on `.gp-user-menu-item__btn` (inside the row, so it stays inside GitHub's menu) |
 | Disabled | `.gp-button[disabled]` | `opacity: 0.55`, `cursor: default` |
@@ -502,11 +546,14 @@ name cells of a repository row are decorated, in that DOM order.
 | Dirty draft | `.gp-panel-overlay.is-dirty` | Footer note switches to "Unsaved changes" with an accent dot |
 | Closing | `.gp-panel-overlay.is-closing` | Exit animation plays, pointer ignored, element removed after 140ms |
 | Active thumb | `.gp-viewer__thumb.is-active` | `var(--gp-accent)` border + 1px accent ring |
+| Help open | `.gp-viewer__help:not([hidden])` | The shortcut popover is visible and the help tool reports `aria-expanded="true"`; `Escape` closes it before the viewer |
+| Broken thumb | `.gp-viewer__thumb.is-broken` | The thumbnail image is hidden and the muted `imageOff` fallback is shown |
+| Download hover | `.gp-download-btn:not([hidden])` | The floating button is shown over the hovered markdown image's top-right corner; hidden on pointer-out, scroll, resize and navigation |
 | Rotated | `.gp-viewer.is-rotated` | Toggled by `paint()`; the stage keeps its `grab` cursor because the image is draggable at every zoom |
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
 | Custom settings | `.gp-header-btn--custom`, `.gp-user-menu-item--custom` | Dot in `var(--gp-accent)` (corner of the header button, trailing in the menu row) while settings differ from defaults; the menu dot is `display: none` until the modifier is set |
-| Hidden | `[hidden]` on `.gp-panel-overlay`, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__spinner`, `.gp-viewer__status`, or on any descendant of `.gp-panel` | `display: none`, declared explicitly so GitHub's own resets cannot re-show our chrome. Elements outside those scopes (e.g. `.gp-toast__message`) rely on the user-agent `[hidden]` rule |
+| Hidden | `[hidden]` on `.gp-panel-overlay`, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__spinner`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter`, `.gp-viewer__size`, or on any descendant of `.gp-panel` / `.gp-viewer` | `display: none`, declared explicitly so GitHub's own resets cannot re-show our chrome. Elements outside those scopes (e.g. `.gp-toast__message`) rely on the user-agent `[hidden]` rule |
 
 State classes are the only state mechanism: never add inline styles for state
 in JS (the viewer's `transform` and the toast progress duration are the two
@@ -517,6 +564,7 @@ shipped exceptions, because both are per-frame values).
 | Motion | Spec |
 |---|---|
 | Switch track and knob | `0.15s ease` on background/border and on transform/background |
+| Viewer overlay | `gp-overlay-in` fade over `0.16s ease-out` when it opens |
 | Viewer image | `opacity 0.15s ease` (load/upgrade dimming) |
 | Toast entrance | `gp-toast-in` — fade + `translateX(±24px)` over `0.2s ease-out`; left placements mirror the offset |
 | Toast exit | `0.18s ease` on opacity and transform, then removal after 180ms |
@@ -529,7 +577,7 @@ shipped exceptions, because both are per-frame values).
 | Spotlight | `gp-spotlight` (row/field/cell tint) or `gp-spotlight-head` (card-head ring) over `1.6s ease-out`; no motion under reduced motion |
 | Footer dirty dot | width, margin and scale `0.18s` |
 | Switch knob | `0.2s` spring (`cubic-bezier(0.2, 0.8, 0.2, 1)`); stretches to `20px` while pressed |
-| Controls | Border/fill changes on select, input, textarea, button, panel close and source tiles take `0.12s` |
+| Controls | Border/fill changes on select, input, textarea, button, panel close, source tiles and the page download button take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
 
 - Hover on elements placed into GitHub's own chrome (the header button and the
@@ -542,8 +590,8 @@ shipped exceptions, because both are per-frame values).
   for the panel and confirm overlays and dialogs, the page head and page
   children, sidebar items and their pill, the dirty dot, `.gp-toast`,
   `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
-  `.gp-viewer__image` and the search result spotlight (which keeps a static
-  accent ring instead). The viewer spinner and
+  `.gp-viewer-overlay`, `.gp-viewer__image` and the search result spotlight
+  (which keeps a static accent ring instead). The viewer spinner and
   the toast progress bar are outside that list (a spinner and a countdown are
   information, not decoration), so do not "fix" them by adding them to the
   media block without deciding what replaces the information they carry.
@@ -567,6 +615,14 @@ The stylesheet has one breakpoint, `@media (max-width: 640px)`:
 | `.gp-panel__body` | `padding: 16px 14px 20px` |
 | `.gp-panel__subtitle` | Hidden |
 | `.gp-panel__footer` / `-note` | Wraps; the note takes its own full-width line |
+| `.gp-viewer__bar` | `gap: 6px`, `padding: 6px 8px` |
+| `.gp-viewer__title`, `.gp-viewer__size` | Hidden — the counter and the tools keep the bar compact |
+| `.gp-viewer__tool`, `.gp-viewer__zoom` | `32px` tools and a `46px` pill with `17px` glyphs |
+| `.gp-viewer__tool--help` | Hidden (no hardware keyboard on touch) |
+| `.gp-viewer__sep` | `2px` side margin |
+| `.gp-viewer__nav` | `38px` circles, offset `8px` from the stage edge |
+| `.gp-viewer__thumbs` / `.gp-viewer__thumb` | `8px` rail padding and gap `6px`; `56×40` thumbs |
+| `.gp-viewer__help` | Spans the stage: `left: 10px; right: 10px; width: auto` |
 
 Everything else is fluid by construction and must stay that way:
 
@@ -590,14 +646,19 @@ Everything else is fluid by construction and must stay that way:
   outline without replacing it.
 - **Roles.** The panel is `role="dialog"` + `aria-modal="true"`; the search
   field wrapper is `role="search"`; the viewer is `role="dialog"` +
-  `aria-modal="true"`; the confirm dialog is `role="alertdialog"` +
+  `aria-modal="true"` and the element focused on open (`tabindex="-1"`); its
+  shortcut popover is a nested `role="dialog"`, and the image counter is
+  `aria-live="polite"`; the confirm dialog is `role="alertdialog"` +
   `aria-modal="true"` over a `role="presentation"` overlay; the viewer's
   failure card and error toasts are `role="alert"`, all other toasts
   `role="status"`, and the toast container is `aria-live="polite"`.
 - **Names.** Icon-only controls carry both `title` and `aria-label`
-  (`.gp-panel__close` = `common.close`, viewer tools/nav/open, the entry
-  button = `settings.open`, the toast close = `×`). Labels come from the
-  locale files, never from hardcoded English in CSS. The user-menu row is
+  (`.gp-panel__close` = `common.close`, viewer tools/nav/open/download, the
+  entry button = `settings.open`, the page download button = `viewer.download`,
+  the toast close = `×`). The zoom pill is named by
+  `viewer.actualSize` / `viewer.fit` depending on what a click will do, and the
+  help tool reports `aria-expanded` for the panel it controls. Labels come from
+  the locale files, never from hardcoded English in CSS. The user-menu row is
   named by its own visible text, also `settings.open`.
 - **Switch labelling.** `.gp-switch__input` is opacity-hidden, not
   `display: none`, so it stays focusable and its `aria-label` (or the wrapping
@@ -610,7 +671,10 @@ Everything else is fluid by construction and must stay that way:
   `ArrowUp`/`ArrowDown` inside the results moves through matches and `Enter`
   opens the first one. The viewer owns `Escape` while open. Viewer: `←`/`→`
   navigate, `Home`/`End` jump, `+`/`=`/`-` zoom, `0` resets, `r` rotates,
-  wheel zooms, drag pans at any zoom, double click toggles 2×, pinch zooms.
+  `?` or `h` opens the shortcut popover (`Escape` closes it first), `Tab` and
+  `Shift`+`Tab` cycle through the visible controls without leaving the viewer,
+  wheel zooms around the pointer, drag pans at any zoom, double click toggles
+  between fit and actual size, pinch zooms.
   Confirm: `Escape` cancels and focus goes to the safe choice, then returns to
   the element that opened it.
 - **Scroll lock.** While a modal is open the page behind is pinned
@@ -621,13 +685,13 @@ Everything else is fluid by construction and must stay that way:
   hints, descriptions and counters, never for the only copy of essential
   information.
 
-## 11. The gallery's page-level affordance
+## 11. The gallery's page-level affordances
 
-The gallery lets you click an image inside GitHub's rendered markdown, which
-needs a cursor on **GitHub's own** `<img>` elements — markup no selector in
-`app.css` may target (§1). The exception is therefore generated at runtime by
-`src/gallery/index.js` into a `<style id="gp-gallery-style">` in `<head>`, one
-block per enabled source:
+The gallery lets you click an image inside GitHub's rendered markdown and hover
+it for a download button. The cursor needs a rule on **GitHub's own** `<img>`
+elements — markup no selector in `app.css` may target (§1). That exception is
+therefore generated at runtime by `src/gallery/index.js` into a
+`<style id="gp-gallery-style">` in `<head>`, one block per enabled source:
 
 ```css
 <selector> { cursor: zoom-in; }
@@ -636,9 +700,14 @@ block per enabled source:
 - `<selector>` comes from the source registry (`cursorSelector` in
   `src/gallery/sources.js`); the markdown source uses
   `.markdown-body img:not(.emoji), .markdown-body a:has(> img:not(.emoji))`.
-- **Nothing else is added to page images.** No border, outline, overlay or
-  badge: a markdown image keeps exactly the look GitHub gives it, and the only
-  hint that it opens in the gallery is the cursor.
+- **The image itself is never restyled.** No border, outline or overlay: a
+  markdown image keeps exactly the look GitHub gives it, and the cursor is the
+  only hint on the image that it opens in the gallery.
+- The one other page-level element is the floating download button (§6). It is
+  our own `.gp-download-btn` appended to `<body>` and positioned over the
+  hovered image, never inserted into GitHub's markup, so the page DOM and
+  GitHub's styles are untouched. It appears only while the gallery and its
+  `gallery.download` setting are on.
 - The stylesheet is rewritten whenever gallery settings change and **removed
   entirely** when no source is enabled, so a disabled gallery leaves the page
   byte-identical to stock GitHub. There is no global page scan and no
@@ -650,9 +719,10 @@ block per enabled source:
   stylesheet rule at all. It inserts its own `.gp-fi` elements and hides
   GitHub's icon with an inline style, which keeps “no rule targets page
   markup” literally true.
-- Our own UI is excluded from this behavior: the click handler ignores any
-  target inside `isOwnUi()` and any image wrapped by GitHub's `a.anchor`, so
-  the affordance never fights with heading anchors or our overlays.
+- Our own UI is excluded from this behavior: the click and pointer handlers
+  ignore any target inside `isOwnUi()` and any image wrapped by GitHub's
+  `a.anchor`, so the affordances never fight with heading anchors or our
+  overlays.
 
 ## 12. Keeping this file in sync
 

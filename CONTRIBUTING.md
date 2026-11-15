@@ -73,6 +73,11 @@ acceptable if the pull request says so. If the change alters what the script
 does, update the localized `@name` / `@description` metadata in
 `vite.config.js` as well.
 
+The README is translated into every UI locale as `README.<locale>.md`. When the
+English README changes (description, install steps, features, settings table or
+version), update all nine translations in the same pull request and keep the
+headings, tables and language switcher aligned.
+
 ## Versioning and changelog
 
 - Version numbers follow SemVer; `package.json` is the source of truth.

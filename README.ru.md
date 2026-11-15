@@ -1,0 +1,221 @@
+# GitHub Plus
+
+[English](README.md) · **Русский** · [Deutsch](README.de.md) · [Español](README.es.md) · [Français](README.fr.md) · [Português (Brasil)](README.pt-BR.md) · [中文（简体）](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Polski](README.pl.md)
+
+[![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
+[![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
+[![Version](https://img.shields.io/badge/version-0.8.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+
+Юзерскрипт, который улучшает GitHub: полная панель настроек, галерея
+изображений для отрендеренного markdown и цветные иконки файлов везде, где
+GitHub показывает файлы.
+
+> **Статус:** ранняя стадия (`0.8.0`). Панель настроек с мгновенным поиском
+> (Общие · Галерея · Иконки файлов · Резервная копия · О программе), галерея
+> изображений markdown и цветные иконки файлов. В планах — другие улучшения
+> GitHub.
+
+> `@updateURL` / `@downloadURL` скрипта указывают на ветку `main` в GitHub —
+> ссылка для установки ниже всегда ведёт на самую свежую сборку.
+
+## Быстрая установка
+
+1. Установите менеджер юзерскриптов (рекомендуются
+   [Tampermonkey](https://www.tampermonkey.net/),
+   [Violentmonkey](https://violentmonkey.github.io/) или
+   [ScriptCat](https://scriptcat.org/)).
+2. Установите скрипт с GitHub (ссылка на raw-файл ниже).
+
+**Ссылка для установки (GitHub — самая свежая):**
+
+```
+https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js
+```
+
+[![Install](https://img.shields.io/badge/Install-GitHub_raw-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
+
+### Установка по URL (в панели управления)
+
+| Менеджер | Путь |
+|---------|------|
+| Tampermonkey | Панель управления → **Utilities** → **Install from URL** |
+| Violentmonkey | Панель управления → **+** → **Install from URL** |
+| Greasemonkey | Меню дополнения → **New User Script** → вставьте raw-URL |
+| ScriptCat | Установите [расширение](https://scriptcat.org/), затем **Install from URL** с raw-URL GitHub |
+
+### Ручная установка
+
+1. Откройте собранный [`github-plus.user.js`](https://github.com/NemoKing1210/github-plus/blob/main/github-plus.user.js) в этом репозитории (или выполните `npm run build` после клонирования).
+2. Скопируйте всё содержимое файла.
+3. В менеджере юзерскриптов создайте новый скрипт и вставьте код.
+4. Сохраните и включите скрипт.
+
+## Обновления
+
+Скрипт содержит метаданные `@updateURL` и `@downloadURL`, указывающие на
+raw-файл в GitHub, поэтому поддерживаемые менеджеры обновляют его
+автоматически.
+
+Шаги релиза для мейнтейнеров: см.
+[docs/DEVELOPMENT.md, раздел Releasing](docs/DEVELOPMENT.md#releasing).
+
+## Возможности
+
+### Галерея изображений для markdown
+
+Каждый контейнер отрендеренного markdown на GitHub — это один набор галереи:
+
+- **Клик по любому изображению** — в README репозитория, в просмотре
+  `.md`-файла, на странице wiki, в issue, pull request, комментарии ревью
+  (везде, где GitHub рендерит `.markdown-body`) — открывает его на весь экран
+  во встроенном просмотрщике.
+- **Просмотр всего набора** — `←`/`→` (или стрелки на экране) переходят к
+  другим изображениям того же контейнера, полоса миниатюр по центру позволяет
+  перейти к любому, а счётчик показывает текущую позицию.
+- **Масштаб и панорамирование** — колесо мыши, `+`/`−`, двойной клик и пинч
+  увеличивают до заданного предела; перетаскивание двигает изображение при
+  любом масштабе; `0` сбрасывает, `r` поворачивает; соседние изображения
+  предзагружаются, поэтому листание происходит мгновенно.
+- **Полный размер по запросу** — если изображение ссылается на файл большего
+  размера (файл репозитория за страницей `/blob/`, загруженное вложение, любой
+  URL изображения), этот файл проверяется и подставляется, так что вы получаете
+  исходное разрешение, а если он недоступен, изображение не ломается.
+- **Скачивание одним нажатием** — при наведении на изображение markdown
+  появляется кнопка скачивания, а в панели просмотрщика есть своя; файл
+  сохраняется под своим именем (прокси-адрес camo раскрывается до исходного
+  имени файла), а одна настройка скрывает обе кнопки.
+- **Ненавязчиво по умолчанию** — бейджи, статусные плашки, эмодзи и мелкие
+  иконки никогда не занимают место в галерее; изображения сохраняют родной вид
+  GitHub (курсор лишь подсказывает, что они открываются в галерее), а клики с
+  модификаторами (Ctrl/Cmd/Shift/Alt) и средней кнопкой остаются за GitHub,
+  поэтому открытие файла в новой вкладке работает как раньше.
+- **Поддержка тем** — галерея и панель настроек используют переменные цветов
+  GitHub, поэтому обе следуют выбранной теме (светлая, тёмная, dimmed).
+
+### Иконки файлов
+
+GitHub рисует каждый файл и папку одним и тем же серым глифом, поэтому `.ts` и
+`.css` выглядят одинаково, пока не прочитаешь имя. GitHub Plus раскрашивает их:
+
+- **Тип по расширению** — языки, конфигурации и форматы данных, изображения,
+  медиа, архивы и документы получают собственную иконку; составные расширения
+  вроде `.d.ts` и `.spec.ts` сопоставляются раньше базового.
+- **Известные имена файлов** — `Dockerfile`, `package.json`, `README`,
+  `.gitignore`, `tsconfig.json` и подобные получают отдельную иконку.
+- **Роли папок** — `src`, `dist`, `node_modules`, `docs`, `.github`,
+  `components`, `utils` и другие распространённые папки тоже помечаются.
+- **Везде, где GitHub показывает файлы** — дерево репозитория и подпапки,
+  заголовок blob, заголовки файлов в pull request и дерево диффа, списки файлов
+  коммита, поиск по коду, gist'ы и ассеты релизов.
+- **Ненавязчиво** — родной глиф GitHub скрывается и заменяется на месте; никаких
+  изменений раскладки и лишних рамок, а отключение функции возвращает GitHub в
+  исходный вид.
+
+Иконки — курируемое подмножество
+[Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme)
+(MIT); атрибуция в [THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+
+### Панель настроек
+
+Откройте её кнопкой с шестерёнкой в шапке GitHub, строкой **Настройки GitHub Plus**
+в меню аватара (сразу под собственным пунктом **Settings** GitHub) или командой
+меню в менеджере юзерскриптов. Изменения черновые: ничего не сохраняется, пока
+вы не нажмёте «Сохранить»; «Отмена», клик по подложке и `Escape` отбрасывают
+черновик; «Сбросить по умолчанию» сначала просит подтверждение.
+
+## Настройки
+
+Хранятся под ключом `gp_settings_v1`.
+
+| Ключ | По умолчанию | Примечания |
+|-----|---------|------|
+| `language` | `'auto'` | Язык интерфейса панели настроек (`'auto'` следует за браузером) |
+| `gallery.enabled` | `true` | Главный переключатель галереи изображений markdown |
+| `gallery.sources.markdown` | `true` | Переключатель отдельного источника (по одному на каждый зарегистрированный источник) |
+| `gallery.skipBadges` | `true` | Пропускать бейдж-сервисы (включая бейджи за прокси camo GitHub и статусные бейджи Actions), эмодзи, изображения высотой ≤ 40 px и изображения меньше 80 px по обеим осям |
+| `gallery.upgradeFullSize` | `true` | Проверять и загружать связанный оригинал полного размера |
+| `gallery.download` | `true` | Кнопка скачивания в просмотрщике и при наведении на изображения markdown |
+| `gallery.thumbnails` | `true` | Полоса миниатюр в просмотрщике |
+| `gallery.loop` | `true` | Переход с последнего изображения на первое |
+| `gallery.maxZoom` | `8` | Предел масштаба (2× … 16×) |
+| `toasts.enabled` | `true` | Всплывающие уведомления |
+| `toasts.position` | `'bottom-right'` | `bottom-right`, `bottom-left`, `top-right`, `top-left` |
+| `toasts.duration` | `5000` | Задержка автоскрытия в мс (`0` — уведомление висит до закрытия) |
+| `fileIcons.enabled` | `true` | Главный переключатель иконок файлов и папок |
+| `fileIcons.folders` | `true` | Иконки для распространённых имён папок |
+| `fileIcons.specialNames` | `true` | Отдельные иконки для известных имён файлов |
+
+## Как устроена галерея
+
+Галерея — это небольшой фреймворк плюс один источник на каждое место, где
+живут изображения, поэтому добавление нового места не затрагивает саму
+галерею:
+
+| Файл | Роль |
+|------|------|
+| `src/ui/viewer.js` | Лайтбокс: `openViewer({ images, index, loop, thumbnails, download, minZoom, maxZoom, resolveImage, labels, onClose })`, а также `closeViewer()` / `isViewerOpen()`. Самодостаточен — может использоваться любой функцией. |
+| `src/gallery/sources.js` | Реестр источников: `registerSource`, `listSources`. |
+| `src/gallery/collect.js` | Сбор: нормализация, фильтрация (бейджи/эмодзи/мелкие иконки), дедупликация, ограничение количества. |
+| `src/gallery/index.js` | Связывание: один слушатель кликов в фазе перехвата, сгенерированная таблица стилей курсора, делегированные слушатели наведения для кнопки скачивания, слушатель настроек. |
+| `src/gallery/sources/markdown.js` | Источник markdown: контейнеры, поиск изображений, определение полного размера. |
+
+Поскольку индикатор — это CSS, построенный из реестра, а обработка кликов —
+один делегированный слушатель, обходящий живой DOM, галерея продолжает
+работать после клиентской навигации GitHub и ре-рендеров React без цикла
+сканирования и поштучного учёта изображений.
+
+### Добавление источника
+
+```js
+import { registerSource } from '../sources.js';
+
+registerSource({
+  id: 'mySurface',            // also the settings switch key (gallery.sources.mySurface)
+  labelKey: 'source.mySurface',
+  hintKey: 'source.mySurfaceDesc',
+  containerSelector: '.my-surface',   // one container = one gallery set
+  cursorSelector: '.my-surface img',  // gets cursor: zoom-in while enabled
+  collect(container) {
+    // return [{ node, src, alt?, title?, href? }]
+  },
+  resolveFull(item) {
+    // return the best full-size URL for item, or '' when unknown
+  },
+});
+```
+
+Затем добавьте переключатели в четыре места одновременно: модуль источника +
+его импорт, `DEFAULT_GALLERY.sources.<id>` в `src/core/constants.js` и ключи
+`source.<id>` / `source.<id>Desc` во **всех десяти** файлах
+`src/i18n/locales/*.js`. Панель настроек подхватывает новый источник из реестра
+автоматически.
+
+## Разработка
+
+Требуется Node.js 22 (см. `.nvmrc`).
+
+```bash
+npm install
+npm run dev                # vite-plugin-monkey dev server (dev: prefix)
+npm run build              # vite build + copy dist/ → root artifacts
+npm run verify:artifacts   # fail if dist/ and root artifacts differ
+npm run ci                 # build + verify (CI gate)
+npm run icons:build        # regenerate the embedded icon subset
+npm test                   # Node test runner (unit tests)
+```
+
+Редактируйте только файлы в `src/` — `github-plus.user.js` и
+`github-plus.meta.js` генерируются. См. [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+для тестирования и отладки, [CONTRIBUTING.md](CONTRIBUTING.md) для правил,
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) для карты модулей и потоков данных
+и [DESIGN.md](DESIGN.md) перед изменением любых видимых элементов.
+
+## Лицензия
+
+[MIT](LICENSE).
+
+Встроенные иконки файлов взяты из Material Icon Theme (MIT); см.
+[THIRD_PARTY_LICENSES](THIRD_PARTY_LICENSES).
+
+Независимый проект, не связанный с GitHub, Inc.

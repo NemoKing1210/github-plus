@@ -19,7 +19,7 @@ src/
 ├── gallery/
 │   ├── sources.js           # source registry (registerSource / listSources)
 │   ├── collect.js           # normalize, filter, de-duplicate, cap
-│   ├── index.js             # delegated click, cursor stylesheet, bus listener
+│   ├── index.js             # delegated click + hover, cursor stylesheet, download button
 │   └── sources/markdown.js  # the markdown source (side-effect registration)
 ├── features/settings/
 │   ├── index.js             # settings entry: header button, user-menu row, pages
@@ -38,10 +38,12 @@ src/
 │   ├── tokens.css           # :root design tokens (--gp-* palette)
 │   └── app.css              # injected stylesheet (gp- prefix)
 ├── ui/
+│   ├── icons.js             # 16×16 stroke glyphs for the viewer toolbar
 │   ├── toast.js             # notifications (positions, dedup, actions)
 │   └── viewer.js            # fullscreen image viewer (reusable lightbox)
 └── utils/
     ├── dom.js               # el, append, debounce, eachNode, toArray, isOwnUi
+    ├── download.js          # fetch → blob → <a download>, new-tab fallback
     ├── navigation.js        # watchNavigation (turbo/pjax/history URL watcher)
     └── scrollLock.js        # counted page scroll lock for modal overlays
 ```
@@ -124,6 +126,14 @@ or overlay added — so it lives in one stylesheet built from the registry
 (`#gp-gallery-style`). A React re-render cannot strip a stylesheet, and images
 rendered long after load are decorated for free. When no source is enabled the
 stylesheet is removed entirely, leaving the page stock.
+
+The hover download button follows the same rule: one delegated
+`pointerover`/`pointerout` pair resolves the hovered image through the same
+`collectGallery`/`matchIndex` path and positions a single
+`.gp-download-btn` element appended to `<body>`. Nothing is inserted into
+GitHub's markup, there is no per-image state, and the element is dropped on
+navigation. Its click is excluded through `isOwnUi()`, so it never opens the
+viewer.
 
 ## Settings lifecycle
 
