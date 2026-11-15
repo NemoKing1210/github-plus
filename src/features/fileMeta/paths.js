@@ -1,14 +1,14 @@
 /**
- * The raw-file address behind a blob address, which is what both the size
- * probe and the download fetch need. GitHub's own raw route resolves any ref,
- * including branch names that contain slashes, so the path is rewritten
- * rather than rebuilt from parts.
+ * The raw-file address behind a blob, blame or raw address, which is what both
+ * the size probe and the download fetch need. GitHub's own raw route resolves
+ * any ref, including branch names that contain slashes, so the path is
+ * rewritten rather than rebuilt from parts.
  */
-const BLOB_PATH = /^\/([^/]+)\/([^/]+)\/blob\/(.+)$/;
+const FILE_VIEW_PATH = /^\/([^/]+)\/([^/]+)\/(?:blob|blame|raw)\/(.+)$/;
 
 /**
- * Raw path for a blob link or the current blob page, '' when the address does
- * not point at a file view.
+ * Raw path for a file-view link or the current file view, '' when the address
+ * does not point at one.
  * @param {string} href
  * @param {string} [base]
  * @returns {string}
@@ -21,7 +21,7 @@ export function rawUrlFor(href, base = 'https://github.com') {
   } catch {
     return '';
   }
-  const match = BLOB_PATH.exec(path);
+  const match = FILE_VIEW_PATH.exec(path);
   if (!match) return '';
   return `/${match[1]}/${match[2]}/raw/${match[3]}`;
 }

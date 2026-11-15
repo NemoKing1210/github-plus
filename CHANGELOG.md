@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-15
+
+### Added
+
+- File icons in the file tree sidebar of code pages and in the filename header
+  of blob, tree and blame pages, so the colored glyphs appear everywhere GitHub
+  lists a file
+- The file context menu on files in the sidebar file tree and in the Blame view
+  of a file; a tree row for the file already open omits **Open**, like the file
+  page itself
+
+### Fixed
+
+- The filename header of a blob page showed no icon. GitHub moved the name out
+  of the breadcrumb nav into a sibling heading, which the old selector never
+  matched
+
+[0.13.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.13.0
+
 ## [0.12.0] - 2026-11-15
 
 ### Added

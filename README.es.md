@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
@@ -13,7 +13,7 @@ GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos
 tamaños de archivo con descargas en un clic y un menú contextual para acciones
 de archivo.
 
-> **Estado:** temprano (`0.12.0`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.13.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Copia de seguridad · Acerca de), la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, los tamaños de archivo con botones de descarga y
@@ -112,9 +112,10 @@ GitHub dibuja cada archivo y carpeta con el mismo glifo gris, así que `.ts` y
 - **Rol de las carpetas** — `src`, `dist`, `node_modules`, `docs`, `.github`,
   `components`, `utils` y otras carpetas comunes también se marcan.
 - **Dondequiera que GitHub liste archivos** — el árbol del repositorio y sus
-  subcarpetas, la cabecera del blob, las cabeceras de archivos en pull requests y
-  el árbol del diff, las listas de archivos de commits, la búsqueda de código,
-  los gists y los assets de releases.
+  subcarpetas, la barra lateral del árbol de archivos en las páginas de código,
+  la cabecera de archivo de las páginas blob, tree y blame, las cabeceras de
+  archivos en pull requests y el árbol del diff, las listas de archivos de
+  commits, la búsqueda de código, los gists y los assets de releases.
 - **Discreto** — el glifo nativo de GitHub se oculta y se sustituye en su sitio;
   sin cambios de maquetación, sin bordes extra, y al desactivar la función GitHub
   vuelve a como estaba.
@@ -175,9 +176,10 @@ Hacer clic derecho en un archivo es la vía más rápida a lo que quieres hacer 
 para los archivos:
 
 - **Acciones rápidas** — clic derecho en un archivo de una lista del repositorio
-  abre **Abrir**, **Abrir en una pestaña nueva**, **Descargar**, **Copiar
-  contenido**, **Copiar enlace** y **Copiar ruta**. En la página de un archivo
-  aparece el mismo menú (sin **Abrir**, porque ya estás allí).
+  o de la barra lateral del árbol de archivos abre **Abrir**, **Abrir en una
+  pestaña nueva**, **Descargar**, **Copiar contenido**, **Copiar enlace** y
+  **Copiar ruta**. En la página de un archivo o de blame aparece el mismo menú
+  (sin **Abrir**, porque ya estás allí).
 - **Copiar el contenido** — el contenido de un archivo de texto va directo al
   portapapeles sin abrir la página; los archivos binarios y todo lo que supere
   1 MiB se rechazan con un aviso claro, en lugar de pegar basura o bloquear la

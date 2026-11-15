@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
 wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
 Dateigrößen mit Ein-Klick-Downloads sowie ein Kontextmenü für Dateiaktionen.
 
-> **Status:** früh (`0.12.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.13.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
 > Download-Schaltflächen sowie ein Dateikontextmenü. Weitere
@@ -110,8 +110,9 @@ ein:
 - **Ordnerrollen** — `src`, `dist`, `node_modules`, `docs`, `.github`,
   `components`, `utils` und andere gängige Ordner werden ebenfalls markiert.
 - **Überall, wo GitHub Dateien auflistet** — Repository-Baum und Unterordner,
-  Blob-Kopfzeile, Dateiköpfe in Pull Requests und der Diff-Baum, Dateilisten von
-  Commits, Codesuche, Gists und Release-Assets.
+  die Dateibaum-Seitenleiste auf Codeseiten, die Dateikopfzeile von Blob-,
+  Tree- und Blame-Seiten, Dateiköpfe in Pull Requests und der Diff-Baum,
+  Dateilisten von Commits, Codesuche, Gists und Release-Assets.
 - **Unaufdringlich** — das native GitHub-Symbol wird ausgeblendet und an Ort und
   Stelle ersetzt; keine Layoutänderungen, keine zusätzlichen Rahmen, und beim
   Deaktivieren sieht GitHub wieder aus wie zuvor.
@@ -173,10 +174,10 @@ Ein Rechtsklick auf eine Datei ist der schnellste Weg zur gewünschten Aktion �
 und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateien:
 
 - **Schnellaktionen** — ein Rechtsklick auf eine Datei in einer
-  Repository-Liste öffnet **Öffnen**, **In neuem Tab öffnen**,
-  **Herunterladen**, **Inhalt kopieren**, **Link kopieren** und **Pfad
-  kopieren**. Auf einer Dateiseite erscheint dasselbe Menü (ohne **Öffnen**,
-  denn dort bist du schon).
+  Repository-Liste oder in der Dateibaum-Seitenleiste öffnet **Öffnen**,
+  **In neuem Tab öffnen**, **Herunterladen**, **Inhalt kopieren**,
+  **Link kopieren** und **Pfad kopieren**. Auf einer Datei- oder Blame-Seite
+  erscheint dasselbe Menü (ohne **Öffnen**, denn dort bist du schon).
 - **Inhalt kopieren** — der Inhalt einer Textdatei landet direkt in der
   Zwischenablage, ohne die Seite zu öffnen; Binärdateien und alles über 1 MiB
   wird stattdessen mit einem klaren Hinweis abgelehnt, damit weder Müll

@@ -3,12 +3,12 @@ import { rawUrlFor } from '../fileMeta/paths.js';
 /**
  * The addresses behind a file link that the context menu acts on.
  *
- * GitHub does not mark where a ref ends inside `/blob/`, and a branch may
+ * GitHub does not mark where a ref ends inside a file view, and a branch may
  * contain slashes, so the page's current ref (the branch selector) is passed
- * in when known; without it the first segment after `/blob/` is assumed to be
- * the ref, which is right for ordinary branch names.
+ * in when known; without it the first segment after the marker is assumed to
+ * be the ref, which is right for ordinary branch names.
  */
-const FILE_PATH = /^\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/;
+const FILE_PATH = /^\/([^/]+)\/([^/]+)\/(?:blob|blame|raw)\/(.+)$/;
 
 function decode(value) {
   try {

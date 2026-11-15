@@ -41,6 +41,16 @@ test('keeps the name of a file at the repository root', () => {
   assert.equal(target.name, 'README.md');
 });
 
+test('resolves a blame page address the same way as a blob one', () => {
+  const target = fileTarget('/o/r/blame/main/src/a.js', 'https://github.com', 'main');
+  assert.deepEqual(target, {
+    href: 'https://github.com/o/r/blame/main/src/a.js',
+    rawUrl: '/o/r/raw/main/src/a.js',
+    relative: 'src/a.js',
+    name: 'a.js',
+  });
+});
+
 test('returns null for anything that is not a file view', () => {
   assert.equal(fileTarget('/o/r/tree/main/src', 'https://github.com'), null);
   assert.equal(fileTarget('/o/r', 'https://github.com'), null);

@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
 wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
 i pobieranie jednym kliknięciem oraz menu kontekstowe operacji na plikach.
 
-> **Status:** wczesny etap (`0.12.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.13.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
 > plików z przyciskami pobierania oraz menu kontekstowe plików. W planach kolejne
@@ -106,7 +106,8 @@ wyglądają identycznie, dopóki nie przeczytasz nazwy. GitHub Plus je koloruje:
 - **Role folderów** — `src`, `dist`, `node_modules`, `docs`, `.github`,
   `components`, `utils` i inne popularne foldery również są oznaczane.
 - **Wszędzie, gdzie GitHub wyświetla pliki** — drzewo repozytorium i podfoldery,
-  nagłówek blob, nagłówki plików w pull requestach i drzewo diffu, listy plików
+  boczny panel drzewa plików na stronach kodu, nagłówek pliku na stronach blob,
+  tree i blame, nagłówki plików w pull requestach i drzewo diffu, listy plików
   commitów, wyszukiwanie kodu, gisty i zasoby wydań.
 - **Dyskretnie** — natywny glif GitHuba jest ukrywany i zastępowany w miejscu; bez
   zmian układu, bez dodatkowych obramowań, a wyłączenie funkcji przywraca GitHuba
@@ -166,9 +167,10 @@ zrobić — a własne menu GitHuba nie oferuje niczego z tego. GitHub Plus zast�
 je dla plików:
 
 - **Szybkie akcje** — kliknięcie pliku prawym przyciskiem na liście repozytorium
-  otwiera **Otwórz**, **Otwórz w nowej karcie**, **Pobierz**, **Kopiuj
-  zawartość**, **Kopiuj link** i **Kopiuj ścieżkę**. Na stronie pliku pojawia się
-  to samo menu (bez **Otwórz**, bo już tam jesteś).
+  lub w bocznym panelu drzewa plików otwiera **Otwórz**, **Otwórz w nowej
+  karcie**, **Pobierz**, **Kopiuj zawartość**, **Kopiuj link** i **Kopiuj
+  ścieżkę**. Na stronie pliku lub blame pojawia się to samo menu (bez
+  **Otwórz**, bo już tam jesteś).
 - **Kopiowanie zawartości** — zawartość pliku tekstowego trafia prosto do
   schowka bez otwierania strony; pliki binarne i wszystko powyżej 1 MiB jest
   odrzucane z czytelnym komunikatem, zamiast wklejać śmieci albo zawieszać

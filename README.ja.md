@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
 ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
 ワンクリック ダウンロード、そしてファイル操作用のコンテキスト メニューを提供します。
 
-> **ステータス:** 初期段階（`0.12.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.13.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
 > ダウンロード ボタン、ファイルのコンテキスト メニュー。今後さらに GitHub の改善を
@@ -106,7 +106,8 @@ GitHub はすべてのファイルとフォルダーを同じ灰色のグリフ�
 - **フォルダーの役割** — `src`、`dist`、`node_modules`、`docs`、`.github`、
   `components`、`utils` などの一般的なフォルダーもマークします。
 - **GitHub がファイルを一覧するあらゆる場所** — リポジトリ ツリーとサブフォルダー、
-  blob ヘッダー、pull request のファイル ヘッダーと diff ツリー、コミットの
+  コードページのファイル ツリー サイドバー、blob・tree・blame ページのファイル
+  ヘッダー、pull request のファイル ヘッダーと diff ツリー、コミットの
   ファイル一覧、コード検索、gist、リリース アセット。
 - **控えめ** — GitHub ネイティブのグリフを隠してその場で置き換えます。レイアウト
   変更も余計な枠もなく、機能を無効にすれば GitHub は元の状態に戻ります。
@@ -156,10 +157,10 @@ GitHub Plus はその両方をファイルの行に追加します:
 ファイルの右クリックは目的の操作への最短ルートですが、GitHub 自身のメニューには
 そのどれもありません。GitHub Plus はファイルに対してそのメニューを置き換えます:
 
-- **クイック操作** — リポジトリの一覧でファイルを右クリックすると **開く**、
-  **新しいタブで開く**、**ダウンロード**、**内容をコピー**、**リンクをコピー**、
-  **パスをコピー** が使えます。ファイルページでも同じメニューが開きます
-  （すでにそのページにいるため **開く** はありません）。
+- **クイック操作** — リポジトリの一覧またはファイル ツリー サイドバーでファイルを
+  右クリックすると **開く**、**新しいタブで開く**、**ダウンロード**、**内容をコピー**、
+  **リンクをコピー**、**パスをコピー** が使えます。ファイルページや blame ページでも
+  同じメニューが開きます（すでにそのページにいるため **開く** はありません）。
 - **内容をコピー** — テキスト ファイルの内容はページを開かずにクリップボードへ。
   バイナリ ファイルと 1 MiB を超えるファイルは、文字化けを貼り付けたりタブを
   固まらせたりする代わりに、明確な通知で断ります。

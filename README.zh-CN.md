@@ -5,13 +5,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
 以及用于文件操作的上下文菜单。
 
-> **状态：** 早期（`0.12.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
+> **状态：** 早期（`0.13.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
 > 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
 > 文件大小，以及文件上下文菜单。计划加入更多 GitHub 改进。
 
@@ -93,8 +93,9 @@ GitHub 用同一个灰色字形绘制所有文件和文件夹，所以 `.ts` 和
   `tsconfig.json` 等都有专属图标。
 - **文件夹角色**——`src`、`dist`、`node_modules`、`docs`、`.github`、
   `components`、`utils` 等常见文件夹也会标记。
-- **GitHub 列出文件的每个地方**——仓库树及子目录、blob 头部、pull request 文件
-  头部和 diff 树、提交文件列表、代码搜索、gist 和 release 附件。
+- **GitHub 列出文件的每个地方**——仓库树及子目录、代码页面的文件树侧边栏、blob、
+  tree 和 blame 页面的文件头部、pull request 文件头部和 diff 树、提交文件列表、
+  代码搜索、gist 和 release 附件。
 - **克制**——隐藏 GitHub 原生字形并在原位置替换；不改变布局、不加多余边框，禁用
   该功能即可恢复 GitHub 原样。
 
@@ -135,9 +136,9 @@ GitHub Plus 把两者直接加到文件行上：
 右键单击文件是最快的操作入口——而 GitHub 自带的菜单并不提供这些操作。GitHub Plus
 会为文件替换该菜单：
 
-- **快捷操作** — 在仓库文件列表中右键单击文件，可**打开**、**在新标签页中打开**、
-  **下载**、**复制内容**、**复制链接**和**复制路径**。在文件页面中会出现同样的菜单
-  （不含**打开**，因为你已经在该页面）。
+- **快捷操作** — 在仓库文件列表或文件树侧边栏中右键单击文件，可**打开**、
+  **在新标签页中打开**、**下载**、**复制内容**、**复制链接**和**复制路径**。
+  在文件页面或 blame 页面中会出现同样的菜单（不含**打开**，因为你已经在该页面）。
 - **复制内容** — 文本文件的内容无需打开页面即可直接进入剪贴板；二进制文件和超过
   1 MiB 的文件会被明确提示拒绝，而不是粘贴乱码或卡住标签页。
 - **复制路径** — 相对于仓库的路径（`src/main.js`），可直接粘贴到终端、导入语句或链接中。

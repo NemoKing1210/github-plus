@@ -29,6 +29,10 @@ test('turns a blob path into a raw path', () => {
   assert.equal(rawUrlFor('/o/r/blob/main/docs/a.md'), '/o/r/raw/main/docs/a.md');
 });
 
+test('turns a blame path into a raw path', () => {
+  assert.equal(rawUrlFor('/o/r/blame/main/docs/a.md'), '/o/r/raw/main/docs/a.md');
+});
+
 test('strips the query and the hash', () => {
   assert.equal(rawUrlFor('/o/r/blob/main/a.js?plain=1#L20'), '/o/r/raw/main/a.js');
 });

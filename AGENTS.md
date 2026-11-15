@@ -75,7 +75,7 @@ github-plus/
 │   │   ├── fileMeta/
 │   │   │   ├── index.js    # Surface observers, lazy size probes, settings reaction
 │   │   │   ├── surfaces.js # File rows with a raw address
-│   │   │   ├── paths.js    # rawUrlFor(blobHref): pure address rewrite
+│   │   │   ├── paths.js    # rawUrlFor(fileHref): pure address rewrite
 │   │   │   ├── size.js     # formatSize(bytes): pure size formatting
 │   │   │   └── inject.js   # renderMeta / placeMeta / placeHead / clearMeta
 │   │   ├── fileMenu/
@@ -472,8 +472,12 @@ icon. The feature is registry-driven; every surface degrades on its own.
 - `surfaces.js`: the surfaces GitHub lists files on, each independent:
   `repo-tree` (`[data-testid="directory-content"]`, rows are the two
   `.react-directory-filename-column` cells, so both screen sizes are
-  decorated), `blob-header`, `pr-file-header`, `diff-file-tree`,
-  `commit-files`, `search-results`, `gist-files`, `release-assets`. A surface
+  decorated), `file-header` (the filename heading of the code view, a sibling
+  of the breadcrumb nav, on blob, tree and blame pages), `file-tree-pane` (the
+  sidebar file tree, `#repos-file-tree`, rows are its `li[role="treeitem"]`
+  entries, folders told apart by `aria-expanded` and GitHub's folder glyphs),
+  `pr-file-header`, `diff-file-tree`, `commit-files`, `search-results`,
+  `gist-files`, `release-assets`. A surface
   declares `containers` (selectors), `rows` (selector) and
   `resolve(row)` → `{ name, kind, nameNode, nativeIcon }` or null. A selector
   that stops matching after a GitHub redesign turns that surface into a no-op;
@@ -557,9 +561,9 @@ chrome.
   three significant digits (`2929` → `2.86 KB`). Unit-tested by
   `test/fileMeta.test.js`.
 - `paths.js`: `rawUrlFor(href, base)` (pure) — rewrites
-  `/o/r/blob/<ref>/<path>` to `/o/r/raw/<ref>/<path>` and returns `''` for
-  anything that is not a file view. The repository may itself be named `blob`;
-  only the segment after the repository is rewritten.
+  `/o/r/blob|blame|raw/<ref>/<path>` to `/o/r/raw/<ref>/<path>` and returns `''`
+  for anything that is not a file view. The repository may itself be named
+  `blob`; only the segment after the repository is rewritten.
 - `surfaces.js`: `repo-tree` (`tr.react-directory-row` inside
   `[data-testid="directory-content"]`, file links only), plus the `header`
   selector of the table header row and the `columnLabelKey` for its label.
@@ -590,16 +594,17 @@ chrome.
 
 ### `src/features/fileMenu/` — file context menu
 
-Right-clicking a file in the repository listing or on a blob page opens the
-project's own menu instead of the browser's: open, open in a new tab, download,
-copy contents, copy link, copy path. One delegated capture-phase `contextmenu`
-listener on the document — the same shape as the gallery's click listener, with
-no per-row state to invalidate — and the native menu is replaced **only** when
-the click resolves to a file. Folders, submodules, media inside a rendered file
-and foreign links keep the browser menu.
+Right-clicking a file in the repository listing, in the sidebar file tree or on
+a blob or blame page opens the project's own menu instead of the browser's:
+open, open in a new tab, download, copy contents, copy link, copy path. One
+delegated capture-phase `contextmenu` listener on the document — the same shape
+as the gallery's click listener, with no per-row state to invalidate — and the
+native menu is replaced **only** when the click resolves to a file. Folders,
+submodules, media inside a rendered file and foreign links keep the browser
+menu.
 
 - `paths.js`: `fileTarget(href, base, ref)` (pure) — a file view
-  (`/o/r/blob|raw/<ref>/<path>`) → `{ href, rawUrl, relative, name }`, else
+  (`/o/r/blob|blame|raw/<ref>/<path>`) → `{ href, rawUrl, relative, name }`, else
   `null`. It reuses `rawUrlFor` from `fileMeta/paths.js` for the download
   address, strips the current ref (`[data-testid="anchor-button"]`) when the
   path starts with it and otherwise the first path segment, percent-decodes the
@@ -611,14 +616,20 @@ and foreign links keep the browser menu.
   textual extension.
 - `surfaces.js`: `resolveFileTarget(node)` → `{ name, href, rawUrl, relative,
   source, anchor }` or `null`. `listing` reads the row's
-  `a[href*="/blob/"]` inside `[data-testid="directory-content"]`; `blob` applies
-  only when the path is a blob view and the node sits inside GitHub's file
-  content (breadcrumbs, code area, `.markdown-body`), skipping native media and
-  foreign links but allowing the file's own header link. `anchor` is the row
-  link or the breadcrumb filename, used for keyboard opens.
+  `a[href*="/blob/"]` inside `[data-testid="directory-content"]`; `tree` reads a
+  file row of the sidebar file tree (`li[role="treeitem"]` in
+  `#repos-file-tree`, path from the row's `-item` id, blob address rebuilt from
+  the page's repo and the current ref); `blob` applies only when the path is a
+  blob or blame view and the node sits inside GitHub's file content
+  (breadcrumbs and the filename heading, code area, `.markdown-body`), skipping
+  native media and foreign links but allowing the file's own header link.
+  `anchor` is the row link or the breadcrumb filename, used for keyboard opens.
+  A tree row for the file already open is reported as `blob`, so it offers no
+  redundant **Open**.
 - `index.js`: `buildItems()` builds the action list through `ui/contextMenu.js`
-  and `ACTION_ICONS`; open is omitted on a blob page (already there), download
-  uses `utils/download.js`, copy contents fetches the same-origin raw address
+  and `ACTION_ICONS`; open is omitted when the file is the page itself (already
+  there), download uses `utils/download.js`, copy contents fetches the
+  same-origin raw address
   (declared `content-length` and blob size checked against
   `FILE_COPY_MAX_BYTES`, then `isCopyableContent`), and every clipboard write
   reports through `ui/toast.js` — success and the three refusals (too large,
@@ -899,6 +910,15 @@ and check diagnostics for edited files.
   plain left click (no modifier), the image is inside a `.markdown-body`
   container, and the image is not a badge, emoji or small icon. Inspect
   `#gp-gallery-style` — no stylesheet means no enabled source.
+- File icons missing: check **File icons** is on and the row is one of the
+  surfaces in `features/fileIcons/surfaces.js`. The sidebar file tree is
+  `#repos-file-tree` (rows `li[role="treeitem"]`, names in
+  `.PRIVATE_TreeView-item-content-text`, folders marked by `aria-expanded`), and
+  the filename heading is `[data-testid="breadcrumbs-filename"]` inside the code
+  view's `#repos-split-pane-content` — the heading is a sibling of the
+  breadcrumb nav, not inside it. A GitHub redesign that renames those turns the
+  surface into a no-op — extend the registry, never add a document-wide
+  observer.
 - Last-commit dates not colored: check **File ages** is on and, for folder
   rows, that **Folder rows** is on; the row must carry a
   `relative-time[datetime]` (or `time[datetime]`) inside one of the containers
@@ -923,9 +943,10 @@ and check diagnostics for edited files.
   that `.gp-settings-btn` is inside it. A header rework on GitHub's side is the
   usual cause — extend the list, never restyle GitHub's own header.
 - File context menu not opening: check **File context menu** is on, the page is a
-  repository listing or a blob view, and the right-click landed on a file row
-  link or inside the file content — folders, media and foreign links keep the
-  browser menu by design. The menu claims `#gp-context-menu`; inspect its
+  repository listing, the sidebar file tree, or a blob/blame view, and the
+  right-click landed on a file row link, a tree file row or inside the file
+  content — folders, submodules, media and foreign links keep the browser menu
+  by design. The menu claims `#gp-context-menu`; inspect its
   `aria-label` for the resolved file name. Copy contents refusing a file means
   `isCopyableContent()` saw a non-text type, the file exceeds
   `FILE_COPY_MAX_BYTES` (1 MiB) or the raw fetch failed (`GP-1401` in the

@@ -18,6 +18,18 @@ function cleanName(node) {
   return (node.textContent || '').trim().replace(/\/+$/, '');
 }
 
+/** The sidebar tree marks folders with its own folder glyphs. */
+function isFolderIcon(icon) {
+  return /octicon-(file-directory|file-submodule|file-symlink-directory)/.test(
+    icon?.getAttribute('class') || '',
+  );
+}
+
+/** A tree page's breadcrumb names a folder; every other page names a file. */
+function isTreePage() {
+  return /^\/[^/]+\/[^/]+\/tree\//.test(location.pathname);
+}
+
 /** Fallback reader for surfaces whose markup follows the classic file row. */
 function resolveClassicFileRow(row) {
   const nativeIcon = row.querySelector('svg[class*="octicon-file"]');
@@ -51,14 +63,42 @@ export const SURFACES = [
     },
   },
   {
-    id: 'blob-header',
-    containers: ['[data-testid="breadcrumbs"]'],
+    id: 'file-header',
+    // The filename is a sibling of the breadcrumb nav, not inside it, and each
+    // screen width gets its own copy; the code view's split pane holds them all.
+    // The breadcrumb nav stays a container for older markup.
+    containers: ['#repos-split-pane-content', '[data-testid="breadcrumbs"]'],
     rows: '[data-testid="breadcrumbs-filename"]',
     resolve(row) {
-      const link = row.querySelector('a[href], span') || row;
-      const name = cleanName(link);
+      // The name is a heading now; the spans around it are path separators,
+      // and older markup wrapped it in a link.
+      const label = row.querySelector('h1, a[href]') || row;
+      const name = cleanName(label);
       if (!name) return null;
-      return { name, kind: 'file', nameNode: link, nativeIcon: null };
+      return {
+        name,
+        kind: isTreePage() ? 'folder' : 'file',
+        nameNode: label,
+        nativeIcon: null,
+      };
+    },
+  },
+  {
+    id: 'file-tree-pane',
+    containers: ['#repos-file-tree'],
+    rows: 'li[role="treeitem"]',
+    resolve(row) {
+      const nameNode = row.querySelector('.PRIVATE_TreeView-item-content-text');
+      if (!nameNode) return null;
+      const name = cleanName(nameNode);
+      if (!name) return null;
+      const nativeIcon = row.querySelector('.PRIVATE_TreeView-item-visual svg.octicon');
+      return {
+        name,
+        kind: row.hasAttribute('aria-expanded') || isFolderIcon(nativeIcon) ? 'folder' : 'file',
+        nameNode,
+        nativeIcon,
+      };
     },
   },
   {

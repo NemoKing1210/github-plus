@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴를
 제공합니다.
 
-> **상태:** 초기(`0.12.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
+> **상태:** 초기(`0.13.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
 > 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
 > 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴. 더 많은 GitHub 개선이 예정되어 있습니다.
 
@@ -99,8 +99,9 @@ GitHub는 모든 파일과 폴더를 같은 회색 글리프로 그리므로 이
   `tsconfig.json` 등에 전용 아이콘을 부여합니다.
 - **폴더 역할** — `src`, `dist`, `node_modules`, `docs`, `.github`, `components`,
   `utils` 등 흔한 폴더도 표시합니다.
-- **GitHub가 파일을 나열하는 모든 곳** — 저장소 트리와 하위 폴더, blob 헤더,
-  풀 리퀘스트 파일 헤더와 diff 트리, 커밋 파일 목록, 코드 검색, gist, 릴리스 자산.
+- **GitHub가 파일을 나열하는 모든 곳** — 저장소 트리와 하위 폴더, 코드 페이지의
+  파일 트리 사이드바, blob·tree·blame 페이지의 파일 헤더, 풀 리퀘스트 파일 헤더와
+  diff 트리, 커밋 파일 목록, 코드 검색, gist, 릴리스 자산.
 - **조용함** — GitHub 기본 글리프를 숨기고 제자리에서 교체합니다. 레이아웃 변경도,
   추가 테두리도 없으며 기능을 끄면 GitHub가 원래대로 돌아갑니다.
 
@@ -149,10 +150,10 @@ GitHub의 디렉터리 목록은 파일이 언제 바뀌었는지는 보여 주�
 GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일에 대해 그 메뉴를
 대체합니다:
 
-- **빠른 작업** — 저장소 목록에서 파일을 마우스 오른쪽 버튼으로 클릭하면 **열기**,
-  **새 탭에서 열기**, **다운로드**, **내용 복사**, **링크 복사**, **경로 복사**를
-  사용할 수 있습니다. 파일 페이지에서도 같은 메뉴가 나타납니다(**열기**는 이미 그
-  페이지에 있으므로 없습니다).
+- **빠른 작업** — 저장소 목록이나 파일 트리 사이드바에서 파일을 마우스 오른쪽
+  버튼으로 클릭하면 **열기**, **새 탭에서 열기**, **다운로드**, **내용 복사**,
+  **링크 복사**, **경로 복사**를 사용할 수 있습니다. 파일 페이지나 blame 페이지에서도
+  같은 메뉴가 나타납니다(**열기**는 이미 그 페이지에 있으므로 없습니다).
 - **내용 복사** — 텍스트 파일의 내용은 페이지를 열지 않고 바로 클립보드로 들어갑니다.
   바이너리 파일과 1 MiB를 넘는 파일은 깨진 문자가 붙거나 탭이 멈추는 대신 명확한
   알림과 함께 거부됩니다.

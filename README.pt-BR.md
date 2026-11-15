@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 galeria de imagens para markdown renderizado, ícones de arquivo coloridos onde o
@@ -13,7 +13,7 @@ GitHub lista arquivos, idades coloridas no estilo blame para esses arquivos,
 tamanhos de arquivo com downloads em um clique e um menu de contexto para ações
 de arquivo.
 
-> **Status:** inicial (`0.12.0`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.13.0`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Backup · Sobre), a galeria de imagens de
 > markdown, ícones de arquivo coloridos, idades coloridas no estilo blame,
 > tamanhos de arquivo com botões de download e um menu de contexto de arquivos.
@@ -109,10 +109,11 @@ O GitHub desenha cada arquivo e pasta com o mesmo glifo cinza, então `.ts` e
   `tsconfig.json` e semelhantes ganham um ícone dedicado.
 - **Papel das pastas** — `src`, `dist`, `node_modules`, `docs`, `.github`,
   `components`, `utils` e outras pastas comuns também são marcadas.
-- **Onde o GitHub lista arquivos** — a árvore do repositório e subpastas, o
-  cabeçalho do blob, os cabeçalhos de arquivos em pull requests e a árvore do
-  diff, listas de arquivos de commits, busca de código, gists e assets de
-  release.
+- **Onde o GitHub lista arquivos** — a árvore do repositório e subpastas, a
+  barra lateral da árvore de arquivos nas páginas de código, o cabeçalho de
+  arquivo das páginas blob, tree e blame, os cabeçalhos de arquivos em pull
+  requests e a árvore do diff, listas de arquivos de commits, busca de código,
+  gists e assets de release.
 - **Discreto** — o glifo nativo do GitHub é ocultado e substituído no lugar; sem
   mudanças de layout, sem bordas extras, e desativar o recurso devolve o GitHub
   ao estado original.
@@ -170,9 +171,10 @@ quer fazer com ele — e o menu do próprio GitHub não oferece nada disso. O Gi
 Plus o substitui para arquivos:
 
 - **Ações rápidas** — clique com o botão direito em um arquivo de uma listagem
-  do repositório para **Abrir**, **Abrir em nova aba**, **Baixar**, **Copiar
-  conteúdo**, **Copiar link** e **Copiar caminho**. Na página de um arquivo
-  aparece o mesmo menu (sem **Abrir**, pois você já está lá).
+  do repositório ou da barra lateral da árvore de arquivos para **Abrir**,
+  **Abrir em nova aba**, **Baixar**, **Copiar conteúdo**, **Copiar link** e
+  **Copiar caminho**. Na página de um arquivo ou de blame aparece o mesmo menu
+  (sem **Abrir**, pois você já está lá).
 - **Copiar o conteúdo** — o conteúdo de um arquivo de texto vai direto para a
   área de transferência sem abrir a página; arquivos binários e qualquer coisa
   acima de 1 MiB são recusados com um aviso claro, em vez de colar lixo ou

@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.13.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
 blame-style age colors for those files, file sizes with one-click downloads,
 and a context menu for file actions.
 
-> **Status:** early (`0.12.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.13.0`). Settings panel with instant search (General ·
 > Gallery · Files · Backup · About), the markdown image gallery, colored file
 > icons, blame-style file age colors, file sizes with download buttons, and a
 > file context menu. More GitHub improvements planned.
@@ -103,7 +103,8 @@ GitHub draws every file and folder with the same grey glyph, so a `.ts` and a
 - **Folder roles** — `src`, `dist`, `node_modules`, `docs`, `.github`,
   `components`, `utils` and other common folders are marked too.
 - **Everywhere GitHub lists files** — the repository tree and subfolders, the
-  blob header, pull request file headers and the diff tree, commit file lists,
+  file tree sidebar on code pages, the file header of blob, tree and blame
+  pages, pull request file headers and the diff tree, commit file lists,
   code search, gists and release assets.
 - **Quiet** — the native GitHub glyph is hidden and replaced in place; no
   layout changes, no extra borders, and disabling the feature restores stock
@@ -158,10 +159,10 @@ and saving one means opening it first. GitHub Plus adds both to the file rows:
 Right-clicking a file is the fastest path to what you want to do with it — and
 GitHub's own menu does not offer any of it. GitHub Plus replaces it for files:
 
-- **Quick actions** — right-click a file in a repository listing for **Open**,
-  **Open in new tab**, **Download**, **Copy contents**, **Copy link** and
-  **Copy path**. On a file page the same menu appears (without **Open**, since
-  you are already there).
+- **Quick actions** — right-click a file in a repository listing or in the file
+  tree sidebar for **Open**, **Open in new tab**, **Download**, **Copy
+  contents**, **Copy link** and **Copy path**. On a file or blame page the same
+  menu appears (without **Open**, since you are already there).
 - **Copy the contents** — a text file's contents go straight to the clipboard
   without opening the page; binary files and anything over 1 MiB are refused
   with a clear toast instead of pasting garbage or freezing the tab.

@@ -76,7 +76,7 @@ async function copyContents(target) {
 
 function buildItems(target) {
   const items = [];
-  if (target.source === 'listing') {
+  if (target.source !== 'blob') {
     items.push({
       label: t('fileMenu.open'),
       icon: ACTION_ICONS.open,
