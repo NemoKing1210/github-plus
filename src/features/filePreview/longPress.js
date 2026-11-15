@@ -1,5 +1,7 @@
-import { PREVIEW_LONG_PRESS_MOVE_PX, PREVIEW_LONG_PRESS_MS } from '../../core/constants.js';
+import { PREVIEW_LONG_PRESS_MOVE_PX } from '../../core/constants.js';
+import { getFilePreviewSettings } from '../../core/settings.js';
 import { isOwnUi } from '../../utils/dom.js';
+import { hideHoldRing, showHoldRing } from './holdRing.js';
 import { resolvePreviewLink } from './surfaces.js';
 
 let timer = null;
@@ -15,6 +17,7 @@ function cancel() {
   if (timer !== null) clearTimeout(timer);
   timer = null;
   pressed = null;
+  hideHoldRing();
 }
 
 function onPointerDown(event) {
@@ -26,15 +29,18 @@ function onPointerDown(event) {
   startX = event.clientX;
   startY = event.clientY;
   pressed = found;
+  const settings = getFilePreviewSettings();
+  if (settings.longPressRing) showHoldRing(event.clientX, event.clientY, settings.longPressMs);
   timer = setTimeout(() => {
     timer = null;
     const target = pressed;
     pressed = null;
+    hideHoldRing();
     if (!target || !target.link.isConnected) return;
     suppressed = target.link;
     suppressClickUntil = Date.now() + 1000;
     onOpen?.(target);
-  }, PREVIEW_LONG_PRESS_MS);
+  }, settings.longPressMs);
 }
 
 function onPointerMove(event) {

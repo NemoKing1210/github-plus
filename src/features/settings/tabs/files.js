@@ -1,7 +1,18 @@
-import { AGE_BUCKET_COUNT } from '../../../core/constants.js';
+import {
+  AGE_BUCKET_COUNT,
+  PREVIEW_LONG_PRESS_MAX_MS,
+  PREVIEW_LONG_PRESS_MIN_MS,
+} from '../../../core/constants.js';
 import { t } from '../../../i18n/index.js';
 import { el } from '../../../utils/dom.js';
-import { createHint, createSection, createSwitch, createSwitchRow } from '../controls.js';
+import {
+  createField,
+  createHint,
+  createNumberInput,
+  createSection,
+  createSwitch,
+  createSwitchRow,
+} from '../controls.js';
 import { getDraft } from '../panel.js';
 
 /** Preview of the sequential scale the ages feature paints on GitHub's file list. */
@@ -136,6 +147,31 @@ function previewCard(draft) {
       hint: t('preview.longPressDesc'),
       onChange: (value) => {
         draft.filePreview.longPress = value;
+      },
+    }),
+    createField({
+      label: t('preview.longPressMs'),
+      hint: t('preview.longPressMsDesc', {
+        min: PREVIEW_LONG_PRESS_MIN_MS,
+        max: PREVIEW_LONG_PRESS_MAX_MS,
+      }),
+      control: createNumberInput({
+        value: draft.filePreview.longPressMs,
+        min: PREVIEW_LONG_PRESS_MIN_MS,
+        max: PREVIEW_LONG_PRESS_MAX_MS,
+        step: 50,
+        label: t('preview.longPressMs'),
+        onChange: (ms) => {
+          draft.filePreview.longPressMs = ms;
+        },
+      }),
+    }),
+    createSwitchRow({
+      checked: draft.filePreview.longPressRing,
+      label: t('preview.longPressRing'),
+      hint: t('preview.longPressRingDesc'),
+      onChange: (value) => {
+        draft.filePreview.longPressRing = value;
       },
     }),
   );

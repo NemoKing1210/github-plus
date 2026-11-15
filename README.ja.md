@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.17.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
@@ -13,7 +13,7 @@ Markdown の画像ギャラリー、GitHub がファイルを一覧するあら�
 ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、そして任意の
 ファイルのクイックプレビューを提供します。
 
-> **ステータス:** 初期段階（`0.16.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.17.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
 > ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック
@@ -191,6 +191,7 @@ GitHub Plus はその両方をファイルの行に追加します:
   ボタンと矢印キーで切り替えられます。現在位置はフッターに表示されます。
 - **長押しでプレビュー** — 一覧のファイル名、またはレンダリングされた Markdown の
   ファイル リンクの上でマウスの左ボタンを押し続けるとプレビューが開きます。
+  長押し時間（既定 450 ms）とポインター位置の進行サークルは設定で変更できます。
   短いクリックはこれまでどおりファイルを開き、ドラッグやテキスト選択では
   キャンセルされます。
 - **ヘッダーの操作** — GitHub でファイルを開く、生の内容・リンク・パスをコピー
@@ -241,7 +242,9 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `fileMenu.enabled` | `true` | ファイルのコンテキスト メニューのマスター スイッチ |
 | `filePreview.enabled` | `true` | ファイルのクイックプレビューのマスター スイッチ |
 | `filePreview.rowButton` | `true` | ファイル一覧の行に目のボタンを表示（コンテキスト メニューでは常に**プレビュー**を選べます） |
-| `filePreview.longPress` | `true` | 一覧のファイル名をマウスの左ボタンで長押ししてプレビューを開く |
+| `filePreview.longPress` | `true` | ファイル名または Markdown のファイル リンクをマウスの左ボタンで長押ししてプレビューを開く |
+| `filePreview.longPressMs` | `450` | プレビューが開くまでの長押し時間（ミリ秒、200–2000） |
+| `filePreview.longPressRing` | `true` | 長押し中にポインター位置へ表示する進行サークル |
 
 ## ギャラリーの仕組み
 

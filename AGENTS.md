@@ -84,6 +84,7 @@ github-plus/
 │   │   │   ├── surfaces.js # Listing rows, current ref, sibling set, hold targets
 │   │   │   ├── inject.js   # renderPreviewButton / placeCell / placeHead / clearPreviewCells
 │   │   │   ├── longPress.js# Delegated hold-on-a-file-link gesture
+│   │   │   ├── holdRing.js # Transient hold-progress ring at the pointer
 │   │   │   ├── kind.js     # previewKind(name, type), highlightLanguage, countLines (pure)
 │   │   │   ├── links.js    # resolveMarkdownTarget(href, ctx, mode): relative → GitHub URL (pure)
 │   │   │   ├── render.js   # loadPreview(file, { mode }): fetch + dispatch per kind
@@ -173,15 +174,17 @@ Single place for magic values.
   sibling set collected from one directory), `PREVIEW_CACHE_ENTRIES` (rendered
   previews kept for the session), `PREVIEW_PDF_FRAME_TIMEOUT_MS` (how long a
   PDF frame may load before its fallback card shows), `PREVIEW_LONG_PRESS_MS`
-  (450) and `PREVIEW_LONG_PRESS_MOVE_PX` (8 — movement past it is a drag, not a
-  long press).
+  (450, the default hold time), `PREVIEW_LONG_PRESS_MIN_MS` / `_MAX_MS`
+  (200…2000, the bounds a configured hold time is clamped to) and
+  `PREVIEW_LONG_PRESS_MOVE_PX` (8 — movement past it is a drag, not a long
+  press).
 - `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
   `fileMeta`, `fileMenu`, `filePreview`) plus `getDefaults()`, which returns a
   deep clone — never mutate the shared constants. `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
   `DEFAULT_FILE_MENU` is `{ enabled }` and `DEFAULT_FILE_PREVIEW` is
-  `{ enabled, rowButton, longPress }`.
+  `{ enabled, rowButton, longPress, longPressMs, longPressRing }`.
 
 ### `src/core/settings.js`
 
@@ -201,9 +204,10 @@ Key facts that must survive refactors:
   toast positions from `TOAST_POSITIONS`, toast duration clamped to
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
-  from the registry leaves no stale key), and the `fileIcons` / `fileAges` /
-  `fileMeta` / `fileMenu` / `filePreview` booleans. Unknown values fall back to
-  defaults, never crash.
+  from the registry leaves no stale key), the `fileIcons` / `fileAges` /
+  `fileMeta` / `fileMenu` / `filePreview` booleans, and the long-press time
+  clamped to `PREVIEW_LONG_PRESS_MIN_MS`…`PREVIEW_LONG_PRESS_MAX_MS`. Unknown
+  values fall back to defaults, never crash.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -471,10 +475,12 @@ never touches page markup; `isOwnUi()` covers it.
   wrap-around, zoom ceiling.
 - `tabs/files.js`: the single page for every file-listing enhancement — one
   card per feature (file icons, file ages, file sizes and downloads, the
-  context menu), each with its own master switch in the card header, its scope
-  toggles in the body, and the ten-shade age scale preview inside the ages card
-  (`icons.*`, `ages.*`, `files.*`, `fileMenu.*` keys). The features stay
-  independent, so the page has no switch of its own.
+  context menu, the quick preview), each with its own master switch in the card
+  header, its scope toggles and fields in the body, and the ten-shade age scale
+  preview inside the ages card. The preview card carries the hold-time number
+  input and the progress-circle switch (`icons.*`, `ages.*`, `files.*`,
+  `fileMenu.*`, `preview.*` keys). The features stay independent, so the page
+  has no switch of its own.
 - `tabs/backup.js`: export to file (`Blob` + `<a download>`) or clipboard,
   import from a textarea through `normalizeImportedSettings` +
   `applyExternalSettings`, with an inline invalid-payload message.
@@ -724,14 +730,26 @@ keys move between siblings.
 - `longPress.js`: `installLongPress(handler)` / `uninstallLongPress()` — one
   delegated capture-phase `pointerdown` listener on the document, the same
   shape as the gallery and the file menu. A left-button press on a listing file
-  name or a rendered markdown file link starts a `PREVIEW_LONG_PRESS_MS` timer;
-  moving past `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a
-  touch pointer cancels it, so a drag, a text selection and a plain click keep
-  their normal behavior. When the timer fires the handler opens the preview
-  with that link as the anchor (for a listing row the whole directory becomes
-  the set; a markdown link opens one file), and the following `click` on the
-  link is swallowed once — otherwise the browser would also navigate to the
-  file.
+  name or a rendered markdown file link starts a timer for the configured
+  `filePreview.longPressMs` (default `PREVIEW_LONG_PRESS_MS`); moving past
+  `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a touch pointer
+  cancels it and hides the ring, so a drag, a text selection and a plain click
+  keep their normal behavior. With `filePreview.longPressRing` on, the press
+  also shows the hold-progress ring at the pointer. When the timer fires the
+  handler opens the preview with that link as the anchor (for a listing row the
+  whole directory becomes the set; a markdown link opens one file), and the
+  following `click` on the link is swallowed once — otherwise the browser would
+  also navigate to the file.
+- `holdRing.js`: `mountHoldRing()`, `showHoldRing(x, y, durationMs)` /
+  `hideHoldRing()` — a `.gp-hold-ring` disc at the pointer whose accent arc
+  fills over the hold time through one CSS animation (`--gp-hold-duration` set
+  inline, like the toast's progress duration). The host is mounted once by
+  `applyFilePreviewSettings()` **before** `observeShell()` attaches a body
+  observer, and showing/hiding only flips `hidden`: a new direct child of
+  `<body>` would read as an app-shell swap and the re-apply would tear the
+  long-press listener down mid-gesture. A hidden element cancels its animation,
+  so the next show restarts the fill. It is `pointer-events: none` and listed
+  in `isOwnUi()`.
 - `inject.js`: `renderPreviewButton` (28×28 eye, `preventDefault` +
   `stopPropagation`), `placeCell` (an empty cell for a folder row, so every row
   keeps the column count), `placeHead` (a visually collapsed header label like
@@ -768,7 +786,7 @@ keys move between siblings.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 175
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 179
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -778,7 +796,7 @@ keys move between siblings.
   `toArray`, `escapeHtml(text)`, `isOwnUi(node)` (true inside
   `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`,
   `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
-  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`). `eachNode`/`toArray` exist because DOM collections
+  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`). `eachNode`/`toArray` exist because DOM collections
   (`NodeList`, `HTMLCollection`, `addedNodes`, `classList`) are **not iterable
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
@@ -936,7 +954,9 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `fileMenu.enabled` | `true` | Master switch; disabling removes the delegated `contextmenu` listener |
 | `filePreview.enabled` | `true` | Master switch; disabling clears the listing buttons and observers and closes an open preview |
 | `filePreview.rowButton` | `true` | Eye button in listing rows (the context menu always offers **Preview**) |
-| `filePreview.longPress` | `true` | Hold the left mouse button on a listing file name to open the preview |
+| `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
+| `filePreview.longPressMs` | `450` | Hold time in ms, clamped to 200…2000 |
+| `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
 
 ## Localization
 
@@ -1122,8 +1142,9 @@ and check diagnostics for edited files.
   eye button — that **Row button** is on, and — for the hold gesture — that
   **Long-press a file name** is on; the context menu entry appears regardless.
   The hold gesture needs a mouse: touch pointers are ignored, and moving more
-  than 8 px before the 450 ms timer fires turns it into a drag. The hold works
-  on a file link inside `.markdown-body` too, and the row must be a
+  than 8 px before the configured `longPressMs` timer (450 ms by default) fires
+  turns it into a drag. The hold works on a file link inside `.markdown-body`
+  too, and the row must be a
   `tr.react-directory-row` inside `[data-testid="directory-content"]`; the
   menu also opens the preview on a blob
   or blame page, for the file itself. A card saying the file could not be shown

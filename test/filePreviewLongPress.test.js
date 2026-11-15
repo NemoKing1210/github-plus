@@ -27,6 +27,7 @@ function installDom() {
   globalThis.HTMLElement = dom.window.HTMLElement;
   globalThis.Node = dom.window.Node;
   globalThis.location = dom.window.location;
+  globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
   return dom;
 }
 
@@ -107,6 +108,83 @@ test('a click on another file right after a long press still navigates', async (
   other.dispatchEvent(click);
   uninstall();
   assert.equal(click.defaultPrevented, false);
+});
+
+test('the hold ring appears at the pointer and hides on release', async (t) => {
+  installDom();
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { installLongPress, uninstallLongPress } = await import(
+    '../src/features/filePreview/longPress.js'
+  );
+  installLongPress(() => {});
+  const link = document.querySelector('a[href*="/blob/"]');
+  pointer('pointerdown', link, { x: 40, y: 60 });
+  const ring = document.querySelector('.gp-hold-ring');
+  assert.ok(ring);
+  assert.equal(ring.hidden, false);
+  assert.equal(ring.style.left, '40px');
+  assert.equal(ring.style.top, '60px');
+  assert.equal(ring.style.getPropertyValue('--gp-hold-duration'), '450ms');
+  pointer('pointerup', link);
+  assert.equal(ring.hidden, true);
+  assert.equal(document.querySelectorAll('.gp-hold-ring').length, 1);
+  uninstallLongPress();
+});
+
+test('the ring reuses one body node so a hold never mutates the body', async () => {
+  installDom();
+  const { hideHoldRing, mountHoldRing, showHoldRing } = await import(
+    '../src/features/filePreview/holdRing.js'
+  );
+  const before = document.body.childNodes.length;
+  mountHoldRing();
+  mountHoldRing();
+  assert.equal(document.body.childNodes.length, before + 1);
+  showHoldRing(1, 2, 450);
+  hideHoldRing();
+  showHoldRing(3, 4, 450);
+  assert.equal(document.body.childNodes.length, before + 1);
+  assert.equal(document.querySelectorAll('.gp-hold-ring').length, 1);
+});
+
+test('the hold ring can be disabled in the settings', async (t) => {
+  installDom();
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { getSettings, saveSettings } = await import('../src/core/settings.js');
+  const original = getSettings().filePreview;
+  saveSettings({ filePreview: { ...original, longPressRing: false } });
+  const { installLongPress, uninstallLongPress } = await import(
+    '../src/features/filePreview/longPress.js'
+  );
+  installLongPress(() => {});
+  const link = document.querySelector('a[href*="/blob/"]');
+  pointer('pointerdown', link);
+  const ring = document.querySelector('.gp-hold-ring');
+  assert.ok(!ring || ring.hidden);
+  pointer('pointerup', link);
+  uninstallLongPress();
+  saveSettings({ filePreview: original });
+});
+
+test('the configured hold time delays the preview', async (t) => {
+  installDom();
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { getSettings, saveSettings } = await import('../src/core/settings.js');
+  const original = getSettings().filePreview;
+  saveSettings({ filePreview: { ...original, longPressMs: 900 } });
+  const calls = [];
+  const { installLongPress, uninstallLongPress } = await import(
+    '../src/features/filePreview/longPress.js'
+  );
+  installLongPress((target) => calls.push(target));
+  const link = document.querySelector('a[href*="/blob/"]');
+  pointer('pointerdown', link);
+  t.mock.timers.tick(600);
+  assert.equal(calls.length, 0);
+  t.mock.timers.tick(300);
+  assert.equal(calls.length, 1);
+  uninstallLongPress();
+  saveSettings({ filePreview: original });
 });
 
 test('a folder name does not start a preview', async (t) => {

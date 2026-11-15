@@ -1,6 +1,8 @@
 import { SUPPORTED_LOCALES } from '../i18n/meta.js';
 import {
   GALLERY_MAX_ZOOM,
+  PREVIEW_LONG_PRESS_MAX_MS,
+  PREVIEW_LONG_PRESS_MIN_MS,
   SETTINGS_KEY,
   TOAST_MAX_DURATION_MS,
   TOAST_POSITIONS,
@@ -135,12 +137,23 @@ function normalizeFileMenu(raw, fallback) {
   };
 }
 
+function normalizeLongPressMs(value, fallback) {
+  const ms = Number(value);
+  if (!Number.isFinite(ms)) return fallback;
+  return Math.min(
+    PREVIEW_LONG_PRESS_MAX_MS,
+    Math.max(PREVIEW_LONG_PRESS_MIN_MS, Math.round(ms)),
+  );
+}
+
 function normalizeFilePreview(raw, fallback) {
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
     enabled: normalizeBoolean(source.enabled, fallback.enabled),
     rowButton: normalizeBoolean(source.rowButton, fallback.rowButton),
     longPress: normalizeBoolean(source.longPress, fallback.longPress),
+    longPressMs: normalizeLongPressMs(source.longPressMs, fallback.longPressMs),
+    longPressRing: normalizeBoolean(source.longPressRing, fallback.longPressRing),
   };
 }
 

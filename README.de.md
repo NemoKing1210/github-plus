@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.17.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
@@ -13,7 +13,7 @@ wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
 Dateigrößen mit Ein-Klick-Downloads, ein Kontextmenü für Dateiaktionen und eine
 Schnellvorschau für jede Datei.
 
-> **Status:** früh (`0.16.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.17.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
 > Download-Schaltflächen, ein Dateikontextmenü und eine Schnellvorschau für
@@ -211,7 +211,8 @@ Markdown oder über **Vorschau** im Dateikontextmenü:
   Position steht in der Fußzeile.
 - **Vorschau per Halten** — halten Sie die linke Maustaste auf einem Dateinamen
   in einer Liste oder auf einem Dateilink in gerendertem Markdown gedrückt, um
-  seine Vorschau zu öffnen; ein kurzer Klick öffnet
+  seine Vorschau zu öffnen; Haltezeit (standardmäßig 450 ms) und
+  Fortschrittskreis am Zeiger sind einstellbar; ein kurzer Klick öffnet
   weiterhin die Datei, Ziehen oder Textauswahl bricht den Griff ab.
 - **Aktionen in der Kopfzeile** — die Datei auf GitHub öffnen, ihren rohen
   Inhalt, Link oder Pfad kopieren oder sie unter ihrem eigenen Namen
@@ -263,7 +264,9 @@ Gespeichert unter `gp_settings_v1`.
 | `fileMenu.enabled` | `true` | Hauptschalter für das Dateikontextmenü |
 | `filePreview.enabled` | `true` | Hauptschalter für die Schnellvorschau von Dateien |
 | `filePreview.rowButton` | `true` | Auge-Schaltfläche in den Zeilen der Dateiliste (das Kontextmenü bietet **Vorschau** immer an) |
-| `filePreview.longPress` | `true` | Vorschau öffnen, indem die linke Maustaste auf einem Dateinamen in einer Liste gehalten wird |
+| `filePreview.longPress` | `true` | Vorschau öffnen, indem die linke Maustaste auf einem Dateinamen oder einem Markdown-Dateilink gehalten wird |
+| `filePreview.longPressMs` | `450` | Haltezeit in ms, bis die Vorschau öffnet (200–2000) |
+| `filePreview.longPressRing` | `true` | Fortschrittskreis am Zeiger während des Haltens |
 
 ## Wie die Galerie aufgebaut ist
 

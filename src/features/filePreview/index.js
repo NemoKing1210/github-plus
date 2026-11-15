@@ -6,6 +6,7 @@ import { closeFilePreview, openFilePreview } from '../../ui/filePreview.js';
 import { debounce } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { clearPreviewCells, placeCell, placeHead, renderPreviewButton } from './inject.js';
+import { mountHoldRing } from './holdRing.js';
 import { installLongPress, uninstallLongPress } from './longPress.js';
 import { loadPreview } from './render.js';
 import { PREVIEW_SURFACE, currentRef, resolvePreviewRow, siblingsForRow } from './surfaces.js';
@@ -193,6 +194,9 @@ function observeShell() {
 
 /** Apply the current settings; a disabled feature also closes the modal. */
 export function applyFilePreviewSettings() {
+  // Mount before observeShell() attaches a body observer to the current body,
+  // so the ring's arrival is never mistaken for an app-shell swap.
+  if (getFilePreviewSettings().enabled) mountHoldRing();
   observeShell();
   stopSettle();
   teardown();

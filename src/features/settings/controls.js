@@ -134,11 +134,12 @@ export function createSelect({ options = [], value, onChange, label = '' } = {})
   return select;
 }
 
-export function createNumberInput({ value = 0, min = 0, max = 120, onChange, label = '' } = {}) {
+export function createNumberInput({ value = 0, min = 0, max = 120, step = 1, onChange, label = '' } = {}) {
   const input = el('input', 'gp-input');
   input.type = 'number';
   input.min = String(min);
   input.max = String(max);
+  input.step = String(step);
   input.value = String(value);
   if (label) input.setAttribute('aria-label', label);
   input.addEventListener('change', () => {

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.17.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Юзерскрипт, который улучшает GitHub: полная панель настроек, галерея
 изображений для отрендеренного markdown, цветные иконки файлов везде, где
@@ -13,7 +13,7 @@ GitHub показывает файлы, раскраска их возраста
 и скачивание в один клик, контекстное меню для действий с файлами и быстрый
 просмотр любого файла.
 
-> **Статус:** ранняя стадия (`0.16.0`). Панель настроек с мгновенным поиском
+> **Статус:** ранняя стадия (`0.17.0`). Панель настроек с мгновенным поиском
 > (Общие · Галерея · Файлы · Резервная копия · О программе), галерея изображений
 > markdown, цветные иконки файлов, раскраска возраста в стиле blame, размеры
 > файлов и кнопки скачивания, контекстное меню файлов и быстрый просмотр файлов.
@@ -203,8 +203,9 @@ GitHub уже показывает, как давно менялся кажды�
   позиция.
 - **Просмотр по удержанию** — зажмите левую кнопку мыши на названии файла в
   списке или на ссылке на файл в отрендеренном markdown, чтобы открыть его
-  просмотр; обычный клик по-прежнему открывает файл, а перетаскивание и выделение
-  текста отменяют жест.
+  просмотр; время удержания (по умолчанию 450 мс) и круг заполнения у курсора
+  настраиваются; обычный клик по-прежнему открывает файл, а перетаскивание и
+  выделение текста отменяют жест.
 - **Действия в шапке** — открыть файл на GitHub, скопировать его исходное
   содержимое, ссылку или путь, либо скачать под собственным именем.
 - **Markdown: просмотр или исходник** — сегментированный переключатель
@@ -254,7 +255,9 @@ GitHub уже показывает, как давно менялся кажды�
 | `fileMenu.enabled` | `true` | Главный переключатель контекстного меню файлов |
 | `filePreview.enabled` | `true` | Главный переключатель быстрого просмотра файлов |
 | `filePreview.rowButton` | `true` | Кнопка-глаз в строках списка файлов (контекстное меню всегда предлагает **Просмотр**) |
-| `filePreview.longPress` | `true` | Открывать просмотр удержанием левой кнопки мыши на названии файла в списке |
+| `filePreview.longPress` | `true` | Открывать просмотр удержанием левой кнопки мыши на названии файла или ссылке в markdown |
+| `filePreview.longPressMs` | `450` | Время удержания в мс до открытия просмотра (200–2000) |
+| `filePreview.longPressRing` | `true` | Круг заполнения у курсора во время удержания |
 
 ## Как устроена галерея
 

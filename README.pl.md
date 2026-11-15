@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.17.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
@@ -13,7 +13,7 @@ wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
 i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach oraz szybki
 podgląd dowolnego pliku.
 
-> **Status:** wczesny etap (`0.16.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.17.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
 > plików z przyciskami pobierania, menu kontekstowe plików oraz szybki podgląd
@@ -204,7 +204,8 @@ kontekstowym pliku:
   bieżąca pozycja jest w stopce.
 - **Podgląd po przytrzymaniu** — przytrzymaj lewy przycisk myszy na nazwie pliku
   na liście lub na linku do pliku w wyrenderowanym Markdownie, aby otworzyć jego
-  podgląd; szybkie kliknięcie nadal otwiera plik,
+  podgląd; czas przytrzymania (domyślnie 450 ms) i okrąg postępu przy wskaźniku
+  można skonfigurować; szybkie kliknięcie nadal otwiera plik,
   a przeciąganie lub zaznaczanie tekstu anuluje gest.
 - **Działania w nagłówku** — otwórz plik na GitHubie, skopiuj jego surową treść,
   link lub ścieżkę albo pobierz go pod jego własną nazwą.
@@ -254,7 +255,9 @@ Przechowywane pod `gp_settings_v1`.
 | `fileMenu.enabled` | `true` | Główny przełącznik menu kontekstowego plików |
 | `filePreview.enabled` | `true` | Główny przełącznik szybkiego podglądu plików |
 | `filePreview.rowButton` | `true` | Przycisk oka w wierszach listy plików (menu kontekstowe zawsze oferuje **Podgląd**) |
-| `filePreview.longPress` | `true` | Otwieraj podgląd po przytrzymaniu lewego przycisku myszy na nazwie pliku na liście |
+| `filePreview.longPress` | `true` | Otwieraj podgląd po przytrzymaniu lewego przycisku myszy na nazwie pliku lub linku Markdown |
+| `filePreview.longPressMs` | `450` | Czas przytrzymania w ms do otwarcia podglądu (200–2000) |
+| `filePreview.longPressRing` | `true` | Okrąg postępu przy wskaźniku podczas przytrzymania |
 
 ## Jak zbudowana jest galeria
 

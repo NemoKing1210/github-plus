@@ -46,7 +46,7 @@ Two invariants hold for every selector:
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
-  .gp-file-meta, .gp-context-menu`).
+  .gp-file-meta, .gp-context-menu, .gp-hold-ring`).
   Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
@@ -711,6 +711,22 @@ The copy menu in the header is the shared context menu opened with
 `elevated: true`, because the preview overlay (`1000002`) would otherwise paint
 over it; it takes `.gp-context-menu--elevated` (`1000003`).
 
+### Long-press hold ring (`.gp-hold-ring`)
+
+Transient feedback for the hold gesture, shown only while
+`filePreview.longPressRing` is on. One host element is mounted into the page
+before the preview's body observers are attached and toggled through `hidden`,
+so showing it adds no direct child to `<body>` mid-gesture (those observers
+treat a body child as an app-shell swap). Hiding cancels the CSS animation, so
+the next press starts the fill again.
+
+| Class | Rules |
+|---|---|
+| `.gp-hold-ring` | `position: fixed` at the pointer's viewport coordinates, `36×36`, `margin: -18px 0 0 -18px` (centred on the press point), `z-index: 999997` — above the page, below the context menu and the page download button; **transparent centre**, so the file name under the pointer stays readable and only the two strokes are drawn, `pointer-events: none`; `[hidden]` is declared explicitly |
+| `.gp-hold-ring[hidden]` | `display: none`; hiding also resets the fill animation |
+| `.gp-hold-ring svg` | Rotated `-90deg` so the arc starts at twelve o'clock |
+| `.gp-hold-ring__track` / `.gp-hold-ring__fill` | `r = 15.9155` (so the circumference is exactly 100), `stroke-width: 3`, no fill; the track is `var(--gp-line)`, the fill is `var(--gp-accent)` and runs over the configured hold time |
+
 ## 7. States
 
 | State | Selector / form | Effect |
@@ -729,6 +745,7 @@ over it; it takes `.gp-context-menu--elevated` (`1000003`).
 | Help open | `.gp-viewer__help:not([hidden])` | The shortcut popover is visible and the help tool reports `aria-expanded="true"`; `Escape` closes it before the viewer |
 | Broken thumb | `.gp-viewer__thumb.is-broken` | The thumbnail image is hidden and the muted `imageOff` fallback is shown |
 | Download hover | `.gp-download-btn:not([hidden])` | The floating button is shown over the hovered markdown image's top-right corner; hidden on pointer-out, scroll, resize and navigation |
+| Hold in progress | `.gp-hold-ring` | A transient disc at the press point whose accent arc fills over `filePreview.longPressMs`; removed when the preview opens, the pointer moves past the drag threshold or the button is released |
 | File download hover | `.gp-file-download:hover` | The icon button takes the `var(--gp-highlight)` fill and a `var(--gp-text)` glyph, like GitHub's own icon buttons |
 | Context menu row hover | `.gp-context-menu__item:hover`, `.gp-context-menu__item:focus-visible` | `var(--gp-highlight)` fill, no outline (the row fill is the focus indicator inside the menu) |
 | Context menu row disabled | `.gp-context-menu__item:disabled` | `var(--gp-text-muted)` label, transparent fill, default cursor |
@@ -739,8 +756,9 @@ over it; it takes `.gp-context-menu--elevated` (`1000003`).
 | Hidden | `[hidden]` on `.gp-panel-overlay`, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__spinner`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter`, `.gp-viewer__size`, or on any descendant of `.gp-panel` / `.gp-viewer` | `display: none`, declared explicitly so GitHub's own resets cannot re-show our chrome. Elements outside those scopes (e.g. `.gp-toast__message`) rely on the user-agent `[hidden]` rule |
 
 State classes are the only state mechanism: never add inline styles for state
-in JS (the viewer's `transform` and the toast progress duration are the two
-shipped exceptions, because both are per-frame values).
+in JS (the viewer's `transform`, the toast progress duration and the hold
+ring's position and `--gp-hold-duration` are the shipped exceptions, because
+each is a per-instance value that CSS cannot know).
 
 ## 8. Motion
 
@@ -762,6 +780,7 @@ shipped exceptions, because both are per-frame values).
 | Switch knob | `0.2s` spring (`cubic-bezier(0.2, 0.8, 0.2, 1)`); stretches to `20px` while pressed |
 | Controls | Border/fill changes on select, input, textarea, button, panel close, source tiles and the page download button take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
+| Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the configured hold time) |
 
 - Hover on elements placed into GitHub's own chrome (the header button and the
   avatar-menu row) has no transition on purpose: they must feel native, and
@@ -776,10 +795,11 @@ shipped exceptions, because both are per-frame values).
   children, sidebar items and their pill, the dirty dot, `.gp-toast`,
   `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
   `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image` and the search
-  result spotlight (which keeps a static accent ring instead). The viewer spinner and
-  the toast progress bar are outside that list (a spinner and a countdown are
-  information, not decoration), so do not "fix" them by adding them to the
-  media block without deciding what replaces the information they carry.
+  result spotlight (which keeps a static accent ring instead). The viewer spinner,
+  the toast progress bar and the hold-progress ring are outside that list (a
+  spinner, a countdown and hold progress are information, not decoration), so
+  do not "fix" them by adding them to the media block without deciding what
+  replaces the information they carry.
 
 ## 9. Responsive behaviour
 

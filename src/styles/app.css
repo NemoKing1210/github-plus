@@ -2661,6 +2661,46 @@ audio.gp-preview__media {
   outline-offset: 1px;
 }
 
+/* Hold-progress ring: transient pointer feedback for the long-press gesture. */
+.gp-hold-ring {
+  position: fixed;
+  z-index: 999997;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  color: var(--gp-accent);
+  pointer-events: none;
+}
+.gp-hold-ring[hidden] {
+  display: none;
+}
+.gp-hold-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.gp-hold-ring__track,
+.gp-hold-ring__fill {
+  fill: none;
+  stroke-width: 3;
+}
+.gp-hold-ring__track {
+  stroke: var(--gp-line);
+}
+.gp-hold-ring__fill {
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: gp-hold-fill var(--gp-hold-duration, 450ms) linear forwards;
+}
+@keyframes gp-hold-fill {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* Eye button and its column in the repository listing. */
 /* GitHub's row-cell rules would otherwise win over this column's padding and width. */
 .gp-file-preview-cell,

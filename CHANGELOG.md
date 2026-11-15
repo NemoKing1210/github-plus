@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-15
+
+### Added
+
+- **Hold time** — `filePreview.longPressMs` sets how long a file name or a
+  markdown file link must be held before the preview opens, in milliseconds
+  (200–2000, 450 by default)
+- **Progress circle** — `filePreview.longPressRing` draws a small transparent
+  ring at the pointer whose accent arc fills over the hold time, so the gesture
+  is visible without covering the file name;
+  like the viewer spinner and the toast countdown, it stays animated under
+  reduced motion because it carries progress information
+
+[0.17.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.17.0
+
 ## [0.16.0] - 2026-11-15
 
 ### Added

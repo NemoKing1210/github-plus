@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.16.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.17.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
@@ -13,7 +13,7 @@ GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos
 tamaños de archivo con descargas en un clic, un menú contextual para acciones
 de archivo y una vista rápida de cualquier archivo.
 
-> **Estado:** temprano (`0.16.0`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.17.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Copia de seguridad · Acerca de), la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
@@ -215,8 +215,10 @@ previa** en el menú contextual del archivo:
   la posición actual en el pie.
 - **Mantén para previsualizar** — mantén pulsado el botón izquierdo sobre el
   nombre de un archivo en una lista o sobre un enlace a un archivo en markdown
-  renderizado para abrir su vista previa; un clic rápido
-  sigue abriendo el archivo, y arrastrar o seleccionar texto cancela el gesto.
+  renderizado para abrir su vista previa; el tiempo de pulsación (450 ms por
+  defecto) y el círculo de progreso junto al puntero son configurables; un clic
+  rápido sigue abriendo el archivo, y arrastrar o seleccionar texto cancela el
+  gesto.
 - **Acciones en la cabecera** — abre el archivo en GitHub, copia su contenido
   sin formato, su enlace o su ruta, o descárgalo con su propio nombre.
 - **Markdown: vista previa o código** — un control segmentado alterna entre el
@@ -267,7 +269,9 @@ Se guardan en `gp_settings_v1`.
 | `fileMenu.enabled` | `true` | Interruptor principal del menú contextual de archivos |
 | `filePreview.enabled` | `true` | Interruptor principal de la vista rápida de archivos |
 | `filePreview.rowButton` | `true` | Botón de ojo en las filas de la lista de archivos (el menú contextual siempre ofrece **Vista previa**) |
-| `filePreview.longPress` | `true` | Mantener el botón izquierdo sobre el nombre de un archivo de la lista para abrir la vista previa |
+| `filePreview.longPress` | `true` | Mantener el botón izquierdo sobre un nombre de archivo o un enlace de markdown para abrir la vista previa |
+| `filePreview.longPressMs` | `450` | Tiempo de pulsación en ms antes de abrir la vista previa (200–2000) |
+| `filePreview.longPressRing` | `true` | Círculo de progreso junto al puntero mientras se mantiene |
 
 ## Cómo está construida la galería
 
