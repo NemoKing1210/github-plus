@@ -241,6 +241,10 @@ checks are on `github.com` (the script also matches `gist.github.com`).
       and the header shows the file name with the position in the footer.
 - [ ] **Preview** in the file context menu opens the same modal on a listing
       row and on a blob or blame page (where the set is the one file).
+- [ ] Holding the left button on a listing file name for about half a second
+      opens the preview without navigating; releasing sooner clicks the link as
+      usual, dragging or selecting text cancels, and the toggle in the preview
+      card turns the gesture off.
 - [ ] The files of the current directory form one set: prev/next and the
       `←`/`→` keys move through them, the counter follows, and the ends are
       disabled (there is no wrap-around).
@@ -262,9 +266,9 @@ checks are on `github.com` (the script also matches `gist.github.com`).
 - [ ] Relative images in a README of a private repository still load, external
       images are requested without a referrer, and a soft navigation closes an
       open preview.
-- [ ] **Row button** off removes the eye column while the context menu still
-      offers **Preview**; the **Quick file preview** card off removes both and
-      closes an open preview.
+- [ ] **Row button** off removes the eye column while the context menu and the
+      long press still work; the **Quick file preview** card off removes every
+      entry point (including the hold gesture) and closes an open preview.
 
 ## Debugging
 
@@ -314,9 +318,10 @@ otherwise via `localStorage`. Delete that key for a cold start:
   `ZOOM_OPTIONS`, `BADGE_HOSTS`, `IMAGE_EXTENSIONS`, `TOAST_POSITIONS`,
   `TOAST_MAX_DURATION_MS`, `FILE_COPY_MAX_BYTES` (1 MiB),
   `PREVIEW_TEXT_MAX_BYTES` (2 MiB), `PREVIEW_PDF_MAX_BYTES` (25 MiB),
-  `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS` and `DEFAULT_SETTINGS`
-  / `getDefaults()` (including `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS`,
-  `DEFAULT_FILE_AGES`, `DEFAULT_FILE_MENU` and `DEFAULT_FILE_PREVIEW`).
+  `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS`,
+  `PREVIEW_LONG_PRESS_MS` and `DEFAULT_SETTINGS` / `getDefaults()` (including
+  `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS`, `DEFAULT_FILE_AGES`,
+  `DEFAULT_FILE_MENU` and `DEFAULT_FILE_PREVIEW`).
 - `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
   change the allowlist in `scripts/build-file-icons.mjs` and run
   `npm run icons:build`. The package is a dev dependency; the shipped bundle

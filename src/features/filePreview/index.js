@@ -6,6 +6,7 @@ import { closeFilePreview, openFilePreview } from '../../ui/filePreview.js';
 import { debounce } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { clearPreviewCells, placeCell, placeHead, renderPreviewButton } from './inject.js';
+import { installLongPress, uninstallLongPress } from './longPress.js';
 import { loadPreview } from './render.js';
 import { PREVIEW_SURFACE, currentRef, resolvePreviewRow, siblingsForRow } from './surfaces.js';
 
@@ -114,9 +115,21 @@ function attach(container) {
   processContainer(container);
 }
 
+function openFromLongPress(target) {
+  openPreviewForTarget({
+    name: target.file.name,
+    href: target.file.href,
+    rawUrl: target.file.rawUrl,
+    relative: target.file.relative,
+    source: 'listing',
+    anchor: target.link,
+  });
+}
+
 function teardown() {
   for (const observer of observers.values()) observer.disconnect();
   observers.clear();
+  uninstallLongPress();
   clearPreviewCells();
   decorated = new WeakMap();
 }
@@ -189,10 +202,12 @@ export function applyFilePreviewSettings() {
   observeShell();
   stopSettle();
   teardown();
-  if (!getFilePreviewSettings().enabled) {
+  const settings = getFilePreviewSettings();
+  if (!settings.enabled) {
     closeFilePreview();
     return;
   }
+  if (settings.longPress) installLongPress(openFromLongPress);
   if (!visibleSettings()) return;
   if (syncSurfaces() === 0) settleSurfaces();
 }

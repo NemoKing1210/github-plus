@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.14.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 galeria de imagens para markdown renderizado, ícones de arquivo coloridos onde o
@@ -13,7 +13,7 @@ GitHub lista arquivos, idades coloridas no estilo blame para esses arquivos,
 tamanhos de arquivo com downloads em um clique, um menu de contexto para ações
 de arquivo e uma pré-visualização rápida de qualquer arquivo.
 
-> **Status:** inicial (`0.14.2`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.15.0`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Backup · Sobre), a galeria de imagens de
 > markdown, ícones de arquivo coloridos, idades coloridas no estilo blame,
 > tamanhos de arquivo com botões de download, um menu de contexto de arquivos e
@@ -203,6 +203,9 @@ arquivos ou por **Pré-visualização** no menu de contexto do arquivo:
 - **Navegue pela pasta** — os arquivos do mesmo diretório formam um conjunto: os
   botões anterior/próximo e as setas do teclado alternam entre eles, com a
   posição atual no rodapé.
+- **Segure para pré-visualizar** — segure o botão esquerdo do mouse sobre o nome
+  de um arquivo em uma lista para abrir sua pré-visualização; um clique rápido
+  ainda abre o arquivo, e arrastar ou selecionar texto cancela o gesto.
 - **Ações no cabeçalho** — abra o arquivo no GitHub, copie seu conteúdo bruto,
   link ou caminho, ou baixe-o com o próprio nome.
 - **Markdown: pré-visualização ou fonte** — um controle segmentado alterna entre
@@ -252,6 +255,7 @@ Armazenadas em `gp_settings_v1`.
 | `fileMenu.enabled` | `true` | Chave mestra do menu de contexto de arquivos |
 | `filePreview.enabled` | `true` | Chave mestra da pré-visualização rápida de arquivos |
 | `filePreview.rowButton` | `true` | Botão de olho nas linhas da lista de arquivos (o menu de contexto sempre oferece **Pré-visualização**) |
+| `filePreview.longPress` | `true` | Segurar o botão esquerdo sobre o nome de um arquivo da lista para abrir a pré-visualização |
 
 ## Como a galeria é construída
 

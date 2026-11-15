@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-15
+
+### Added
+
+- Hold to preview: holding the left mouse button on a file name in a repository
+  listing opens the quick preview. A quick click still opens the file, moving
+  the pointer or releasing early cancels the gesture, and the click that would
+  navigate to the file is swallowed once
+- A **Long-press a file name** toggle (`filePreview.longPress`) in the **Quick
+  file preview** card, on by default
+
+[0.15.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.15.0
+
 ## [0.14.2] - 2026-11-15
 
 ### Fixed

@@ -72,3 +72,18 @@ export function siblingsForRow(row) {
 export function resolvePreviewRow(row) {
   return resolveRow(row);
 }
+
+/**
+ * The file behind a node inside a listing row's name link, plus that link.
+ * Null for folders, other columns and anything outside a listing.
+ * @param {Node} node
+ * @returns {{row: Element, name: string, file: object, link: Element} | null}
+ */
+export function resolvePreviewLink(node) {
+  const link = node instanceof Element ? node.closest('a[href*="/blob/"]') : null;
+  if (!link) return null;
+  const row = link.closest(PREVIEW_SURFACE.rows);
+  if (!row || !row.closest(PREVIEW_SURFACE.containers[0])) return null;
+  const found = resolveRow(row);
+  return found ? { ...found, link } : null;
+}

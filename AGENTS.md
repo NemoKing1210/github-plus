@@ -84,6 +84,7 @@ github-plus/
 │   │   │   ├── index.js    # Surface observers, row buttons, open/close lifecycle
 │   │   │   ├── surfaces.js # Listing rows, current ref, sibling set
 │   │   │   ├── inject.js   # renderPreviewButton / placeCell / placeHead / clearPreviewCells
+│   │   │   ├── longPress.js# Delegated hold-on-a-file-name gesture
 │   │   │   ├── kind.js     # previewKind(name, type), highlightLanguage, countLines (pure)
 │   │   │   ├── links.js    # resolveMarkdownTarget(href, ctx, mode): relative → GitHub URL (pure)
 │   │   │   ├── render.js   # loadPreview(file, { mode }): fetch + dispatch per kind
@@ -172,14 +173,16 @@ Single place for magic values.
   (25 MiB), `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS` (cap on the
   sibling set collected from one directory), `PREVIEW_CACHE_ENTRIES` (rendered
   previews kept for the session), `PREVIEW_PDF_FRAME_TIMEOUT_MS` (how long a
-  PDF frame may load before its fallback card shows).
+  PDF frame may load before its fallback card shows), `PREVIEW_LONG_PRESS_MS`
+  (450) and `PREVIEW_LONG_PRESS_MOVE_PX` (8 — movement past it is a drag, not a
+  long press).
 - `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
   `fileMeta`, `fileMenu`, `filePreview`) plus `getDefaults()`, which returns a
   deep clone — never mutate the shared constants. `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
   `DEFAULT_FILE_MENU` is `{ enabled }` and `DEFAULT_FILE_PREVIEW` is
-  `{ enabled, rowButton }`.
+  `{ enabled, rowButton, longPress }`.
 
 ### `src/core/settings.js`
 
@@ -662,9 +665,10 @@ menu.
 ### `src/features/filePreview/` — quick file preview
 
 Opens a file in a modal without leaving the page, from the eye button in a
-repository listing row or from **Preview** in the file context menu. The files
-of the current directory form one set, so the footer's previous/next buttons
-and the arrow keys move between siblings.
+repository listing row, from **Preview** in the file context menu, or by
+holding the left mouse button on a file name. The files of the current
+directory form one set, so the footer's previous/next buttons and the arrow
+keys move between siblings.
 
 - `kind.js`: `previewKind(name, contentType = '')` (pure) — `'markdown'`,
   `'image'`, `'video'`, `'audio'`, `'pdf'`, `'code'` or `'binary'`. The
@@ -707,8 +711,20 @@ and the arrow keys move between siblings.
 - `surfaces.js`: `PREVIEW_SURFACE` (rows `tr.react-directory-row` inside
   `[data-testid="directory-content"]`, header `table thead tr`, column label
   `preview.column`), `currentRef()`, `siblingsForRow(row)` (capped at
-  `PREVIEW_MAX_SIBLINGS`; returns null when the clicked row is past the cap)
-  and `resolvePreviewRow(row)`.
+  `PREVIEW_MAX_SIBLINGS`; returns null when the clicked row is past the cap),
+  `resolvePreviewRow(row)` and `resolvePreviewLink(node)` (the listing file
+  behind a node inside the row's name link, plus that link — null for folders
+  and other columns).
+- `longPress.js`: `installLongPress(handler)` / `uninstallLongPress()` — one
+  delegated capture-phase `pointerdown` listener on the document, the same
+  shape as the gallery and the file menu. A left-button press on a listing file
+  name starts a `PREVIEW_LONG_PRESS_MS` timer; moving past
+  `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a touch pointer
+  cancels it, so a drag, a text selection and a plain click keep their normal
+  behavior. When the timer fires the handler opens the preview with that row as
+  the anchor (so the whole directory becomes the set), and the following
+  `click` on the link is swallowed once — otherwise the browser would also
+  navigate to the file.
 - `inject.js`: `renderPreviewButton` (28×28 eye, `preventDefault` +
   `stopPropagation`), `placeCell` (an empty cell for a folder row, so every row
   keeps the column count), `placeHead` (a visually collapsed header label like
@@ -717,12 +733,13 @@ and the arrow keys move between siblings.
   debounced rescan forever) and `clearPreviewCells`.
 - `index.js`: one observer per surface container, the same shell watchers and
   bounded settle wait as the other file features; rows are tracked in a
-  `WeakMap`. `visibleSettings()` is `enabled && rowButton`.
+  `WeakMap`. `visibleSettings()` is `enabled && rowButton`; the long press is
+  independent of it, so it keeps working with the eye column off.
   `openPreviewForTarget(target)` builds a single-file set or the listing's
   sibling set and calls `openFilePreview`. `applyFilePreviewSettings()` tears
-  down first, then syncs and settles; `settings:filePreview`,
-  `settings:language` and `watchNavigation` trigger it, and navigation closes
-  an open preview.
+  down first, installs the long-press listener when its toggle is on, then
+  syncs and settles the surfaces; `settings:filePreview`, `settings:language`
+  and `watchNavigation` trigger it, and navigation closes an open preview.
 - `ui/filePreview.js`: the modal shell — `openFilePreview({ files, index,
   load })`, `closeFilePreview()`, `isFilePreviewOpen()`. Header with the file
   name, a preview/source segmented control for Markdown, and the tools (open on
@@ -744,7 +761,7 @@ and the arrow keys move between siblings.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 173
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 175
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -834,7 +851,8 @@ and updates its dot → success toast → panel closes and `unlockPageScroll()`.
 
 ## End-to-end data flow (preview)
 
-eye button click (or **Preview** in the file menu) → `openPreviewForTarget`
+eye button click, **Preview** in the file menu, or a long press on a file name
+→ `openPreviewForTarget`
 resolves the row's `{ name, rawUrl }` and its sibling set (`siblingsForRow`) →
 `openFilePreview({ files, index, load: loadPreview })` → `show()` aborts any
 stale request, renders a spinner and calls `load(file, { mode, signal })` →
@@ -907,6 +925,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `fileMenu.enabled` | `true` | Master switch; disabling removes the delegated `contextmenu` listener |
 | `filePreview.enabled` | `true` | Master switch; disabling clears the listing buttons and observers and closes an open preview |
 | `filePreview.rowButton` | `true` | Eye button in listing rows (the context menu always offers **Preview**) |
+| `filePreview.longPress` | `true` | Hold the left mouse button on a listing file name to open the preview |
 
 ## Localization
 
@@ -1088,9 +1107,12 @@ and check diagnostics for edited files.
   leaves the menu open behind the panel, GitHub's overlay stopped closing on
   the dispatched `Escape`.
 - Quick preview not opening: check **Quick file preview** is on, and — for the
-  eye button — that **Row button** is on; the context menu entry appears
-  regardless. The row must be a `tr.react-directory-row` inside
-  `[data-testid="directory-content"]`; the menu also opens the preview on a blob
+  eye button — that **Row button** is on, and — for the hold gesture — that
+  **Long-press a file name** is on; the context menu entry appears regardless.
+  The hold gesture needs a mouse: touch pointers are ignored, and moving more
+  than 8 px before the 450 ms timer fires turns it into a drag. The row must be
+  a `tr.react-directory-row` inside `[data-testid="directory-content"]`; the
+  menu also opens the preview on a blob
   or blame page, for the file itself. A card saying the file could not be shown
   means the raw fetch failed (`GP-1501` in the console) or the content type is
   not text. A preview stuck on "loading" with a huge file means it exceeds

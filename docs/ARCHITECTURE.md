@@ -51,6 +51,7 @@ src/
 │   ├── index.js             # listing observers, eye buttons, open/close lifecycle
 │   ├── surfaces.js          # listing rows, current ref, sibling set
 │   ├── inject.js            # renderPreviewButton / placeCell / placeHead / clearPreviewCells
+│   ├── longPress.js         # delegated hold-on-a-file-name gesture
 │   ├── kind.js              # previewKind / highlightLanguage / countLines — pure
 │   ├── links.js             # resolveMarkdownTarget — pure relative-link rewrite
 │   ├── render.js            # loadPreview: HEAD probe + fetch + dispatch
@@ -199,8 +200,11 @@ an overlay. Its observers decorate listing rows with an eye button (the same
 per-container pattern as the other file features), and the click opens
 `ui/filePreview.js` with a `load` callback supplied by
 `features/filePreview/render.js`, so the shell stays a reusable modal and the
-feature owns fetching and rendering. The files of the current directory are
-the modal's set; the footer and the arrow keys move through them.
+feature owns fetching and rendering. A second, delegated capture-phase
+`pointerdown` listener implements the optional long press on a file name; it
+starts a timer, cancels on movement or release, and swallows the click that
+would otherwise navigate. The files of the current directory are the modal's
+set; the footer and the arrow keys move through them.
 
 ## Settings lifecycle
 

@@ -130,6 +130,14 @@ function previewCard(draft) {
         draft.filePreview.rowButton = value;
       },
     }),
+    createSwitchRow({
+      checked: draft.filePreview.longPress,
+      label: t('preview.longPress'),
+      hint: t('preview.longPressDesc'),
+      onChange: (value) => {
+        draft.filePreview.longPress = value;
+      },
+    }),
   );
   return card;
 }

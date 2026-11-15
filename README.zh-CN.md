@@ -5,13 +5,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.14.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
 用于文件操作的上下文菜单，以及任意文件的快速预览。
 
-> **状态：** 早期（`0.14.2`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
+> **状态：** 早期（`0.15.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
 > 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
 > 文件大小、文件上下文菜单，以及快速文件预览。计划加入更多 GitHub 改进。
 
@@ -158,6 +158,8 @@ GitHub Plus 把两者直接加到文件行上：
   诚实的卡片，提供 **在 GitHub 上打开** 和 **下载**，而不是损坏的框架。
 - **在文件夹中切换** — 同一目录中的文件组成一个集合：上一页/下一页按钮和方向键
   可在其间切换，页脚显示当前位置。
+- **按住预览** — 在列表中按住文件名的鼠标左键即可打开预览；快速单击仍会打开文件，
+  拖动或选中文本则会取消。
 - **页头操作** — 在 GitHub 上打开文件、复制其原始内容、链接或路径，或以自己的
   文件名下载。
 - **Markdown：预览或源码** — 分段控件可在渲染后的 Markdown 与其原始文本（按
@@ -203,6 +205,7 @@ GitHub Plus 把两者直接加到文件行上：
 | `fileMenu.enabled` | `true` | 文件上下文菜单总开关 |
 | `filePreview.enabled` | `true` | 快速文件预览总开关 |
 | `filePreview.rowButton` | `true` | 文件列表行中的眼睛按钮（右键菜单始终提供**预览**） |
+| `filePreview.longPress` | `true` | 在列表中按住文件名的鼠标左键以打开预览 |
 
 ## 画廊的构建方式
 

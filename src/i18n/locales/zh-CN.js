@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': '在模态窗口中打开任意文件，查看渲染后的内容，并使用操作和文件夹导航。',
   'preview.rowButton': '文件列表中的预览按钮',
   'preview.rowButtonDesc': '在每个文件行显示眼睛按钮；右键菜单始终提供预览。',
+  'preview.longPress': '长按文件名',
+  'preview.longPressDesc': '在列表中按住文件名上的鼠标左键即可打开预览；快速单击仍会打开文件。',
   'preview.column': '预览',
   'preview.title': '文件预览',
   'preview.button': '预览 {name}',

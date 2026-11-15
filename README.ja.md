@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.14.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.15.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
@@ -13,7 +13,7 @@ Markdown の画像ギャラリー、GitHub がファイルを一覧するあら�
 ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、そして任意の
 ファイルのクイックプレビューを提供します。
 
-> **ステータス:** 初期段階（`0.14.2`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.15.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
 > ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック
@@ -186,6 +186,9 @@ GitHub Plus はその両方をファイルの行に追加します:
   **ダウンロード**を備えた正直なカードを表示します。
 - **フォルダー内を移動** — 同じディレクトリのファイルがセットになり、前へ/次へ
   ボタンと矢印キーで切り替えられます。現在位置はフッターに表示されます。
+- **長押しでプレビュー** — 一覧のファイル名の上でマウスの左ボタンを押し続けると
+  プレビューが開きます。短いクリックはこれまでどおりファイルを開き、ドラッグや
+  テキスト選択ではキャンセルされます。
 - **ヘッダーの操作** — GitHub でファイルを開く、生の内容・リンク・パスをコピー
   する、元のファイル名でダウンロードする。
 - **Markdown: プレビューまたはソース** — セグメント コントロールで、レンダリング
@@ -234,6 +237,7 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `fileMenu.enabled` | `true` | ファイルのコンテキスト メニューのマスター スイッチ |
 | `filePreview.enabled` | `true` | ファイルのクイックプレビューのマスター スイッチ |
 | `filePreview.rowButton` | `true` | ファイル一覧の行に目のボタンを表示（コンテキスト メニューでは常に**プレビュー**を選べます） |
+| `filePreview.longPress` | `true` | 一覧のファイル名をマウスの左ボタンで長押ししてプレビューを開く |
 
 ## ギャラリーの仕組み
 

@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': '任意のファイルをモーダルウィンドウで開き、レンダリングされた内容、操作、フォルダー内の移動を利用できます。',
   'preview.rowButton': 'ファイル一覧のプレビューボタン',
   'preview.rowButtonDesc': '各ファイル行に目のボタンを表示します。コンテキストメニューでは常にプレビューを選べます。',
+  'preview.longPress': 'ファイル名の長押し',
+  'preview.longPressDesc': '一覧のファイル名の上でマウスの左ボタンを押し続けるとプレビューが開きます。短いクリックはこれまでどおりファイルを開きます。',
   'preview.column': 'プレビュー',
   'preview.title': 'ファイルプレビュー',
   'preview.button': '{name} をプレビュー',

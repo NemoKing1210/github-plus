@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': 'Abra qualquer arquivo em uma janela modal com o conteúdo renderizado, ações e navegação pela pasta.',
   'preview.rowButton': 'Botão de pré-visualização nas listas de arquivos',
   'preview.rowButtonDesc': 'Mostrar um botão de olho em cada linha de arquivo; o menu de contexto sempre oferece a pré-visualização.',
+  'preview.longPress': 'Pressionar e segurar um nome de arquivo',
+  'preview.longPressDesc': 'Mantenha o botão esquerdo do mouse sobre o nome de um arquivo em uma lista para abrir a pré-visualização; um clique rápido continua abrindo o arquivo.',
   'preview.column': 'Pré-visualização',
   'preview.title': 'Pré-visualização do arquivo',
   'preview.button': 'Pré-visualizar {name}',

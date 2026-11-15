@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': 'Jede Datei in einem modalen Fenster mit gerendertem Inhalt, Aktionen und Ordner-Navigation öffnen.',
   'preview.rowButton': 'Vorschau-Schaltfläche in Dateilisten',
   'preview.rowButtonDesc': 'Ein Auge-Symbol in jeder Dateizeile anzeigen; das Kontextmenü bietet die Vorschau immer an.',
+  'preview.longPress': 'Langes Drücken auf einen Dateinamen',
+  'preview.longPressDesc': 'Halten Sie die linke Maustaste auf einem Dateinamen in einer Liste gedrückt, um die Vorschau zu öffnen; ein kurzer Klick öffnet weiterhin die Datei.',
   'preview.column': 'Vorschau',
   'preview.title': 'Dateivorschau',
   'preview.button': '{name} in der Vorschau öffnen',

@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': 'Otwieraj dowolny plik w oknie modalnym z wyrenderowaną treścią, działaniami i nawigacją po folderze.',
   'preview.rowButton': 'Przycisk podglądu na listach plików',
   'preview.rowButtonDesc': 'Pokazuj przycisk oka w każdym wierszu pliku; menu kontekstowe zawsze oferuje podgląd.',
+  'preview.longPress': 'Długie przytrzymanie nazwy pliku',
+  'preview.longPressDesc': 'Przytrzymaj lewy przycisk myszy na nazwie pliku na liście, aby otworzyć podgląd; szybkie kliknięcie nadal otwiera plik.',
   'preview.column': 'Podgląd',
   'preview.title': 'Podgląd pliku',
   'preview.button': 'Podgląd {name}',

@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': 'Ouvrez n’importe quel fichier dans une fenêtre modale avec le contenu rendu, des actions et la navigation dans le dossier.',
   'preview.rowButton': 'Bouton d’aperçu dans les listes de fichiers',
   'preview.rowButtonDesc': 'Afficher un bouton œil sur chaque ligne de fichier ; le menu contextuel propose toujours l’aperçu.',
+  'preview.longPress': 'Appui long sur un nom de fichier',
+  'preview.longPressDesc': 'Maintenez le bouton gauche de la souris sur le nom d’un fichier dans une liste pour ouvrir l’aperçu ; un clic rapide ouvre toujours le fichier.',
   'preview.column': 'Aperçu',
   'preview.title': 'Aperçu du fichier',
   'preview.button': 'Aperçu de {name}',

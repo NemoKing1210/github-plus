@@ -88,6 +88,12 @@ export const PREVIEW_CACHE_ENTRIES = 12;
 /** How long the PDF frame may take to load before its fallback card shows. */
 export const PREVIEW_PDF_FRAME_TIMEOUT_MS = 5000;
 
+/** How long the left button must rest on a file name to open the preview. */
+export const PREVIEW_LONG_PRESS_MS = 450;
+
+/** Movement past this many pixels makes the press a drag, not a long press. */
+export const PREVIEW_LONG_PRESS_MOVE_PX = 8;
+
 /** Toast corner placements. */
 export const TOAST_POSITIONS = [
   'bottom-right',
@@ -149,6 +155,7 @@ const DEFAULT_FILE_MENU = {
 const DEFAULT_FILE_PREVIEW = {
   enabled: true,
   rowButton: true,
+  longPress: true,
 };
 
 export const DEFAULT_SETTINGS = {

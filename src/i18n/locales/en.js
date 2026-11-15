@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': 'Open any file in a modal window with rendered content, actions and folder navigation.',
   'preview.rowButton': 'Preview button in file listings',
   'preview.rowButtonDesc': 'Show an eye button in every file row; the context menu always offers Preview.',
+  'preview.longPress': 'Long-press a file name',
+  'preview.longPressDesc': 'Hold the left mouse button on a file name in a listing to open the preview; a quick click still opens the file.',
   'preview.column': 'Preview',
   'preview.title': 'File preview',
   'preview.button': 'Preview {name}',

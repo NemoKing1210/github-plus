@@ -140,6 +140,7 @@ function normalizeFilePreview(raw, fallback) {
   return {
     enabled: normalizeBoolean(source.enabled, fallback.enabled),
     rowButton: normalizeBoolean(source.rowButton, fallback.rowButton),
+    longPress: normalizeBoolean(source.longPress, fallback.longPress),
   };
 }
 

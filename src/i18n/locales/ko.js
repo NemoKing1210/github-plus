@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': '모든 파일을 모달 창에서 열어 렌더링된 내용, 작업, 폴더 내 이동을 사용할 수 있습니다.',
   'preview.rowButton': '파일 목록의 미리보기 버튼',
   'preview.rowButtonDesc': '각 파일 행에 눈 버튼을 표시합니다. 컨텍스트 메뉴에서는 항상 미리보기를 제공합니다.',
+  'preview.longPress': '파일 이름 길게 누르기',
+  'preview.longPressDesc': '목록에서 파일 이름 위에 마우스 왼쪽 버튼을 누르고 있으면 미리보기가 열립니다. 짧게 클릭하면 이전처럼 파일이 열립니다.',
   'preview.column': '미리보기',
   'preview.title': '파일 미리보기',
   'preview.button': '{name} 미리보기',

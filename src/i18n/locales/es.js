@@ -129,6 +129,8 @@ export default {
   'preview.enabledDesc': 'Abre cualquier archivo en una ventana modal con el contenido renderizado, acciones y navegación por la carpeta.',
   'preview.rowButton': 'Botón de vista previa en las listas de archivos',
   'preview.rowButtonDesc': 'Muestra un botón de ojo en cada fila de archivo; el menú contextual siempre ofrece la vista previa.',
+  'preview.longPress': 'Mantener pulsado un nombre de archivo',
+  'preview.longPressDesc': 'Mantén el botón izquierdo del ratón sobre el nombre de un archivo en una lista para abrir la vista previa; un clic rápido sigue abriendo el archivo.',
   'preview.column': 'Vista previa',
   'preview.title': 'Vista previa del archivo',
   'preview.button': 'Previsualizar {name}',
