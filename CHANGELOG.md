@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-11-15
+
+### Fixed
+
+- A folder in the sidebar file tree showed two icons after it was expanded or
+  collapsed: GitHub replaces its own folder glyph on that toggle, so the new
+  glyph appeared next to the injected icon. A replaced native glyph is now
+  hidden again as soon as it shows up
+
+[0.15.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.15.1
+
 ## [0.15.0] - 2026-11-15
 
 ### Added

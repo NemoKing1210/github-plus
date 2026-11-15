@@ -30,6 +30,18 @@ export function renderIcon(id) {
   return svg;
 }
 
+/** Hide a native GitHub glyph behind our icon (idempotent). */
+export function hideNative(nativeIcon) {
+  if (!nativeIcon) return;
+  nativeIcon.style.setProperty('display', 'none', 'important');
+  nativeIcon.classList.add(NATIVE_CLASS);
+}
+
+/** True while a native glyph still carries our hidden marker. */
+export function isNativeHidden(nativeIcon) {
+  return Boolean(nativeIcon) && nativeIcon.classList.contains(NATIVE_CLASS);
+}
+
 /**
  * Place our icon right before the native icon (or the filename when the row
  * has no icon) and hide the native one with an inline style, so no stylesheet
@@ -40,10 +52,7 @@ export function placeIcon(icon, nativeIcon, nameNode) {
   const before = nativeIcon || nameNode;
   if (!parent || !before) return false;
   parent.insertBefore(icon, before);
-  if (nativeIcon) {
-    nativeIcon.style.setProperty('display', 'none', 'important');
-    nativeIcon.classList.add(NATIVE_CLASS);
-  }
+  hideNative(nativeIcon);
   return true;
 }
 

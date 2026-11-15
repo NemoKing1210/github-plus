@@ -3,7 +3,7 @@ import { Codes, logInfo, logWarn } from '../../core/debug.js';
 import { getFileIconsSettings } from '../../core/settings.js';
 import { debounce } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
-import { clearIcons, placeIcon, renderIcon } from './inject.js';
+import { clearIcons, hideNative, isNativeHidden, placeIcon, renderIcon } from './inject.js';
 import { pickIcon } from './match.js';
 import { SURFACES } from './surfaces.js';
 
@@ -24,7 +24,10 @@ const SHELL_MS = 200;
 const SETTLE_MS = 250;
 const SETTLE_TRIES = 20;
 
-/** Row element -> injected icon, so a re-rendered row is decorated again. */
+/**
+ * Row element -> `{ icon, native }`, so a re-rendered row is decorated again
+ * and a native glyph GitHub swaps in is hidden again.
+ */
 const decorated = new WeakMap();
 /** Surface container -> observer. */
 const observers = new Map();
@@ -40,13 +43,27 @@ function pickOptions() {
 
 function processRow(row, surface) {
   const existing = decorated.get(row);
-  if (existing && existing.isConnected) return;
+  if (existing && existing.icon.isConnected) {
+    // React re-renders the row's own glyph without dropping our icon — an
+    // expanded folder swaps its folder icon, for instance — so the newcomer
+    // is visible next to ours until it is hidden again.
+    const stale =
+      existing.native && (!existing.native.isConnected || !isNativeHidden(existing.native));
+    if (stale) {
+      const found = surface.resolve(row);
+      if (found?.nativeIcon) {
+        hideNative(found.nativeIcon);
+        existing.native = found.nativeIcon;
+      }
+    }
+    return;
+  }
   const found = surface.resolve(row);
   if (!found) return;
   const id = pickIcon(found.name, found.kind, pickOptions());
   const icon = renderIcon(id);
   if (!placeIcon(icon, found.nativeIcon, found.nameNode)) return;
-  decorated.set(row, icon);
+  decorated.set(row, { icon, native: found.nativeIcon });
 }
 
 function processContainer(container, surface) {

@@ -528,10 +528,12 @@ icon. The feature is registry-driven; every surface degrades on its own.
   before the surface exists: `settleSurfaces()` retries the registry query on a
   bounded interval (20 × 250 ms, stopped as soon as a container is attached).
   That bounded wait is not a scan loop. Rows are tracked in a `WeakMap`
-  (row → injected icon) so a React re-render that drops the icon is decorated
-  again. `applyFileIconsSettings()` is the single entry point: enabled → sync
-  plus settle when nothing is attached yet, disabled → disconnect every
-  observer, remove our icons and restore the native ones.
+  (row → injected icon plus the native glyph it hid) so a React re-render that
+  drops the icon is decorated again, and a native glyph GitHub replaces in
+  place — an expanded folder swaps its folder icon — is hidden again instead of
+  showing up next to ours. `applyFileIconsSettings()` is the single entry
+  point: enabled → sync plus settle when nothing is attached yet, disabled →
+  disconnect every observer, remove our icons and restore the native ones.
   `settings:fileIcons` triggers it.
 
 ### `src/features/fileAges/` — blame-style ages for listed files
