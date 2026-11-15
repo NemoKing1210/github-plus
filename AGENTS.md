@@ -58,8 +58,7 @@ github-plus/
 │   │   │   └── tabs/
 │   │   │       ├── general.js   # Interface language, toast notifications
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
-│   │   │       ├── fileIcons.js # Master switch, folder and filename toggles
-│   │   │       ├── files.js     # File sizes and download buttons
+│   │   │       ├── files.js     # File icons, file ages, sizes and downloads
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
 │   │   ├── fileIcons/
@@ -409,10 +408,12 @@ report through it.
 - `tabs/gallery.js`: gallery master switch in the section header, source grid
   from `listSources()`, badge filtering, full-size upgrade, thumbnail strip,
   wrap-around, zoom ceiling.
-- `tabs/fileIcons.js`: file-icons master switch in the section header, folder
-  and well-known-filename toggles.
-- `tabs/fileAges.js`: file-ages master switch in the section header, folder
-  toggle and a preview of the ten-shade age scale (`ages.*` keys).
+- `tabs/files.js`: the single page for every file-listing enhancement — one
+  card per feature (file icons, file ages, file sizes and downloads), each
+  with its own master switch in the card header, its scope toggles in the
+  body, and the ten-shade age scale preview inside the ages card (`icons.*`,
+  `ages.*`, `files.*` keys). The features stay independent, so the page has no
+  switch of its own.
 - `tabs/backup.js`: export to file (`Blob` + `<a download>`) or clipboard,
   import from a textarea through `normalizeImportedSettings` +
   `applyExternalSettings`, with an inline invalid-payload message.
@@ -564,7 +565,7 @@ chrome.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 139
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 127
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -830,7 +831,8 @@ and check diagnostics for edited files.
 - Viewer shows a smaller image than expected: the page's `src` is what is
   rendered; `fullSrc` only upgrades when the wrapping link points at an image
   file and that file actually loads.
-- Size labels or download buttons missing: check **Files** is on and the row is
+- Size labels or download buttons missing: check the **File sizes and
+  downloads** card on the **Files** page is on and the row is
   a file link inside `[data-testid="directory-content"]` (folder rows keep an
   empty cell).
   A size label with no text means the HEAD probe returned no `Content-Length`

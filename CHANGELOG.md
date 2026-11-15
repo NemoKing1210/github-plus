@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-15
+
+### Changed
+
+- The **File icons**, **File ages** and **Files** settings pages are now one
+  **Files** page. Each enhancement keeps its own master switch in a card
+  header, with its toggles — and the age-scale preview — inside that card, so
+  the sidebar lists five pages instead of seven. Settings, their storage and
+  the features' behavior are unchanged
+
+[0.11.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.11.0
+
 ## [0.10.0] - 2026-11-15
 
 ### Added

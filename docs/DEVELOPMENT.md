@@ -108,10 +108,13 @@ viewer, the settings panel, the backup page or toasts. All checks are on
 
 ### Settings panel
 
-- [ ] The panel opens on the General page with the sidebar listing all seven
-      pages under **Preferences** and **More**; switching pages (click and
-      arrow keys) animates the content; the language select relabels the panel
-      after Save.
+- [ ] The panel opens on the General page with the sidebar listing all five
+      pages under **Preferences** (General, Gallery, Files) and **More**
+      (Backup, About); switching pages (click and arrow keys) animates the
+      content; the language select relabels the panel after Save.
+- [ ] The Files page holds the three file enhancements as separate cards —
+      icons, ages, sizes and downloads — each with its own master switch in the
+      card header, and the age-scale preview inside the ages card.
 - [ ] The search field (`/` or `Ctrl`/`Cmd`+`K`) finds settings across pages:
       results are grouped by page, matched text is highlighted, sidebar counts
       match, and choosing a result opens the page and spotlights the row.
@@ -157,11 +160,12 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       glyph, but it must settle on ours).
 - [ ] Pull requests **Files changed** and a commit page show icons in the file
       list; gists and code search are best effort (see § Surfaces).
-- [ ] **File icons → Folder icons** off gives every folder the generic folder
+- [ ] In **Files**, **Folder icons** off gives every folder the generic folder
       glyph; **Well-known filenames** off makes `package.json` fall back to the
       JSON icon.
-- [ ] Turning **File icons** off removes every colored glyph, restores GitHub's
-      own icons and leaves no `.gp-fi` nodes or hidden icons behind.
+- [ ] Turning the **File icons** card off removes every colored glyph,
+      restores GitHub's own icons and leaves no `.gp-fi` nodes or hidden icons
+      behind.
 
 ### File ages
 
@@ -169,11 +173,12 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       the text keeps GitHub's own wording and tooltip.
 - [ ] Recent commits are warm (`#ffd78d` in the dark theme, attention gold in
       the light one) and older commits fade to GitHub's muted grey, matching
-      the **File ages → Age scale** preview; a four-month-old row is already
-      visibly desaturated and a file older than a year is plain grey.
+      the age-scale preview at the bottom of the **File ages** card; a
+      four-month-old row is already visibly desaturated and a file older than a
+      year is plain grey.
 - [ ] **Folder rows** off restores GitHub's date color on folders while files
-      keep theirs; turning **File ages** off removes every `.gp-age-date` class
-      and leaves no observers behind.
+      keep theirs; turning the **File ages** card off removes every
+      `.gp-age-date` class and leaves no observers behind.
 - [ ] The tints survive client-side navigation and GitHub's re-renders, and a
       row whose date is missing simply stays unmarked.
 
@@ -196,9 +201,9 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       buttons' titles without a reload.
 - [ ] A blob page keeps GitHub's own size and download chrome and gains no
       `.gp-file-meta` cell — the feature deliberately leaves that page alone.
-- [ ] **Files → File sizes** off leaves only the download buttons; **Download
-      buttons** off leaves only the size labels; the **Files** master switch
-      removes every `.gp-file-meta-cell` and header cell.
+- [ ] **File size** off leaves only the download buttons; **Download button**
+      off leaves only the size labels; the **File sizes and downloads** card
+      switch removes every `.gp-file-meta-cell` and header cell.
 - [ ] Sizes survive client-side navigation between folders; a probe that comes
       back without `Content-Length` (or is blocked) leaves the size out without
       breaking the cell.

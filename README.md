@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
 blame-style age colors for those files, and file sizes with one-click
 downloads.
 
-> **Status:** early (`0.10.0`). Settings panel with instant search (General ·
-> Gallery · File icons · File ages · Files · Backup · About), the markdown image
-> gallery, colored file icons, blame-style file age colors, and file sizes with
-> download buttons. More GitHub improvements planned.
+> **Status:** early (`0.11.0`). Settings panel with instant search (General ·
+> Gallery · Files · Backup · About), the markdown image gallery, colored file
+> icons, blame-style file age colors, and file sizes with download buttons. More
+> GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.

@@ -5,18 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
 ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
 ワンクリック ダウンロードを提供します。
 
-> **ステータス:** 初期段階（`0.10.0`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル アイコン · ファイルの経過日数 · ファイル · バックアップ ·
-> このアプリについて）、Markdown 画像ギャラリー、カラー ファイル アイコン、blame
-> 風の経過日数カラー、ファイルサイズとダウンロード ボタン。今後さらに GitHub の
-> 改善を追加予定です。
+> **ステータス:** 初期段階（`0.11.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
+> ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
+> ダウンロード ボタン。今後さらに GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。

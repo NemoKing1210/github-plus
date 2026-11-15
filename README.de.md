@@ -5,18 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
 wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien sowie
 Dateigrößen mit Ein-Klick-Downloads.
 
-> **Status:** früh (`0.10.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateisymbole · Dateialter · Dateien · Sicherung · Info), die
-> Markdown-Bildergalerie, farbige Dateisymbole, Altersfarben im Blame-Stil sowie
-> Dateigrößen mit Download-Schaltflächen. Weitere GitHub-Verbesserungen sind
-> geplant.
+> **Status:** früh (`0.11.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
+> Dateisymbole, Altersfarben im Blame-Stil sowie Dateigrößen mit
+> Download-Schaltflächen. Weitere GitHub-Verbesserungen sind geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.

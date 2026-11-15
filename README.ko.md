@@ -5,16 +5,15 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드를 제공합니다.
 
-> **상태:** 초기(`0.10.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 아이콘 ·
-> 파일 나이 · 파일 · 백업 · 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame
-> 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기. 더 많은 GitHub 개선이 예정되어
-> 있습니다.
+> **상태:** 초기(`0.11.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
+> 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
+> 버튼이 있는 파일 크기. 더 많은 GitHub 개선이 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.

@@ -7,8 +7,6 @@ import { getIconSvg } from './controls.js';
 import { registerPage, togglePanel } from './panel.js';
 import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
-import { renderFileAges } from './tabs/fileAges.js';
-import { renderFileIcons } from './tabs/fileIcons.js';
 import { renderFiles } from './tabs/files.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
@@ -168,22 +166,6 @@ function registerPages() {
     labelKey: 'tab.gallery',
     descKey: 'tab.gallery.desc',
     render: renderGallery,
-  });
-  registerPage({
-    id: 'fileIcons',
-    group: 'preferences',
-    icon: 'fileIcons',
-    labelKey: 'tab.icons',
-    descKey: 'tab.icons.desc',
-    render: renderFileIcons,
-  });
-  registerPage({
-    id: 'fileAges',
-    group: 'preferences',
-    icon: 'fileAges',
-    labelKey: 'tab.ages',
-    descKey: 'tab.ages.desc',
-    render: renderFileAges,
   });
   registerPage({
     id: 'files',

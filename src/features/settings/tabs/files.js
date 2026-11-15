@@ -1,15 +1,83 @@
+import { AGE_BUCKET_COUNT } from '../../../core/constants.js';
 import { t } from '../../../i18n/index.js';
-import { createSection, createSwitch, createSwitchRow } from '../controls.js';
+import { el } from '../../../utils/dom.js';
+import { createHint, createSection, createSwitch, createSwitchRow } from '../controls.js';
 import { getDraft } from '../panel.js';
 
-/**
- * Files page: master switch plus the two independent additions to a file row
- * (the size label and the download button).
- */
-export function renderFiles(container) {
-  const draft = getDraft();
+/** Preview of the sequential scale the ages feature paints on GitHub's file list. */
+function createLegend() {
+  const legend = el('div', 'gp-age-legend');
+  const scale = el('span', 'gp-age-legend__scale');
+  scale.setAttribute('aria-hidden', 'true');
+  for (let bucket = 1; bucket <= AGE_BUCKET_COUNT; bucket += 1) {
+    scale.appendChild(el('span', `gp-age-legend__sample gp-age--${bucket}`, 'Aa'));
+  }
+  legend.append(el('span', 'gp-age-legend__label', t('ages.older')), scale);
+  legend.appendChild(el('span', 'gp-age-legend__label', t('ages.newer')));
+  return legend;
+}
 
-  const behavior = createSection({
+function iconsCard(draft) {
+  const card = createSection({
+    title: t('icons.enabled'),
+    hint: t('icons.enabledDesc'),
+    action: createSwitch({
+      checked: draft.fileIcons.enabled,
+      label: t('icons.enabled'),
+      onChange: (value) => {
+        draft.fileIcons.enabled = value;
+      },
+    }),
+  });
+  card.body.append(
+    createSwitchRow({
+      checked: draft.fileIcons.folders,
+      label: t('icons.folders'),
+      hint: t('icons.foldersDesc'),
+      onChange: (value) => {
+        draft.fileIcons.folders = value;
+      },
+    }),
+    createSwitchRow({
+      checked: draft.fileIcons.specialNames,
+      label: t('icons.specialNames'),
+      hint: t('icons.specialNamesDesc'),
+      onChange: (value) => {
+        draft.fileIcons.specialNames = value;
+      },
+    }),
+  );
+  return card;
+}
+
+function agesCard(draft) {
+  const card = createSection({
+    title: t('ages.enabled'),
+    hint: t('ages.enabledDesc'),
+    action: createSwitch({
+      checked: draft.fileAges.enabled,
+      label: t('ages.enabled'),
+      onChange: (value) => {
+        draft.fileAges.enabled = value;
+      },
+    }),
+  });
+  card.body.append(
+    createSwitchRow({
+      checked: draft.fileAges.folders,
+      label: t('ages.folders'),
+      hint: t('ages.foldersDesc'),
+      onChange: (value) => {
+        draft.fileAges.folders = value;
+      },
+    }),
+    createLegend(),
+  );
+  return card;
+}
+
+function sizesCard(draft) {
+  const card = createSection({
     title: t('files.enabled'),
     hint: t('files.enabledDesc'),
     action: createSwitch({
@@ -19,14 +87,8 @@ export function renderFiles(container) {
         draft.fileMeta.enabled = value;
       },
     }),
-    withBody: false,
   });
-
-  const display = createSection({
-    title: t('files.display'),
-    hint: t('files.displayDesc'),
-  });
-  display.body.append(
+  card.body.append(
     createSwitchRow({
       checked: draft.fileMeta.sizes,
       label: t('files.size'),
@@ -44,6 +106,15 @@ export function renderFiles(container) {
       },
     }),
   );
+  return card;
+}
 
-  container.append(behavior, display);
+/**
+ * Files page: one card per file enhancement, each with its own master switch
+ * in the card header and its scope toggles in the body. The features stay
+ * independent, so the page itself has no switch.
+ */
+export function renderFiles(container) {
+  const draft = getDraft();
+  container.append(iconsCard(draft), agesCard(draft), sizesCard(draft), createHint(t('icons.credit')));
 }

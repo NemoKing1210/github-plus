@@ -27,7 +27,7 @@ src/
 │   ├── panel.js             # panel shell: grouped nav, search, pages, draft
 │   ├── controls.js          # section / row / field / switch / select / input / button
 │   ├── confirm.js           # promise-based confirm dialog
-│   └── tabs/                # general.js, gallery.js, fileIcons.js, fileAges.js, files.js, backup.js, about.js
+│   └── tabs/                # general.js, gallery.js, files.js, backup.js, about.js
 ├── features/fileIcons/
 │   ├── index.js             # per-surface observers, injection, settings reaction
 │   ├── surfaces.js          # where GitHub lists files + row readers
