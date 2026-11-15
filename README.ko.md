@@ -5,15 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
-blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드를 제공합니다.
+blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴를
+제공합니다.
 
-> **상태:** 초기(`0.11.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
+> **상태:** 초기(`0.12.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
 > 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
-> 버튼이 있는 파일 크기. 더 많은 GitHub 개선이 예정되어 있습니다.
+> 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴. 더 많은 GitHub 개선이 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
@@ -142,6 +143,27 @@ GitHub의 디렉터리 목록은 파일이 언제 바뀌었는지는 보여 주�
 - **은은함** — 폴더의 열은 비어 있으며, 기능을 끄면 모든 크기, 버튼, 추가한 열이 사라져 원래
   GitHub로 돌아갑니다.
 
+### 파일 컨텍스트 메뉴
+
+파일을 마우스 오른쪽 버튼으로 클릭하는 것은 원하는 작업으로 가는 가장 빠른 길이지만,
+GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일에 대해 그 메뉴를
+대체합니다:
+
+- **빠른 작업** — 저장소 목록에서 파일을 마우스 오른쪽 버튼으로 클릭하면 **열기**,
+  **새 탭에서 열기**, **다운로드**, **내용 복사**, **링크 복사**, **경로 복사**를
+  사용할 수 있습니다. 파일 페이지에서도 같은 메뉴가 나타납니다(**열기**는 이미 그
+  페이지에 있으므로 없습니다).
+- **내용 복사** — 텍스트 파일의 내용은 페이지를 열지 않고 바로 클립보드로 들어갑니다.
+  바이너리 파일과 1 MiB를 넘는 파일은 깨진 문자가 붙거나 탭이 멈추는 대신 명확한
+  알림과 함께 거부됩니다.
+- **경로 복사** — 저장소 기준 상대 경로(`src/main.js`)로, 터미널·import 문·링크에
+  바로 붙여 넣을 수 있습니다.
+- **도움이 되는 곳에서만** — 폴더, 이미지, 미디어, 일반 링크에는 기본 메뉴가 그대로
+  유지됩니다. 파일을 가리키지 않는 오른쪽 클릭은 이전과 똑같이 동작합니다.
+- **키보드도 지원** — 컨텍스트 메뉴 키를 누르면 파일 링크 위치에 같은 메뉴가 열리고,
+  화살표 키로 이동하며 닫으면 포커스가 돌아옵니다. 기능을 끄면 어디서나 브라우저
+  메뉴로 돌아갑니다.
+
 ### 설정 패널
 
 GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
@@ -175,6 +197,7 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `fileMeta.enabled` | `true` | 파일 크기와 다운로드 버튼의 총 스위치 |
 | `fileMeta.sizes` | `true` | 저장소 파일 목록에 각 파일의 크기 표시 |
 | `fileMeta.download` | `true` | 저장소 파일 목록의 다운로드 버튼 |
+| `fileMenu.enabled` | `true` | 파일 컨텍스트 메뉴 마스터 스위치 |
 
 ## 갤러리 구조
 

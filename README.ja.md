@@ -5,17 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
 ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
-ワンクリック ダウンロードを提供します。
+ワンクリック ダウンロード、そしてファイル操作用のコンテキスト メニューを提供します。
 
-> **ステータス:** 初期段階（`0.11.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.12.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
-> ダウンロード ボタン。今後さらに GitHub の改善を追加予定です。
+> ダウンロード ボタン、ファイルのコンテキスト メニュー。今後さらに GitHub の改善を
+> 追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -150,6 +151,26 @@ GitHub Plus はその両方をファイルの行に追加します:
 - **控えめ** — フォルダーの列は空のままです。機能をオフにするとサイズ、ボタン、追加した列が
   すべて消え、元の GitHub に戻ります。
 
+### ファイルのコンテキスト メニュー
+
+ファイルの右クリックは目的の操作への最短ルートですが、GitHub 自身のメニューには
+そのどれもありません。GitHub Plus はファイルに対してそのメニューを置き換えます:
+
+- **クイック操作** — リポジトリの一覧でファイルを右クリックすると **開く**、
+  **新しいタブで開く**、**ダウンロード**、**内容をコピー**、**リンクをコピー**、
+  **パスをコピー** が使えます。ファイルページでも同じメニューが開きます
+  （すでにそのページにいるため **開く** はありません）。
+- **内容をコピー** — テキスト ファイルの内容はページを開かずにクリップボードへ。
+  バイナリ ファイルと 1 MiB を超えるファイルは、文字化けを貼り付けたりタブを
+  固まらせたりする代わりに、明確な通知で断ります。
+- **パスをコピー** — リポジトリからの相対パス（`src/main.js`）。ターミナル、
+  インポート文、リンクにそのまま貼れます。
+- **役立つ場所だけ** — フォルダー、画像、メディア、通常のリンクではネイティブ メニュー
+  のままです。ファイルを指さない右クリックは以前とまったく同じに動作します。
+- **キーボードでも** — コンテキスト メニュー キーでファイルのリンク位置に同じメニューが
+  開き、矢印キーで移動でき、閉じるとフォーカスが戻ります。機能をオフにすると、
+  どこでもブラウザーのメニューに戻ります。
+
 ### 設定パネル
 
 GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
@@ -184,6 +205,7 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `fileMeta.enabled` | `true` | ファイルサイズとダウンロード ボタンの総合スイッチ |
 | `fileMeta.sizes` | `true` | リポジトリのファイル一覧に各ファイルのサイズを表示 |
 | `fileMeta.download` | `true` | リポジトリのファイル一覧のダウンロード ボタン |
+| `fileMenu.enabled` | `true` | ファイルのコンテキスト メニューのマスター スイッチ |
 
 ## ギャラリーの仕組み
 

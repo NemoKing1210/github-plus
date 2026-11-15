@@ -216,6 +216,7 @@ export function initSettingsFeature() {
   on('settings:fileIcons', updateSettingsButtonState);
   on('settings:fileAges', updateSettingsButtonState);
   on('settings:fileMeta', updateSettingsButtonState);
+  on('settings:fileMenu', updateSettingsButtonState);
   on('settings:language', () => {
     refreshLabels();
     updateSettingsButtonState();

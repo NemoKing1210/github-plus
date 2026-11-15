@@ -31,6 +31,8 @@ export const Codes = {
   FILE_AGES: 'GP-1302',
   /** A file-meta surface or its selectors failed. */
   FILE_META: 'GP-1303',
+  /** The file context menu failed to resolve or run an action. */
+  FILE_MENU: 'GP-1401',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
 };

@@ -5,18 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 galerie d'images pour le markdown rendu, des icônes de fichiers colorées partout
-où GitHub liste des fichiers, des couleurs d'âge façon blame pour ces fichiers
-et la taille des fichiers avec téléchargement en un clic.
+où GitHub liste des fichiers, des couleurs d'âge façon blame pour ces fichiers,
+la taille des fichiers avec téléchargement en un clic et un menu contextuel pour
+les actions sur les fichiers.
 
-> **Statut :** début (`0.11.0`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.12.0`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Sauvegarde · À propos), la galerie d'images du
-> markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame et la
-> taille des fichiers avec boutons de téléchargement. D'autres améliorations de
-> GitHub sont prévues.
+> markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame, la
+> taille des fichiers avec boutons de téléchargement et un menu contextuel de
+> fichiers. D'autres améliorations de GitHub sont prévues.
 
 > Les `@updateURL` / `@downloadURL` du script pointent vers `main` sur GitHub —
 > l'URL d'installation ci-dessous mène toujours à la version la plus récente.
@@ -166,6 +167,29 @@ directement aux lignes de fichiers :
   retire chaque taille, chaque bouton et chaque cellule, laissant GitHub tel
   quel.
 
+### Menu contextuel des fichiers
+
+Un clic droit sur un fichier est le chemin le plus court vers ce que vous voulez
+en faire — et le menu de GitHub n'offre rien de tout cela. GitHub Plus le
+remplace pour les fichiers :
+
+- **Actions rapides** — un clic droit sur un fichier d'une liste de dépôt ouvre
+  **Ouvrir**, **Ouvrir dans un nouvel onglet**, **Télécharger**, **Copier le
+  contenu**, **Copier le lien** et **Copier le chemin**. Sur la page d'un
+  fichier, le même menu apparaît (sans **Ouvrir**, puisque vous y êtes déjà).
+- **Copier le contenu** — le contenu d'un fichier texte part directement dans le
+  presse-papiers sans ouvrir la page ; les fichiers binaires et tout ce qui
+  dépasse 1 Mio sont refusés par un message clair, plutôt que de coller des
+  déchets ou de figer l'onglet.
+- **Copier le chemin** — le chemin relatif au dépôt (`src/main.js`), prêt à
+  coller dans un terminal, un import ou un lien.
+- **Seulement là où c'est utile** — le menu natif reste intact pour les
+  dossiers, les images, les médias et les liens ordinaires ; un clic droit qui
+  ne vise pas un fichier se comporte comme avant.
+- **Au clavier aussi** — la touche du menu contextuel ouvre le même menu sur le
+  lien du fichier, avec navigation aux flèches et retour du focus à la
+  fermeture ; désactiver la fonction rétablit le menu du navigateur partout.
+
 ### Panneau de réglages
 
 Ouvrez-le depuis le bouton en forme d'engrenage de l'en-tête GitHub, la ligne
@@ -201,6 +225,7 @@ Stockés sous `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Interrupteur principal des tailles et boutons de téléchargement |
 | `fileMeta.sizes` | `true` | Afficher la taille de chaque fichier dans les listes du dépôt |
 | `fileMeta.download` | `true` | Bouton de téléchargement dans les listes du dépôt |
+| `fileMenu.enabled` | `true` | Interrupteur principal du menu contextuel des fichiers |
 
 ## Comment la galerie est construite
 

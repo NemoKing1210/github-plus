@@ -109,6 +109,21 @@ function sizesCard(draft) {
   return card;
 }
 
+function menuCard(draft) {
+  return createSection({
+    title: t('fileMenu.title'),
+    hint: t('fileMenu.enabledDesc'),
+    action: createSwitch({
+      checked: draft.fileMenu.enabled,
+      label: t('fileMenu.title'),
+      onChange: (value) => {
+        draft.fileMenu.enabled = value;
+      },
+    }),
+    withBody: false,
+  });
+}
+
 /**
  * Files page: one card per file enhancement, each with its own master switch
  * in the card header and its scope toggles in the body. The features stay
@@ -116,5 +131,11 @@ function sizesCard(draft) {
  */
 export function renderFiles(container) {
   const draft = getDraft();
-  container.append(iconsCard(draft), agesCard(draft), sizesCard(draft), createHint(t('icons.credit')));
+  container.append(
+    iconsCard(draft),
+    agesCard(draft),
+    sizesCard(draft),
+    menuCard(draft),
+    createHint(t('icons.credit')),
+  );
 }

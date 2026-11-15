@@ -26,7 +26,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
 | `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
-| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting, raw-address rewrite) and `test/download.test.js` (download filenames). |
+| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting, raw-address rewrite), `test/fileMenu.test.js` (file-target parsing, copyable-content check) and `test/download.test.js` (download filenames). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -60,8 +60,8 @@ URLs produced by `vite.config.js` (`https://raw.githubusercontent.com/…`).
 ## Manual test checklist
 
 Run this before a release and after any change that touches the gallery, the
-viewer, the settings panel, the backup page or toasts. All checks are on
-`github.com` (the script also matches `gist.github.com`).
+viewer, the settings panel, the file features, the backup page or toasts. All
+checks are on `github.com` (the script also matches `gist.github.com`).
 
 ### Entry point
 
@@ -112,9 +112,10 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       pages under **Preferences** (General, Gallery, Files) and **More**
       (Backup, About); switching pages (click and arrow keys) animates the
       content; the language select relabels the panel after Save.
-- [ ] The Files page holds the three file enhancements as separate cards —
-      icons, ages, sizes and downloads — each with its own master switch in the
-      card header, and the age-scale preview inside the ages card.
+- [ ] The Files page holds the four file enhancements as separate cards —
+      icons, ages, sizes and downloads, and the context menu — each with its
+      own master switch in the card header, and the age-scale preview inside
+      the ages card.
 - [ ] The search field (`/` or `Ctrl`/`Cmd`+`K`) finds settings across pages:
       results are grouped by page, matched text is highlighted, sidebar counts
       match, and choosing a result opens the page and spotlights the row.
@@ -211,6 +212,28 @@ viewer, the settings panel, the backup page or toasts. All checks are on
       route carries the session); a blocked fetch opens the raw file in a new
       tab instead.
 
+### File context menu
+
+- [ ] Right-clicking a file in a repository listing opens the GitHub Plus menu
+      with **Open**, **Open in new tab**, **Download**, **Copy contents**,
+      **Copy link** and **Copy path**; right-clicking a folder, or anywhere
+      outside a file row, keeps the browser's native menu.
+- [ ] On a blob page, right-clicking the file content (code or rendered
+      markdown) opens the same menu without **Open**; right-clicking an image,
+      a foreign link or the page chrome keeps the native menu.
+- [ ] **Download** saves the file under its own name; **Copy link** copies the
+      blob address and **Copy path** the repository-relative path (no branch
+      prefix), each with its own success toast.
+- [ ] **Copy contents** copies a text file's contents; a binary file, a file
+      over 1 MiB and a blocked fetch each show their warning/error toast and
+      leave the clipboard untouched.
+- [ ] Keyboard: the context-menu key (`Shift`+`F10`) opens the menu under the
+      file link, arrows/`Home`/`End` move, `Enter` runs a row, `Esc` closes and
+      returns focus; a click outside or any scroll closes it.
+- [ ] The menu is localized with the current interface language and disappears
+      on client-side navigation; turning the **File context menu** card off
+      restores the native menu everywhere.
+
 ## Debugging
 
 Verbose tracing is off by default. Turn it on from the page console:
@@ -241,6 +264,7 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1301` | `FILE_ICONS` | A file-icons surface or its selectors failed. |
 | `GP-1302` | `FILE_AGES` | A file-ages surface or its selectors failed. |
 | `GP-1303` | `FILE_META` | A file-meta surface or its selectors failed. |
+| `GP-1401` | `FILE_MENU` | A file-menu clipboard write or raw-content fetch failed. |
 
 Settings persist under the key `gp_settings_v1` (`SETTINGS_KEY` in
 `src/core/constants.js`): via `GM_setValue` when the manager provides it,
@@ -255,8 +279,9 @@ otherwise via `localStorage`. Delete that key for a cold start:
 - `src/core/constants.js` holds the defaults and limits: `SETTINGS_KEY`, the
   `gp-` class prefix, `GALLERY_MAX_IMAGES` (500), `GALLERY_MIN_SIZE_PX` (80),
   `ZOOM_OPTIONS`, `BADGE_HOSTS`, `IMAGE_EXTENSIONS`, `TOAST_POSITIONS`,
-  `TOAST_MAX_DURATION_MS`, and `DEFAULT_SETTINGS` / `getDefaults()` (including
-  `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS` and `DEFAULT_FILE_AGES`).
+  `TOAST_MAX_DURATION_MS`, `FILE_COPY_MAX_BYTES` (1 MiB) and `DEFAULT_SETTINGS`
+  / `getDefaults()` (including `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS`,
+  `DEFAULT_FILE_AGES` and `DEFAULT_FILE_MENU`).
 - `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
   change the allowlist in `scripts/build-file-icons.mjs` and run
   `npm run icons:build`. The package is a dev dependency; the shipped bundle
@@ -268,6 +293,12 @@ otherwise via `localStorage`. Delete that key for a cold start:
   significant digits) and `src/features/fileMeta/paths.js` owns the blob → raw
   address rewrite; both are pure and unit-tested, so keep DOM code out of them.
   `DEFAULT_FILE_META` lives in `constants.js`.
+- `src/features/fileMenu/paths.js` owns file-target parsing (ref stripping,
+  percent decoding, raw-address rewrite through the file-meta helper) and
+  `src/features/fileMenu/copy.js` owns the text/binary decision; both are pure
+  and unit-tested. `FILE_COPY_MAX_BYTES` and `DEFAULT_FILE_MENU` live in
+  `constants.js`, and the menu component itself is `src/ui/contextMenu.js` —
+  reusable, so keep file-specific rules out of it.
 - `src/i18n/locales/*.js` holds the UI strings, one file per locale (ten in
   total). New strings go into all ten files — see the localization rule in
   [../CONTRIBUTING.md](../CONTRIBUTING.md). The localized `@name` /

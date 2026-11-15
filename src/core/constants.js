@@ -67,6 +67,9 @@ export const IMAGE_EXTENSIONS = [
 /** Shades in the file-age colour scale (1 = oldest, N = newest). */
 export const AGE_BUCKET_COUNT = 10;
 
+/** Largest file whose contents the context menu puts on the clipboard. */
+export const FILE_COPY_MAX_BYTES = 1024 * 1024;
+
 /** Toast corner placements. */
 export const TOAST_POSITIONS = [
   'bottom-right',
@@ -119,6 +122,11 @@ const DEFAULT_FILE_META = {
   download: true,
 };
 
+/** File context menu: quick actions on a file listing row or a file page. */
+const DEFAULT_FILE_MENU = {
+  enabled: true,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   gallery: DEFAULT_GALLERY,
@@ -126,6 +134,7 @@ export const DEFAULT_SETTINGS = {
   fileIcons: DEFAULT_FILE_ICONS,
   fileAges: DEFAULT_FILE_AGES,
   fileMeta: DEFAULT_FILE_META,
+  fileMenu: DEFAULT_FILE_MENU,
 };
 
 /** Deep-cloned defaults, used on reset. */

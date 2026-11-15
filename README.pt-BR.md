@@ -5,18 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 galeria de imagens para markdown renderizado, ícones de arquivo coloridos onde o
-GitHub lista arquivos, idades coloridas no estilo blame para esses arquivos e
-tamanhos de arquivo com downloads em um clique.
+GitHub lista arquivos, idades coloridas no estilo blame para esses arquivos,
+tamanhos de arquivo com downloads em um clique e um menu de contexto para ações
+de arquivo.
 
-> **Status:** inicial (`0.11.0`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.12.0`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Backup · Sobre), a galeria de imagens de
-> markdown, ícones de arquivo coloridos, idades coloridas no estilo blame e
-> tamanhos de arquivo com botões de download. Mais melhorias no GitHub estão
-> planejadas.
+> markdown, ícones de arquivo coloridos, idades coloridas no estilo blame,
+> tamanhos de arquivo com botões de download e um menu de contexto de arquivos.
+> Mais melhorias no GitHub estão planejadas.
 
 > As diretivas `@updateURL` / `@downloadURL` do script apontam para `main` no
 > GitHub — a URL de instalação abaixo sempre leva à compilação mais recente.
@@ -162,6 +163,29 @@ diretamente às linhas de arquivo:
 - **Discreto** — pastas mantêm uma célula vazia, e desativar o recurso remove
   cada tamanho, botão e célula, devolvendo o GitHub original.
 
+### Menu de contexto de arquivos
+
+Clicar com o botão direito em um arquivo é o caminho mais rápido para o que você
+quer fazer com ele — e o menu do próprio GitHub não oferece nada disso. O GitHub
+Plus o substitui para arquivos:
+
+- **Ações rápidas** — clique com o botão direito em um arquivo de uma listagem
+  do repositório para **Abrir**, **Abrir em nova aba**, **Baixar**, **Copiar
+  conteúdo**, **Copiar link** e **Copiar caminho**. Na página de um arquivo
+  aparece o mesmo menu (sem **Abrir**, pois você já está lá).
+- **Copiar o conteúdo** — o conteúdo de um arquivo de texto vai direto para a
+  área de transferência sem abrir a página; arquivos binários e qualquer coisa
+  acima de 1 MiB são recusados com um aviso claro, em vez de colar lixo ou
+  travar a aba.
+- **Copiar o caminho** — o caminho relativo ao repositório (`src/main.js`),
+  pronto para colar em um terminal, um import ou um link.
+- **Só onde ajuda** — o menu nativo permanece intacto para pastas, imagens,
+  mídia e links comuns; um clique direito que não aponta para um arquivo se
+  comporta como antes.
+- **Também pelo teclado** — a tecla de menu de contexto abre o mesmo menu no
+  link do arquivo, com navegação pelas setas e foco restaurado ao fechar;
+  desativar o recurso devolve o menu do navegador em todos os lugares.
+
 ### Painel de configurações
 
 Abra-o pelo botão de engrenagem no cabeçalho do GitHub, pela linha
@@ -197,6 +221,7 @@ Armazenadas em `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Chave mestra para tamanhos e botões de download |
 | `fileMeta.sizes` | `true` | Mostrar o tamanho de cada arquivo nas listagens do repositório |
 | `fileMeta.download` | `true` | Botão de download nas listagens do repositório |
+| `fileMenu.enabled` | `true` | Chave mestra do menu de contexto de arquivos |
 
 ## Como a galeria é construída
 

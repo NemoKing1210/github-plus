@@ -128,6 +128,13 @@ function normalizeFileMeta(raw, fallback) {
   };
 }
 
+function normalizeFileMenu(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+  };
+}
+
 /** Normalize a whole settings payload against the shipped defaults. */
 function normalizeSettings(raw) {
   const defaults = getDefaults();
@@ -139,6 +146,7 @@ function normalizeSettings(raw) {
     fileIcons: normalizeFileIcons(source.fileIcons, defaults.fileIcons),
     fileAges: normalizeFileAges(source.fileAges, defaults.fileAges),
     fileMeta: normalizeFileMeta(source.fileMeta, defaults.fileMeta),
+    fileMenu: normalizeFileMenu(source.fileMenu, defaults.fileMenu),
   };
 }
 
@@ -171,6 +179,10 @@ export function getFileAgesSettings() {
 
 export function getFileMetaSettings() {
   return settings.fileMeta;
+}
+
+export function getFileMenuSettings() {
+  return settings.fileMenu;
 }
 
 /**

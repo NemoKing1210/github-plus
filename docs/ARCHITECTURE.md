@@ -11,7 +11,7 @@ src/
 ├── core/
 │   ├── constants.js         # DEFAULT_SETTINGS, storage key, limits
 │   ├── settings.js          # load/save + normalization (single source of truth)
-│   └── bus.js               # minimal pub/sub (settings:gallery/toasts/language/fileIcons/fileAges/fileMeta)
+│   └── bus.js               # minimal pub/sub (settings:gallery/toasts/language/fileIcons/fileAges/fileMeta/fileMenu)
 ├── i18n/
 │   ├── meta.js              # SUPPORTED_LOCALES, aliases, native names
 │   ├── index.js             # configureLocale(), t()
@@ -45,12 +45,18 @@ src/
 │   ├── paths.js             # rawUrlFor(blobHref) — pure address rewrite
 │   ├── size.js              # formatSize — pure size formatting
 │   └── inject.js            # renderMeta / placeMeta / placeHead / clearMeta
+├── features/fileMenu/
+│   ├── index.js             # delegated contextmenu listener, actions, settings reaction
+│   ├── surfaces.js          # where a right-click resolves to a file
+│   ├── paths.js             # fileTarget — pure href → href/raw/relative/name
+│   └── copy.js              # isCopyableContent — pure type/name check
 ├── styles/
 │   ├── tokens.css           # :root design tokens (--gp-* palette)
 │   └── app.css              # injected stylesheet (gp- prefix)
 ├── ui/
-│   ├── icons.js             # 16×16 stroke glyphs for the viewer toolbar
+│   ├── icons.js             # 16×16 stroke glyphs (viewer toolbar, menu actions)
 │   ├── toast.js             # notifications (positions, dedup, actions)
+│   ├── contextMenu.js       # reusable fixed-position menu
 │   └── viewer.js            # fullscreen image viewer (reusable lightbox)
 └── utils/
     ├── dom.js               # el, append, debounce, eachNode, toArray, isOwnUi
@@ -68,6 +74,7 @@ graph TD
   main --> fileIcons[features/fileIcons]
   main --> fileAges[features/fileAges]
   main --> fileMeta[features/fileMeta]
+  main --> fileMenu[features/fileMenu]
   main --> gallery
   main --> ui
   main --> utils
@@ -88,6 +95,10 @@ graph TD
   fileMeta --> ui
   fileMeta --> utils
   fileMeta --> i18n
+  fileMenu --> core
+  fileMenu --> ui
+  fileMenu --> utils
+  fileMenu --> i18n
   ui --> core
   ui --> utils
   ui --> i18n
@@ -158,6 +169,14 @@ GitHub's markup, there is no per-image state, and the element is dropped on
 navigation. Its click is excluded through `isOwnUi()`, so it never opens the
 viewer.
 
+The file context menu is the other delegated listener: one capture-phase
+`contextmenu` handler resolves the clicked node to a file (a listing row link
+or the blob page's own content) at event time, and only then suppresses the
+native menu. Folders, media and foreign links fall through to the browser, so
+the feature cannot break a right-click it does not own. The menu element itself
+lives in `ui/contextMenu.js`, is appended to `<body>`, and is removed on close,
+outside press, scroll, resize and navigation.
+
 ## Settings lifecycle
 
 ```mermaid
@@ -175,7 +194,7 @@ sequenceDiagram
   U->>P: Save
   P->>S: saveSettings(draft)
   S-->>P: normalized + persisted state
-  P->>B: emit settings:gallery / toasts / language / fileIcons / fileAges / fileMeta
+  P->>B: emit settings:gallery / toasts / language / fileIcons / fileAges / fileMeta / fileMenu
   B->>F: listeners react (repaint stylesheet, rescan rows, relabel entry)
   P-->>U: success toast, panel closed
 ```
@@ -192,7 +211,9 @@ replaces `<body>` while module state lives on. `main.js` subscribes to
 otherwise a "closed" viewer would keep reporting itself open (and swallow
 `Escape` for the panel) and a pinned page would stay pinned. The settings entry
 subscribes to the same watcher to re-mount its header button; the avatar-menu
-row needs no reset, because GitHub unmounts that menu on navigation itself.
+row needs no reset, because GitHub unmounts that menu on navigation itself. The
+file menu closes through its own `watchNavigation` hook, since its position is
+page coordinates that no longer mean anything after the page changes.
 
 ## Extension points
 
@@ -200,7 +221,9 @@ row needs no reset, because GitHub unmounts that menu on navigation itself.
 |------|-------|
 | A new place with images (diff view, project board, …) | Register a source in `src/gallery/sources/`, import it from `src/gallery/index.js`, add its default switch in `core/constants.js`, add its two locale keys in all ten locales. The settings panel picks it up from the registry. |
 | A new settings page | `registerPage({ id, icon, labelKey, descKey, render })` and a module in `features/settings/tabs/`. The page reads and mutates `getDraft()`. |
-| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`); if the rows also show a last-commit date, add it to `src/features/fileAges/surfaces.js`; if they link to a file view and do not already show a size or a download button, add it to `src/features/fileMeta/surfaces.js` (`resolve` returns the raw address; the surface's `header` and `columnLabelKey` place the column's label). Observers and injection are shared per feature. |
+| A new place GitHub lists files | Add a surface to `src/features/fileIcons/surfaces.js` (`containers`, `rows`, `resolve(row)`); if the rows also show a last-commit date, add it to `src/features/fileAges/surfaces.js`; if they link to a file view and do not already show a size or a download button, add it to `src/features/fileMeta/surfaces.js` (`resolve` returns the raw address; the surface's `header` and `columnLabelKey` place the column's label); if a right-click on a row should open the file menu, add the row to `src/features/fileMenu/surfaces.js`. Observers and injection are shared per feature. |
+| A new file action | Add an entry to `buildItems()` in `src/features/fileMenu/index.js` (label key, `ACTION_ICONS` glyph, handler), its key in all ten locales, and a toast for the outcome. The menu component itself needs no change. |
+| A context menu elsewhere | `openContextMenu({ x, y, label, items })` from `ui/contextMenu.js` — it is a standalone component; give it an anchor and `keyboard: true` for keyboard-triggered opens. |
 | A new setting | Add it to `DEFAULT_SETTINGS` + a normalizer in `core/settings.js`, expose a getter, add the control to a tab, and document the key in `README.md` / `AGENTS.md`. Emit the matching bus event on Save if a feature must react. |
 | A lightbox somewhere else | `openViewer({ images })` from `ui/viewer.js` — it is a standalone component with localizable, per-call overridable labels. |
 
@@ -215,6 +238,7 @@ row needs no reset, because GitHub unmounts that menu on navigation itself.
 - Injected UI never touches GitHub's own header/markup nodes; it only inserts
   siblings next to them. File icons additionally hide GitHub's glyph with an
   inline style and restore it on teardown, file ages add their `.gp-age-date`
-  classes to GitHub's own timestamp, and file meta appends its own `td` to a
-  row and its own `th` to the table header; none writes a page-markup CSS rule.
+  classes to GitHub's own timestamp, file meta appends its own `td` to a
+  row and its own `th` to the table header, and the file menu only replaces a
+  native menu; none writes a page-markup CSS rule.
 - DOM collections are iterated with `eachNode`/`toArray`, never `for...of`.

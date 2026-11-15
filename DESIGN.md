@@ -3,7 +3,7 @@
 This file is the single source of truth for how GitHub Plus looks and behaves.
 Follow it for every change that adds, moves or restyles an injected element:
 the settings entry button, the settings panel (sidebar, pages) and its controls, the confirm
-dialog, toasts, and the image viewer. Every rule below is derived from the
+dialog, toasts, the context menu, and the image viewer. Every rule below is derived from the
 shipped `src/styles/tokens.css`, `src/styles/app.css` and the components that
 build the markup, so the document and the stylesheet move together.
 
@@ -30,10 +30,10 @@ So injected UI does not own a palette:
 Scope: every element GitHub Plus itself creates — the entry button and its
 list host, the row inside GitHub's user menu, the panel (overlay, shell,
 grouped sidebar, search field and results, pages, cards, rows, controls), the
-confirm dialog, toasts, the image viewer, the `.gp-fi` file and folder glyphs,
-the `.gp-age-date` coloring of GitHub's last-commit timestamps and its
-settings-page legend, the `.gp-file-meta` size column added to file rows, and
-the gallery's page-level cursor/hover affordances
+confirm dialog, toasts, the context menu, the image viewer, the `.gp-fi` file
+and folder glyphs, the `.gp-age-date` coloring of GitHub's last-commit
+timestamps and its settings-page legend, the `.gp-file-meta` size column added
+to file rows, and the gallery's page-level cursor/hover affordances
 (§11). Anything GitHub already renders is out of scope except through those
 affordances: no other rule may target page markup.
 
@@ -45,7 +45,8 @@ Two invariants hold for every selector:
 - Every UI-root class that must be excluded from page scanning is listed in
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
-  .gp-user-menu-item, .gp-viewer-overlay, .gp-download-btn, .gp-file-meta`).
+  .gp-user-menu-item, .gp-viewer-overlay, .gp-download-btn, .gp-file-meta,
+  .gp-context-menu`).
   Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
@@ -71,6 +72,7 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-line` | `--borderColor-muted` | `#d1d9e0b3` | Internal dividers (card head, rows, fields, pills, progress track) |
 | `--gp-highlight` | `--bgColor-neutral-muted` | `rgba(129, 139, 152, 0.12)` | Hover/selected wash on neutral surfaces (entry button, buttons, toast actions, panel close). Translucent, so it reads as a change over both surfaces |
 | `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: confirm dialog, toast |
+| `--gp-shadow-float` | `--shadow-floating-small` | `0 0 0 1px var(--gp-border), 0 8px 24px rgba(140, 149, 159, 0.2)` | Floating menu elevation; its 1px ring is the menu's edge (no separate border). Resolves to GitHub's current overlay shadow in every theme |
 | `--gp-scrim` | `--overlay-backdrop-bgColor` | `rgba(31, 35, 40, 0.5)` | Overlay backdrop behind panel and confirm dialog |
 | `--gp-focus` | `--focus-outlineColor` | `#0969da` | Focus ring color |
 | `--gp-age-1` | — | `#59636e` | Age scale 1: oldest commit, GitHub's muted grey (light theme) |
@@ -138,16 +140,18 @@ Rules:
 
 | Property | Value | Applied to |
 |---|---|---|
-| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-searchbar`, `.gp-search__group`, `.gp-search__item` (transparent, on its group), `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb`, `.gp-viewer__help`, `.gp-viewer__counter` |
+| Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-searchbar`, `.gp-search__group`, `.gp-search__item` (transparent, on its group), `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb`, `.gp-viewer__help`, `.gp-viewer__counter`, `.gp-context-menu` |
 | Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-card__head`, `.gp-search__group-head`, `.gp-searchbar__kbd`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-nav-item__count`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__stage`, `.gp-viewer__thumbs`, `.gp-viewer__help-keys kbd` |
 | Surface, tinted | `var(--gp-accent-soft)` | `.gp-page__icon`, `.gp-about__logo`, checked `.gp-grid__cell`, search `<mark>` |
 | Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-searchbar`, `.gp-search__group`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter` |
 | Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`, search counts), `.gp-grid__cell`, `.gp-search__group-head`, `.gp-search__item`, `.gp-searchbar__kbd`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb`, `.gp-viewer__help-head`, `.gp-viewer__help-keys kbd` |
-| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, search field, toast action), cards, sidebar items, search groups, toasts, grid cells, viewer tools, viewer zoom pill, viewer help, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`) |
+| Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, search field, toast action), cards, sidebar items, search groups, toasts, grid cells, viewer tools, viewer zoom pill, viewer help, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`), context menu |
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
 | Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge`, `.gp-nav-item__count`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-viewer__counter` |
 | Radius, circle | `50%` | `.gp-header-btn--custom::after` and `.gp-user-menu-item__dot` dots, `.gp-viewer__nav`, viewer spinner |
+| Radius, inner | `4px` | `.gp-context-menu__item` — one step below its container so a hovered row never pokes out of the menu's `6px` corners |
 | Shadow, elevation | `var(--gp-shadow)` | `.gp-confirm`, `.gp-toast`, `.gp-viewer__help`, `.gp-viewer__status` (the panel has none — its frosted scrim does the lifting) |
+| Shadow, floating | `var(--gp-shadow-float)` | `.gp-context-menu` — Primer's floating-overlay shadow, whose 1px ring is the only edge the menu draws |
 | Shadow, ring | `0 0 0 1px var(--gp-accent)` | `.gp-viewer__thumb.is-active` |
 
 - Overlays set `box-sizing: border-box` (`.gp-panel-overlay`,
@@ -155,8 +159,10 @@ Rules:
   `box-sizing` reset and must not add one — GitHub's own page is not ours.
 - Overlay stacking order, highest last: `.gp-panel-overlay` `1000000`,
   `.gp-confirm-overlay` `1000001`, `.gp-toasts` `1000002`,
-  `.gp-viewer-overlay` `1000002`. Keep new full-screen UI inside this band and
-  document it here.
+  `.gp-viewer-overlay` `1000002`. The context menu sits below all of them at
+  `999998` (just under the page download button's `999999`) because it is an
+  affordance over the page, not a modal. Keep new full-screen UI inside this
+  band and document it here.
 - Modal overlays pin the page with `lockPageScroll()`:
   `html.gp-modal-open, html.gp-modal-open body { overflow: hidden;
   overscroll-behavior: none }` plus `body { position: fixed }` and a
@@ -213,6 +219,8 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 | File size `.gp-file-size` | `11px` / `var(--gp-text-muted)` / tabular |
 | File size column header `.gp-file-meta-head` | `0` (visually collapsed, like GitHub's own header cells) |
 | File download button `.gp-file-download` | `16px` glyph in a `28px` icon button |
+| Context menu `.gp-context-menu` | `13px/1.4` / `var(--gp-text)` |
+| Context menu row `.gp-context-menu__item` | `13px` / `var(--gp-text)`; a `16px` muted glyph, label ellipsized |
 | Age legend label `.gp-age-legend__label` | `12px` / `var(--gp-text-muted)` |
 | Menu row label `.gp-user-menu-item__label` | `14px/1.4` / `var(--gp-text)` (GitHub's `ActionList` size) |
 
@@ -487,6 +495,34 @@ only while an eligible markdown image is hovered (see §11).
 | `.gp-download-btn:hover` | `var(--gp-highlight)` fill and `var(--gp-text)` glyph |
 | `.gp-download-btn[hidden]` | `display: none` |
 
+### Context menu
+
+One instance at a time, appended to `<body>` and positioned in viewport
+coordinates (clamped 8px from every edge), so it never lands inside GitHub's
+markup. It replaces the browser's menu only when the click resolves to a file;
+everywhere else the native menu is left alone. Rows are
+`button[role="menuitem"]`; a separator between action groups is a 1px
+`var(--gp-line)` rule. It opens with focus on the first row and does not
+animate — a menu that appears under the pointer should be there immediately,
+and GitHub's own menus do not animate either.
+
+| Class | Rules |
+|---|---|
+| `.gp-context-menu` | `position: fixed`, `z-index: 999998`, `min-width: min(208px, calc(100vw - 16px))`, `max-width: min(320px, calc(100vw - 16px))`, `padding: 4px`, `var(--gp-radius)`, `var(--gp-bg-1)`, `box-shadow: var(--gp-shadow-float)`, `var(--gp-font)`, `13px/1.4`, `var(--gp-text)`; **no border** — the shadow token's 1px ring is the edge, like GitHub's own overlays, so no second line appears in dark or high-contrast themes |
+| `.gp-context-menu__item` | Full-width flex row, `gap: 8px`, `padding: 6px 8px`, `4px` radius, transparent fill, no border, inherited font, left-aligned; hover and keyboard focus share `var(--gp-highlight)` with no outline |
+| `.gp-context-menu__item:disabled` | Transparent fill, `var(--gp-text-muted)` label, `cursor: default` |
+| `.gp-context-menu__icon` | `flex: none`, `inline-flex`, `var(--gp-text-muted)`; its `svg` is a `16×16` block glyph from `ACTION_ICONS` |
+| `.gp-context-menu__label` | `min-width: 0`, ellipsized in one line |
+| `.gp-context-menu__sep` | `1px` rule in `var(--gp-line)` with `4px` vertical margins |
+
+The menu root is `role="menu"` and takes an `aria-label` naming the file; the
+icon wrappers are `aria-hidden` (the label carries the meaning). A keyboard
+open (the context-menu key or `Shift`+`F10`, reported as a click at `0,0`)
+places the menu under the file's link or breadcrumb filename and returns focus
+there on close; a pointer open returns nothing. Clicking a row closes the menu
+before running its action. Rows that stay disabled are rendered muted rather
+than hidden, so the action set keeps a stable shape.
+
 ### Image viewer
 
 Full-viewport gallery, themed with the same tokens as the panel (see §3).
@@ -646,6 +682,8 @@ table exactly as GitHub rendered it.
 | Broken thumb | `.gp-viewer__thumb.is-broken` | The thumbnail image is hidden and the muted `imageOff` fallback is shown |
 | Download hover | `.gp-download-btn:not([hidden])` | The floating button is shown over the hovered markdown image's top-right corner; hidden on pointer-out, scroll, resize and navigation |
 | File download hover | `.gp-file-download:hover` | The icon button takes the `var(--gp-highlight)` fill and a `var(--gp-text)` glyph, like GitHub's own icon buttons |
+| Context menu row hover | `.gp-context-menu__item:hover`, `.gp-context-menu__item:focus-visible` | `var(--gp-highlight)` fill, no outline (the row fill is the focus indicator inside the menu) |
+| Context menu row disabled | `.gp-context-menu__item:disabled` | `var(--gp-text-muted)` label, transparent fill, default cursor |
 | Rotated | `.gp-viewer.is-rotated` | Toggled by `paint()`; the stage keeps its `grab` cursor because the image is draggable at every zoom |
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
@@ -681,6 +719,8 @@ shipped exceptions, because both are per-frame values).
   avatar-menu row) has no transition on purpose: they must feel native, and
   animated hover on a page we do not own reads as foreign. Surfaces we draw
   ourselves (panel, dialogs, toasts, viewer) use the short transitions above.
+  The context menu is the second native-feel exception: it appears instantly
+  and its row highlight has no transition, like GitHub's own menus.
 - Only one coordinated entrance per surface; no loops except the spinner; no
   bounce, no decorative animation.
 - `@media (prefers-reduced-motion: reduce)` disables animation and transition
@@ -729,6 +769,9 @@ Everything else is fluid by construction and must stay that way:
   no media query is needed for new tiles.
 - Toasts are `min(340px, calc(100vw - 32px))` wide and pinned 16px from the
   corner.
+- The context menu sizes between `min(208px, calc(100vw - 16px))` and
+  `min(320px, calc(100vw - 16px))`, and its position is clamped 8px from every
+  viewport edge, so it never needs a media query of its own.
 - Rows put text in a `min-width: 0` flex column and the control at
   `flex: 0 0 auto`, so long labels ellipsize/shrink instead of pushing the
   control out.
@@ -746,9 +789,10 @@ Everything else is fluid by construction and must stay that way:
   `aria-modal="true"` and the element focused on open (`tabindex="-1"`); its
   shortcut popover is a nested `role="dialog"`, and the image counter is
   `aria-live="polite"`; the confirm dialog is `role="alertdialog"` +
-  `aria-modal="true"` over a `role="presentation"` overlay; the viewer's
-  failure card and error toasts are `role="alert"`, all other toasts
-  `role="status"`, and the toast container is `aria-live="polite"`.
+  `aria-modal="true"` over a `role="presentation"` overlay; the context menu is
+  `role="menu"` with `button[role="menuitem"]` rows and an `aria-label` naming
+  the file; the viewer's failure card and error toasts are `role="alert"`, all
+  other toasts `role="status"`, and the toast container is `aria-live="polite"`.
 - **Names.** Icon-only controls carry both `title` and `aria-label`
   (`.gp-panel__close` = `common.close`, viewer tools/nav/open/download, the
   entry button = `settings.open`, the page download button = `viewer.download`,
@@ -780,6 +824,9 @@ Everything else is fluid by construction and must stay that way:
   between fit and actual size, pinch zooms.
   Confirm: `Escape` cancels and focus goes to the safe choice, then returns to
   the element that opened it.
+  Context menu: `ArrowUp`/`ArrowDown` move with wrap-around, `Home`/`End` jump,
+  `Enter`/`Space` run the row, `Escape` and `Tab` close it, and focus returns
+  to the file link or breadcrumb after a keyboard open.
 - **Scroll lock.** While a modal is open the page behind is pinned
   (`html.gp-modal-open`), so pointer and keyboard focus cannot drift under the
   overlay; the lock is counted and released on close.

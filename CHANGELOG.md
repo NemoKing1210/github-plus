@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-15
+
+### Added
+
+- A file context menu. Right-clicking a file in a repository listing or on a
+  file page replaces the browser menu with **Open**, **Open in new tab**,
+  **Download**, **Copy contents**, **Copy link** and **Copy path**; folders,
+  images, media and ordinary links keep the native menu. Copy contents fetches
+  the file's own raw address and refuses binary files and anything over 1 MiB
+  with a clear toast, and every action reports its outcome. The menu is fully
+  keyboard-operable (context-menu key, arrows, `Home`/`End`, `Escape` with
+  focus restored) and closes on an outside click, scroll, resize or navigation
+- A **File context menu** card on the **Files** settings page with its own
+  master switch (`fileMenu.enabled`), plus `fileMenu.*` keys in all ten locales
+  and a reusable `ui/contextMenu.js` component
+- The context menu is documented in `DESIGN.md` (its own component section,
+  tokens, stacking and keyboard rules)
+
+### Fixed
+
+- The context menu's shadow in the dark theme. It now uses GitHub's current
+  floating-overlay shadow token, which resolves per theme; the previous token
+  is no longer defined by GitHub, so its light-theme fallback showed as a pale
+  halo around the menu on dark pages. The token's 1px ring replaces the menu's
+  own border, so the edge stays a single hairline in every theme
+
+[0.12.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.12.0
+
 ## [0.11.0] - 2026-11-15
 
 ### Changed

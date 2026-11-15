@@ -5,17 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
-wyświetla pliki, kolory wieku tych plików w stylu blame oraz rozmiary plików
-i pobieranie jednym kliknięciem.
+wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
+i pobieranie jednym kliknięciem oraz menu kontekstowe operacji na plikach.
 
-> **Status:** wczesny etap (`0.11.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.12.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Kopia zapasowa · Informacje), galeria
-> obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame oraz
-> rozmiary plików z przyciskami pobierania. W planach kolejne ulepszenia GitHuba.
+> obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
+> plików z przyciskami pobierania oraz menu kontekstowe plików. W planach kolejne
+> ulepszenia GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
@@ -158,6 +159,29 @@ wprost do wierszy plików:
 - **Dyskretnie** — foldery zachowują pustą kolumnę, a wyłączenie funkcji usuwa
   każdy rozmiar, przycisk i komórkę, przywracając zwykłego GitHuba.
 
+### Menu kontekstowe plików
+
+Kliknięcie pliku prawym przyciskiem to najkrótsza droga do tego, co chcesz z nim
+zrobić — a własne menu GitHuba nie oferuje niczego z tego. GitHub Plus zastępuje
+je dla plików:
+
+- **Szybkie akcje** — kliknięcie pliku prawym przyciskiem na liście repozytorium
+  otwiera **Otwórz**, **Otwórz w nowej karcie**, **Pobierz**, **Kopiuj
+  zawartość**, **Kopiuj link** i **Kopiuj ścieżkę**. Na stronie pliku pojawia się
+  to samo menu (bez **Otwórz**, bo już tam jesteś).
+- **Kopiowanie zawartości** — zawartość pliku tekstowego trafia prosto do
+  schowka bez otwierania strony; pliki binarne i wszystko powyżej 1 MiB jest
+  odrzucane z czytelnym komunikatem, zamiast wklejać śmieci albo zawieszać
+  kartę.
+- **Kopiowanie ścieżki** — ścieżka względna wobec repozytorium (`src/main.js`),
+  gotowa do wklejenia w terminalu, imporcie lub linku.
+- **Tylko tam, gdzie pomaga** — natywne menu pozostaje nietknięte dla folderów,
+  obrazów, multimediów i zwykłych linków; kliknięcie prawym przyciskiem, które
+  nie trafia w plik, działa jak wcześniej.
+- **Także z klawiatury** — klawisz menu kontekstowego otwiera to samo menu przy
+  linku do pliku, z nawigacją strzałkami i przywróceniem fokusu po zamknięciu;
+  wyłączenie funkcji przywraca menu przeglądarki wszędzie.
+
 ### Panel ustawień
 
 Otwórz go przyciskiem zębatki w nagłówku GitHuba, wierszem **Ustawienia GitHub Plus**
@@ -192,6 +216,7 @@ Przechowywane pod `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Główny przełącznik rozmiarów i przycisków pobierania |
 | `fileMeta.sizes` | `true` | Pokazuj rozmiar każdego pliku na listach repozytorium |
 | `fileMeta.download` | `true` | Przycisk pobierania na listach repozytorium |
+| `fileMenu.enabled` | `true` | Główny przełącznik menu kontekstowego plików |
 
 ## Jak zbudowana jest galeria
 

@@ -2095,3 +2095,69 @@ html.gp-modal-open body {
     display: none;
   }
 }
+
+/* == File context menu ===================================================== */
+/* A GitHub ActionList-shaped popover: surface fill, floating shadow whose
+ * 1px ring stands in for a border (as GitHub's own overlays do), 16px action
+ * glyphs in muted ink and a neutral hover/focus fill. Positioned by
+ * `ui/contextMenu.js`; the width is content-driven within bounds so long file
+ * paths still fit. */
+.gp-context-menu {
+  position: fixed;
+  z-index: 999998;
+  min-width: min(208px, calc(100vw - 16px));
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 4px;
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-1);
+  box-shadow: var(--gp-shadow-float);
+  color: var(--gp-text);
+  font-family: var(--gp-font);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.gp-context-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.gp-context-menu__item:hover,
+.gp-context-menu__item:focus-visible {
+  background: var(--gp-highlight);
+  outline: none;
+}
+.gp-context-menu__item:disabled {
+  background: transparent;
+  color: var(--gp-text-muted);
+  cursor: default;
+}
+.gp-context-menu__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--gp-text-muted);
+}
+.gp-context-menu__icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.gp-context-menu__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gp-context-menu__sep {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--gp-line);
+}

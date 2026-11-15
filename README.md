@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
-blame-style age colors for those files, and file sizes with one-click
-downloads.
+blame-style age colors for those files, file sizes with one-click downloads,
+and a context menu for file actions.
 
-> **Status:** early (`0.11.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.12.0`). Settings panel with instant search (General ·
 > Gallery · Files · Backup · About), the markdown image gallery, colored file
-> icons, blame-style file age colors, and file sizes with download buttons. More
-> GitHub improvements planned.
+> icons, blame-style file age colors, file sizes with download buttons, and a
+> file context menu. More GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -153,6 +153,27 @@ and saving one means opening it first. GitHub Plus adds both to the file rows:
 - **Quiet** — folder rows keep an empty cell; disabling the feature removes
   every size, button and cell, leaving stock GitHub.
 
+### File context menu
+
+Right-clicking a file is the fastest path to what you want to do with it — and
+GitHub's own menu does not offer any of it. GitHub Plus replaces it for files:
+
+- **Quick actions** — right-click a file in a repository listing for **Open**,
+  **Open in new tab**, **Download**, **Copy contents**, **Copy link** and
+  **Copy path**. On a file page the same menu appears (without **Open**, since
+  you are already there).
+- **Copy the contents** — a text file's contents go straight to the clipboard
+  without opening the page; binary files and anything over 1 MiB are refused
+  with a clear toast instead of pasting garbage or freezing the tab.
+- **Copy the path** — the repository-relative path (`src/main.js`), ready to
+  paste into a terminal, an import or a link.
+- **Only where it helps** — the native menu stays untouched for folders,
+  images, media and ordinary links; a right-click you did not aim at a file
+  behaves exactly as before.
+- **Keyboard too** — the context-menu key opens the same menu at the file's
+  link, with full arrow-key navigation and focus restored on close; turning the
+  feature off restores the browser's menu everywhere.
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -187,6 +208,7 @@ Stored under `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Master switch for file sizes and download buttons |
 | `fileMeta.sizes` | `true` | Show each file's size in repository listings |
 | `fileMeta.download` | `true` | Download button in the repository file listings |
+| `fileMenu.enabled` | `true` | Master switch for the file context menu |
 
 ## How the gallery is built
 

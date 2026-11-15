@@ -5,17 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.11.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.12.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
-wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien sowie
-Dateigrößen mit Ein-Klick-Downloads.
+wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
+Dateigrößen mit Ein-Klick-Downloads sowie ein Kontextmenü für Dateiaktionen.
 
-> **Status:** früh (`0.11.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.12.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
-> Dateisymbole, Altersfarben im Blame-Stil sowie Dateigrößen mit
-> Download-Schaltflächen. Weitere GitHub-Verbesserungen sind geplant.
+> Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
+> Download-Schaltflächen sowie ein Dateikontextmenü. Weitere
+> GitHub-Verbesserungen sind geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
@@ -166,6 +167,29 @@ beides direkt den Dateizeilen hinzu:
   entfernt die Funktion jede Größe, jede Schaltfläche und jede Zelle und
   hinterlässt normales GitHub.
 
+### Dateikontextmenü
+
+Ein Rechtsklick auf eine Datei ist der schnellste Weg zur gewünschten Aktion —
+und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateien:
+
+- **Schnellaktionen** — ein Rechtsklick auf eine Datei in einer
+  Repository-Liste öffnet **Öffnen**, **In neuem Tab öffnen**,
+  **Herunterladen**, **Inhalt kopieren**, **Link kopieren** und **Pfad
+  kopieren**. Auf einer Dateiseite erscheint dasselbe Menü (ohne **Öffnen**,
+  denn dort bist du schon).
+- **Inhalt kopieren** — der Inhalt einer Textdatei landet direkt in der
+  Zwischenablage, ohne die Seite zu öffnen; Binärdateien und alles über 1 MiB
+  wird stattdessen mit einem klaren Hinweis abgelehnt, damit weder Müll
+  eingefügt wird noch der Tab hängt.
+- **Pfad kopieren** — der repository-relative Pfad (`src/main.js`), bereit für
+  Terminal, Import oder Link.
+- **Nur wo es hilft** — für Ordner, Bilder, Medien und gewöhnliche Links bleibt
+  das native Menü unangetastet; ein Rechtsklick, der keine Datei trifft,
+  verhält sich wie zuvor.
+- **Auch per Tastatur** — die Kontextmenü-Taste öffnet dasselbe Menü am
+  Dateilink, mit vollständiger Pfeilnavigation und wiederhergestelltem Fokus
+  nach dem Schließen; beim Deaktivieren kehrt überall das Browser-Menü zurück.
+
 ### Einstellungsfenster
 
 Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
@@ -201,6 +225,7 @@ Gespeichert unter `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Hauptschalter für Dateigrößen und Download-Schaltflächen |
 | `fileMeta.sizes` | `true` | Die Größe jeder Datei in Repository-Listen anzeigen |
 | `fileMeta.download` | `true` | Download-Schaltfläche in Repository-Listen |
+| `fileMenu.enabled` | `true` | Hauptschalter für das Dateikontextmenü |
 
 ## Wie die Galerie aufgebaut ist
 
