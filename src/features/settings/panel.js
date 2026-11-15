@@ -260,6 +260,7 @@ function persist() {
     emit('settings:fileAges', saved.fileAges);
     emit('settings:fileMeta', saved.fileMeta);
     emit('settings:fileMenu', saved.fileMenu);
+    emit('settings:filePreview', saved.filePreview);
     showToast({ type: 'success', title: t('toast.saved'), message: t('toast.savedDesc') });
   } catch (error) {
     logError(Codes.SETTINGS_PERSIST, 'saving settings from the panel failed', { error });
@@ -281,6 +282,7 @@ export function applyExternalSettings(next) {
   emit('settings:fileAges', saved.fileAges);
   emit('settings:fileMeta', saved.fileMeta);
   emit('settings:fileMenu', saved.fileMenu);
+  emit('settings:filePreview', saved.filePreview);
   if (panelOpen) refreshPanelDraft();
   return saved;
 }

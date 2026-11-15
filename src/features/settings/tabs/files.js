@@ -109,6 +109,31 @@ function sizesCard(draft) {
   return card;
 }
 
+function previewCard(draft) {
+  const card = createSection({
+    title: t('preview.enabled'),
+    hint: t('preview.enabledDesc'),
+    action: createSwitch({
+      checked: draft.filePreview.enabled,
+      label: t('preview.enabled'),
+      onChange: (value) => {
+        draft.filePreview.enabled = value;
+      },
+    }),
+  });
+  card.body.append(
+    createSwitchRow({
+      checked: draft.filePreview.rowButton,
+      label: t('preview.rowButton'),
+      hint: t('preview.rowButtonDesc'),
+      onChange: (value) => {
+        draft.filePreview.rowButton = value;
+      },
+    }),
+  );
+  return card;
+}
+
 function menuCard(draft) {
   return createSection({
     title: t('fileMenu.title'),
@@ -136,6 +161,7 @@ export function renderFiles(container) {
     agesCard(draft),
     sizesCard(draft),
     menuCard(draft),
+    previewCard(draft),
     createHint(t('icons.credit')),
   );
 }

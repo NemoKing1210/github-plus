@@ -142,6 +142,11 @@ const DEFAULT_FILE_MENU = {
   enabled: true,
 };
 
+const DEFAULT_FILE_PREVIEW = {
+  enabled: true,
+  rowButton: true,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   gallery: DEFAULT_GALLERY,
@@ -150,6 +155,7 @@ export const DEFAULT_SETTINGS = {
   fileAges: DEFAULT_FILE_AGES,
   fileMeta: DEFAULT_FILE_META,
   fileMenu: DEFAULT_FILE_MENU,
+  filePreview: DEFAULT_FILE_PREVIEW,
 };
 
 /** Deep-cloned defaults, used on reset. */
