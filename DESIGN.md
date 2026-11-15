@@ -68,7 +68,7 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-border` | `--borderColor-default` | `#d1d9e0` | Control and surface outlines |
 | `--gp-line` | `--borderColor-muted` | `#d1d9e0b3` | Internal dividers (card head, rows, fields, pills, progress track) |
 | `--gp-highlight` | `--bgColor-neutral-muted` | `rgba(129, 139, 152, 0.12)` | Hover/selected wash on neutral surfaces (entry button, buttons, toast actions, panel close). Translucent, so it reads as a change over both surfaces |
-| `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: panel, confirm dialog, toast |
+| `--gp-shadow` | `--shadow-large` | `0 8px 24px rgba(140, 149, 159, 0.2)` | Elevation: confirm dialog, toast |
 | `--gp-scrim` | `--overlay-backdrop-bgColor` | `rgba(31, 35, 40, 0.5)` | Overlay backdrop behind panel and confirm dialog |
 | `--gp-focus` | `--focus-outlineColor` | `#0969da` | Focus ring color |
 
@@ -113,7 +113,7 @@ Rules:
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
 | Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge`, `.gp-nav-item__count`, `.gp-search__summary-count`, `.gp-search__group-count` |
 | Radius, circle | `50%` | `.gp-header-btn--custom::after` and `.gp-user-menu-item__dot` dots, `.gp-viewer__nav`, viewer spinner |
-| Shadow, elevation | `var(--gp-shadow)` | `.gp-panel`, `.gp-confirm`, `.gp-toast`, `.gp-viewer__status` |
+| Shadow, elevation | `var(--gp-shadow)` | `.gp-confirm`, `.gp-toast`, `.gp-viewer__status` (the panel has none — its frosted scrim does the lifting) |
 | Shadow, ring | `0 0 0 1px var(--gp-accent)` | `.gp-viewer__thumb.is-active` |
 
 - Overlays set `box-sizing: border-box` (`.gp-panel-overlay`,
@@ -219,7 +219,7 @@ with the `Escape` keydown GitHub's own overlay handles, then opens the panel.
 | Class | Rules |
 |---|---|
 | `.gp-panel-overlay` | `position: fixed; inset: 0; z-index: 1000000`; flex centering; `padding: 24px 16px`; `background: var(--gp-scrim)`; `backdrop-filter: blur(8px) saturate(120%)` (`-webkit-` prefixed too) so the page behind the scrim is frosted and the panel reads as a layer above it, while a manager without `backdrop-filter` support keeps the plain scrim; sets `var(--gp-font)`/`var(--gp-text)`; fades in with `gp-overlay-in`. `.is-closing` plays `gp-overlay-out` and ignores the pointer until the script removes the element; `.is-dirty` is set while the draft differs from the stored settings |
-| `.gp-panel` | Vertical flex column; `width: min(900px, 100%)`; `height: min(86vh, 720px)` (fixed, so switching pages never resizes it); `overflow: hidden`; entrance `gp-panel-in`, exit `gp-panel-out`; `var(--gp-bg-1)`; `1px var(--gp-border)`; `var(--gp-radius-lg)`; `var(--gp-shadow)`; base `14px/1.5` |
+| `.gp-panel` | Vertical flex column; `width: min(900px, 100%)`; `height: min(86vh, 720px)` (fixed, so switching pages never resizes it); `overflow: hidden`; entrance `gp-panel-in`, exit `gp-panel-out`; `var(--gp-bg-1)`; `1px var(--gp-border)`; `var(--gp-radius-lg)`; no shadow (the panel reads as a layer through the frosted scrim alone); base `14px/1.5` |
 | `.gp-panel__header` | Flex, `align-items: center`, `gap: 12px`, `padding: 14px 16px`, bottom `1px var(--gp-border)`, `var(--gp-bg-2)`. Wraps at the mobile breakpoint, where the search field takes a full row |
 | `.gp-panel__brand` | Title + subtitle column, `flex: 1 1 auto`; **structural** |
 | `.gp-panel__title-row` | Wrapping flex row holding title and version chip |
@@ -232,10 +232,18 @@ with the `Escape` keydown GitHub's own overlay handles, then opens the panel.
 | `.gp-searchbar__kbd` | Decorative `/` chip, hidden once the input has a value (`:not(:placeholder-shown)`) |
 | `.gp-searchbar__clear` | `20×20` ghost close button, hidden until the input has a value |
 | `.gp-panel__main` | Row holding the sidebar and the body: `flex: 1 1 auto`, `min-height: 0` |
-| `.gp-panel__body` | Scroll pane: `flex: 1 1 auto`, `min-width: 0`, `overflow-y: auto`, `overscroll-behavior: contain`, `padding: 20px 24px 24px` |
+| `.gp-panel__body` | Scroll pane: `flex: 1 1 auto`, `min-width: 0`, `overflow-y: auto`, `overscroll-behavior: contain`, `scrollbar-gutter: stable` (pages of different heights never shift the content), `padding: 20px 24px 24px` |
 | `.gp-panel__footer` | Sticky action bar: `12px 16px`, top `1px var(--gp-border)`, `var(--gp-bg-2)` |
 | `.gp-panel__footer-note` | Flex, `margin: 0 auto 0 0` (pushes actions right), `12px` muted; turns `var(--gp-text)` while the draft is dirty and reads `panel.unsaved` instead of the save hint (`aria-live="polite"`) |
 | `.gp-panel__dirty-dot` | `8×8` `var(--gp-accent)` dot before the note; zero width and scaled out until `.is-dirty` |
+
+The two panel scroll panes (`.gp-panel__body`, `.gp-panel__nav`) carry a custom
+thin scrollbar instead of the browser default: `scrollbar-width: thin` with
+`scrollbar-color: var(--gp-line) transparent` for Firefox, and a `12px`
+WebKit scrollbar whose transparent track and `3px` transparent border leave a
+rounded `6px` `var(--gp-line)` thumb over the surface; hovering the thumb
+darkens it to `var(--gp-border)`. The thumb therefore reads as part of the
+panel rather than as a native control.
 
 `.gp-panel [hidden] { display: none }` makes the `hidden` attribute usable on
 any panel descendant (the overlay's own rule covers the root). The overlay is
@@ -251,7 +259,7 @@ note, Reset (`.gp-button--ghost`), Cancel (default), Save
 
 | Class | Rules |
 |---|---|
-| `.gp-panel__nav` | Left sidebar, `<nav>`: `flex: 0 0 220px`, column, `gap: 14px`, `padding: 14px 10px 14px 14px`, right `1px var(--gp-border)`, `var(--gp-bg-2)`. Becomes a horizontal tab strip at the mobile breakpoint (§9) |
+| `.gp-panel__nav` | Left sidebar, `<nav>`: `flex: 0 0 220px`, column, `gap: 14px`, `padding: 14px 10px 14px 14px`, right `1px var(--gp-border)`, `var(--gp-bg-2)`, the panel's thin custom scrollbar. Becomes a horizontal tab strip at the mobile breakpoint (§9) |
 | `.gp-nav-group` | Column of items under one section label: `gap: 2px`. `display: contents` in the tab strip, so items flow into the strip |
 | `.gp-nav-group__label` | Uppercase section caption (`Preferences`, `More`), `11px/600`, muted, `padding: 0 10px 5px`; hidden in the tab strip |
 | `.gp-nav-item` | Sidebar button: flex, `gap: 8px`, `min-height: 34px`, `padding: 6px 10px`, no border, transparent, `var(--gp-radius)`, `14px/1.4`; hover takes `var(--gp-highlight)`. `data-page` carries the page id |
@@ -470,7 +478,9 @@ scanning via `isOwnUi()`, and opening it takes the shared scroll lock.
 | `.gp-fi-native` | Marker on the GitHub icon the feature hid. No rule in `app.css`: the hiding is an inline `display: none !important` written by `src/features/fileIcons/inject.js` |
 
 The glyph itself comes from the embedded Material Icon Theme slice and keeps
-its own colors (§3). The feature inserts `.gp-fi` next to GitHub's own icon and
+its own colors (§3). Each icon is drawn in the `viewBox` its source was
+authored in (16, 24, 32 or a larger grid), so it scales into the 16×16 box
+instead of being cropped to the top-left corner. The feature inserts `.gp-fi` next to GitHub's own icon and
 hides that icon with an inline style, so `app.css` never selects GitHub's
 markup and the gallery affordance stays the only page-markup stylesheet.
 Disabling the feature removes every `.gp-fi` and restores every native glyph,
@@ -549,7 +559,7 @@ The stylesheet has one breakpoint, `@media (max-width: 640px)`:
 | `.gp-panel__header` | `flex-wrap: wrap` — brand and close share the first row |
 | `.gp-searchbar` | `order: 3; flex: 1 0 100%` — the search field takes its own full-width row |
 | `.gp-panel__main` | `flex-direction: column` — the sidebar sits above the body |
-| `.gp-panel__nav` | Horizontal, scrollable tab strip: `flex-direction: row`, `padding: 8px 12px`, bottom border instead of right; items shrink to content and the active marker becomes a `2px` underline (`scaleX`) |
+| `.gp-panel__nav` | Horizontal, scrollable tab strip: `flex-direction: row`, `padding: 8px 12px`, bottom border instead of right, no scrollbar (`scrollbar-width: none`, WebKit `display: none`) so the strip stays clean while wheel/touch still scrolls it; items shrink to content and the active marker becomes a `2px` underline (`scaleX`) |
 | `.gp-nav-group` | `display: contents`, so group items flow into the strip |
 | `.gp-nav-group__label`, `.gp-nav-item__count` | Hidden |
 | `.gp-nav-item.is-active` | Drops the raised fill and inset edge; the strip keeps only the underline marker |

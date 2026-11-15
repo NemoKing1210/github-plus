@@ -1,4 +1,4 @@
-import { ICON_BODIES } from './iconSet.generated.js';
+import { ICON_BODIES, ICON_VIEWBOXES } from './iconSet.generated.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 /** Marker on a native GitHub icon that we hid, so it can be restored. */
@@ -20,12 +20,13 @@ function scopeIds(body, prefix) {
 
 /** Build the injected icon element for an icon id (falls back to the file glyph). */
 export function renderIcon(id) {
+  const key = ICON_BODIES[id] ? id : 'file';
   const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 16 16');
+  svg.setAttribute('viewBox', ICON_VIEWBOXES[key] || '0 0 16 16');
   svg.setAttribute('class', 'gp-fi');
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('focusable', 'false');
-  svg.innerHTML = scopeIds(ICON_BODIES[id] || ICON_BODIES.file, `gp-fi-${(renderCount += 1)}-`);
+  svg.innerHTML = scopeIds(ICON_BODIES[key], `gp-fi-${(renderCount += 1)}-`);
   return svg;
 }
 

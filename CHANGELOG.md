@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-15
+
+### Fixed
+
+- File icons for most file types were cropped to their top-left corner: every
+  glyph was drawn in a fixed 16×16 viewBox, while Material Icon Theme authors
+  its icons on 16, 24, 32 and other grids. Each icon now renders in the
+  coordinate system it was authored in, so the whole glyph scales into the
+  16×16 box
+- Files without a matching icon now fall back to the generic file glyph — the
+  generated set was missing the `file` icon, so rendering the fallback failed
+
+[0.5.3]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.5.3
+
+## [0.5.2] - 2026-11-15
+
+### Changed
+
+- The settings panel's scroll areas now use a thin, rounded scrollbar that
+  follows the theme — a translucent `var(--gp-line)` thumb that darkens on hover
+  — instead of the native one; the body reserves its gutter so switching pages
+  never shifts the content, and the narrow-screen page strip hides the
+  scrollbar while staying scrollable
+
+[0.5.2]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.5.2
+
+## [0.5.1] - 2026-11-15
+
+### Changed
+
+- The settings panel no longer casts a drop shadow; the frosted scrim behind it
+  carries the layering on its own
+
+[0.5.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.5.1
+
 ## [0.5.0] - 2026-11-02
 
 ### Added

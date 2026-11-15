@@ -372,7 +372,8 @@ icon. The feature is registry-driven; every surface degrades on its own.
 
 - `iconSet.generated.js`: a curated slice of Material Icon Theme (MIT),
   produced by `scripts/build-file-icons.mjs` (`npm run icons:build`). It holds
-  `ICON_BODIES` (SVG inner markup), `EXTENSIONS`, `FILE_NAMES`,
+  `ICON_BODIES` (SVG inner markup), `ICON_VIEWBOXES` (the coordinate system
+  each body was authored in), `EXTENSIONS`, `FILE_NAMES`,
   `FOLDER_NAMES`, and the default file/folder ids. Committed, never hand-edited.
   The generator keeps a fixed id allowlist and drops decorative folder-name
   variants (`_rust`, `-rust`, `__rust__`), while keeping real hidden folders
