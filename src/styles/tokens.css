@@ -51,6 +51,19 @@
   --gp-age-8: #7e6746;
   --gp-age-9: #876739;
   --gp-age-10: #9a6700;
+
+  /* Code preview syntax palette, following GitHub's own highlighting colors
+   * so a previewed file reads like the blob page it was opened from. */
+  --gp-code-keyword: #cf222e;
+  --gp-code-string: #0a3069;
+  --gp-code-comment: #59636e;
+  --gp-code-number: #0550ae;
+  --gp-code-function: #8250df;
+  --gp-code-variable: #953800;
+  --gp-code-type: #0550ae;
+  --gp-code-attr: #0550ae;
+  --gp-code-tag: #116329;
+  --gp-code-meta: #59636e;
 }
 
 /* GitHub resolves its "auto" mode with exactly this media query, so the age
@@ -66,6 +79,17 @@
   --gp-age-8: #cebc99;
   --gp-age-9: #ddc496;
   --gp-age-10: #ffd78d;
+
+  --gp-code-keyword: #ff7b72;
+  --gp-code-string: #a5d6ff;
+  --gp-code-comment: #9198a1;
+  --gp-code-number: #79c0ff;
+  --gp-code-function: #d2a8ff;
+  --gp-code-variable: #ffa657;
+  --gp-code-type: #79c0ff;
+  --gp-code-attr: #79c0ff;
+  --gp-code-tag: #7ee787;
+  --gp-code-meta: #9198a1;
 }
 @media (prefers-color-scheme: dark) {
   :root[data-color-mode="auto"] {
@@ -79,5 +103,16 @@
     --gp-age-8: #cebc99;
     --gp-age-9: #ddc496;
     --gp-age-10: #ffd78d;
+
+    --gp-code-keyword: #ff7b72;
+    --gp-code-string: #a5d6ff;
+    --gp-code-comment: #9198a1;
+    --gp-code-number: #79c0ff;
+    --gp-code-function: #d2a8ff;
+    --gp-code-variable: #ffa657;
+    --gp-code-type: #79c0ff;
+    --gp-code-attr: #79c0ff;
+    --gp-code-tag: #7ee787;
+    --gp-code-meta: #9198a1;
   }
 }

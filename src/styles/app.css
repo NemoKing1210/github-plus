@@ -2161,3 +2161,15 @@ html.gp-modal-open body {
   margin: 4px 0;
   background: var(--gp-line);
 }
+
+/* highlight.js token classes used by the code preview. */
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-doctag { color: var(--gp-code-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition { color: var(--gp-code-string); }
+.hljs-comment, .hljs-quote { color: var(--gp-code-comment); font-style: italic; }
+.hljs-number, .hljs-symbol, .hljs-bullet, .hljs-link { color: var(--gp-code-number); }
+.hljs-title, .hljs-title.function_, .hljs-section, .hljs-name { color: var(--gp-code-function); }
+.hljs-variable, .hljs-template-variable, .hljs-params, .hljs-property { color: var(--gp-code-variable); }
+.hljs-type, .hljs-title.class_, .hljs-class .hljs-title { color: var(--gp-code-type); }
+.hljs-attr, .hljs-attribute, .hljs-selector-attr, .hljs-selector-class, .hljs-selector-id { color: var(--gp-code-attr); }
+.hljs-tag, .hljs-selector-pseudo { color: var(--gp-code-tag); }
+.hljs-meta { color: var(--gp-code-meta); }
