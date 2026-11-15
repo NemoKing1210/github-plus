@@ -8,7 +8,9 @@ import { applyFileAgesSettings, initFileAgesFeature } from './features/fileAges/
 import { applyFileIconsSettings, initFileIconsFeature } from './features/fileIcons/index.js';
 import { applyFileMetaSettings, initFileMetaFeature } from './features/fileMeta/index.js';
 import { applyFileMenuSettings, initFileMenuFeature } from './features/fileMenu/index.js';
+import { applyFilePreviewSettings, initFilePreviewFeature } from './features/filePreview/index.js';
 import { applyGallerySettings, initGalleryFeature } from './gallery/index.js';
+import { closeFilePreview, isFilePreviewOpen } from './ui/filePreview.js';
 import { closeViewer, isViewerOpen } from './ui/viewer.js';
 import { watchNavigation } from './utils/navigation.js';
 
@@ -29,6 +31,7 @@ import { watchNavigation } from './utils/navigation.js';
  */
 function resetOverlaysOnNavigation() {
   if (isViewerOpen()) closeViewer();
+  if (isFilePreviewOpen()) closeFilePreview();
   if (isPanelOpen()) togglePanel(false);
 }
 
@@ -45,6 +48,8 @@ function init() {
   applyFileMetaSettings();
   initFileMenuFeature();
   applyFileMenuSettings();
+  initFilePreviewFeature();
+  applyFilePreviewSettings();
   watchNavigation(resetOverlaysOnNavigation);
 }
 

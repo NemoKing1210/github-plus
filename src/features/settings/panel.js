@@ -6,6 +6,7 @@ import { configureLocale, t } from '../../i18n/index.js';
 import { el, toArray } from '../../utils/dom.js';
 import { lockPageScroll, unlockPageScroll } from '../../utils/scrollLock.js';
 import { showToast } from '../../ui/toast.js';
+import { isFilePreviewOpen } from '../../ui/filePreview.js';
 import { isViewerOpen } from '../../ui/viewer.js';
 import { createButton, getIconSvg } from './controls.js';
 import { confirmDialog } from './confirm.js';
@@ -547,9 +548,11 @@ function installPanelKeys() {
   escapeInstalled = true;
   document.addEventListener('keydown', (event) => {
     if (!panelOpen) return;
-    // The confirm dialog and the viewer sit above the panel and own their keys.
+    // The confirm dialog, the viewer and the file preview sit above the panel
+    // and own their keys.
     if (document.querySelector('.gp-confirm-overlay')) return;
     if (isViewerOpen()) return;
+    if (isFilePreviewOpen()) return;
     if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k') {
       event.preventDefault();
       document.getElementById(SEARCH_ID)?.focus();
