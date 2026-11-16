@@ -908,7 +908,9 @@ default `mode` is `button`; `auto` is opt-in.
   button: GitHub's comment action row — `.timeline-comment-actions`, the
   `[data-testid="comment-header-actions"]` row, or the new shell's
   `[class*="ActionsButtonsContainer"]` row in a comment header — the
-  file/release header, or
+  file/release header (the blob view uses its
+  `[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])`
+  row of Raw/copy/download/edit actions), or
   the repository README's `readmeHeaderSlot`; a page whose markup has no
   comment classes is resolved through the description's edit block
   (`[class*="editMetadata"]`, the row holding "Edited" and the edit pencil) or
@@ -987,8 +989,8 @@ default `mode` is `button`; `auto` is opt-in.
   beside the edit control and marked `.gp-translate-btn--actions`, taking the
   `.gp-translate-btn--header` look inside the repository README slot and the
   compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
-  shell's `editMetadata` block and comment
-  `ActionsButtonsContainer` row, and
+  shell's `editMetadata` block, comment `ActionsButtonsContainer` row and the
+  blob file header actions row, and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
   into our own `.gp-translate-bar` before the container), `createResultBox(html, { preformatted })` (a `plain` surface's box
   keeps the source line breaks) and `removeChrome`.
@@ -1474,7 +1476,7 @@ and check diagnostics for edited files.
 - No **Translate** button: check **Translation** is on and the matching switch
   on its **Places** card; the container must be one of the surfaces in
   `features/translate/surfaces.js` and carry text blocks (an image-only README
-  has none). A button inside a comment or description header means `headerFor`
+  has none). A button inside a comment, description or file header means `headerFor`
   found GitHub's action row; a button in a bar above the container means it did
   not — extend `headerFor` (the fallback already looks for the edit control
   nearest the container), never add a document-wide observer. The quick

@@ -138,6 +138,27 @@ test('a new-shell comment header hosts the translate button in its actions', () 
   article.remove();
 });
 
+test('a blob file header hosts the button in its raw-actions row', () => {
+  const pane = document.createElement('div');
+  pane.id = 'repos-split-pane-content';
+  pane.innerHTML = '<div class="Box_1__1bJV7g">'
+    + '<div class="react-blob-header-edit-and-raw-actions Box_4__C-NqPq">'
+    + '<div class="prc-ButtonGroup-ButtonGroup-vFUrY">'
+    + '<a data-testid="raw-button" href="/o/r/raw/main/file.md">Raw</a></div></div>'
+    + '<div class="react-blob-header-edit-and-raw-actions-combined">'
+    + '<button data-testid="more-file-actions-button">kebab</button></div>'
+    + '</div>'
+    + '<div class="blobContentWrapper__Nr-ksB"><article class="markdown-body entry-content">Text</article></div>';
+  document.body.appendChild(pane);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = pane.querySelector('.markdown-body');
+  assert.equal(
+    headerFor(body, markdown),
+    pane.querySelector('[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])'),
+  );
+  pane.remove();
+});
+
 test('the preview container is resolved separately', () => {
   assert.equal(previewContainer().textContent, 'Preview');
   assert.equal(surfaceForContainer(previewContainer()).id, 'preview');

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.7] - 2026-11-16
+
+### Fixed
+
+- In the file view the Translate action now sits in the file header's own
+  Raw/copy/download/edit actions row, in its compact invisible-button style,
+  instead of a bar above the markdown content; the current file view has no
+  `<header>` around the filename, so the actions row itself is the hook now
+
+[0.20.7]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.7
+
 ## [0.20.6] - 2026-11-16
 
 ### Fixed

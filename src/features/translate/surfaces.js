@@ -21,7 +21,14 @@ export const COMMENT_ACTION_ROW = '.timeline-comment-actions, [data-testid="comm
 export const EDIT_METADATA_ROW = '[class*="editMetadata"]';
 
 /** Action rows whose neighbouring buttons are GitHub's compact (28px) ones. */
-export const COMPACT_ACTION_ROW = `${EDIT_METADATA_ROW}, [class*="ActionsButtonsContainer"]`;
+export const COMPACT_ACTION_ROW = `${EDIT_METADATA_ROW}, [class*="ActionsButtonsContainer"],`
+  + ' [class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])';
+
+/**
+ * The blob file header's own actions row (Raw, copy, download and the edit
+ * pencil). The `-combined` sibling only holds the kebab menu.
+ */
+const BLOB_ACTION_ROW = '[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])';
 
 const EDIT_CONTROL = [
   'a[href$="/edit"]',
@@ -98,6 +105,10 @@ function markdownHeader(container) {
   }
   const pane = container.closest('#repos-split-pane-content');
   if (pane) {
+    // The current file view has no `<header>` around the filename; its actions
+    // row is the stable hook.
+    const actions = pane.querySelector(BLOB_ACTION_ROW);
+    if (actions) return markActionRow(actions);
     const filename = pane.querySelector('[data-testid="breadcrumbs-filename"]');
     if (filename) {
       const header = filename.closest('header, [data-testid="file-header"]');

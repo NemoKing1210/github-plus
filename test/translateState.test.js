@@ -238,6 +238,32 @@ test('a new-shell comment gets the button in its header actions', () => {
   article.remove();
 });
 
+test('a blob file header gets the button in its raw-actions row', () => {
+  const pane = document.createElement('div');
+  pane.id = 'repos-split-pane-content';
+  pane.innerHTML = '<div class="Box_1__1bJV7g">'
+    + '<div class="react-blob-header-edit-and-raw-actions Box_4__C-NqPq">'
+    + '<div class="prc-ButtonGroup-ButtonGroup-vFUrY">'
+    + '<a data-testid="raw-button" href="/o/r/raw/main/file.md">Raw</a></div></div>'
+    + '<div class="react-blob-header-edit-and-raw-actions-combined">'
+    + '<button data-testid="more-file-actions-button">kebab</button></div>'
+    + '</div>'
+    + '<div class="blobContentWrapper__Nr-ksB"><article class="markdown-body entry-content">'
+    + '<p>Text with changes.</p></article></div>';
+  document.body.appendChild(pane);
+  const body = pane.querySelector('.markdown-body');
+  const markdown = listSurfaces().find((entry) => entry.id === 'markdown');
+  const state = ensureContainer(body, markdown);
+  const row = pane.querySelector('[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])');
+  assert.equal(state.button.parentElement, row);
+  assert.equal(row.firstElementChild, state.button);
+  assert.ok(state.button.classList.contains('gp-translate-btn--actions'));
+  assert.ok(state.button.classList.contains('gp-translate-btn--small'));
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
+  teardownAllContainers();
+  pane.remove();
+});
+
 test('a caller-supplied button is not bound to toggle the container', async () => {
   const button = document.createElement('button');
   button.className = 'gp-translate-btn';
