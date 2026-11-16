@@ -208,7 +208,7 @@ export async function runContainer(state, { translate } = {}) {
     state.status = 'error';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
     setBarStatus(state.container, t('translate.failed'));
-    logError(Codes.TRANSLATE_FAILED, 'Translation failed for a container.', {
+    logError(Codes.TRANSLATE, 'Translation failed for a container.', {
       surface: state.surface && state.surface.id,
     });
     showToast({
@@ -254,6 +254,7 @@ export function toggleContainer(state) {
 export function teardownContainer(container) {
   const state = states.get(container);
   if (!state) return;
+  state.runId += 1;
   restorePainted(state);
   removeChrome(container, state);
   states.delete(container);

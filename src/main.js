@@ -9,6 +9,7 @@ import { applyFileIconsSettings, initFileIconsFeature } from './features/fileIco
 import { applyFileMetaSettings, initFileMetaFeature } from './features/fileMeta/index.js';
 import { applyFileMenuSettings, initFileMenuFeature } from './features/fileMenu/index.js';
 import { applyFilePreviewSettings, initFilePreviewFeature } from './features/filePreview/index.js';
+import { applyTranslateSettings, initTranslateFeature } from './features/translate/index.js';
 import { applyGallerySettings, initGalleryFeature } from './gallery/index.js';
 import { closeFilePreview, isFilePreviewOpen } from './ui/filePreview.js';
 import { closeViewer, isViewerOpen } from './ui/viewer.js';
@@ -50,6 +51,8 @@ function init() {
   applyFileMenuSettings();
   initFilePreviewFeature();
   applyFilePreviewSettings();
+  initTranslateFeature();
+  applyTranslateSettings();
   watchNavigation(resetOverlaysOnNavigation);
 }
 

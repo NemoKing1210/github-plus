@@ -36,7 +36,7 @@ export const Codes = {
   /** A quick-preview file failed to load or render. */
   FILE_PREVIEW: 'GP-1501',
   /** A container could not be translated at all. */
-  TRANSLATE_FAILED: 'GP-1601',
+  TRANSLATE: 'GP-1601',
   /** Reading or persisting the translation cache failed. */
   TRANSLATE_CACHE: 'GP-1602',
   /** Mounting the settings entry or panel failed. */
