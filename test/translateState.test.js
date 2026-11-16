@@ -93,3 +93,48 @@ test('a caller-supplied button is not bound to toggle the container', async () =
   assert.equal(state.status, 'idle');
   teardownAllContainers();
 });
+
+test('a nested list inside a painted item survives the translation', async () => {
+  const host = document.createElement('div');
+  host.className = 'markdown-body';
+  host.innerHTML = '<ul><li>Parent text<ul><li>Child text</li></ul></li></ul>';
+  document.body.appendChild(host);
+  const state = ensureContainer(host, surface);
+  await runContainer(state, { translate: upper });
+  assert.equal(host.querySelectorAll('li').length, 2);
+  assert.ok(host.querySelector('li > ul > li'));
+  assert.match(host.textContent, /PARENT/);
+  assert.match(host.textContent, /CHILD/);
+  teardownAllContainers();
+  host.remove();
+});
+
+test('hover reveal shows the original while the pointer is over the container', async () => {
+  const { saveSettings } = await import('../src/core/settings.js');
+  saveSettings({ translate: { reveal: 'hover' } });
+  const original = container.textContent;
+  const state = ensureContainer(container, surface);
+  await runContainer(state, { translate: upper });
+  assert.match(container.textContent, /READ/);
+  container.dispatchEvent(new window.Event('pointerenter'));
+  assert.equal(container.textContent, original);
+  container.dispatchEvent(new window.Event('pointerleave'));
+  assert.match(container.textContent, /READ/);
+  teardownAllContainers();
+  saveSettings({ translate: { reveal: 'button' } });
+});
+
+test('a total failure marks the bar status as an error', async () => {
+  const state = ensureContainer(container, surface);
+  const originalError = console.error;
+  console.error = () => {};
+  try {
+    await runContainer(state, { translate: async () => { throw new Error('down'); } });
+  } finally {
+    console.error = originalError;
+  }
+  const status = document.querySelector('.gp-translate-status');
+  assert.ok(status);
+  assert.ok(status.classList.contains('is-error'));
+  teardownAllContainers();
+});

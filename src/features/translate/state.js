@@ -1,6 +1,7 @@
 import { getTranslateSettings } from '../../core/settings.js';
 import { Codes, logError } from '../../core/debug.js';
 import { getLocale, t } from '../../i18n/index.js';
+import { toArray } from '../../utils/dom.js';
 import { showToast } from '../../ui/toast.js';
 import { translateSegments } from './api.js';
 import { collectBlocks, extractBlock, renderBlockHtml } from './blocks.js';
@@ -24,6 +25,34 @@ function restorePainted(state) {
     if (el && originalHtml !== null && originalHtml !== undefined) el.innerHTML = originalHtml;
   });
   state.painted = [];
+}
+
+/**
+ * `reveal: hover` — show the source while the pointer or focus is inside the
+ * container. The translated markup is snapshotted, because `restorePainted`
+ * keeps only the source.
+ */
+function revealOnHover(state) {
+  if (state.reveal !== 'hover' || state.display !== 'replace' || state.revealed) return;
+  if (state.status !== 'shown' && state.status !== 'partial') return;
+  state.revealed = state.painted.map((entry) => ({
+    entry,
+    html: entry.box ? null : entry.el.innerHTML,
+  }));
+  restorePainted(state);
+  state.signature = state.container.textContent.length;
+}
+
+/** Put the translated markup back when the pointer or focus leaves. */
+function restoreAfterHover(state) {
+  if (!state.revealed) return;
+  const revealed = state.revealed;
+  state.revealed = null;
+  revealed.forEach(({ entry, html }) => {
+    if (entry.el && entry.el.isConnected && html !== null) entry.el.innerHTML = html;
+    state.painted.push(entry);
+  });
+  state.signature = state.container.textContent.length;
 }
 
 function pruneDetached() {
@@ -60,12 +89,24 @@ export function ensureContainer(container, surface, { button } = {}) {
     bar,
     status: 'idle',
     painted: [],
+    revealed: null,
     runId: 0,
     signature: container.textContent.length,
   };
   // A caller-supplied control (the preview header action) owns its own handler;
   // binding here too would toggle twice per click.
   if (!button) control.addEventListener('click', () => toggleContainer(state));
+
+  const revealHandlers = {
+    onEnter: () => revealOnHover(state),
+    onLeave: () => restoreAfterHover(state),
+  };
+  container.addEventListener('pointerenter', revealHandlers.onEnter);
+  container.addEventListener('pointerleave', revealHandlers.onLeave);
+  container.addEventListener('focusin', revealHandlers.onEnter);
+  container.addEventListener('focusout', revealHandlers.onLeave);
+  state.revealHandlers = revealHandlers;
+
   states.set(container, state);
   setButtonState(control, 'idle', { label: t('translate.button') });
   return state;
@@ -101,6 +142,8 @@ export async function runContainer(state, { translate } = {}) {
   state.runId = runId;
   state.status = 'loading';
   state.display = display;
+  state.reveal = settings.reveal === 'hover' ? 'hover' : 'button';
+  state.revealed = null;
   state.painted = [];
   state.signature = state.container.textContent.length;
 
@@ -150,8 +193,14 @@ export async function runContainer(state, { translate } = {}) {
       else record.el.insertAdjacentElement('afterend', box);
       state.painted.push({ el: record.el, originalHtml: null, box });
     } else {
+      // A list item's own content excludes its nested lists; replacing the
+      // inner HTML must not take those lists down with it.
+      const nestedLists = record.el.tagName === 'LI'
+        ? toArray(record.el.children).filter((child) => child.tagName === 'UL' || child.tagName === 'OL')
+        : [];
       const originalHtml = record.el.innerHTML;
       record.el.innerHTML = html;
+      nestedLists.forEach((list) => record.el.appendChild(list));
       state.painted.push({ el: record.el, originalHtml, box: null });
     }
   };
@@ -209,7 +258,7 @@ export async function runContainer(state, { translate } = {}) {
   if (failedCount === records.length) {
     state.status = 'error';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setBarStatus(state.container, t('translate.failed'));
+    setBarStatus(state.container, t('translate.failed'), { error: true });
     logError(Codes.TRANSLATE, 'Translation failed for a container.', {
       surface: state.surface && state.surface.id,
     });
@@ -242,6 +291,7 @@ export function toggleContainer(state) {
   if (!state) return;
   if (state.status === 'loading') return;
   if (state.status === 'shown' || state.status === 'partial') {
+    state.revealed = null;
     restorePainted(state);
     state.status = 'idle';
     state.signature = state.container.textContent.length;
@@ -257,7 +307,14 @@ export function teardownContainer(container) {
   const state = states.get(container);
   if (!state) return;
   state.runId += 1;
+  state.revealed = null;
   restorePainted(state);
+  if (state.revealHandlers) {
+    container.removeEventListener('pointerenter', state.revealHandlers.onEnter);
+    container.removeEventListener('pointerleave', state.revealHandlers.onLeave);
+    container.removeEventListener('focusin', state.revealHandlers.onEnter);
+    container.removeEventListener('focusout', state.revealHandlers.onLeave);
+  }
   removeChrome(container, state);
   states.delete(container);
 }

@@ -67,7 +67,7 @@ export function removeChrome(container, state) {
 }
 
 /** Write or clear the bar's status text. */
-export function setBarStatus(container, text) {
+export function setBarStatus(container, text, { error = false } = {}) {
   let bar = findBar(container);
   if (!bar) {
     if (!text) return;
@@ -84,6 +84,7 @@ export function setBarStatus(container, text) {
     status.setAttribute('data-gp-translate-ui', '');
     bar.appendChild(status);
   }
+  status.classList.toggle('is-error', error);
   status.textContent = text;
 }
 
