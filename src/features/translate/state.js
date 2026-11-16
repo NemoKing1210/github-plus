@@ -281,12 +281,10 @@ export async function runContainer(state, { translate, focus = false } = {}) {
 
   const onProgress = (done, total) => {
     if (state.runId !== runId) return;
-    const text = t('translate.progress', { done, total });
-    if (state.bar && state.bar.isConnected) {
-      setBarStatus(state.container, text);
-      return;
-    }
-    setButtonState(state.button, 'loading', { label: t('translate.translating'), count: text });
+    setButtonState(state.button, 'loading', {
+      label: t('translate.translating'),
+      progress: total ? done / total : 0,
+    });
   };
 
   const onResult = (id, result) => {

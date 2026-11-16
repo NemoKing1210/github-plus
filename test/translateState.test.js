@@ -261,24 +261,31 @@ test('a successful translation never names the source language', async () => {
   teardownAllContainers();
 });
 
-test('a header-hosted action shows progress in its label', async () => {
+test('a header-hosted action fills a ring inside its button', async () => {
   const slot = document.createElement('header');
   const host = document.createElement('div');
   host.className = 'markdown-body';
-  host.innerHTML = '<p>Read <a href="https://x">docs</a>.</p><p>Second paragraph.</p>';
+  host.innerHTML = Array.from({ length: 9 }, (_, i) => `<p>Paragraph ${i + 1}.</p>`).join('');
   document.body.append(slot, host);
   const withHeader = { ...surface, headerFor: () => slot };
   const state = ensureContainer(host, withHeader);
-  const labels = [];
-  const observer = new window.MutationObserver(() => labels.push(state.button.textContent));
-  observer.observe(state.button, { childList: true, subtree: true, characterData: true });
+  const offsets = [];
+  const observer = new window.MutationObserver(() => {
+    const fill = state.button.querySelector('.gp-translate-ring__fill');
+    if (fill) offsets.push(Number(fill.style.strokeDashoffset));
+  });
+  observer.observe(state.button, {
+    subtree: true, attributes: true, childList: true, characterData: true,
+  });
   await runContainer(state, { translate: upper });
   await Promise.resolve();
   observer.disconnect();
   assert.ok(
-    labels.some((label) => /Translating.*·.*\d+\s*\/\s*\d+/.test(label)),
-    `progress never reached the button: ${labels.join(' | ')}`,
+    offsets.some((offset) => offset > 0 && offset < 100),
+    `progress never reached the ring: ${offsets.join(', ')}`,
   );
+  assert.doesNotMatch(state.button.textContent, /\d/);
+  assert.equal(state.button.title, '');
   teardownAllContainers();
   host.remove();
   slot.remove();

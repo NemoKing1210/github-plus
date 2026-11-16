@@ -231,7 +231,6 @@ export default {
   'translate.privacy': '待翻译文本会发送到所选服务。API 密钥仅保存在此浏览器中，设置备份会包含它们。',
   'translate.button': '翻译',
   'translate.translating': '翻译中…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': '显示原文',
   'translate.hideTranslation': '隐藏译文',
   'translate.barLabel': '翻译',

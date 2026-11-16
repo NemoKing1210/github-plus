@@ -231,7 +231,6 @@ export default {
   'translate.privacy': 'Переводимый текст отправляется выбранному сервису. API-ключи хранятся только в этом браузере, и резервная копия настроек содержит их.',
   'translate.button': 'Перевести',
   'translate.translating': 'Перевод…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': 'Показать оригинал',
   'translate.hideTranslation': 'Скрыть перевод',
   'translate.barLabel': 'Перевод',

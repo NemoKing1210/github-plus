@@ -5,7 +5,7 @@ import { t } from '../src/i18n/index.js';
 import { getIconSvg } from '../src/features/settings/controls.js';
 import { isOwnUi } from '../src/utils/dom.js';
 import {
-  createButton, ensureChrome, setBarStatus,
+  createButton, ensureChrome, setBarStatus, setButtonState,
 } from '../src/features/translate/inject.js';
 
 const dom = new JSDOM('<!doctype html><body><div class="gp-translate-bar"></div></body>');
@@ -85,6 +85,28 @@ test('a header-hosted action removes a bar left from an earlier pass', () => {
   button.remove();
   header.remove();
   markdown.remove();
+});
+
+test('progress fills a ring inside the button instead of printing numbers', () => {
+  const button = createButton('Translate');
+  setButtonState(button, 'loading', { label: 'Translating…', progress: 0.25 });
+  const ring = button.querySelector('.gp-translate-ring');
+  assert.ok(ring);
+  assert.equal(ring.parentElement, button);
+  const fill = ring.querySelector('.gp-translate-ring__fill');
+  assert.equal(fill.style.strokeDashoffset, '75');
+  assert.equal(button.dataset.gpTranslateState, 'loading');
+  assert.equal(button.textContent, 'Translating…');
+  assert.doesNotMatch(button.textContent, /\d/);
+  assert.ok(!ring.classList.contains('is-pending'));
+
+  setButtonState(button, 'loading', { label: 'Translating…' });
+  assert.ok(ring.classList.contains('is-pending'));
+  assert.equal(fill.style.strokeDashoffset, '');
+
+  setButtonState(button, 'loading', { label: 'Translating…', progress: 1 });
+  assert.equal(fill.style.strokeDashoffset, '0');
+  button.remove();
 });
 
 test('a status without a fallback bar creates no block', () => {

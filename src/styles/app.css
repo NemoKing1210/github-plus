@@ -1829,7 +1829,8 @@ html.gp-modal-open body {
   .gp-viewer__image,
   .gp-preview-overlay,
   .gp-preview,
-  .gp-preview__spinner-ring {
+  .gp-preview__spinner-ring,
+  .gp-translate-ring.is-pending svg {
     animation: none;
     transition: none;
   }
@@ -2835,6 +2836,55 @@ audio.gp-preview__media {
   flex: none;
   width: 16px;
   height: 16px;
+}
+/* Translation progress is the ring inside the button: the accent arc fills as
+ * blocks settle, and no count is printed anywhere. */
+.gp-translate-ring {
+  display: none;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.gp-translate-ring svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  transform: rotate(-90deg);
+}
+.gp-translate-ring__track {
+  fill: none;
+  stroke: var(--gp-border);
+  stroke-width: 2;
+}
+.gp-translate-ring__fill {
+  fill: none;
+  stroke: var(--gp-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.15s ease;
+}
+.gp-translate-ring.is-pending svg {
+  animation: gp-translate-spin 0.9s linear infinite;
+}
+.gp-translate-ring.is-pending .gp-translate-ring__fill {
+  stroke-dasharray: 25 75;
+  stroke-dashoffset: 0;
+}
+@keyframes gp-translate-spin {
+  from {
+    transform: rotate(-90deg);
+  }
+  to {
+    transform: rotate(270deg);
+  }
+}
+.gp-translate-btn[data-gp-translate-state="loading"] .gp-translate-ring {
+  display: block;
+}
+.gp-translate-btn[data-gp-translate-state="loading"] > svg {
+  display: none;
 }
 .gp-translate-btn[data-gp-translate-state="loading"] {
   opacity: 0.7;

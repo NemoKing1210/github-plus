@@ -2,13 +2,23 @@ import { ACTION_ICONS } from '../../ui/icons.js';
 import { t } from '../../i18n/index.js';
 import { isActionRow, README_HEADER_SLOT } from './surfaces.js';
 
-/** Translation button with its glyph and label span. */
+const RING_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true">'
+  + '<circle class="gp-translate-ring__track" cx="8" cy="8" r="6.5" pathLength="100"></circle>'
+  + '<circle class="gp-translate-ring__fill" cx="8" cy="8" r="6.5" pathLength="100"></circle>'
+  + '</svg>';
+
+/** Translation button with its glyph, progress ring and label span. */
 export function createButton(label) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'gp-translate-btn';
   button.setAttribute('data-gp-translate-ui', '');
   button.innerHTML = ACTION_ICONS.translate;
+  const ring = document.createElement('span');
+  ring.className = 'gp-translate-ring';
+  ring.setAttribute('aria-hidden', 'true');
+  ring.innerHTML = RING_SVG;
+  button.appendChild(ring);
   const span = document.createElement('span');
   span.className = 'gp-translate-btn__label';
   span.textContent = label || t('translate.button');
@@ -16,18 +26,29 @@ export function createButton(label) {
   return button;
 }
 
-/** Write the button's visual state, label and optional progress count. */
-export function setButtonState(button, state, { label, count } = {}) {
+/**
+ * Write the button's visual state, label and progress. Progress is the ring
+ * inside the button, filled by `progress` (0…1): the label never carries
+ * counts.
+ */
+export function setButtonState(button, state, { label, progress } = {}) {
   if (!button) return;
   button.dataset.gpTranslateState = state;
   if (state === 'loading') button.setAttribute('aria-busy', 'true');
   else button.removeAttribute('aria-busy');
   const span = button.querySelector('.gp-translate-btn__label');
-  if (!span) return;
-  const text = label === undefined ? span.textContent : label;
-  span.textContent = count === undefined || count === null || count === ''
-    ? text
-    : `${text} · ${count}`;
+  if (span && label !== undefined) span.textContent = label;
+  const ring = button.querySelector('.gp-translate-ring');
+  const fill = button.querySelector('.gp-translate-ring__fill');
+  if (!fill) return;
+  const value = typeof progress === 'number' && Number.isFinite(progress)
+    ? Math.min(1, Math.max(0, progress))
+    : 0;
+  // With nothing settled yet the ring turns as a loader; as soon as a batch
+  // lands it becomes the honest filled share.
+  if (value === 0) fill.style.removeProperty('stroke-dashoffset');
+  else fill.style.strokeDashoffset = String(100 - value * 100);
+  if (ring) ring.classList.toggle('is-pending', value === 0);
 }
 
 function findBar(container) {

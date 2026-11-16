@@ -973,8 +973,10 @@ default `mode` is `button`; `auto` is opt-in.
   oldest-first past `TRANSLATE_CACHE_SOFT_LIMIT_BYTES`. `clearCache`,
   `getCacheUsageStats` and `persistCacheNow` complete the API. Storage failures
   log `GP-1602`, never throw.
-- `inject.js`: `createButton(label)` (glyph + label span), `setButtonState`
-  (`data-gp-translate-state`, `aria-busy`, optional ` · count` progress),
+- `inject.js`: `createButton(label)` (glyph + progress ring + label span),
+  `setButtonState` (`data-gp-translate-state`, `aria-busy`, and the ring inside
+  the button filled from a 0…1 `progress`; nothing is printed as a count, and
+  a ring with nothing settled yet turns as a loader),
   `ensureChrome(container, { header, button })` (the button goes into the page
   header when there is one — prepended into GitHub's own action row so it sits
   beside the edit control and marked `.gp-translate-btn--actions`, taking the
@@ -991,8 +993,10 @@ default `mode` is `button`; `auto` is opt-in.
   before any request, button states, partial-failure handling,
   unchanged-response detection, `GP-1601` and a toast on total failure). Status
   text goes through `setStatus`: the fallback bar when the container has one,
-  otherwise the header-hosted button's `title` — with the `done / total`
-  progress folded into its label count rather than a bar. A block whose provider response lost more than half
+  otherwise the header-hosted button's `title`. Translation progress is never
+  text: `onProgress` fills the button's ring with the settled share, so a
+  header-hosted action and a bar-hosted one report it the same way. A block
+  whose provider response lost more than half
   of its inline tokens is left untouched and counts as failed, so markup is
   never piled up at the end. `toggleContainer` restores the exact original HTML
   or starts a run, and is the only caller that focuses the button, so auto mode
@@ -1048,7 +1052,7 @@ classes.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 265
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 264
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 

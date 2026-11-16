@@ -231,7 +231,6 @@ export default {
   'translate.privacy': '翻訳するテキストは選択したサービスに送信されます。API キーはこのブラウザーにのみ保存され、設定のバックアップにも含まれます。',
   'translate.button': '翻訳',
   'translate.translating': '翻訳中…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': '原文を表示',
   'translate.hideTranslation': '翻訳を隠す',
   'translate.barLabel': '翻訳',

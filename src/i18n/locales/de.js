@@ -231,7 +231,6 @@ export default {
   'translate.privacy': 'Übersetzter Text wird an den gewählten Dienst gesendet. API-Schlüssel werden nur in diesem Browser gespeichert, und eine Sicherung der Einstellungen enthält sie.',
   'translate.button': 'Übersetzen',
   'translate.translating': 'Übersetze…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': 'Original anzeigen',
   'translate.hideTranslation': 'Übersetzung ausblenden',
   'translate.barLabel': 'Übersetzung',

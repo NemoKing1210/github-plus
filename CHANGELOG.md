@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-11-16
+
+### Changed
+
+- Translation progress is now a ring inside the Translate button that fills as
+  blocks settle, instead of a `3 / 8` count appended to its label or the status
+  bar; until the first batch lands the arc turns as a loader
+
+[0.20.2]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.2
+
 ## [0.20.1] - 2026-11-16
 
 ### Fixed

@@ -231,7 +231,6 @@ export default {
   'translate.privacy': 'Tłumaczony tekst jest wysyłany do wybranej usługi. Klucze API są przechowywane tylko w tej przeglądarce, a kopia zapasowa ustawień je zawiera.',
   'translate.button': 'Tłumacz',
   'translate.translating': 'Tłumaczenie…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': 'Pokaż oryginał',
   'translate.hideTranslation': 'Ukryj tłumaczenie',
   'translate.barLabel': 'Tłumaczenie',

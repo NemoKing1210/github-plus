@@ -757,6 +757,16 @@ states: `loading` drops to `opacity: 0.7` and shows a progress cursor; `shown`
 and `partial` take the accent tint (`var(--gp-accent-soft)` fill, accent edge
 and label) because the container is currently translated.
 
+Translation progress is a ring inside the button, never a count: the 16px
+`.gp-translate-ring` replaces the glyph while `loading`, the
+`.gp-translate-ring__track` is a `var(--gp-border)` circle and the
+`.gp-translate-ring__fill` accent arc (`stroke-width: 2`, starts at twelve
+o'clock, circumference normalized to 100) grows with the settled share. With
+nothing settled yet the arc is a quarter circle that turns as a loader
+(`gp-translate-spin`, removed under `prefers-reduced-motion`); as soon as a
+batch lands it becomes the honest fill. The label keeps only the
+`Translating…` text.
+
 The repository README header has its own slot beside the README nav, among
 GitHub's Edit and Outline controls, so the action there adopts that row's
 button: `.gp-translate-btn--header` is 32px high, borderless and transparent,

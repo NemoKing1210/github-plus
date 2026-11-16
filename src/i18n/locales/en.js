@@ -231,7 +231,6 @@ export default {
   'translate.privacy': 'Translated text is sent to the selected service. API keys are stored only in this browser, and a settings backup contains them.',
   'translate.button': 'Translate',
   'translate.translating': 'Translating…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': 'Show original',
   'translate.hideTranslation': 'Hide translation',
   'translate.barLabel': 'Translation',

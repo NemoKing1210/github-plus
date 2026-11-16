@@ -231,7 +231,6 @@ export default {
   'translate.privacy': 'Le texte traduit est envoyé au service sélectionné. Les clés API sont stockées uniquement dans ce navigateur, et une sauvegarde des réglages les contient.',
   'translate.button': 'Traduire',
   'translate.translating': 'Traduction…',
-  'translate.progress': '{done} / {total}',
   'translate.showOriginal': 'Afficher l’original',
   'translate.hideTranslation': 'Masquer la traduction',
   'translate.barLabel': 'Traduction',
