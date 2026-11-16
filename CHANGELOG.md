@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.4] - 2026-11-16
+
+### Changed
+
+- No status text is printed next to a Translate button anymore — no
+  `Translating…`, `Translated partially` or failure line: the button's state,
+  progress ring and tooltip carry the outcome, and the fallback bar holds only
+  the button; failures still report through a toast
+
+[0.20.4]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.4
+
 ## [0.20.3] - 2026-11-16
 
 ### Fixed

@@ -5,7 +5,7 @@ import { t } from '../src/i18n/index.js';
 import { getIconSvg } from '../src/features/settings/controls.js';
 import { isOwnUi } from '../src/utils/dom.js';
 import {
-  createButton, ensureChrome, setBarStatus, setButtonState,
+  createButton, ensureChrome, setButtonState,
 } from '../src/features/translate/inject.js';
 
 const dom = new JSDOM('<!doctype html><body><div class="gp-translate-bar"></div></body>');
@@ -109,13 +109,16 @@ test('progress fills a ring inside the button instead of printing numbers', () =
   button.remove();
 });
 
-test('a status without a fallback bar creates no block', () => {
+test('a control without a header adds no status text beside the button', () => {
   const markdown = document.createElement('div');
+  markdown.innerHTML = '<p>Text</p>';
   document.body.append(markdown);
-  const bars = document.querySelectorAll('.gp-translate-bar').length;
-  const buttons = document.querySelectorAll('.gp-translate-btn').length;
-  setBarStatus(markdown, 'Translated');
-  assert.equal(document.querySelectorAll('.gp-translate-bar').length, bars);
-  assert.equal(document.querySelectorAll('.gp-translate-btn').length, buttons);
+  const button = createButton('Translate');
+  const chrome = ensureChrome(markdown, { button });
+  assert.ok(chrome.bar);
+  assert.equal(chrome.bar.querySelectorAll('.gp-translate-status').length, 0);
+  assert.equal(chrome.bar.lastElementChild, button);
+  button.remove();
+  chrome.bar.remove();
   markdown.remove();
 });

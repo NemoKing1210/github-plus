@@ -98,7 +98,9 @@ test('a provider missing its API key is reported before any request', async () =
   }
   assert.equal(calls, 0);
   assert.equal(state.status, 'error');
-  assert.match(document.querySelector('.gp-translate-status').textContent, /API key/);
+  assert.doesNotMatch(state.button.textContent, /API key/);
+  assert.equal(document.querySelector('.gp-translate-status'), null);
+  assert.match(document.querySelector('.gp-toasts').textContent, /API key/);
   teardownAllContainers();
 });
 
@@ -245,7 +247,7 @@ test('hover reveal shows the original while the pointer is over the container', 
   saveSettings({ translate: { reveal: 'button' } });
 });
 
-test('a total failure marks the bar status as an error', async () => {
+test('a total failure shows no status text beside the button', async () => {
   const state = ensureContainer(container, surface);
   const originalError = console.error;
   console.error = () => {};
@@ -254,9 +256,10 @@ test('a total failure marks the bar status as an error', async () => {
   } finally {
     console.error = originalError;
   }
-  const status = document.querySelector('.gp-translate-status');
-  assert.ok(status);
-  assert.ok(status.classList.contains('is-error'));
+  assert.equal(document.querySelector('.gp-translate-status'), null);
+  assert.equal(state.button.parentElement.classList.contains('gp-translate-bar'), true);
+  assert.equal(state.button.title, 'Translation failed');
+  assert.match(document.querySelector('.gp-toasts').textContent, /Translation failed/);
   teardownAllContainers();
 });
 

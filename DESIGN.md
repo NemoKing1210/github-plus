@@ -48,7 +48,7 @@ Two invariants hold for every selector:
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
   .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-translate-btn,
-  .gp-translate-bar, .gp-translate-result, .gp-translate-status`).
+  .gp-translate-bar, .gp-translate-result`).
   Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
@@ -783,14 +783,14 @@ new shell's description edit block ("Edited" and the edit pencil) uses small
 invisible buttons, so the action there takes `.gp-translate-btn--small`: 28px
 high, `0 8px` padding, a 6px gap and a `12px`/500 label.
 
-Where GitHub exposes no header, the button and its status live in our own
-`.gp-translate-bar` inserted before the container — a flex row of the button and
-a muted `12px` status line, with no background of its own. `.is-error` on the
-status switches it to `var(--gp-danger)`. A header-hosted action gets no bar at
-all: the header row must gain no extra block, so its status — the
-`Translating · 3/8` progress and a failure — is carried by the button's own
-`title` tooltip. A successful run clears the status instead of naming the
-language it was translated from. In `below` mode the translation is a
+Where GitHub exposes no header, the button lives alone in our own
+`.gp-translate-bar` inserted before the container: a flex row with no
+background of its own, holding no status line and no text beside the button. A
+header-hosted action gets no bar at all: the header row must gain no extra
+block. Either way the outcome is carried by the button itself — state, progress
+ring and its `title` tooltip — and a failure also reports through a toast. A
+successful run clears the tooltip instead of naming the language it was
+translated from. In `below` mode the translation is a
 `.gp-translate-result` under the original: a 2px accent left border with `12px`
 of padding, matching the panel's quoted-callout rhythm. A plain-text file (a
 license or notice rendered as code) is never rewritten; its translation is a

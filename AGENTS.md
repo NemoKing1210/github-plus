@@ -109,7 +109,7 @@ github-plus/
 │   │       ├── languages.js# Target languages and locale → code mapping (pure)
 │   │       ├── api.js      # Batching, sentinel split, in-flight dedupe, fallback
 │   │       ├── cache.js    # Persistent GM cache (TTL, size budget, stats, clear)
-│   │       ├── inject.js   # Button, fallback bar, status line, result box
+│   │       ├── inject.js   # Button, fallback bar, result box
 │   │       ├── previewAction.js # Translate action for the quick preview header
 │   │       └── providers/
 │   │           ├── registry.js # Provider ids, fields, hints, defaults
@@ -296,7 +296,7 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   change never leaves stale output.
 - The same Save also emits `settings:language`, which the preview feature
   listens to for repainting its header, footer and card labels, and the
-  translate feature for its button and status labels.
+  translate feature for its button labels.
 
 ### `src/core/logger/` — diagnostics
 
@@ -987,8 +987,7 @@ default `mode` is `button`; `auto` is opt-in.
   compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
   shell's `editMetadata` block, and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
-  into our own `.gp-translate-bar` before the container), `setBarStatus(container, text, { error })` (a no-op without
-  a bar), `createResultBox(html, { preformatted })` (a `plain` surface's box
+  into our own `.gp-translate-bar` before the container), `createResultBox(html, { preformatted })` (a `plain` surface's box
   keeps the source line breaks) and `removeChrome`.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
   `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
@@ -997,8 +996,8 @@ default `mode` is `button`; `auto` is opt-in.
   `runContainer` translates every block (missing-config preflight
   before any request, button states, partial-failure handling,
   unchanged-response detection, `GP-1601` and a toast on total failure). Status
-  text goes through `setStatus`: the fallback bar when the container has one,
-  otherwise the header-hosted button's `title`. Translation progress is never
+  text goes through `setStatus` into the button's own `title` tooltip; nothing is
+  printed next to the button, and the fallback bar holds only the button. Translation progress is never
   text: `onProgress` fills the button's ring with the settled share, so a
   header-hosted action and a bar-hosted one report it the same way. A block
   whose provider response lost more than half
@@ -1044,7 +1043,7 @@ default `mode` is `button`; `auto` is opt-in.
 The block walk intentionally excludes markdown inside `.gp-preview-overlay` from
 `isOwnUi()` (that pane is page content), while the feature's own button, bar and
 result boxes are skipped. No rule in `app.css` selects GitHub's markup for the
-feature: the button, bar, status and result box are our own nodes with `gp-`
+feature: the button, bar and result box are our own nodes with `gp-`
 classes.
 
 ### `src/i18n/`
@@ -1176,7 +1175,7 @@ signature changed) → chrome in the page header or the fallback bar →
 **Translate** click (or an intersecting container in `auto` mode) →
 `collectBlocks` + `extractBlock` → `buildBatches` → provider request
 (`GM_xmlhttpRequest`/`fetch`) → `splitBatchResponse` → tokens restored and
-painted block by block → status/button updated, results cached. Missing config
+painted block by block → button state and ring updated, results cached. Missing config
 stops before any request with a localized hint; a total failure logs `GP-1601`
 and leaves the page untouched; **Show original** (or pointer leave after a
 hover reveal) restores the exact source.
@@ -1287,8 +1286,8 @@ with English fallback.
 
 All injected UI (settings entry, panel, controls, confirm dialog, toasts,
 context menu, viewer, file icons, file-age dates, the file size column and
-download buttons, the quick file preview, and the translation button, status
-bar and result boxes)
+download buttons, the quick file preview, and the translation button, bar and
+result boxes)
 follows [DESIGN.md](DESIGN.md) — GitHub's
 own visual language through Primer tokens, `gp-`-prefixed classes, colors from
 `src/styles/tokens.css`. File icons are the documented exception: their

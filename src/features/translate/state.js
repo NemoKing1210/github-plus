@@ -6,7 +6,7 @@ import { showToast } from '../../ui/toast.js';
 import { translateSegments } from './api.js';
 import { collectBlocks, extractBlock, renderBlockResult } from './blocks.js';
 import {
-  createButton, createResultBox, ensureChrome, removeChrome, setBarStatus, setButtonState,
+  createButton, createResultBox, ensureChrome, removeChrome, setButtonState,
 } from './inject.js';
 import { resolveTargetLang } from './languages.js';
 import { missingProviderFields } from './providers/registry.js';
@@ -24,14 +24,10 @@ function buttonLabel(status) {
 }
 
 /**
- * Report a status where the control actually lives: the fallback bar when the
- * container has one, otherwise the header-hosted button's own tooltip.
+ * Report a status on the control itself. No text is printed beside the button:
+ * the outcome is carried by its state, the ring and its tooltip.
  */
-function setStatus(state, text, options) {
-  if (state.bar && state.bar.isConnected) {
-    setBarStatus(state.container, text, options);
-    return;
-  }
+function setStatus(state, text) {
   if (!state.button) return;
   if (text) state.button.title = text;
   else state.button.removeAttribute('title');
@@ -180,7 +176,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     if (missing.length) {
       state.status = 'error';
       setButtonState(state.button, 'idle', { label: t('translate.button') });
-      setStatus(state, t('translate.missingConfigDesc'), { error: true });
+      setStatus(state, t('translate.missingConfigDesc'));
       showToast({
         type: 'error',
         title: t('translate.missingConfig'),
@@ -333,7 +329,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   if (failedCount === records.length) {
     state.status = 'error';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setStatus(state, t('translate.failed'), { error: true });
+    setStatus(state, t('translate.failed'));
     log.error(Codes.TRANSLATE, 'Translation failed for a container.', {
       surface: state.surface && state.surface.id,
     });

@@ -109,25 +109,6 @@ export function removeChrome(container, state) {
   if (bar && bar.classList && bar.classList.contains('gp-translate-bar')) bar.remove();
 }
 
-/** Write or clear the fallback bar's status text; a no-op without a bar. */
-export function setBarStatus(container, text, { error = false } = {}) {
-  const bar = findBar(container);
-  if (!bar) return;
-  let status = bar.querySelector('.gp-translate-status');
-  if (!text) {
-    if (status) status.remove();
-    return;
-  }
-  if (!status) {
-    status = document.createElement('span');
-    status.className = 'gp-translate-status';
-    status.setAttribute('data-gp-translate-ui', '');
-    bar.appendChild(status);
-  }
-  status.classList.toggle('is-error', error);
-  status.textContent = text;
-}
-
 /** A translated copy shown under the original block in below mode. */
 export function createResultBox(html, { preformatted = false } = {}) {
   const box = document.createElement('div');

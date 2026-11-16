@@ -2944,17 +2944,8 @@ audio.gp-preview__media {
 /* Fallback bar before a container that has no page header to host the action. */
 .gp-translate-bar {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
   margin: 4px 0 8px;
-}
-.gp-translate-status {
-  color: var(--gp-text-muted);
-  font: 400 12px/1.5 var(--gp-font);
-}
-.gp-translate-status.is-error {
-  color: var(--gp-danger);
 }
 
 /* The translation kept under the original in `below` mode. */
