@@ -234,8 +234,6 @@ export default {
   'translate.showOriginal': '원문 표시',
   'translate.hideTranslation': '번역 숨기기',
   'translate.barLabel': '번역',
-  'translate.sameLanguage': '이미 대상 언어입니다',
-  'translate.partial': '일부 블록을 번역하지 못했습니다',
   'translate.failed': '번역 실패',
   'translate.failedDesc': '서비스가 응답하지 않았습니다. 제공업체 설정을 확인하고 다시 시도하세요.',
   'translate.missingConfig': '번역 서비스가 설정되지 않았습니다',

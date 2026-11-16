@@ -995,11 +995,13 @@ default `mode` is `button`; `auto` is opt-in.
   unchanged, re-inserting a control a React re-render dropped from its header),
   `runContainer` translates every block (missing-config preflight
   before any request, button states, partial-failure handling,
-  unchanged-response detection, `GP-1601` and a toast on total failure). Status
-  text goes through `setStatus` into the button's own `title` tooltip; nothing is
-  printed next to the button, and the fallback bar holds only the button. Translation progress is never
-  text: `onProgress` fills the button's ring with the settled share, so a
-  header-hosted action and a bar-hosted one report it the same way. A block
+  unchanged-response detection, `GP-1601` and a toast on total failure). No
+  status text is attached to the button at all — no status line beside it and
+  no `title` tooltip: the button label, its filled ring and its state carry the
+  outcome, and failures report through a toast. The fallback bar holds only the
+  button. Translation progress is never text: `onProgress` fills the button's
+  ring with the settled share, so a header-hosted action and a bar-hosted one
+  report it the same way. A block
   whose provider response lost more than half
   of its inline tokens is left untouched and counts as failed, so markup is
   never piled up at the end. `toggleContainer` restores the exact original HTML
@@ -1056,7 +1058,7 @@ classes.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 264
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 262
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 

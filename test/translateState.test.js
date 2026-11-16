@@ -99,6 +99,7 @@ test('a provider missing its API key is reported before any request', async () =
   assert.equal(calls, 0);
   assert.equal(state.status, 'error');
   assert.doesNotMatch(state.button.textContent, /API key/);
+  assert.equal(state.button.getAttribute('title'), null);
   assert.equal(document.querySelector('.gp-translate-status'), null);
   assert.match(document.querySelector('.gp-toasts').textContent, /API key/);
   teardownAllContainers();
@@ -120,6 +121,7 @@ test('a partial failure keeps the blocks that succeeded', async () => {
   await runContainer(state, { translate });
   assert.match(container.textContent, /READ/);
   assert.equal(state.status, 'partial');
+  assert.equal(state.button.getAttribute('title'), null);
   teardownAllContainers();
 });
 
@@ -258,7 +260,7 @@ test('a total failure shows no status text beside the button', async () => {
   }
   assert.equal(document.querySelector('.gp-translate-status'), null);
   assert.equal(state.button.parentElement.classList.contains('gp-translate-bar'), true);
-  assert.equal(state.button.title, 'Translation failed');
+  assert.equal(state.button.getAttribute('title'), null);
   assert.match(document.querySelector('.gp-toasts').textContent, /Translation failed/);
   teardownAllContainers();
 });
@@ -280,6 +282,17 @@ test('a header-hosted action reports status on the button, not in a bar', async 
   teardownAllContainers();
   host.remove();
   slot.remove();
+});
+
+test('a same-language run adds no text to the button', async () => {
+  const state = ensureContainer(container, surface);
+  await runContainer(state, {
+    translate: async (text) => ({ text, detectedSourceLang: 'en' }),
+  });
+  assert.equal(state.status, 'idle');
+  assert.equal(state.button.getAttribute('title'), null);
+  assert.equal(state.button.textContent, 'Translate');
+  teardownAllContainers();
 });
 
 test('a successful translation never names the source language', async () => {

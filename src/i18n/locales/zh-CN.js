@@ -234,8 +234,6 @@ export default {
   'translate.showOriginal': '显示原文',
   'translate.hideTranslation': '隐藏译文',
   'translate.barLabel': '翻译',
-  'translate.sameLanguage': '已是目标语言',
-  'translate.partial': '部分区块无法翻译',
   'translate.failed': '翻译失败',
   'translate.failedDesc': '服务没有响应。请检查提供方设置后重试。',
   'translate.missingConfig': '翻译服务未配置',

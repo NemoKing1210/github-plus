@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.5] - 2026-11-16
+
+### Changed
+
+- The Translate button now carries no status text whatsoever: besides the
+  removed status line, its `title` tooltip no longer names outcomes such as
+  "Already in the target language" or a partial failure — only the button
+  label, the progress ring and its state report the result, while failures
+  still report through a toast
+
+[0.20.5]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.5
+
 ## [0.20.4] - 2026-11-16
 
 ### Changed

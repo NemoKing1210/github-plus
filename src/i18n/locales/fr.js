@@ -234,8 +234,6 @@ export default {
   'translate.showOriginal': 'Afficher l’original',
   'translate.hideTranslation': 'Masquer la traduction',
   'translate.barLabel': 'Traduction',
-  'translate.sameLanguage': 'Déjà dans la langue cible',
-  'translate.partial': 'Certains blocs n’ont pas pu être traduits',
   'translate.failed': 'La traduction a échoué',
   'translate.failedDesc': 'Le service n’a pas répondu. Vérifiez les réglages du fournisseur et réessayez.',
   'translate.missingConfig': 'Le service de traduction n’est pas configuré',

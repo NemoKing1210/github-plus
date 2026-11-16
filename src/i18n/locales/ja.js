@@ -234,8 +234,6 @@ export default {
   'translate.showOriginal': '原文を表示',
   'translate.hideTranslation': '翻訳を隠す',
   'translate.barLabel': '翻訳',
-  'translate.sameLanguage': 'すでに翻訳先の言語です',
-  'translate.partial': '一部のブロックを翻訳できませんでした',
   'translate.failed': '翻訳に失敗しました',
   'translate.failedDesc': 'サービスが応答しませんでした。プロバイダー設定を確認して再試行してください。',
   'translate.missingConfig': '翻訳サービスが設定されていません',

@@ -234,8 +234,6 @@ export default {
   'translate.showOriginal': 'Show original',
   'translate.hideTranslation': 'Hide translation',
   'translate.barLabel': 'Translation',
-  'translate.sameLanguage': 'Already in the target language',
-  'translate.partial': 'Some blocks could not be translated',
   'translate.failed': 'Translation failed',
   'translate.failedDesc': 'The service did not answer. Check the provider settings and try again.',
   'translate.missingConfig': 'Translation service is not configured',

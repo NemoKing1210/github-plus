@@ -787,10 +787,9 @@ Where GitHub exposes no header, the button lives alone in our own
 `.gp-translate-bar` inserted before the container: a flex row with no
 background of its own, holding no status line and no text beside the button. A
 header-hosted action gets no bar at all: the header row must gain no extra
-block. Either way the outcome is carried by the button itself — state, progress
-ring and its `title` tooltip — and a failure also reports through a toast. A
-successful run clears the tooltip instead of naming the language it was
-translated from. In `below` mode the translation is a
+block. Either way nothing but the button reports the outcome — its label, its
+filled ring and its state; no status line, no `title` tooltip, no language
+name. A failure reports through a toast. In `below` mode the translation is a
 `.gp-translate-result` under the original: a 2px accent left border with `12px`
 of padding, matching the panel's quoted-callout rhythm. A plain-text file (a
 license or notice rendered as code) is never rewritten; its translation is a

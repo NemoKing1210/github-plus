@@ -23,16 +23,6 @@ function buttonLabel(status) {
   return t('translate.button');
 }
 
-/**
- * Report a status on the control itself. No text is printed beside the button:
- * the outcome is carried by its state, the ring and its tooltip.
- */
-function setStatus(state, text) {
-  if (!state.button) return;
-  if (text) state.button.title = text;
-  else state.button.removeAttribute('title');
-}
-
 function restorePainted(state) {
   (state.painted || []).forEach(({ el, originalHtml, box }) => {
     if (box && box.parentNode) box.remove();
@@ -176,7 +166,6 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     if (missing.length) {
       state.status = 'error';
       setButtonState(state.button, 'idle', { label: t('translate.button') });
-      setStatus(state, t('translate.missingConfigDesc'));
       showToast({
         type: 'error',
         title: t('translate.missingConfig'),
@@ -298,7 +287,6 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   };
 
   setButtonState(state.button, 'loading', { label: t('translate.translating') });
-  setStatus(state, t('translate.translating'));
 
   try {
     await translateSegments(segments, target, { translate, onResult, onProgress });
@@ -321,7 +309,6 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     restorePainted(state);
     state.status = 'idle';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setStatus(state, t('translate.sameLanguage'));
     state.signature = state.container.textContent.length;
     return;
   }
@@ -329,7 +316,6 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   if (failedCount === records.length) {
     state.status = 'error';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setStatus(state, t('translate.failed'));
     log.error(Codes.TRANSLATE, 'Translation failed for a container.', {
       surface: state.surface && state.surface.id,
     });
@@ -342,11 +328,9 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   } else if (failedCount > 0) {
     state.status = 'partial';
     setButtonState(state.button, 'shown', { label: t('translate.showOriginal') });
-    setStatus(state, t('translate.partial'));
   } else {
     state.status = 'shown';
     setButtonState(state.button, 'shown', { label: t('translate.showOriginal') });
-    setStatus(state, '');
   }
 
   state.signature = state.container.textContent.length;
@@ -388,7 +372,6 @@ export function toggleContainer(state) {
     state.status = 'idle';
     state.signature = state.container.textContent.length;
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setStatus(state, '');
     return;
   }
   runContainer(state, { focus: true }).catch(() => {});

@@ -234,8 +234,6 @@ export default {
   'translate.showOriginal': 'Original anzeigen',
   'translate.hideTranslation': 'Übersetzung ausblenden',
   'translate.barLabel': 'Übersetzung',
-  'translate.sameLanguage': 'Bereits in der Zielsprache',
-  'translate.partial': 'Einige Blöcke konnten nicht übersetzt werden',
   'translate.failed': 'Übersetzung fehlgeschlagen',
   'translate.failedDesc': 'Der Dienst hat nicht geantwortet. Prüfe die Anbietereinstellungen und versuche es erneut.',
   'translate.missingConfig': 'Übersetzungsdienst ist nicht eingerichtet',
