@@ -32,6 +32,11 @@ export function configureLocale(preference = 'auto') {
   return activeLocale;
 }
 
+/** The locale currently used by `t()`. */
+export function getLocale() {
+  return activeLocale;
+}
+
 export function t(key, vars = {}) {
   const template =
     TRANSLATIONS[activeLocale]?.[key] ?? TRANSLATIONS.en[key] ?? key;

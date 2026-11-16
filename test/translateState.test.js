@@ -1,0 +1,85 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { JSDOM } from 'jsdom';
+
+const dom = new JSDOM(`<!doctype html><html><body>
+  <div class="markdown-body">
+    <p>Read <a href="https://x">docs</a>.</p>
+    <p>Second paragraph.</p>
+  </div>
+</body></html>`, { pretendToBeVisual: true, url: 'https://github.com/o/r' });
+
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+globalThis.Element = dom.window.Element;
+globalThis.HTMLElement = dom.window.HTMLElement;
+globalThis.Node = dom.window.Node;
+globalThis.location = dom.window.location;
+globalThis.localStorage = dom.window.localStorage;
+
+const { ensureContainer, runContainer, toggleContainer, teardownAllContainers } = await import(
+  '../src/features/translate/state.js'
+);
+const container = document.querySelector('.markdown-body');
+const surface = { id: 'markdown', labelKey: 'translate.surfaceMarkdown' };
+
+const upper = async (text) => ({ text: text.toUpperCase(), detectedSourceLang: 'en' });
+
+test('translates blocks in place and restores the exact original', async () => {
+  const original = container.innerHTML;
+  const state = ensureContainer(container, surface);
+  assert.ok(state.button.classList.contains('gp-translate-btn'));
+  await runContainer(state, { translate: upper });
+  assert.match(container.textContent, /READ/);
+  assert.match(container.innerHTML, /href="https:\/\/x"/);
+  assert.equal(state.button.dataset.gpTranslateState, 'shown');
+  toggleContainer(state);
+  assert.equal(container.innerHTML, original);
+  teardownAllContainers();
+});
+
+test('below mode keeps the original and appends result boxes', async () => {
+  const original = container.innerHTML;
+  const state = ensureContainer(container, surface);
+  state.display = 'below';
+  await runContainer(state, { translate: upper });
+  assert.equal(container.querySelectorAll('.gp-translate-result').length, 2);
+  assert.ok(container.innerHTML.startsWith(original.slice(0, 20)));
+  toggleContainer(state);
+  assert.equal(container.querySelectorAll('.gp-translate-result').length, 0);
+  teardownAllContainers();
+});
+
+test('a provider that drops a link token still keeps the link', async () => {
+  const state = ensureContainer(container, surface);
+  await runContainer(state, { translate: async () => ({ text: 'Перевод.', detectedSourceLang: 'en' }) });
+  assert.match(container.innerHTML, /href="https:\/\/x"/);
+  teardownAllContainers();
+});
+
+test('a partial failure keeps the blocks that succeeded', async () => {
+  const state = ensureContainer(container, surface);
+  const translate = async (text) => {
+    if (text.includes('Second')) throw new Error('boom');
+    return { text: text.toUpperCase(), detectedSourceLang: 'en' };
+  };
+  await runContainer(state, { translate });
+  assert.match(container.textContent, /READ/);
+  assert.equal(state.status, 'partial');
+  teardownAllContainers();
+});
+
+test('a response for a stale run is discarded', async () => {
+  const state = ensureContainer(container, surface);
+  const original = container.innerHTML;
+  let release;
+  const pending = new Promise((resolve) => { release = resolve; });
+  const run = runContainer(state, {
+    translate: async (text) => { await pending; return { text: text.toUpperCase(), detectedSourceLang: 'en' }; },
+  });
+  state.runId += 1;
+  release();
+  await run;
+  assert.equal(container.innerHTML, original);
+  teardownAllContainers();
+});
