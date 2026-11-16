@@ -10,6 +10,7 @@ import { renderBackup } from './tabs/backup.js';
 import { renderFiles } from './tabs/files.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
+import { renderTranslate } from './tabs/translate.js';
 import { ensureUserMenuItem, installUserMenuEntry, refreshUserMenuItem } from './userMenu.js';
 
 /**
@@ -174,6 +175,14 @@ function registerPages() {
     labelKey: 'tab.files',
     descKey: 'tab.files.desc',
     render: renderFiles,
+  });
+  registerPage({
+    id: 'translate',
+    group: 'preferences',
+    icon: 'translate',
+    labelKey: 'tab.translate',
+    descKey: 'tab.translate.desc',
+    render: renderTranslate,
   });
   registerPage({
     id: 'backup',

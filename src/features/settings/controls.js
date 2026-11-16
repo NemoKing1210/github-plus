@@ -152,6 +152,16 @@ export function createNumberInput({ value = 0, min = 0, max = 120, step = 1, onC
   return input;
 }
 
+export function createTextInput({ value = '', type = 'text', placeholder = '', onChange, label = '' } = {}) {
+  const input = el('input', 'gp-input');
+  input.type = type;
+  input.value = value;
+  if (placeholder) input.placeholder = placeholder;
+  if (label) input.setAttribute('aria-label', label);
+  input.addEventListener('input', () => onChange?.(input.value));
+  return input;
+}
+
 export function createTextarea({ value = '', placeholder = '', onInput, label = '' } = {}) {
   const textarea = el('textarea', 'gp-textarea');
   textarea.value = value;
