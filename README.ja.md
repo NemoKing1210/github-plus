@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
@@ -13,7 +13,7 @@ Markdown の画像ギャラリー、GitHub がファイルを一覧するあら�
 ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、任意の
 ファイルのクイックプレビュー、ページ内テキストの翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.19.1`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.20.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · 翻訳 · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
 > ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック
@@ -224,6 +224,7 @@ GitHub Plus はその両方をファイルの行に追加します:
 - **その場または下に** — 原文を置き換えるか、下に訳文を表示します。
   **原文を表示** で正確な原文に戻り、ホバー表示ではポインターまたはフォーカスが
   ブロック内にある間だけ原文を確認できます。
+- **プレーンテキストも** — コードとして表示されるライセンスや通知のファイル（LICENSE、COPYING）にも同じボタンが出ます。訳文はファイルの下に表示され、コード自体は書き換えません。
 - **6 つのプロバイダー** — 既定は無料の Google（キー不要、非公式、レート制限
   あり）。ほかに DeepL、Microsoft、Yandex、OpenAI 互換エンドポイント、自前の
   LibreTranslate を選べます。翻訳するテキストは選択したサービスに送信され、
@@ -280,7 +281,7 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `translate.display` | `'replace'` | `replace` は原文を置換。`below` は原文の下に訳文を表示 |
 | `translate.reveal` | `'button'` | 置換モード: `button` は **原文を表示**。`hover` はホバーまたはフォーカスで原文を表示 |
 | `translate.linkLabels` | `true` | リンクのテキストも翻訳 |
-| `translate.surfaces.<id>` | `true` | 場所ごとのスイッチ: `markdown`、`commits`、`titles`、`preview` |
+| `translate.surfaces.<id>` | `true` | 場所ごとのスイッチ: `markdown`、`plaintext`、`commits`、`titles`、`preview` |
 | `translate.cacheHours` | `24` | キャッシュの保持時間（時間、0 で無効） |
 
 ## ギャラリーの仕組み

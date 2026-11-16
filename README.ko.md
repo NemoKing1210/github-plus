@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴,
 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.19.1`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 · 백업 ·
+> **상태:** 초기(`0.20.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 · 백업 ·
 > 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
 > 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴, 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub
 > 개선이 예정되어 있습니다.
@@ -210,6 +210,7 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
 - **제자리 또는 아래** — 원문을 바꾸거나 아래에 번역을 표시합니다.
   **원문 표시**는 정확한 원문을 되돌리고, 호버 표시는 포인터나 포커스가 블록
   안에 있는 동안 원문을 볼 수 있게 합니다.
+- **일반 텍스트 파일도** — 코드로 표시되는 라이선스 및 고지 파일(LICENSE, COPYING)에도 같은 버튼이 나타납니다. 번역은 파일 아래에 표시되며 코드 자체는 다시 쓰지 않습니다.
 - **6개 제공업체** — 기본은 무료 Google(키 불필요, 비공식, 속도 제한)이며
   DeepL, Microsoft, Yandex, OpenAI 호환 엔드포인트 또는 자체 LibreTranslate를
   선택할 수 있습니다. 번역할 텍스트는 선택한 서비스로 전송되고 API 키는 이
@@ -265,7 +266,7 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `translate.display` | `'replace'` | `replace`는 원문을 바꾸고, `below`는 원문 아래에 번역을 표시 |
 | `translate.reveal` | `'button'` | 교체 모드: `button`은 **원문 표시**, `hover`는 호버나 포커스로 원문 표시 |
 | `translate.linkLabels` | `true` | 링크 텍스트도 번역 |
-| `translate.surfaces.<id>` | `true` | 위치별 스위치: `markdown`, `commits`, `titles`, `preview` |
+| `translate.surfaces.<id>` | `true` | 위치별 스위치: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | 캐시 유지 시간(시간, 0이면 끔) |
 
 ## 갤러리 구조

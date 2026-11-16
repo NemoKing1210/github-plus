@@ -2892,6 +2892,10 @@ audio.gp-preview__media {
   color: var(--gp-text);
 }
 
+.gp-translate-result--plain {
+  white-space: pre-wrap;
+}
+
 /* Extra actions supplied to the quick preview header, beside its own tools. */
 .gp-preview__extra {
   display: flex;

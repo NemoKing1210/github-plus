@@ -56,6 +56,7 @@ test('surface switches follow the defaults exactly', () => {
   const out = section({ surfaces: { markdown: false, nope: true } });
   assert.deepEqual(out.surfaces, {
     markdown: false,
+    plaintext: true,
     commits: true,
     titles: true,
     preview: true,

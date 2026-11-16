@@ -81,6 +81,11 @@ function pruneDetached() {
   });
 }
 
+/** Tear down every container that left the DOM; safe on any scan. */
+export function pruneDetachedContainers() {
+  pruneDetached();
+}
+
 /**
  * Decorate one surface container with the translate control, or return the
  * existing state when the container content did not change. Null when the
@@ -186,7 +191,11 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     }
   }
 
-  const display = state.display || settings.display || 'replace';
+  // A plain-text file is a code view: replacing its lines would destroy the
+  // layout, so its translation always goes under the file.
+  const display = state.surface && state.surface.plain
+    ? 'below'
+    : (state.display || settings.display || 'replace');
   const target = resolveTargetLang(settings.targetLang, getLocale());
   const runId = state.runId + 1;
   state.runId = runId;
@@ -244,7 +253,9 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     }
     const html = result.html;
     if (display === 'below') {
-      const box = createResultBox(html);
+      const box = createResultBox(html, {
+        preformatted: Boolean(state.surface && state.surface.plain),
+      });
       const tag = record.el.tagName;
       if (tag === 'LI' || tag === 'TD' || tag === 'TH') record.el.appendChild(box);
       else record.el.insertAdjacentElement('afterend', box);

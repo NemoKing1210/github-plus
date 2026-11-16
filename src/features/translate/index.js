@@ -10,11 +10,13 @@ import { debounce, toArray } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { persistCacheNow } from './cache.js';
 import {
-  ensureContainer, repaintTranslateLabels, runContainer, stateFor, teardownAllContainers,
+  ensureContainer, pruneDetachedContainers, repaintTranslateLabels, runContainer, stateFor,
+  teardownAllContainers,
 } from './state.js';
 import { enabledSurfaces, findContainers, surfaceRoots } from './surfaces.js';
 
 const SHELL_MS = 200;
+const NAV_SETTLE_TRIES = 4;
 
 let initialized = false;
 let observers = [];
@@ -98,6 +100,8 @@ function startAuto() {
 export function scanTranslateSurfaces() {
   const settings = getTranslateSettings();
   if (!settings.enabled) return;
+  // A page with nothing translatable still has to drop the previous page's chrome.
+  pruneDetachedContainers();
   enabledSurfaces().forEach((surface) => {
     findContainers(surface).forEach((container) => {
       const current = stateFor(container);
@@ -168,15 +172,18 @@ function hasSurfaceButton() {
     .some((node) => !node.closest('.gp-preview-overlay'));
 }
 
-function startSettle() {
-  if (hasSurfaceButton()) return;
+function startSettle({ force = false } = {}) {
+  if (!force && hasSurfaceButton()) return;
+  stopSettle();
   settleTries = 0;
   settleTimer = setInterval(() => {
     settleTries += 1;
+    syncObservers();
     scanTranslateSurfaces();
-    if (hasSurfaceButton() || settleTries >= TRANSLATE_SETTLE_TRIES) {
-      stopSettle();
-    }
+    const done = force
+      ? settleTries >= NAV_SETTLE_TRIES
+      : hasSurfaceButton() || settleTries >= TRANSLATE_SETTLE_TRIES;
+    if (done) stopSettle();
   }, TRANSLATE_SETTLE_MS);
 }
 
@@ -205,7 +212,13 @@ export function initTranslateFeature() {
   initialized = true;
   on('settings:translate', () => applyTranslateSettings());
   on('settings:language', () => repaintTranslateLabels());
-  watchNavigation(() => applyTranslateSettings());
+  watchNavigation(() => {
+    applyTranslateSettings();
+    // The URL changes before GitHub swaps the page, so the scan above decorates
+    // content that is about to leave. Keep scanning until the new page mounts;
+    // every tick also prunes the controls whose container is gone.
+    startSettle({ force: true });
+  });
   observeShell();
   if (typeof window !== 'undefined') {
     window.addEventListener('pagehide', () => persistCacheNow());

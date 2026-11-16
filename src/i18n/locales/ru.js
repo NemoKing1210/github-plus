@@ -194,6 +194,8 @@ export default {
   'translate.surfacesDesc': 'Где появляется действие «Перевести».',
   'translate.surfaceMarkdown': 'Markdown-текст',
   'translate.surfaceMarkdownHint': 'README, issues, pull request’ы, обсуждения, релизы, вики и комментарии.',
+  'translate.surfacePlaintext': 'Текстовые файлы',
+  'translate.surfacePlaintextHint': 'Файлы лицензий и уведомлений, показанные как код, например LICENSE или COPYING.',
   'translate.surfaceCommits': 'Сообщения коммитов',
   'translate.surfaceCommitsHint': 'Страницы коммитов, списки коммитов и последний коммит на главной странице репозитория.',
   'translate.surfaceTitles': 'Заголовки',

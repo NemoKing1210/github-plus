@@ -38,7 +38,7 @@ const {
 
 test('enabled surfaces come from settings', () => {
   const ids = enabledSurfaces().map((surface) => surface.id);
-  assert.deepEqual(ids, ['markdown', 'commits', 'titles', 'preview']);
+  assert.deepEqual(ids, ['markdown', 'plaintext', 'commits', 'titles', 'preview']);
 });
 
 test('markdown containers skip our preview overlay', () => {

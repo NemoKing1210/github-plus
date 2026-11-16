@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
@@ -14,7 +14,7 @@ tamaños de archivo con descargas en un clic, un menú contextual para acciones
 de archivo, una vista rápida de cualquier archivo y traducción del contenido
 de la página.
 
-> **Estado:** temprano (`0.19.1`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.20.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Traducción · Copia de seguridad · Acerca de), la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
@@ -251,6 +251,9 @@ archivo markdown abierto en la vista rápida:
 - **En el sitio o debajo** — sustituye el texto original o muestra la traducción
   debajo; **Mostrar original** restaura el texto exacto, y la vista al pasar el
   ratón permite asomarse mientras el puntero o el foco está dentro del bloque.
+- **También archivos de texto** — los archivos de licencia y avisos (LICENSE,
+  COPYING) mostrados como código reciben el mismo botón; la traducción aparece
+  debajo del archivo y el código nunca se reescribe.
 - **Seis proveedores** — Google gratuito por defecto (sin clave, no oficial y
   con límite de peticiones), o DeepL, Microsoft, Yandex, un endpoint compatible
   con OpenAI o tu propia instancia de LibreTranslate. El texto traducido se
@@ -309,7 +312,7 @@ Se guardan en `gp_settings_v1`.
 | `translate.display` | `'replace'` | `replace` sustituye el texto; `below` muestra la traducción bajo el original |
 | `translate.reveal` | `'button'` | Modo sustitución: `button` muestra **Mostrar original**; `hover` enseña el original al pasar el ratón o con el foco |
 | `translate.linkLabels` | `true` | Traducir también el texto de los enlaces |
-| `translate.surfaces.<id>` | `true` | Interruptores por lugar: `markdown`, `commits`, `titles`, `preview` |
+| `translate.surfaces.<id>` | `true` | Interruptores por lugar: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Duración de la caché en horas (0 la desactiva) |
 
 ## Cómo está construida la galería

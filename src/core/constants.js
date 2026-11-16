@@ -278,7 +278,7 @@ const DEFAULT_TRANSLATE = {
   display: 'replace',
   reveal: 'button',
   linkLabels: true,
-  surfaces: { markdown: true, commits: true, titles: true, preview: true },
+  surfaces: { markdown: true, plaintext: true, commits: true, titles: true, preview: true },
   cacheHours: 24,
 };
 

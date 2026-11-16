@@ -898,14 +898,18 @@ default `mode` is `button`; `auto` is opt-in.
 
 - `surfaces.js`: the registry of places translation happens, each independent
   like a gallery source: `markdown` (`.markdown-body` outside the preview),
-  `commits` (`[data-testid="commit-message"]`, `.commit-title`,
-  `.commit-desc`), `titles` (issue/PR title elements) and `preview`
+  `plaintext` (`.react-code-lines` files with `.react-file-line.html-div`
+  lines — licenses and notices GitHub renders as plain text; marked `plain: true`,
+  and skipped for syntax-highlighted code), `commits`
+  (`[data-testid="commit-message"]`, `.commit-title`, `.commit-desc`), `titles`
+  (issue/PR title elements) and `preview`
   (`.gp-preview-overlay .gp-preview__md`). A surface declares `containers`,
   observation `roots`, `headerFor(container)` (the page header that should host
   the button — the comment/file/release header, or the repository README's
-  `readmeHeaderSlot` — or null for the fallback bar) and `skip(node)`. The preview
-  surface can never be auto-translated (`roots: []`); its action lives in the
-  preview header. `findContainers` returns live containers in document order;
+  `readmeHeaderSlot` — or null for the fallback bar) and `skip(node)`. A
+  `plain` surface can only be displayed below its source, never replace it. The
+  preview surface can never be auto-translated (`roots: []`); its action lives
+  in the preview header. `findContainers` returns live containers in document order;
   `surfaceForContainer`, `previewSurface`, `previewContainer`, `enabledSurfaces`
   and `surfaceRoots` are the rest of the API.
 - `blocks.js`: `collectBlocks(container)` walks to the leaf text blocks
@@ -924,6 +928,9 @@ default `mode` is `button`; `auto` is opt-in.
   `TRANSLATE_MAX_BLOCK_CHARS`. Inline emphasis is inlined per the design;
   `renderBlockResult` reassembles the translated block, escaping the provider
   text and restoring the tokens (the report carries `missing`/`duplicated`).
+  For a plain-text container the block's `.react-file-line` elements are joined
+  with their line breaks (`plainTextSource`), so a license keeps its paragraph
+  structure and the extracted source carries no inline tokens.
 - `tokens.js`: pure marker code. `TOKEN_START`/`TOKEN_END`
   (U+E000/U+E001) wrap an inline-element index; `SEGMENT_START`/`SEGMENT_END`
   (U+E100/U+E101) mark batch segments; `LABEL_START`/`LABEL_END`
@@ -968,7 +975,8 @@ default `mode` is `button`; `auto` is opt-in.
   the repository README slot, and creating no bar: `ensureChrome` returns
   `{ button, bar: null }` — otherwise into our own `.gp-translate-bar` before
   the container), `setBarStatus(container, text, { error })` (a no-op without
-  a bar), `createResultBox(html)` and `removeChrome`.
+  a bar), `createResultBox(html, { preformatted })` (a `plain` surface's box
+  keeps the source line breaks) and `removeChrome`.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
   `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
   a container (returns the existing state when the content signature is
@@ -982,7 +990,9 @@ default `mode` is `button`; `auto` is opt-in.
   of its inline tokens is left untouched and counts as failed, so markup is
   never piled up at the end. `toggleContainer` restores the exact original HTML
   or starts a run, and is the only caller that focuses the button, so auto mode
-  never steals focus. `teardownContainer`/`teardownAllContainers` restore and
+  never steals focus. A `plain` surface is always painted `below`: its container
+  is a code view, so rewriting its lines would destroy the layout.
+  `teardownContainer`/`teardownAllContainers` restore and
   remove chrome, and `pruneDetached` runs the same teardown on a container that
   left the DOM — dropping the state alone would leave its button stacked in a
   page header shared with the next file. A click on a button whose container
@@ -994,11 +1004,15 @@ default `mode` is `button`; `auto` is opt-in.
   lists. `reveal: hover` shows the source while the pointer or focus is inside
   the container and repaints on leave. A caller-supplied button (the preview
   action) is not bound by `ensureContainer` — its owner toggles instead.
-- `index.js`: the lifecycle. `scanTranslateSurfaces()` decorates live
-  containers; one `MutationObserver` per enabled surface root (debounced, pruned
-  and reattached by `syncObservers`) plus the bounded settle wait
-  (`TRANSLATE_SETTLE_MS` × `TRANSLATE_SETTLE_TRIES`, stopped as soon as a page
-  surface is decorated — a preview action does not count) catch late mounts.
+- `index.js`: the lifecycle. `scanTranslateSurfaces()` prunes containers that
+  left the DOM (which removes their chrome from a shared page header) and
+  decorates live containers; one `MutationObserver` per enabled surface root
+  (debounced, pruned and reattached by `syncObservers`) plus the bounded settle
+  wait (`TRANSLATE_SETTLE_MS` × `TRANSLATE_SETTLE_TRIES`, stopped as soon as a
+  page surface is decorated — a preview action does not count) catch late
+  mounts. Navigation forces a short settle pass that re-syncs the observers and
+  rescans a few times, so chrome left by the previous page disappears even when
+  the next page has nothing translatable.
   Direct-children watchers on `<html>` and `<body>` rescan after an app-shell
   swap, since a replaced body leaves the root observers dead;
   `applyTranslateSettings()` tears everything down and reapplies. In `auto` mode
@@ -1028,7 +1042,7 @@ classes.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 263
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 265
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1229,7 +1243,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `translate.display` | `'replace'` | `replace` swaps the block text; `below` keeps it and adds a result box |
 | `translate.reveal` | `'button'` | Replace mode only: `button` = **Show original**, `hover` = peek at the source while hovering/focused |
 | `translate.linkLabels` | `true` | Translate anchor labels as their own segments |
-| `translate.surfaces.<id>` | `true` | Per-surface switches (`markdown`, `commits`, `titles`, `preview`) |
+| `translate.surfaces.<id>` | `true` | Per-surface switches (`markdown`, `plaintext`, `commits`, `titles`, `preview`) |
 | `translate.cacheHours` | `24` | Cache lifetime in hours (`0` disables it), clamped to 0…`TRANSLATE_CACHE_HOURS_MAX` |
 
 ## Localization
@@ -1444,7 +1458,13 @@ and check diagnostics for edited files.
   has none). A button inside a comment or file header means `headerFor` found
   the header; a button in a bar above the container means it did not — extend
   `headerFor`, never add a document-wide observer. The quick preview's action
-  needs the **Quick preview** place switch too.
+  needs the **Quick preview** place switch too. A plain-text file (a license or
+  notice such as LICENSE) needs the **Plain-text files** switch; a
+  syntax-highlighted file is not plain text and is left alone, and a file over
+  `TRANSLATE_MAX_BLOCK_CHARS` (12 000) is served by no block, so it gets no
+  button. After a navigation a button left on the previous page disappears
+  within about a second; one that survives longer means the navigation hook or
+  the prune in `scanTranslateSurfaces()` broke.
 - Translation output wrong or missing: an unconfigured provider stops before
   any request with the localized setup message, and a failed one logs `GP-1601`
   — check the API key and the provider fields, then the Network tab (the

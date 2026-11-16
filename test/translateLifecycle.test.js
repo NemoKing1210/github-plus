@@ -13,6 +13,7 @@ globalThis.Element = dom.window.Element;
 globalThis.HTMLElement = dom.window.HTMLElement;
 globalThis.Node = dom.window.Node;
 globalThis.location = dom.window.location;
+globalThis.history = dom.window.history;
 globalThis.localStorage = dom.window.localStorage;
 globalThis.MutationObserver = dom.window.MutationObserver;
 
@@ -45,5 +46,24 @@ test('a replaced shell is decorated again without a navigation event', async () 
 
   await new Promise((resolve) => { setTimeout(resolve, 700); });
   assert.equal(document.querySelectorAll('.gp-translate-btn').length, 1);
+  applyTranslateSettings();
+});
+
+test('a control left by the previous page is removed when nothing is translatable', async () => {
+  saveSettings({ translate: { enabled: true } });
+  document.body.innerHTML = '<main><div class="readmeHeaderSlot__test">'
+    + '<div class="markdown-body"><p>Old page.</p></div></div></main>';
+  applyTranslateSettings();
+  assert.equal(document.querySelectorAll('.gp-translate-btn').length, 1);
+
+  history.pushState({}, '', '/o/r/blob/main/LICENSE');
+  const markdown = document.querySelector('.markdown-body');
+  const plain = document.createElement('div');
+  plain.className = 'react-code-lines';
+  plain.textContent = 'MIT License';
+  markdown.replaceWith(plain);
+
+  await new Promise((resolve) => { setTimeout(resolve, 1400); });
+  assert.equal(document.querySelectorAll('.gp-translate-btn').length, 0);
   applyTranslateSettings();
 });

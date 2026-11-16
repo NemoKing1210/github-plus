@@ -194,6 +194,8 @@ export default {
   'translate.surfacesDesc': 'Où l’action Traduire apparaît.',
   'translate.surfaceMarkdown': 'Texte markdown',
   'translate.surfaceMarkdownHint': 'Fichiers README, tickets, pull requests, discussions, versions, wikis et commentaires.',
+  'translate.surfacePlaintext': 'Fichiers texte',
+  'translate.surfacePlaintextHint': 'Fichiers de licence et de mention affichés comme du code, tels que LICENSE ou COPYING.',
   'translate.surfaceCommits': 'Messages de commit',
   'translate.surfaceCommitsHint': 'Pages de commit, listes de commits et dernier commit de la page du dépôt.',
   'translate.surfaceTitles': 'Titres',

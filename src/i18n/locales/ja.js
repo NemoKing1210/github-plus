@@ -194,6 +194,8 @@ export default {
   'translate.surfacesDesc': '「翻訳」アクションを表示する場所。',
   'translate.surfaceMarkdown': 'Markdown テキスト',
   'translate.surfaceMarkdownHint': 'README、Issue、プルリクエスト、ディスカッション、リリース、Wiki、コメント。',
+  'translate.surfacePlaintext': 'プレーンテキストファイル',
+  'translate.surfacePlaintextHint': 'コードとして表示されるライセンスや通知のファイル（LICENSE や COPYING など）。',
   'translate.surfaceCommits': 'コミットメッセージ',
   'translate.surfaceCommitsHint': 'コミットページ、コミット一覧、リポジトリのホームにある最新コミット。',
   'translate.surfaceTitles': 'タイトル',

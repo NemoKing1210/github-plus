@@ -194,6 +194,8 @@ export default {
   'translate.surfacesDesc': '“翻译”操作出现的位置。',
   'translate.surfaceMarkdown': 'Markdown 文本',
   'translate.surfaceMarkdownHint': 'README 文件、议题、拉取请求、讨论、发布、Wiki 和评论。',
+  'translate.surfacePlaintext': '纯文本文件',
+  'translate.surfacePlaintextHint': '以代码形式显示的许可证和声明文件，例如 LICENSE 或 COPYING。',
   'translate.surfaceCommits': '提交信息',
   'translate.surfaceCommitsHint': '提交页面、提交列表以及仓库主页上的最新提交。',
   'translate.surfaceTitles': '标题',

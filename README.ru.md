@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Юзерскрипт, который улучшает GitHub: полная панель настроек, галерея
 изображений для отрендеренного markdown, цветные иконки файлов везде, где
@@ -13,7 +13,7 @@ GitHub показывает файлы, раскраска их возраста
 и скачивание в один клик, контекстное меню для действий с файлами, быстрый
 просмотр любого файла и перевод текста прямо на странице.
 
-> **Статус:** ранняя стадия (`0.19.1`). Панель настроек с мгновенным поиском
+> **Статус:** ранняя стадия (`0.20.0`). Панель настроек с мгновенным поиском
 > (Общие · Галерея · Файлы · Перевод · Резервная копия · О программе), галерея изображений
 > markdown, цветные иконки файлов, раскраска возраста в стиле blame, размеры
 > файлов и кнопки скачивания, контекстное меню файлов, быстрый просмотр файлов и перевод на странице.
@@ -236,6 +236,9 @@ pull request, комментарий, сообщения коммитов, за�
 - **На месте или под оригиналом** — замените исходный текст или покажите перевод
   под ним; **Показать оригинал** возвращает точный текст, а показ при наведении
   позволяет заглянуть в оригинал, пока курсор или фокус внутри блока.
+- **И текстовые файлы** — файлы лицензий и уведомлений (LICENSE, COPYING),
+  показанные как код, получают ту же кнопку; перевод появляется под файлом, а сам
+  код никогда не переписывается.
 - **Шесть провайдеров** — бесплатный Google по умолчанию (без ключа,
   неофициальный и с ограничением частоты), а также DeepL, Microsoft, Yandex,
   совместимый с OpenAI эндпоинт или ваш экземпляр LibreTranslate. Переводимый
@@ -293,7 +296,7 @@ pull request, комментарий, сообщения коммитов, за�
 | `translate.display` | `'replace'` | `replace` заменяет текст; `below` добавляет перевод под оригиналом |
 | `translate.reveal` | `'button'` | Режим замены: `button` показывает **Показать оригинал**; `hover` показывает оригинал при наведении или фокусе |
 | `translate.linkLabels` | `true` | Переводить также текст ссылок |
-| `translate.surfaces.<id>` | `true` | Переключатели мест: `markdown`, `commits`, `titles`, `preview` |
+| `translate.surfaces.<id>` | `true` | Переключатели мест: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Срок жизни кеша в часах (0 отключает кеш) |
 
 ## Как устроена галерея

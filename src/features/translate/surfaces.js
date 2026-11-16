@@ -58,6 +58,17 @@ const SURFACES = [
     skip: (node) => !!node.closest(SKIP_MARKDOWN) || isOwnUi(node),
   },
   {
+    id: 'plaintext',
+    labelKey: 'translate.surfacePlaintext',
+    hintKey: 'translate.surfacePlaintextHint',
+    containers: ['.react-code-lines'],
+    roots: ['main', '[role="main"]'],
+    headerFor: markdownHeader,
+    // A syntax-highlighted file has no `html-div` lines and is left alone.
+    skip: (node) => isOwnUi(node) || !node.querySelector('.react-file-line.html-div'),
+    plain: true,
+  },
+  {
     id: 'commits',
     labelKey: 'translate.surfaceCommits',
     hintKey: 'translate.surfaceCommitsHint',

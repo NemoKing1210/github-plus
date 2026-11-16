@@ -97,9 +97,11 @@ export function setBarStatus(container, text, { error = false } = {}) {
 }
 
 /** A translated copy shown under the original block in below mode. */
-export function createResultBox(html) {
+export function createResultBox(html, { preformatted = false } = {}) {
   const box = document.createElement('div');
-  box.className = 'gp-translate-result';
+  box.className = preformatted
+    ? 'gp-translate-result gp-translate-result--plain'
+    : 'gp-translate-result';
   box.setAttribute('data-gp-translate-ui', '');
   box.innerHTML = html;
   return box;

@@ -772,7 +772,10 @@ all: the header row must gain no extra block, so its status — the
 `title` tooltip. A successful run clears the status instead of naming the
 language it was translated from. In `below` mode the translation is a
 `.gp-translate-result` under the original: a 2px accent left border with `12px`
-of padding, matching the panel's quoted-callout rhythm. The action is never
+of padding, matching the panel's quoted-callout rhythm. A plain-text file (a
+license or notice rendered as code) is never rewritten; its translation is a
+`.gp-translate-result--plain` box under the code view, whose source line breaks
+are kept with `white-space: pre-wrap`. The action is never
 styled into GitHub's markup itself — it is our own node placed beside GitHub's
 controls, and the preview header renders it through `.gp-preview__extra`.
 

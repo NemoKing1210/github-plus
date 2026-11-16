@@ -101,3 +101,21 @@ test('inline markup inside the preview overlay is extracted', () => {
   assert.equal(extracted.tokens.length, 1);
   assert.match(extracted.tokens[0].html, /href="https:\/\/p"/);
 });
+
+test('plain-text lines keep their line breaks in the extracted source', () => {
+  const view = document.createElement('div');
+  view.className = 'react-code-lines';
+  view.innerHTML = '<div class="react-code-text"><div>'
+    + '<div class="react-file-line html-div">MIT License</div>'
+    + '</div></div>'
+    + '<div class="react-code-text"><div>'
+    + '<div class="react-file-line html-div"></div>'
+    + '</div></div>'
+    + '<div class="react-code-text"><div>'
+    + '<div class="react-file-line html-div">Copyright line</div>'
+    + '</div></div>';
+  document.body.appendChild(view);
+  const extracted = extractBlock(view);
+  assert.equal(extracted.source, 'MIT License\n\nCopyright line');
+  view.remove();
+});

@@ -194,6 +194,8 @@ export default {
   'translate.surfacesDesc': '번역 작업이 나타나는 위치입니다.',
   'translate.surfaceMarkdown': '마크다운 텍스트',
   'translate.surfaceMarkdownHint': 'README 파일, 이슈, 풀 리퀘스트, 토론, 릴리스, 위키, 댓글.',
+  'translate.surfacePlaintext': '일반 텍스트 파일',
+  'translate.surfacePlaintextHint': '코드로 표시되는 라이선스 및 고지 파일(예: LICENSE, COPYING)입니다.',
   'translate.surfaceCommits': '커밋 메시지',
   'translate.surfaceCommitsHint': '커밋 페이지, 커밋 목록, 저장소 홈의 최신 커밋.',
   'translate.surfaceTitles': '제목',

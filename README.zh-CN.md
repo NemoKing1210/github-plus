@@ -5,13 +5,13 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
 用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的翻译。
 
-> **状态：** 早期（`0.19.1`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 · 备份 ·
+> **状态：** 早期（`0.20.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 · 备份 ·
 > 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
 > 文件大小、文件上下文菜单、快速文件预览，以及页面翻译。计划加入更多 GitHub 改进。
 
@@ -183,6 +183,7 @@ GitHub Plus 把两者直接加到文件行上：
   翻译，并保留 **显示原文** 按钮。
 - **就地或下方** —— 可替换原文，也可在原文下方显示译文；**显示原文** 会恢复精确
   的原文，悬停显示可在指针或焦点位于区块内时临时查看。
+- **还包括纯文本文件** —— 以代码形式显示的许可证和声明文件（LICENSE、COPYING）也会出现同一个按钮；译文显示在文件下方，代码本身不会被改写。
 - **六种服务** —— 默认使用免费的 Google（无需密钥，非官方且有速率限制），也可
   选择 DeepL、Microsoft、Yandex、兼容 OpenAI 的端点或自建 LibreTranslate。待翻译
   文本会发送到所选服务；API 密钥只保存在此浏览器中，因此设置备份会包含它们。
@@ -236,7 +237,7 @@ GitHub Plus 把两者直接加到文件行上：
 | `translate.display` | `'replace'` | `replace` 替换原文；`below` 在原文下方显示译文 |
 | `translate.reveal` | `'button'` | 替换模式：`button` 显示 **显示原文**；`hover` 在悬停或聚焦时查看原文 |
 | `translate.linkLabels` | `true` | 同时翻译链接文字 |
-| `translate.surfaces.<id>` | `true` | 各位置开关：`markdown`、`commits`、`titles`、`preview` |
+| `translate.surfaces.<id>` | `true` | 各位置开关：`markdown`、`plaintext`、`commits`、`titles`、`preview` |
 | `translate.cacheHours` | `24` | 缓存时长（小时，0 表示关闭缓存） |
 
 ## 画廊的构建方式

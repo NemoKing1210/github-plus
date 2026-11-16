@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-11-16
+
+### Added
+
+- Translation for plain-text files shown as code, such as `LICENSE` and
+  `COPYING`: the **Plain-text files** place switch adds the Translate button to
+  the file view, and the translation appears under the file with the source
+  line breaks kept — the code itself is never rewritten
+
+### Fixed
+
+- A Translate button left on the previous page now disappears after navigation
+  even when the next page has nothing translatable, instead of sitting stale in
+  a page header shared with the next file
+
+[0.20.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.0
+
 ## [0.19.1] - 2026-11-16
 
 ### Fixed

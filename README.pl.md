@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
@@ -13,7 +13,7 @@ wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
 i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach, szybki
 podgląd dowolnego pliku i tłumaczenie treści na stronie.
 
-> **Status:** wczesny etap (`0.19.1`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.20.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
 > plików z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików
@@ -236,6 +236,9 @@ w szybkim podglądzie:
 - **W miejscu lub pod spodem** — zastąp tekst źródłowy albo pokaż tłumaczenie pod
   nim; **Pokaż oryginał** przywraca dokładny tekst, a podgląd po najechaniu
   pozwala zajrzeć do oryginału, gdy wskaźnik lub fokus jest w bloku.
+- **Także pliki tekstowe** — pliki licencji i informacji (LICENSE, COPYING)
+  wyświetlane jako kod dostają ten sam przycisk; tłumaczenie pojawia się pod
+  plikiem, a sam kod nigdy nie jest przepisywany.
 - **Sześć usług** — domyślnie darmowy Google (bez klucza, nieoficjalny i z
   limitem zapytań) albo DeepL, Microsoft, Yandex, punkt końcowy zgodny z OpenAI
   lub własna instancja LibreTranslate. Tłumaczony tekst trafia do wybranej
@@ -294,7 +297,7 @@ Przechowywane pod `gp_settings_v1`.
 | `translate.display` | `'replace'` | `replace` zastępuje tekst; `below` pokazuje tłumaczenie pod oryginałem |
 | `translate.reveal` | `'button'` | Tryb zastępowania: `button` pokazuje **Pokaż oryginał**; `hover` pokazuje oryginał po najechaniu lub fokusie |
 | `translate.linkLabels` | `true` | Tłumacz także teksty linków |
-| `translate.surfaces.<id>` | `true` | Przełączniki miejsc: `markdown`, `commits`, `titles`, `preview` |
+| `translate.surfaces.<id>` | `true` | Przełączniki miejsc: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Czas życia pamięci podręcznej w godzinach (0 wyłącza) |
 
 ## Jak zbudowana jest galeria

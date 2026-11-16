@@ -14,6 +14,7 @@ const TOKEN_TAGS = new Set([
 ]);
 const BOLD_TAGS = new Set(['STRONG', 'B']);
 const ITALIC_TAGS = new Set(['EM', 'I']);
+const PLAIN_LINE_SELECTOR = '.react-file-line';
 
 /** The preview overlay is our UI, but the markdown rendered inside it is page content. */
 function isOwnChrome(node) {
@@ -159,6 +160,23 @@ function serializeToken(node, label) {
 }
 
 /**
+ * A plain-text file view renders one element per source line and its text
+ * nodes carry no separators; join the lines so line breaks and paragraph
+ * gaps survive the trip through the provider.
+ */
+function plainTextSource(block) {
+  if (!block || typeof block.querySelectorAll !== 'function') return null;
+  const lines = toArray(block.querySelectorAll(PLAIN_LINE_SELECTOR));
+  if (!lines.length) return null;
+  return lines
+    .map((line) => stripTokens(line.textContent || '').replace(/ /g, ' '))
+    .join('\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/**
  * Turn a block into translatable text plus inline-element tokens. Returns null
  * for a block with nothing to translate or one that is too large.
  * @param {Element} block
@@ -167,6 +185,12 @@ function serializeToken(node, label) {
  */
 export function extractBlock(block) {
   if (!block) return null;
+  const plain = plainTextSource(block);
+  if (plain !== null) {
+    return hasLetters(plain) && plain.length <= TRANSLATE_MAX_BLOCK_CHARS
+      ? { source: plain, tokens: [], bold: false, italic: false }
+      : null;
+  }
   const tokens = [];
   let source = '';
   let letters = 0;

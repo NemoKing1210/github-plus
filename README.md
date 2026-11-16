@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.19.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.20.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
@@ -13,7 +13,7 @@ blame-style age colors for those files, file sizes with one-click downloads,
 a context menu for file actions, a quick preview for any file, and on-page
 translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.19.1`). Settings panel with instant search (General ·
+> **Status:** early (`0.20.0`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Backup · About), the markdown image gallery,
 > colored file icons, blame-style file age colors, file sizes with download
 > buttons, a file context menu, a quick file preview, and on-page translation.
@@ -228,6 +228,9 @@ the markdown file open in the quick preview:
 - **In place or below** — replace the source or show the translation under it;
   **Show original** restores the exact text, and hover reveal peeks at it while
   the pointer or focus is inside the block.
+- **Plain-text files too** — license and notice files shown as code (LICENSE,
+  COPYING) get the same button; the translation appears under the file, and the
+  code itself is never rewritten.
 - **Six providers** — free Google by default (no key, unofficial and
   rate-limited), or DeepL, Microsoft, Yandex, an OpenAI-compatible endpoint or
   your own LibreTranslate instance. Translated text is sent to the selected
@@ -284,7 +287,7 @@ Stored under `gp_settings_v1`.
 | `translate.display` | `'replace'` | `replace` swaps the text in place; `below` adds the translation under the original |
 | `translate.reveal` | `'button'` | Replace mode: `button` shows **Show original**; `hover` peeks at the source on hover or focus |
 | `translate.linkLabels` | `true` | Translate the text of links too |
-| `translate.surfaces.<id>` | `true` | Per-place switches: `markdown`, `commits`, `titles`, `preview` |
+| `translate.surfaces.<id>` | `true` | Per-place switches: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Cache lifetime in hours (0 disables the cache) |
 
 ## How the gallery is built

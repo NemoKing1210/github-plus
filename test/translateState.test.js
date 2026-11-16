@@ -326,3 +326,28 @@ test('a button left in a shared header translates the file now on the page', asy
   teardownAllContainers();
   area.remove();
 });
+
+test('a plain-text file keeps its lines and shows the translation below', async () => {
+  const slot = document.createElement('header');
+  const host = document.createElement('div');
+  host.className = 'react-code-lines';
+  host.innerHTML = '<div class="react-code-text"><div>'
+    + '<div class="react-file-line html-div">MIT License</div></div></div>'
+    + '<div class="react-code-text"><div>'
+    + '<div class="react-file-line html-div">Second line.</div></div></div>';
+  document.body.append(slot, host);
+  const plainSurface = { id: 'plaintext', plain: true, headerFor: () => slot };
+  const state = ensureContainer(host, plainSurface);
+  assert.ok(state);
+  await runContainer(state, { translate: upper });
+
+  assert.equal(host.querySelectorAll('.react-file-line').length, 2);
+  assert.equal(host.querySelector('.react-file-line').textContent, 'MIT License');
+  const box = document.querySelector('.gp-translate-result--plain');
+  assert.ok(box);
+  assert.equal(box.previousElementSibling, host);
+  assert.match(box.textContent, /MIT LICENSE\nSECOND LINE\./);
+  teardownAllContainers();
+  host.remove();
+  slot.remove();
+});
