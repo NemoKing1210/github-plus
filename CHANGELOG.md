@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-11-16
+
+### Fixed
+
+- The Diagnostics **Copy log** button now reports what actually happened — a
+  clipboard copy, the console fallback when the clipboard is unavailable, or a
+  real failure — instead of claiming the settings JSON was copied
+- A logged error whose `name`, `message`, `stack` or `cause` getter throws no
+  longer drops the whole journal entry; the sanitizer and the global handlers
+  mark the unreadable field and keep the rest
+
+[0.19.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.19.1
+
 ## [0.19.0] - 2026-11-16
 
 ### Added

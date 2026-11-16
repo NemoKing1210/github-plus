@@ -66,6 +66,20 @@ test('a throwing getter does not escape', () => {
   assert.deepEqual(sanitizeValue(value), { bad: '[Unreadable]', ok: 1 });
 });
 
+test('an error whose properties throw still yields a safe descriptor', () => {
+  const error = new Error('safe');
+  Object.defineProperty(error, 'name', { configurable: true, get() { throw new Error('no name'); } });
+  Object.defineProperty(error, 'message', { configurable: true, get() { throw new Error('no message'); } });
+  Object.defineProperty(error, 'stack', { configurable: true, get() { throw new Error('no stack'); } });
+  Object.defineProperty(error, 'cause', { configurable: true, get() { throw new Error('no cause'); } });
+
+  const serialized = serializeError(error);
+  assert.equal(serialized.name, '[Unreadable]');
+  assert.equal(serialized.message, '[Unreadable]');
+  assert.equal(serialized.stack, '[Unreadable]');
+  assert.equal('cause' in serialized, false);
+});
+
 test('undefined and primitives pass through', () => {
   assert.equal(sanitizeValue(undefined), undefined);
   assert.equal(sanitizeValue(3), 3);

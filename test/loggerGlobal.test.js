@@ -1,10 +1,21 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
+
+const consoleMethods = { error: console.error, warn: console.warn, info: console.info };
+console.error = () => {};
+console.warn = () => {};
+console.info = () => {};
+after(() => Object.assign(console, consoleMethods));
+
+const jsdomErrors = [];
+const virtualConsole = new VirtualConsole();
+virtualConsole.on('jsdomError', (error) => jsdomErrors.push(error));
 
 const dom = new JSDOM('<!doctype html><body><img id="pic"></body>', {
   pretendToBeVisual: true,
   url: 'https://github.com/o/r',
+  virtualConsole,
 });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
@@ -67,6 +78,32 @@ test('rejections need an attributable stack', () => {
   const entries = getLogEntries();
   assert.equal(entries.length, 1);
   assert.equal(entries[0].code, 'GP-9002');
+});
+
+test('throwing error properties never break the global handlers', () => {
+  configureLogger({ enabled: true });
+  clearLog();
+  jsdomErrors.length = 0;
+
+  const error = new Error('bomb');
+  Object.defineProperty(error, 'stack', { configurable: true, get() { throw new Error('no stack'); } });
+  window.dispatchEvent(new dom.window.ErrorEvent('error', {
+    message: 'ours',
+    filename: 'https://x/github-plus.user.js',
+    error,
+  }));
+  const entries = getLogEntries();
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].code, 'GP-9001');
+  assert.equal(entries[0].error.stack, '[Unreadable]');
+  assert.deepEqual(jsdomErrors, []);
+
+  clearLog();
+  const reason = new Error('rejected');
+  Object.defineProperty(reason, 'stack', { configurable: true, get() { throw new Error('no stack'); } });
+  window.dispatchEvent(rejectionEvent(reason));
+  assert.equal(getLogEntries().length, 0);
+  assert.deepEqual(jsdomErrors, []);
 });
 
 test('the window API exists only while enabled and disable removes it', () => {

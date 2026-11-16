@@ -90,6 +90,24 @@ test('consecutive identical entries collapse into repeats', () => {
   }
 });
 
+test('an error with an unreadable stack still produces an entry', () => {
+  const capture = captureConsole();
+  try {
+    configureLogger({ enabled: true });
+    clearLog();
+    const error = new Error('hidden');
+    Object.defineProperty(error, 'stack', { configurable: true, get() { throw new Error('no'); } });
+    createLogger('settings').error(Codes.SETTINGS_PERSIST, 'save failed', { error });
+    const entries = getLogEntries();
+    assert.equal(entries.length, 1);
+    assert.equal(entries[0].error.message, 'hidden');
+    assert.equal(entries[0].error.stack, '[Unreadable]');
+  } finally {
+    capture.restore();
+    configureLogger({ enabled: false });
+  }
+});
+
 test('the buffer is capped and an Error passed as details is extracted', () => {
   configureLogger({ enabled: true });
   clearLog();

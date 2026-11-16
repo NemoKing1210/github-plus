@@ -20,6 +20,15 @@ function isDomNode(value) {
   return typeof value.nodeType === 'number' && typeof value.nodeName === 'string';
 }
 
+function readString(value, key) {
+  try {
+    const raw = value[key];
+    return raw === undefined || raw === null ? '' : String(raw);
+  } catch {
+    return '[Unreadable]';
+  }
+}
+
 function describeNode(node) {
   if (node.nodeType !== 1) return `[node ${node.nodeName || node.nodeType}]`;
   const tag = String(node.tagName || node.nodeName || 'element').toLowerCase();
@@ -38,15 +47,22 @@ function describeNode(node) {
 /**
  * Follow an Error's cause chain up to three levels. Non-error values and
  * non-error causes yield null so they stay in the plain details payload.
+ * Property reads are guarded: an Error can expose a throwing getter, and
+ * diagnostics must never throw while the page is already failing.
  */
 export function serializeError(error, depth = 0, seen = new WeakSet()) {
   if (!isErrorLike(error)) return null;
   const result = {
-    name: String(error.name || 'Error'),
-    message: String(error.message ?? ''),
-    stack: String(error.stack || ''),
+    name: readString(error, 'name') || 'Error',
+    message: readString(error, 'message'),
+    stack: readString(error, 'stack'),
   };
-  const cause = error.cause;
+  let cause = null;
+  try {
+    cause = error.cause;
+  } catch {
+    cause = null;
+  }
   if (depth < 2 && isErrorLike(cause) && !seen.has(cause)) {
     seen.add(error);
     const nested = serializeError(cause, depth + 1, seen);

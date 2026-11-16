@@ -92,8 +92,10 @@ export function renderGeneral(container, draft = getDraft()) {
   }));
   const copyButton = createButton(t('logging.copy'), () => {
     copyLog().then((result) => {
-      if (result.ok) {
-        showToast({ type: 'success', title: t('toast.copied'), message: t('toast.copiedDesc') });
+      if (result.method === 'clipboard') {
+        showToast({ type: 'success', title: t('logging.copied'), message: t('logging.copiedDesc') });
+      } else if (result.ok) {
+        showToast({ type: 'warning', title: t('logging.printed'), message: t('logging.printedDesc') });
       } else {
         showToast({
           type: 'error',

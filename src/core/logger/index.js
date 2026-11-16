@@ -211,9 +211,17 @@ export function isScriptFailure(text) {
   return markers.some((marker) => haystack.includes(marker));
 }
 
+function stackOf(value) {
+  try {
+    return value && value.stack ? String(value.stack) : '';
+  } catch {
+    return '';
+  }
+}
+
 function onError(event) {
   if (!boundWindow || event.target !== boundWindow) return;
-  const stack = event.error && event.error.stack ? event.error.stack : '';
+  const stack = stackOf(event.error);
   if (!isScriptFailure(`${event.filename || ''}\n${stack}`)) return;
   write('error', Codes.UNCAUGHT_ERROR, 'global', event.message || 'Uncaught error', {
     filename: event.filename,
@@ -225,7 +233,7 @@ function onError(event) {
 
 function onRejection(event) {
   const reason = event.reason;
-  const stack = reason && typeof reason === 'object' ? reason.stack : '';
+  const stack = stackOf(reason);
   if (!isScriptFailure(stack)) return;
   write('error', Codes.UNHANDLED_REJECTION, 'global', 'Unhandled promise rejection',
     isErrorLike(reason) ? reason : { reason });

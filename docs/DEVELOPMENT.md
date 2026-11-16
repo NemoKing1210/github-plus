@@ -286,9 +286,10 @@ context — switch the devtools console context to the userscript. Only uncaught
 errors and unhandled rejections attributable to this bundle are captured;
 GitHub's own failures and resource-load errors are ignored.
 
-The **Copy log** button on the same card does the same without the console. The
-buffer keeps the last 300 entries; consecutive identical entries collapse into
-one with a `repeats` count.
+The **Copy log** button on the same card copies the journal without opening the
+console; when the clipboard is unavailable it prints the JSON to the console
+instead and says so. The buffer keeps the last 300 entries; consecutive
+identical entries collapse into one with a `repeats` count.
 
 Every failure carries a stable `GP-####` code — grep the repository for the
 code to jump to the throw site. The codes come from

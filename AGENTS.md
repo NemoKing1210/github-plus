@@ -1028,7 +1028,7 @@ classes.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 260
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 263
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
