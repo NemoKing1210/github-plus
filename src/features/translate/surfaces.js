@@ -12,11 +12,19 @@ export const README_HEADER_SLOT = '[class*="readmeHeaderSlot"]';
 /** GitHub's row of comment/description header actions, where the edit control lives. */
 export const COMMENT_ACTION_ROW = '.timeline-comment-actions, [data-testid="comment-header-actions"]';
 
+/**
+ * The description edit block of the new issue/PR shell: "Edited", the edit
+ * pencil and their tooltip, all in one row above the body. The class suffix is
+ * hashed, so only the stable prefix is matched.
+ */
+export const EDIT_METADATA_ROW = '[class*="editMetadata"]';
+
 const EDIT_CONTROL = [
   'a[href$="/edit"]',
   'a[aria-label*="Edit" i]',
   'button[aria-label*="Edit" i]',
   'summary[aria-label*="Edit" i]',
+  'button[data-dd-action-name*=".edit"]',
   '[data-testid="edit-button"]',
 ].join(', ');
 
@@ -66,6 +74,8 @@ function actionsNear(container) {
     if (scope.querySelectorAll('.markdown-body').length > 1) break;
     const row = scope.querySelector(COMMENT_ACTION_ROW);
     if (row) return row;
+    const metadata = scope.querySelector(EDIT_METADATA_ROW);
+    if (metadata) return metadata;
     const edit = editControl(scope);
     if (edit) return edit.closest(COMMENT_ACTION_ROW) || edit.parentElement;
     scope = scope.parentElement;

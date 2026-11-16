@@ -2933,6 +2933,14 @@ audio.gp-preview__media {
   color: var(--gp-accent);
 }
 
+/* The new issue/PR edit block uses small invisible buttons. */
+.gp-translate-btn--small {
+  height: 28px;
+  gap: 6px;
+  padding: 0 8px;
+  font: 500 12px/20px var(--gp-font);
+}
+
 /* Fallback bar before a container that has no page header to host the action. */
 .gp-translate-bar {
   display: flex;

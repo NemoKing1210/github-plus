@@ -1,6 +1,6 @@
 import { ACTION_ICONS } from '../../ui/icons.js';
 import { t } from '../../i18n/index.js';
-import { isActionRow, README_HEADER_SLOT } from './surfaces.js';
+import { EDIT_METADATA_ROW, isActionRow, README_HEADER_SLOT } from './surfaces.js';
 
 const RING_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true">'
   + '<circle class="gp-translate-ring__track" cx="8" cy="8" r="6.5" pathLength="100"></circle>'
@@ -82,6 +82,8 @@ export function ensureChrome(container, { header, button } = {}) {
       actions || header.matches(README_HEADER_SLOT),
     );
     control.classList.toggle('gp-translate-btn--actions', actions);
+    // The new shell's edit block uses small (28px) invisible buttons.
+    control.classList.toggle('gp-translate-btn--small', header.matches(EDIT_METADATA_ROW));
     return { button: control, bar: null };
   }
   let bar = findBar(container);
@@ -96,6 +98,7 @@ export function ensureChrome(container, { header, button } = {}) {
   if (control.parentElement !== bar) bar.insertBefore(control, bar.firstChild);
   control.classList.remove('gp-translate-btn--header');
   control.classList.remove('gp-translate-btn--actions');
+  control.classList.remove('gp-translate-btn--small');
   return { button: control, bar };
 }
 

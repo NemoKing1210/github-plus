@@ -178,6 +178,33 @@ test('a comment action row gets the button beside the edit control', () => {
   comment.remove();
 });
 
+test('the description edit block gets the button before the edit control', () => {
+  const section = document.createElement('section');
+  section.className = 'container__qcj0r_';
+  section.innerHTML = '<div class="body__fphukB">'
+    + '<div class="editMetadata__ws0CPo">'
+    + '<div><div class="editHistoryContainer__0eLRCM">'
+    + '<button data-component="ActionMenu.Button" class="prc-Button-ButtonBase-9n-Xk">Edited</button>'
+    + '</div></div>'
+    + '<button data-component="IconButton" data-dd-action-name="pull_requests.description.edit"'
+    + ' class="prc-Button-ButtonBase-9n-Xk editButton__kkP1ND">pencil</button>'
+    + '</div>'
+    + '<div><div><div class="markdown-body"><p>Text with changes.</p></div></div></div>'
+    + '</div>';
+  document.body.appendChild(section);
+  const body = section.querySelector('.markdown-body');
+  const markdown = listSurfaces().find((entry) => entry.id === 'markdown');
+  const state = ensureContainer(body, markdown);
+  const block = section.querySelector('.editMetadata__ws0CPo');
+  assert.equal(state.button.parentElement, block);
+  assert.equal(block.firstElementChild, state.button);
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
+  assert.ok(state.button.classList.contains('gp-translate-btn--actions'));
+  assert.ok(state.button.classList.contains('gp-translate-btn--small'));
+  teardownAllContainers();
+  section.remove();
+});
+
 test('a caller-supplied button is not bound to toggle the container', async () => {
   const button = document.createElement('button');
   button.className = 'gp-translate-btn';

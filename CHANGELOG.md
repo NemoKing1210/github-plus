@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.3] - 2026-11-16
+
+### Fixed
+
+- On the new issue and pull request shell the Translate action now joins the
+  description's edit block — the row with "Edited" and the edit pencil — in
+  that row's compact invisible-button style, instead of sitting in a bar above
+  the description
+
+[0.20.3]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.3
+
 ## [0.20.2] - 2026-11-16
 
 ### Changed

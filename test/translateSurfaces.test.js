@@ -93,6 +93,26 @@ test('an edit control marks the header row on a page without comment classes', (
   card.remove();
 });
 
+test('the description edit block hosts the translate button', () => {
+  const section = document.createElement('section');
+  section.className = 'container__qcj0r_';
+  section.innerHTML = '<div class="body__fphukB">'
+    + '<div class="editMetadata__ws0CPo">'
+    + '<div><div class="editHistoryContainer__0eLRCM">'
+    + '<button data-component="ActionMenu.Button" class="prc-Button-ButtonBase-9n-Xk">Edited</button>'
+    + '</div></div>'
+    + '<button data-component="IconButton" data-dd-action-name="pull_requests.description.edit"'
+    + ' class="prc-Button-ButtonBase-9n-Xk editButton__kkP1ND">pencil</button>'
+    + '</div>'
+    + '<div><div><div class="markdown-body">Description body</div></div></div>'
+    + '</div>';
+  document.body.appendChild(section);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = section.querySelector('.markdown-body');
+  assert.equal(headerFor(body, markdown), section.querySelector('.editMetadata__ws0CPo'));
+  section.remove();
+});
+
 test('the preview container is resolved separately', () => {
   assert.equal(previewContainer().textContent, 'Preview');
   assert.equal(surfaceForContainer(previewContainer()).id, 'preview');

@@ -908,8 +908,11 @@ default `mode` is `button`; `auto` is opt-in.
   button: GitHub's comment action row — `.timeline-comment-actions` or the
   `[data-testid="comment-header-actions"]` row — the file/release header, or
   the repository README's `readmeHeaderSlot`; a page whose markup has no
-  comment classes is resolved through the edit control nearest the container,
-  and a header found that way is remembered in a `WeakSet` so `isActionRow()`
+  comment classes is resolved through the description's edit block
+  (`[class*="editMetadata"]`, the row holding "Edited" and the edit pencil) or
+  the edit control nearest the container (including
+  `button[data-dd-action-name*=".edit"]`), and a header found that way is
+  remembered in a `WeakSet` so `isActionRow()`
   can tell a real action row from a page header that merely contains an Edit
   link) or null for the fallback bar) and `skip(node)`. A
   `plain` surface can only be displayed below its source, never replace it. The
@@ -980,7 +983,9 @@ default `mode` is `button`; `auto` is opt-in.
   `ensureChrome(container, { header, button })` (the button goes into the page
   header when there is one — prepended into GitHub's own action row so it sits
   beside the edit control and marked `.gp-translate-btn--actions`, taking the
-  `.gp-translate-btn--header` look inside the repository README slot, and
+  `.gp-translate-btn--header` look inside the repository README slot and the
+  compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
+  shell's `editMetadata` block, and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
   into our own `.gp-translate-bar` before the container), `setBarStatus(container, text, { error })` (a no-op without
   a bar), `createResultBox(html, { preformatted })` (a `plain` surface's box

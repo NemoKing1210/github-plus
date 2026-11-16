@@ -778,7 +778,10 @@ A comment or description header is GitHub's action row
 new page shell). There the action is inserted before GitHub's own buttons so it
 sits beside the edit control, and `.gp-translate-btn--actions` gives it the same
 muted `var(--gp-text-muted)` label as those buttons, darkening to
-`var(--gp-text)` on hover; the accent tint still marks a translated body.
+`var(--gp-text)` on hover; the accent tint still marks a translated body. The
+new shell's description edit block ("Edited" and the edit pencil) uses small
+invisible buttons, so the action there takes `.gp-translate-btn--small`: 28px
+high, `0 8px` padding, a 6px gap and a `12px`/500 label.
 
 Where GitHub exposes no header, the button and its status live in our own
 `.gp-translate-bar` inserted before the container — a flex row of the button and
