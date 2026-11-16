@@ -907,17 +907,20 @@ default `mode` is `button`; `auto` is opt-in.
   (`data-gp-translate-state`, `aria-busy`, optional ` · count` progress),
   `ensureChrome(container, { header, button })` (the button goes into the page
   header when there is one — taking the `.gp-translate-btn--header` look inside
-  the repository README slot — otherwise into our own `.gp-translate-bar`
-  before the container), `setBarStatus(container, text, { error })`,
-  `createResultBox(html)` and `removeChrome`.
+  the repository README slot, and creating no bar: `ensureChrome` returns
+  `{ button, bar: null }` — otherwise into our own `.gp-translate-bar` before
+  the container), `setBarStatus(container, text, { error })` (a no-op without
+  a bar), `createResultBox(html)` and `removeChrome`.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
   `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
   a container (returns the existing state when the content signature is
   unchanged, re-inserting a control a React re-render dropped from its header),
   `runContainer` translates every block (missing-config preflight
-  before any request, button states, bar status with a `done / total` progress
-  line, partial-failure handling, unchanged-response detection, `GP-1601` and a
-  toast on total failure). A block whose provider response lost more than half
+  before any request, button states, partial-failure handling,
+  unchanged-response detection, `GP-1601` and a toast on total failure). Status
+  text goes through `setStatus`: the fallback bar when the container has one,
+  otherwise the header-hosted button's `title` — with the `done / total`
+  progress folded into its label count rather than a bar. A block whose provider response lost more than half
   of its inline tokens is left untouched and counts as failed, so markup is
   never piled up at the end. `toggleContainer` restores the exact original HTML
   or starts a run, and is the only caller that focuses the button, so auto mode

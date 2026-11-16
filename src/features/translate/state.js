@@ -20,6 +20,20 @@ function buttonLabel(status) {
   return t('translate.button');
 }
 
+/**
+ * Report a status where the control actually lives: the fallback bar when the
+ * container has one, otherwise the header-hosted button's own tooltip.
+ */
+function setStatus(state, text, options) {
+  if (state.bar && state.bar.isConnected) {
+    setBarStatus(state.container, text, options);
+    return;
+  }
+  if (!state.button) return;
+  if (text) state.button.title = text;
+  else state.button.removeAttribute('title');
+}
+
 function restorePainted(state) {
   (state.painted || []).forEach(({ el, originalHtml, box }) => {
     if (box && box.parentNode) box.remove();
@@ -156,7 +170,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     if (missing.length) {
       state.status = 'error';
       setButtonState(state.button, 'idle', { label: t('translate.button') });
-      setBarStatus(state.container, t('translate.missingConfigDesc'), { error: true });
+      setStatus(state, t('translate.missingConfigDesc'), { error: true });
       showToast({
         type: 'error',
         title: t('translate.missingConfig'),
@@ -252,7 +266,12 @@ export async function runContainer(state, { translate, focus = false } = {}) {
 
   const onProgress = (done, total) => {
     if (state.runId !== runId) return;
-    setBarStatus(state.container, t('translate.progress', { done, total }));
+    const text = t('translate.progress', { done, total });
+    if (state.bar && state.bar.isConnected) {
+      setBarStatus(state.container, text);
+      return;
+    }
+    setButtonState(state.button, 'loading', { label: t('translate.translating'), count: text });
   };
 
   const onResult = (id, result) => {
@@ -271,7 +290,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   };
 
   setButtonState(state.button, 'loading', { label: t('translate.translating') });
-  setBarStatus(state.container, t('translate.translating'));
+  setStatus(state, t('translate.translating'));
 
   try {
     await translateSegments(segments, target, { translate, onResult, onProgress });
@@ -294,7 +313,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     restorePainted(state);
     state.status = 'idle';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setBarStatus(state.container, t('translate.sameLanguage'));
+    setStatus(state, t('translate.sameLanguage'));
     state.signature = state.container.textContent.length;
     return;
   }
@@ -302,7 +321,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   if (failedCount === records.length) {
     state.status = 'error';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setBarStatus(state.container, t('translate.failed'), { error: true });
+    setStatus(state, t('translate.failed'), { error: true });
     logError(Codes.TRANSLATE, 'Translation failed for a container.', {
       surface: state.surface && state.surface.id,
     });
@@ -315,13 +334,13 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   } else if (failedCount > 0) {
     state.status = 'partial';
     setButtonState(state.button, 'shown', { label: t('translate.showOriginal') });
-    setBarStatus(state.container, t('translate.partial'));
+    setStatus(state, t('translate.partial'));
   } else {
     state.status = 'shown';
     setButtonState(state.button, 'shown', { label: t('translate.showOriginal') });
     const detected = records.find((record) => record.detected);
-    setBarStatus(
-      state.container,
+    setStatus(
+      state,
       detected ? t('translate.detected', { lang: detected.detected }) : '',
     );
   }
@@ -340,7 +359,7 @@ export function toggleContainer(state) {
     state.status = 'idle';
     state.signature = state.container.textContent.length;
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    setBarStatus(state.container, '');
+    setStatus(state, '');
     return;
   }
   runContainer(state, { focus: true }).catch(() => {});

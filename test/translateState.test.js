@@ -206,3 +206,44 @@ test('a total failure marks the bar status as an error', async () => {
   assert.ok(status.classList.contains('is-error'));
   teardownAllContainers();
 });
+
+test('a header-hosted action reports status on the button, not in a bar', async () => {
+  const slot = document.createElement('header');
+  const host = document.createElement('div');
+  host.className = 'markdown-body';
+  host.innerHTML = '<p>Read <a href="https://x">docs</a>.</p>';
+  document.body.append(slot, host);
+  const withHeader = { ...surface, headerFor: () => slot };
+  const state = ensureContainer(host, withHeader);
+  await runContainer(state, { translate: upper });
+  assert.equal(host.previousElementSibling, slot);
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
+  assert.equal(state.button.parentElement, slot);
+  assert.match(state.button.title, /Translated from en/);
+  teardownAllContainers();
+  host.remove();
+  slot.remove();
+});
+
+test('a header-hosted action shows progress in its label', async () => {
+  const slot = document.createElement('header');
+  const host = document.createElement('div');
+  host.className = 'markdown-body';
+  host.innerHTML = '<p>Read <a href="https://x">docs</a>.</p><p>Second paragraph.</p>';
+  document.body.append(slot, host);
+  const withHeader = { ...surface, headerFor: () => slot };
+  const state = ensureContainer(host, withHeader);
+  const labels = [];
+  const observer = new window.MutationObserver(() => labels.push(state.button.textContent));
+  observer.observe(state.button, { childList: true, subtree: true, characterData: true });
+  await runContainer(state, { translate: upper });
+  await Promise.resolve();
+  observer.disconnect();
+  assert.ok(
+    labels.some((label) => /Translating.*·.*\d+\s*\/\s*\d+/.test(label)),
+    `progress never reached the button: ${labels.join(' | ')}`,
+  );
+  teardownAllContainers();
+  host.remove();
+  slot.remove();
+});

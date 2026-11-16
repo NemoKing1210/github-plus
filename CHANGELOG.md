@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.4] - 2026-11-16
+
+### Fixed
+
+- The Translate action no longer adds a status bar above the container when it
+  sits in a page header; progress, the detected language and failures are
+  reported through the button's own tooltip instead, so the header row gains
+  no extra block. The fallback bar remains only where GitHub exposes no header
+
+[0.18.4]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.4
+
 ## [0.18.3] - 2026-11-16
 
 ### Changed

@@ -766,7 +766,10 @@ highlight fill on hover. The accent tint still marks a translated README.
 Where GitHub exposes no header, the button and its status live in our own
 `.gp-translate-bar` inserted before the container — a flex row of the button and
 a muted `12px` status line, with no background of its own. `.is-error` on the
-status switches it to `var(--gp-danger)`. In `below` mode the translation is a
+status switches it to `var(--gp-danger)`. A header-hosted action gets no bar at
+all: the header row must gain no extra block, so its status — the
+`Translating · 3/8` progress, the detected language, a failure — is carried by
+the button's own `title` tooltip. In `below` mode the translation is a
 `.gp-translate-result` under the original: a 2px accent left border with `12px`
 of padding, matching the panel's quoted-callout rhythm. The action is never
 styled into GitHub's markup itself — it is our own node placed beside GitHub's

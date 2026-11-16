@@ -39,10 +39,23 @@ function findBar(container) {
 
 /**
  * Put the translate control into a page header, or into our own bar right
- * before the container when no header is available. Idempotent.
+ * before the container when no header is available. A header-hosted action
+ * gets no bar: its status is reported on the button itself. Idempotent.
  */
 export function ensureChrome(container, { header, button } = {}) {
   const control = button || createButton(t('translate.button'));
+  if (header) {
+    // A bar from an earlier pass must not linger beside a header-hosted action.
+    const stale = findBar(container);
+    if (stale) stale.remove();
+    if (control.parentElement !== header) header.appendChild(control);
+    // The README header action sits among GitHub's own buttons and takes their look.
+    control.classList.toggle(
+      'gp-translate-btn--header',
+      header.matches(README_HEADER_SLOT),
+    );
+    return { button: control, bar: null };
+  }
   let bar = findBar(container);
   if (!bar) {
     bar = document.createElement('div');
@@ -52,16 +65,8 @@ export function ensureChrome(container, { header, button } = {}) {
     bar.setAttribute('aria-label', t('translate.barLabel'));
     if (container.parentNode) container.parentNode.insertBefore(bar, container);
   }
-  if (header) {
-    if (control.parentElement !== header) header.appendChild(control);
-  } else if (control.parentElement !== bar) {
-    bar.insertBefore(control, bar.firstChild);
-  }
-  // The README header action sits among GitHub's own buttons and takes their look.
-  control.classList.toggle(
-    'gp-translate-btn--header',
-    !!header && header.matches(README_HEADER_SLOT),
-  );
+  if (control.parentElement !== bar) bar.insertBefore(control, bar.firstChild);
+  control.classList.remove('gp-translate-btn--header');
   return { button: control, bar };
 }
 
@@ -72,13 +77,10 @@ export function removeChrome(container, state) {
   if (bar && bar.classList && bar.classList.contains('gp-translate-bar')) bar.remove();
 }
 
-/** Write or clear the bar's status text. */
+/** Write or clear the fallback bar's status text; a no-op without a bar. */
 export function setBarStatus(container, text, { error = false } = {}) {
-  let bar = findBar(container);
-  if (!bar) {
-    if (!text) return;
-    bar = ensureChrome(container).bar;
-  }
+  const bar = findBar(container);
+  if (!bar) return;
   let status = bar.querySelector('.gp-translate-status');
   if (!text) {
     if (status) status.remove();

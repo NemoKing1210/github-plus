@@ -4,7 +4,9 @@ import { JSDOM } from 'jsdom';
 import { t } from '../src/i18n/index.js';
 import { getIconSvg } from '../src/features/settings/controls.js';
 import { isOwnUi } from '../src/utils/dom.js';
-import { createButton, ensureChrome } from '../src/features/translate/inject.js';
+import {
+  createButton, ensureChrome, setBarStatus,
+} from '../src/features/translate/inject.js';
 
 const dom = new JSDOM('<!doctype html><body><div class="gp-translate-bar"></div></body>');
 globalThis.window = dom.window;
@@ -37,8 +39,9 @@ test('the README header action takes the header button look', () => {
   ensureChrome(markdown, { header: slot, button });
   assert.equal(button.parentElement, slot);
   assert.ok(button.classList.contains('gp-translate-btn--header'));
+  assert.equal(markdown.previousElementSibling, slot);
   button.remove();
-  markdown.previousElementSibling.remove();
+  slot.remove();
   markdown.remove();
 });
 
@@ -51,6 +54,46 @@ test('a page header outside the README slot keeps the default look', () => {
   assert.equal(button.parentElement, header);
   assert.ok(!button.classList.contains('gp-translate-btn--header'));
   button.remove();
-  markdown.previousElementSibling.remove();
+  header.remove();
+  markdown.remove();
+});
+
+test('a header-hosted action adds no bar', () => {
+  const slot = document.createElement('header');
+  const markdown = document.createElement('div');
+  document.body.append(slot, markdown);
+  const button = createButton('Translate');
+  const chrome = ensureChrome(markdown, { header: slot, button });
+  assert.equal(chrome.bar, null);
+  assert.equal(markdown.previousElementSibling, slot);
+  button.remove();
+  slot.remove();
+  markdown.remove();
+});
+
+test('a header-hosted action removes a bar left from an earlier pass', () => {
+  const header = document.createElement('header');
+  const markdown = document.createElement('div');
+  document.body.append(header, markdown);
+  const button = createButton('Translate');
+  const bars = document.querySelectorAll('.gp-translate-bar').length;
+  ensureChrome(markdown, { button });
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, bars + 1);
+  ensureChrome(markdown, { header, button });
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, bars);
+  assert.equal(button.parentElement, header);
+  button.remove();
+  header.remove();
+  markdown.remove();
+});
+
+test('a status without a fallback bar creates no block', () => {
+  const markdown = document.createElement('div');
+  document.body.append(markdown);
+  const bars = document.querySelectorAll('.gp-translate-bar').length;
+  const buttons = document.querySelectorAll('.gp-translate-btn').length;
+  setBarStatus(markdown, 'Translated');
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, bars);
+  assert.equal(document.querySelectorAll('.gp-translate-btn').length, buttons);
   markdown.remove();
 });
