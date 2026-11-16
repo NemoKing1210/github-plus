@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.6] - 2026-11-16
+
+### Fixed
+
+- A Translate button left in the shared file header after switching markdown
+  files now translates the file currently on the page instead of the detached
+  content of the previous one; the click resolves the live container under the
+  same header
+
+[0.18.6]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.6
+
 ## [0.18.5] - 2026-11-16
 
 ### Changed

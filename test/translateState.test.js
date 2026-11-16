@@ -280,3 +280,49 @@ test('switching files does not stack buttons in a shared header', () => {
   second.remove();
   slot.remove();
 });
+
+test('a button left in a shared header translates the file now on the page', async () => {
+  const area = document.createElement('div');
+  area.id = 'stale-header-test';
+  const slot = document.createElement('header');
+  const first = document.createElement('div');
+  first.className = 'markdown-body';
+  first.innerHTML = '<p>First file.</p>';
+  area.append(slot, first);
+  document.body.append(area);
+  const withHeader = {
+    ...surface,
+    roots: ['#stale-header-test'],
+    containers: ['.markdown-body'],
+    headerFor: () => slot,
+  };
+  const stale = ensureContainer(first, withHeader);
+
+  first.remove();
+  const second = document.createElement('div');
+  second.className = 'markdown-body';
+  second.innerHTML = '<p>Second file.</p>';
+  area.append(second);
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (input) => {
+    const source = new URL(String(input)).searchParams.get('q') || '';
+    return {
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify([[[source.toUpperCase()]], null, 'en']),
+    };
+  };
+  try {
+    stale.button.click();
+    for (let i = 0; i < 20 && !/SECOND/.test(second.textContent); i += 1) {
+      await new Promise((resolve) => { setTimeout(resolve, 0); });
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  assert.match(second.textContent, /SECOND/);
+  assert.equal(slot.querySelectorAll('.gp-translate-btn').length, 1);
+  teardownAllContainers();
+  area.remove();
+});

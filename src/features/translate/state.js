@@ -10,6 +10,7 @@ import {
 } from './inject.js';
 import { resolveTargetLang } from './languages.js';
 import { missingProviderFields } from './providers/registry.js';
+import { findContainers } from './surfaces.js';
 import { stripTokens } from './tokens.js';
 
 const states = new Map();
@@ -122,7 +123,7 @@ export function ensureContainer(container, surface, { button } = {}) {
   };
   // A caller-supplied control (the preview header action) owns its own handler;
   // binding here too would toggle twice per click.
-  if (!button) control.addEventListener('click', () => toggleContainer(state));
+  if (!button) control.addEventListener('click', () => activate(state));
 
   const revealHandlers = {
     onEnter: () => revealOnHover(state),
@@ -343,6 +344,31 @@ export async function runContainer(state, { translate, focus = false } = {}) {
 
   state.signature = state.container.textContent.length;
   if (focus && state.button && typeof state.button.focus === 'function') state.button.focus();
+}
+
+/**
+ * A shared page header outlives a navigation, so its button can still be bound
+ * to the container of the file that just left. Resolve the file now under the
+ * same header so the click never translates detached content.
+ */
+function rebindContainer(state) {
+  const surface = state.surface;
+  const parent = state.button ? state.button.parentElement : null;
+  if (!surface || typeof surface.headerFor !== 'function' || !parent) return null;
+  if (!Array.isArray(surface.roots) || !Array.isArray(surface.containers)) return null;
+  const live = findContainers(surface).find(
+    (container) => surface.headerFor(container) === parent,
+  );
+  return live ? ensureContainer(live, surface) : null;
+}
+
+function activate(state) {
+  if (state.container && state.container.isConnected) {
+    toggleContainer(state);
+    return;
+  }
+  const bound = rebindContainer(state);
+  if (bound) runContainer(bound, { focus: true }).catch(() => {});
 }
 
 /** Show the original again, or translate when the container is idle. */
