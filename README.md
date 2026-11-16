@@ -5,17 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
 blame-style age colors for those files, file sizes with one-click downloads,
-a context menu for file actions, and a quick preview for any file.
+a context menu for file actions, a quick preview for any file, and on-page
+translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.17.2`). Settings panel with instant search (General ·
-> Gallery · Files · Backup · About), the markdown image gallery, colored file
-> icons, blame-style file age colors, file sizes with download buttons, a file
-> context menu, and a quick file preview. More GitHub improvements planned.
+> **Status:** early (`0.18.0`). Settings panel with instant search (General ·
+> Gallery · Files · Translation · Backup · About), the markdown image gallery,
+> colored file icons, blame-style file age colors, file sizes with download
+> buttons, a file context menu, a quick file preview, and on-page translation.
+> More GitHub improvements planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -207,6 +209,31 @@ context menu:
   highlighting capped so a huge file cannot freeze the tab; over the limit the
   card points at GitHub and the raw file.
 
+### Translation
+
+Translate the text a page shows without losing its markup — a README, an
+issue or discussion, a pull request, a comment, commit messages, a title, or
+the file open in the quick preview:
+
+- **A button where the text lives** — in the README file header, a comment's
+  action row, a commit or an issue title. Where GitHub has no header to host it,
+  a small bar appears above the text instead.
+- **Markup survives** — links, images, inline code, task-list checkboxes and
+  emphasis keep working: translation replaces text blocks, never the structure
+  around them.
+- **Button or automatic** — the default waits for your click and sends nothing
+  anywhere; the automatic mode translates a block when it scrolls into view and
+  keeps its **Show original** button.
+- **In place or below** — replace the source or show the translation under it;
+  **Show original** restores the exact text, and hover reveal peeks at it while
+  the pointer or focus is inside the block.
+- **Six providers** — free Google by default (no key, unofficial and
+  rate-limited), or DeepL, Microsoft, Yandex, an OpenAI-compatible endpoint or
+  your own LibreTranslate instance. Translated text is sent to the selected
+  provider; API keys stay in this browser, so a settings backup contains them.
+- **Cached** — a translation is reused for 24 hours by default (configurable;
+  0 disables it) and can be cleared from the settings page.
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -247,6 +274,16 @@ Stored under `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
 | `filePreview.longPressMs` | `450` | Hold time in ms before the preview opens (200–2000) |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
+| `translate.enabled` | `true` | Master switch for on-page translation |
+| `translate.provider` | `'google'` | `google` (free), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
+| `translate.providerConfig.<id>` | per provider | Credentials and endpoint per provider (API key, region, folder, model, URL) |
+| `translate.targetLang` | `'auto'` | `'auto'` follows the settings language, or any offered language code |
+| `translate.mode` | `'button'` | `button` translates on click; `auto` translates blocks as they scroll into view |
+| `translate.display` | `'replace'` | `replace` swaps the text in place; `below` adds the translation under the original |
+| `translate.reveal` | `'button'` | Replace mode: `button` shows **Show original**; `hover` peeks at the source on hover or focus |
+| `translate.linkLabels` | `true` | Translate the text of links too |
+| `translate.surfaces.<id>` | `true` | Per-place switches: `markdown`, `commits`, `titles`, `preview` |
+| `translate.cacheHours` | `24` | Cache lifetime in hours (0 disables the cache) |
 
 ## How the gallery is built
 

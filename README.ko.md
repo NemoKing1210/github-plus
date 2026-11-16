@@ -5,16 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴,
-그리고 모든 파일의 빠른 미리보기를 제공합니다.
+모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.17.2`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 백업 ·
+> **상태:** 초기(`0.18.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 · 백업 ·
 > 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
-> 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴, 파일 빠른 미리보기. 더 많은 GitHub
+> 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴, 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub
 > 개선이 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
@@ -195,6 +195,28 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
   강조에도 상한이 있어 거대한 파일이 탭을 멈추지 않습니다. 한도를 넘으면 카드에서
   GitHub와 원본 파일로 이동할 수 있습니다.
 
+### 번역
+
+마크업을 망가뜨리지 않고 페이지 텍스트를 번역합니다 — README, 이슈나 토론,
+풀 리퀘스트, 댓글, 커밋 메시지, 제목 또는 빠른 미리보기에서 연 파일:
+
+- **텍스트 옆의 버튼** — README 파일 헤더, 댓글의 작업 줄, 커밋이나 이슈 제목.
+  GitHub에 헤더가 없으면 텍스트 위에 작은 막대가 나타납니다.
+- **마크업 유지** — 링크, 이미지, 인라인 코드, 작업 체크박스, 강조가 계속
+  작동합니다. 번역은 텍스트 블록만 바꾸고 주변 구조는 건드리지 않습니다.
+- **버튼 또는 자동** — 기본적으로 클릭하기 전에는 아무것도 전송하지 않습니다.
+  자동 모드에서는 블록이 화면에 들어올 때 번역하며 **원문 표시** 버튼은 그대로
+  남습니다.
+- **제자리 또는 아래** — 원문을 바꾸거나 아래에 번역을 표시합니다.
+  **원문 표시**는 정확한 원문을 되돌리고, 호버 표시는 포인터나 포커스가 블록
+  안에 있는 동안 원문을 볼 수 있게 합니다.
+- **6개 제공업체** — 기본은 무료 Google(키 불필요, 비공식, 속도 제한)이며
+  DeepL, Microsoft, Yandex, OpenAI 호환 엔드포인트 또는 자체 LibreTranslate를
+  선택할 수 있습니다. 번역할 텍스트는 선택한 서비스로 전송되고 API 키는 이
+  브라우저에만 저장되므로 설정 백업에 포함됩니다.
+- **캐시** — 번역은 기본 24시간 동안 재사용되며(설정 가능, 0이면 캐시 끔) 설정
+  페이지에서 지울 수 있습니다.
+
 ### 설정 패널
 
 GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
@@ -234,6 +256,16 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `filePreview.longPress` | `true` | 파일 이름이나 Markdown 파일 링크를 마우스 왼쪽 버튼으로 길게 눌러 미리보기 열기 |
 | `filePreview.longPressMs` | `450` | 미리보기가 열릴 때까지 길게 누르는 시간(밀리초, 200–2000) |
 | `filePreview.longPressRing` | `true` | 누르는 동안 포인터 위치에 표시되는 진행 원 |
+| `translate.enabled` | `true` | 페이지 번역 마스터 스위치 |
+| `translate.provider` | `'google'` | `google`(무료), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
+| `translate.providerConfig.<id>` | 제공업체별 | 제공업체별 자격 증명과 엔드포인트(API 키, 지역, 폴더, 모델, URL) |
+| `translate.targetLang` | `'auto'` | `'auto'`는 설정 언어를 따르며, 그 외에는 제공되는 언어 코드 |
+| `translate.mode` | `'button'` | `button`은 클릭 시 번역, `auto`는 블록이 화면에 들어올 때 번역 |
+| `translate.display` | `'replace'` | `replace`는 원문을 바꾸고, `below`는 원문 아래에 번역을 표시 |
+| `translate.reveal` | `'button'` | 교체 모드: `button`은 **원문 표시**, `hover`는 호버나 포커스로 원문 표시 |
+| `translate.linkLabels` | `true` | 링크 텍스트도 번역 |
+| `translate.surfaces.<id>` | `true` | 위치별 스위치: `markdown`, `commits`, `titles`, `preview` |
+| `translate.cacheHours` | `24` | 캐시 유지 시간(시간, 0이면 끔) |
 
 ## 갤러리 구조
 

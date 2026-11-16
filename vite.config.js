@@ -53,7 +53,7 @@ export default defineConfig({
           pl: 'Poprawia funkcjonalność GitHub',
         },
         author: 'NemoKing1210',
-        tag: ['github', 'gallery'],
+        tag: ['github', 'gallery', 'translation'],
         homepageURL: 'https://github.com/NemoKing1210/github-plus',
         supportURL: 'https://github.com/NemoKing1210/github-plus/issues',
         updateURL: `${RAW_BASE}/github-plus.user.js`,
@@ -61,6 +61,8 @@ export default defineConfig({
         license: 'MIT',
         icon: 'https://github.com/favicon.ico',
         match: ['https://github.com/*', 'https://gist.github.com/*'],
+        // Translation providers and self-hosted endpoints are user-configurable.
+        connect: ['*'],
         'run-at': 'document-idle',
         noframes: true,
       },

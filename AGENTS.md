@@ -4,10 +4,13 @@ Instructions for AI coding agents working in this repository.
 
 ## Project
 
-Userscript that improves GitHub (`github.com`, `gist.github.com`). Stage 1
-ships a full settings panel and an image gallery for rendered markdown, with
-more GitHub improvements planned. Built with Vite and `vite-plugin-monkey` for
-Tampermonkey, Violentmonkey, ScriptCat, and compatible managers.
+Userscript that improves GitHub (`github.com`, `gist.github.com`). A settings
+panel drives an image gallery for rendered markdown, colored file and folder
+icons, last-commit ages, file sizes and downloads, a file context menu, a quick
+file preview and on-page translation of markdown, comments, commits and titles,
+with more GitHub improvements planned. Built with Vite and
+`vite-plugin-monkey` for Tampermonkey, Violentmonkey, ScriptCat, and compatible
+managers.
 
 - Source entry point: `src/main.js`
 - Version source of truth: `package.json`
@@ -59,6 +62,7 @@ github-plus/
 │   │   │       ├── general.js   # Interface language, toast notifications
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
 │   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu, preview
+│   │   │       ├── translate.js # Translation trigger, places, provider, cache
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
 │   │   ├── fileIcons/
@@ -92,6 +96,21 @@ github-plus/
 │   │   │   ├── highlight.js# highlight.js core + registered languages
 │   │   │   ├── code.js     # Gutter + highlighted code block
 │   │   │   └── cards.js    # Binary / empty / too-large / failure cards
+│   │   └── translate/
+│   │       ├── index.js    # Lifecycle: observers, settle wait, auto queue, settings reaction
+│   │       ├── surfaces.js # Surface registry: containers, roots, headers, preview pane
+│   │       ├── state.js    # Per-container state, paint / reveal / restore / toggle
+│   │       ├── blocks.js   # Block collection and tokenized extraction (DOM)
+│   │       ├── tokens.js   # Private-use markers, escape/restore (pure)
+│   │       ├── languages.js# Target languages and locale → code mapping (pure)
+│   │       ├── api.js      # Batching, sentinel split, in-flight dedupe, fallback
+│   │       ├── cache.js    # Persistent GM cache (TTL, size budget, stats, clear)
+│   │       ├── inject.js   # Button, fallback bar, status line, result box
+│   │       ├── previewAction.js # Translate action for the quick preview header
+│   │       └── providers/
+│   │           ├── registry.js # Provider ids, fields, hints, defaults
+│   │           ├── request.js  # GM_xmlhttpRequest / fetch transport
+│   │           └── google.js deepl.js microsoft.js yandex.js openai.js libretranslate.js
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
@@ -99,7 +118,7 @@ github-plus/
 │   │   ├── icons.js        # 16×16 stroke SVG set (viewer toolbar, context-menu actions)
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)
-│   │   ├── filePreview.js  # Quick preview modal shell (header, footer, loading, keyboard)
+│   │   ├── filePreview.js  # Quick preview modal shell (header actions, footer, loading, keyboard)
 │   │   └── viewer.js       # Fullscreen image viewer (zoom, pan, rotate, gallery)
 │   └── utils/
 │       ├── dom.js          # el, append, debounce, eachNode, toArray, escapeHtml, isOwnUi
@@ -113,7 +132,8 @@ github-plus/
 │   ├── build-file-icons.mjs# material-icon-theme → iconSet.generated.js
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
-├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview, download)
+├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview,
+│                           #   translate*, locales, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -131,15 +151,16 @@ github-plus/
 `applyFileIconsSettings()` → `initFileAgesFeature()` + `applyFileAgesSettings()`
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
 + `applyFileMenuSettings()` → `initFilePreviewFeature()` +
-`applyFilePreviewSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
+`applyFilePreviewSettings()` → `initTranslateFeature()` +
+`applyTranslateSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
 listener, and the file menu is one delegated `contextmenu` listener, so content
 that GitHub renders after load behaves like server-rendered content with no
-rescanning. The file-icons feature watches one observer per known file-list
-container (never the document); a surface whose selector stops matching is a
-no-op, not a break. Only the settings entries re-mount themselves (see
+rescanning. The file-icons and translation features watch one observer per known
+container or surface root (never the document); a surface whose selector stops
+matching is a no-op, not a break. Only the settings entries re-mount themselves (see
 `features/settings/index.js` and `userMenu.js`): the
 header button when GitHub swaps the header, the user-menu row on every open of
 the avatar menu — the latter through one observer on Primer's overlay portal
@@ -181,13 +202,24 @@ Single place for magic values.
   remains) and
   `PREVIEW_LONG_PRESS_MOVE_PX` (8 — movement past it is a drag, not a long
   press).
+- Translation: `TRANSLATE_TARGET_LANGUAGES` (40 codes with native names and
+  flags), `TRANSLATION_CACHE_KEY` (`gp_translation_cache_v1`),
+  `TRANSLATE_CACHE_HOURS_MAX` (168), `TRANSLATE_CACHE_SOFT_LIMIT_BYTES`
+  (512 KiB), `TRANSLATE_MAX_CONCURRENCY` (2 auto translations at once),
+  `TRANSLATE_BATCH_MAX_SEGMENTS` (8) / `_MAX_CHARS` (4000),
+  `TRANSLATE_MAX_BLOCKS` (300) / `_MAX_BLOCK_CHARS` (12000), and the surface
+  observer timings `TRANSLATE_OBSERVE_DEBOUNCE_MS` (150), `TRANSLATE_SETTLE_MS`
+  (250) × `TRANSLATE_SETTLE_TRIES` (20).
 - `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
-  `fileMeta`, `fileMenu`, `filePreview`) plus `getDefaults()`, which returns a
-  deep clone — never mutate the shared constants. `DEFAULT_FILE_ICONS` is
+  `fileMeta`, `fileMenu`, `filePreview`, `translate`) plus `getDefaults()`,
+  which returns a deep clone — never mutate the shared constants.
+  `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
-  `DEFAULT_FILE_MENU` is `{ enabled }` and `DEFAULT_FILE_PREVIEW` is
-  `{ enabled, rowButton, longPress, longPressMs, longPressRing }`.
+  `DEFAULT_FILE_MENU` is `{ enabled }`, `DEFAULT_FILE_PREVIEW` is
+  `{ enabled, rowButton, longPress, longPressMs, longPressRing }` and
+  `DEFAULT_TRANSLATE` is `{ enabled, provider, providerConfig, targetLang, mode,
+  display, reveal, linkLabels, surfaces, cacheHours }`.
 
 ### `src/core/settings.js`
 
@@ -195,8 +227,8 @@ Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
-`getFileMenuSettings`, `getFilePreviewSettings`, `saveSettings`,
-`normalizeImportedSettings`, `hasCustomSettings`.
+`getFileMenuSettings`, `getFilePreviewSettings`, `getTranslateSettings`,
+`saveSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -209,8 +241,13 @@ Key facts that must survive refactors:
   switches restricted to the keys present in the defaults (a source removed
   from the registry leaves no stale key), the `fileIcons` / `fileAges` /
   `fileMeta` / `fileMenu` / `filePreview` booleans, and the long-press time
-  clamped to `PREVIEW_LONG_PRESS_MIN_MS`…`PREVIEW_LONG_PRESS_MAX_MS`. Unknown
-  values fall back to defaults, never crash.
+  clamped to `PREVIEW_LONG_PRESS_MIN_MS`…`PREVIEW_LONG_PRESS_MAX_MS`. The
+  `translate` section normalizes its enums (`mode`, `display`, `reveal`), the
+  target-language whitelist, the provider id whitelist, the per-provider config
+  record (only known provider keys, each field coerced to a string), the
+  surface switches keyed by the defaults, and `cacheHours` clamped to
+  0…`TRANSLATE_CACHE_HOURS_MAX`. Unknown values fall back to defaults, never
+  crash.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -242,8 +279,13 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:filePreview` — emitted by the same Save; the file-preview feature
   listens to tear down and repaint its listing buttons and to reattach its
   surface observers, closing an open preview when disabled.
+- `settings:translate` — emitted by the same Save; the translate feature tears
+  every container down (painted text and chrome), then scans and re-attaches
+  its observers when the feature is on, so a provider, target-language or mode
+  change never leaves stale output.
 - The same Save also emits `settings:language`, which the preview feature
-  listens to for repainting its header, footer and card labels.
+  listens to for repainting its header, footer and card labels, and the
+  translate feature for its button and status labels.
 
 ### `src/core/debug.js` — diagnostics
 
@@ -257,7 +299,8 @@ persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
 open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1104`
 gallery download button, `GP-1301` file-icons surface, `GP-1302` file-ages
 surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
-file-preview load, `GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point; layers
+file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
+`GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point; layers
 below only throw, they never log.
 
 ### `src/gallery/sources.js` — source registry
@@ -771,15 +814,122 @@ keys move between siblings.
   syncs and settles the surfaces; `settings:filePreview`, `settings:language`
   and `watchNavigation` trigger it, and navigation closes an open preview.
 - `ui/filePreview.js`: the modal shell — `openFilePreview({ files, index,
-  load })`, `closeFilePreview()`, `isFilePreviewOpen()`. Header with the file
-  name, a preview/source segmented control for Markdown, and the tools (open on
+  load, headerActions = [] })`, `closeFilePreview()`, `isFilePreviewOpen()`.
+  Header with the file name, a preview/source segmented control for Markdown,
+  an `.gp-preview__extra` row for caller-supplied header actions (the translate
+  feature's button), and the tools (open on
   GitHub, copy contents/link/path through an elevated `ui/contextMenu.js`,
   download through `utils/download.js`); body with a spinner, the rendered
   result and a `@`-style meta line; footer with the position and prev/next. A
   stale load is dropped by an abort controller plus a request token, `Escape`
   and the focus trap are handled only outside the content pane (so links inside
   stay usable) and all shell keys are ignored while the copy menu is open, it
-  takes the shared scroll lock and closes with a 160 ms exit animation.
+  takes the shared scroll lock and closes with a 160 ms exit animation. The
+  shell never imports a feature; `features/filePreview/index.js` passes the
+  translate action in when that surface is on.
+
+### `src/features/translate/` — on-page translation
+
+Translates markdown bodies (READMEs, issues, pull requests, discussions,
+releases, wikis, comments), commit messages, issue/PR titles and the quick
+preview's rendered markdown. Translation is block-level: every text block keeps
+its inline markup through private-use tokens, so links, images, inline code and
+task-list checkboxes survive the round trip. The feature is off in the sense
+that nothing is sent anywhere until the user presses **Translate** — the
+default `mode` is `button`; `auto` is opt-in.
+
+- `surfaces.js`: the registry of places translation happens, each independent
+  like a gallery source: `markdown` (`.markdown-body` outside the preview),
+  `commits` (`[data-testid="commit-message"]`, `.commit-title`,
+  `.commit-desc`), `titles` (issue/PR title elements) and `preview`
+  (`.gp-preview-overlay .gp-preview__md`). A surface declares `containers`,
+  observation `roots`, `headerFor(container)` (the page header that should host
+  the button, or null for the fallback bar) and `skip(node)`. The preview
+  surface can never be auto-translated (`roots: []`); its action lives in the
+  preview header. `findContainers` returns live containers in document order;
+  `surfaceForContainer`, `previewSurface`, `previewContainer`, `enabledSurfaces`
+  and `surfaceRoots` are the rest of the API.
+- `blocks.js`: `collectBlocks(container)` walks to the leaf text blocks
+  (`h1–h6`, `p`, `li`, `dt`, `dd`, `td`, `th`, `blockquote`, `figcaption`,
+  `caption`, `summary`), skipping `pre`, code, our own UI and GitHub's heading
+  anchors. A block that contains another candidate recurses instead of being
+  collected; a list item that only wraps a nested list is still collected, and
+  its nested lists are excluded from its own content. `extractBlock(block)`
+  turns a block into `{ source, tokens, bold, italic }` — text nodes plus a
+  token per `a`, `code`, `kbd`, `samp`, `img`, `picture`, `svg`, `br`, `input`,
+  `hr`, `video`, `audio` (the element's `outerHTML` is recorded, anchors keep
+  their label), `null` when there is nothing to translate or the block exceeds
+  `TRANSLATE_MAX_BLOCK_CHARS`. Inline emphasis is inlined per the design;
+  `renderBlockHtml` reassembles the translated block, escaping the provider
+  text and restoring the tokens.
+- `tokens.js`: pure marker code. `TOKEN_START`/`TOKEN_END`
+  (U+E000/U+E001) wrap an inline-element index; `SEGMENT_START`/`SEGMENT_END`
+  (U+E100/U+E101) mark batch segments. `restoreTokens(translated, tokens,
+  labels)` returns `{ html, missing, duplicated }`: missing tokens are appended
+  in order, duplicates render once, unknown ids stay escaped text. `hasLetters`
+  gates blocks with no letters.
+- `languages.js`: `TRANSLATE_TARGET_LANGUAGES` presentation,
+  `resolveTargetLang(preference, locale)` (`auto` maps the UI locale, else
+  English) and `targetLanguageLabel(code)` for the picker.
+- `providers/registry.js`: the ordered provider list — `google` (default, free,
+  keyless), `deepl`, `microsoft`, `yandex`, `openai` (OpenAI-compatible),
+  `libretranslate` — each with a name, a `hintKey` and field definitions that
+  drive both the settings form and the config whitelist. `providers/request.js`
+  is the transport (`GM_xmlhttpRequest` when present, `fetch` otherwise, 20 s
+  timeout). Each provider module parses its own response shape and maps the
+  canonical target code; failures throw, the layers above decide.
+- `api.js`: `buildBatches(segments)` joins up to 8 segments / 4000 characters
+  with a sentinel before each segment's text; `splitBatchResponse` requires the
+  sentinels exactly once and in order, else the batch is rejected;
+  `translateSegments(segments, target, { translate, onResult })` translates
+  batch by batch, retries a failed split per segment, dedupes identical
+  in-flight requests and writes results to the cache when no `translate`
+  override is injected.
+- `cache.js`: the persistent cache under `TRANSLATION_CACHE_KEY`. Keys are
+  `provider|target|FNV-1a(text)|length`, entries carry `{ text, detected, at }`,
+  and reads honor the TTL from `translate.cacheHours`. Writes are debounced
+  (400 ms) and flushed on `pagehide`; the store is pruned by TTL and evicted
+  oldest-first past `TRANSLATE_CACHE_SOFT_LIMIT_BYTES`. `clearCache`,
+  `getCacheUsageStats` and `persistCacheNow` complete the API. Storage failures
+  log `GP-1602`, never throw.
+- `inject.js`: `createButton(label)` (glyph + label span), `setButtonState`
+  (`data-gp-translate-state`, `aria-busy`, optional ` · count` progress),
+  `ensureChrome(container, { header, button })` (the button goes into the page
+  header when there is one, otherwise into our own `.gp-translate-bar` before
+  the container), `setBarStatus(container, text, { error })`,
+  `createResultBox(html)` and `removeChrome`.
+- `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
+  `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
+  a container (returns the existing state when the content signature is
+  unchanged), `runContainer` translates every block (button states, bar status,
+  partial-failure handling, unchanged-response detection, `GP-1601` and a toast
+  on total failure), `toggleContainer` restores the exact original HTML or
+  starts a run, and `teardownContainer`/`teardownAllContainers` restore and
+  remove chrome. `runId` makes an in-flight response stale after a teardown.
+  Painted blocks keep their original `innerHTML`; a list item keeps its nested
+  lists. `reveal: hover` shows the source while the pointer or focus is inside
+  the container and repaints on leave. A caller-supplied button (the preview
+  action) is not bound by `ensureContainer` — its owner toggles instead.
+- `index.js`: the lifecycle. `scanTranslateSurfaces()` decorates live
+  containers; one `MutationObserver` per enabled surface root (debounced) plus
+  the bounded settle wait (`TRANSLATE_SETTLE_MS` × `TRANSLATE_SETTLE_TRIES`,
+  stopped as soon as a page surface is decorated — a preview action does not
+  count) catch late mounts; `applyTranslateSettings()` tears everything down and
+  reapplies. In `auto` mode one shared `IntersectionObserver` queues visible
+  containers through a concurrency-2 queue. `initTranslateFeature()` subscribes
+  to `settings:translate` and `settings:language`, re-applies on navigation and
+  flushes the cache on `pagehide`.
+- `previewAction.js`: `isPreviewTranslationEnabled()` (`enabled &&
+  surfaces.preview`) and `createPreviewTranslateAction()` — a button that
+  resolves the live `.gp-preview__md` at click time and toggles its state.
+  `features/filePreview/index.js` passes it as the shell's `headerActions`; this
+  is the only `filePreview → translate` import.
+
+The block walk intentionally excludes markdown inside `.gp-preview-overlay` from
+`isOwnUi()` (that pane is page content), while the feature's own button, bar and
+result boxes are skipped. No rule in `app.css` selects GitHub's markup for the
+feature: the button, bar, status and result box are our own nodes with `gp-`
+classes.
 
 ### `src/i18n/`
 
@@ -791,7 +941,7 @@ keys move between siblings.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 179
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 252
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -858,6 +1008,9 @@ must not own feature state. Rules that keep it acyclic:
   never imports it.
 - `features/fileMenu` imports `features/filePreview` (for **Preview**); the
   reverse is never allowed.
+- `features/filePreview` imports `features/translate/previewAction.js` (the
+  preview header action); `features/translate` never imports `filePreview` or
+  the preview shell.
 - Side-effect registrations (the markdown source, page registration in
   `features/settings/index.js`) run at import time — a module that must be
   registered is imported by the module that owns its lifecycle.
@@ -878,8 +1031,9 @@ deep clone of persisted settings → page `render(container)` mutates the draft 
 footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:language' |
 'settings:fileIcons' | 'settings:fileAges' | 'settings:fileMeta' |
-'settings:fileMenu' | 'settings:filePreview')` → gallery repaints its
-stylesheet, file features rescan or tear down, settings entry relabels itself
+'settings:fileMenu' | 'settings:filePreview' | 'settings:translate')` → gallery
+repaints its stylesheet, file and translate features rescan or tear down,
+settings entry relabels itself
 and updates its dot → success toast → panel closes and `unlockPageScroll()`.
 
 ## End-to-end data flow (preview)
@@ -894,6 +1048,18 @@ stale request, renders a spinner and calls `load(file, { mode, signal })` →
 address, and dispatches to the markdown/code/card renderer → the shell swaps in
 `result.node`, updates the meta line and segmented control, and the footer's
 prev/next call `show()` again with the same loader.
+
+## End-to-end data flow (translation)
+
+scan → `findContainers(surface)` → `ensureContainer` (blocks present, content
+signature changed) → chrome in the page header or the fallback bar →
+**Translate** click (or an intersecting container in `auto` mode) →
+`collectBlocks` + `extractBlock` → `buildBatches` → provider request
+(`GM_xmlhttpRequest`/`fetch`) → `splitBatchResponse` → tokens restored and
+painted block by block → status/button updated, results cached. Missing config
+stops before any request with a localized hint; a total failure logs `GP-1601`
+and leaves the page untouched; **Show original** (or pointer leave after a
+hover reveal) restores the exact source.
 
 ## GitHub DOM notes
 
@@ -962,6 +1128,16 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
 | `filePreview.longPressMs` | `450` | Hold time in ms, clamped to 200…2000 |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
+| `translate.enabled` | `true` | Master switch; disabling restores every translated block and removes all chrome and observers |
+| `translate.provider` | `'google'` | Provider id; the free, keyless Google endpoint is the default |
+| `translate.providerConfig.<id>` | per provider | Credentials and endpoint fields, normalized to known keys and strings |
+| `translate.targetLang` | `'auto'` | `'auto'` follows the UI language; otherwise a `TRANSLATE_TARGET_LANGUAGES` code |
+| `translate.mode` | `'button'` | `button` sends nothing until **Translate**; `auto` translates containers as they scroll into view |
+| `translate.display` | `'replace'` | `replace` swaps the block text; `below` keeps it and adds a result box |
+| `translate.reveal` | `'button'` | Replace mode only: `button` = **Show original**, `hover` = peek at the source while hovering/focused |
+| `translate.linkLabels` | `true` | Translate anchor labels as their own segments |
+| `translate.surfaces.<id>` | `true` | Per-surface switches (`markdown`, `commits`, `titles`, `preview`) |
+| `translate.cacheHours` | `24` | Cache lifetime in hours (`0` disables it), clamped to 0…`TRANSLATE_CACHE_HOURS_MAX` |
 
 ## Localization
 
@@ -989,7 +1165,8 @@ with English fallback.
 
 All injected UI (settings entry, panel, controls, confirm dialog, toasts,
 context menu, viewer, file icons, file-age dates, the file size column and
-download buttons, and the quick file preview)
+download buttons, the quick file preview, and the translation button, status
+bar and result boxes)
 follows [DESIGN.md](DESIGN.md) — GitHub's
 own visual language through Primer tokens, `gp-`-prefixed classes, colors from
 `src/styles/tokens.css`. File icons are the documented exception: their
@@ -1053,7 +1230,7 @@ npm run build              # vite build + copy dist/ → root artifacts
 npm run verify:artifacts   # fail if dist/ and root artifacts differ
 npm run ci                 # build + verify (CI gate, also in GitHub Actions)
 npm run icons:build        # regenerate iconSet.generated.js from the package
-npm test                   # Node test runner (match, age, fileMeta, download)
+npm test                   # Node test runner (all unit and DOM suites)
 ```
 
 Build facts agents need to know:
@@ -1063,8 +1240,10 @@ Build facts agents need to know:
   `gist.github.com`, `run-at: document-idle`, `noframes`),
   `server.prefix: 'dev:'`, and `build.fileName: github-plus.user.js` with
   `metaFileName: true`. GM grants are auto-detected from the `GM_*` calls in
-  the source — do not declare grants, `@connect`, or `@match` entries
-  "just in case" (the gallery needs no cross-origin requests).
+  the source — do not declare grants or `@match` entries "just in case". The
+  one deliberate declaration is `connect: ['*']`: translation providers and
+  self-hosted endpoints (LibreTranslate, OpenAI-compatible servers) are
+  user-configurable, so a fixed host list cannot work.
 - `scripts/copy-dist.mjs` copies `ARTIFACT_FILES` from `dist/` to root;
   `verify-artifacts.mjs` enforces byte identity (CI fails on drift).
 - `dist/` and `node_modules/` are gitignored; `package-lock.json` is
@@ -1159,6 +1338,20 @@ and check diagnostics for edited files.
   show the too-large card, so a real hang means the request never settled. A
   preview left open after a soft navigation means `watchNavigation` stopped
   firing.
+- No **Translate** button: check **Translation** is on and the matching switch
+  on its **Places** card; the container must be one of the surfaces in
+  `features/translate/surfaces.js` and carry text blocks (an image-only README
+  has none). A button inside a comment or file header means `headerFor` found
+  the header; a button in a bar above the container means it did not — extend
+  `headerFor`, never add a document-wide observer. The quick preview's action
+  needs the **Quick preview** place switch too.
+- Translation output wrong or missing: an unconfigured provider stops before
+  any request with the localized setup message, and a failed one logs `GP-1601`
+  — check the API key and the provider fields, then the Network tab (the
+  request goes to the provider, `@connect *`). A failed cache write logs
+  `GP-1602` and never breaks the page. A second translation of the same text is
+  instant while `translate.cacheHours` has not expired and until **Clear
+  cache**; 0 hours disables the cache.
 - Locale sanity: diff the key lists of all ten locale files; `t()` falls back
   to `en`, which masks a missing key in one locale — verify, don't eyeball.
 

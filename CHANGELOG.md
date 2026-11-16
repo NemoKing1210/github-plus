@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-11-15
+
+### Added
+
+- **Translation** — translate rendered markdown (READMEs, issues, pull
+  requests, discussions, releases, wikis, comments), commit messages,
+  issue/PR titles and the quick file preview into forty languages. A
+  **Translate** action sits in the block's own header; translated text replaces
+  the original in place or appears below it, and every inline element — links,
+  images, code, task-list checkboxes — survives the round trip
+- **Trigger choice** — translate on demand, or automatically for containers
+  that scroll into view; **Show original** restores the exact source, and
+  `reveal: hover` peeks at it while the pointer or focus is inside the
+  container
+- **Six providers** — free Google by default (no key), plus DeepL, Microsoft,
+  Yandex, OpenAI-compatible endpoints and LibreTranslate, each with its own
+  fields and hints. API keys stay in userscript storage, so a settings backup
+  contains them
+- **Persistent cache** — translations are reused for a configurable number of
+  hours, kept under a size budget and cleared from the settings page
+- **Translation settings page** — master switch, target language, trigger,
+  display mode, reveal mode, per-place switches, provider credentials and cache
+  controls, all behind the usual Save/Reset/Cancel
+
+[0.18.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.0
+
 ## [0.17.2] - 2026-11-15
 
 ### Fixed

@@ -5,15 +5,15 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
-用于文件操作的上下文菜单，以及任意文件的快速预览。
+用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的翻译。
 
-> **状态：** 早期（`0.17.2`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 备份 ·
+> **状态：** 早期（`0.18.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 · 备份 ·
 > 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
-> 文件大小、文件上下文菜单，以及快速文件预览。计划加入更多 GitHub 改进。
+> 文件大小、文件上下文菜单、快速文件预览，以及页面翻译。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -170,6 +170,24 @@ GitHub Plus 把两者直接加到文件行上：
 - **诚实的限制** — 文本和 Markdown 最大 2 MiB，PDF 最大 25 MiB，高亮也有上限，
   避免超大文件卡住标签页；超出限制时，卡片会指向 GitHub 和原始文件。
 
+### 翻译
+
+在不破坏标记的前提下翻译页面文本——README、议题或讨论、拉取请求、评论、
+提交信息、标题，或快速预览中打开的文件：
+
+- **按钮就在文本旁** —— README 文件头、评论的操作栏、提交或议题标题处。GitHub
+  没有现成标题栏时，文本上方会出现一条小工具栏。
+- **标记保持不变** —— 链接、图片、行内代码、任务复选框和强调都能继续使用：翻译
+  替换的是文本块，而不是它周围的结构。
+- **按钮或自动** —— 默认不点击就不会发送任何内容；自动模式会在区块进入视野时
+  翻译，并保留 **显示原文** 按钮。
+- **就地或下方** —— 可替换原文，也可在原文下方显示译文；**显示原文** 会恢复精确
+  的原文，悬停显示可在指针或焦点位于区块内时临时查看。
+- **六种服务** —— 默认使用免费的 Google（无需密钥，非官方且有速率限制），也可
+  选择 DeepL、Microsoft、Yandex、兼容 OpenAI 的端点或自建 LibreTranslate。待翻译
+  文本会发送到所选服务；API 密钥只保存在此浏览器中，因此设置备份会包含它们。
+- **缓存** —— 译文默认复用 24 小时（可配置；0 表示关闭缓存），并可在设置页清除。
+
 ### 设置面板
 
 可从 GitHub 头部的齿轮按钮、头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub
@@ -209,6 +227,16 @@ GitHub Plus 把两者直接加到文件行上：
 | `filePreview.longPress` | `true` | 在文件名或 Markdown 文件链接上按住鼠标左键以打开预览 |
 | `filePreview.longPressMs` | `450` | 打开预览前的按住时长（毫秒，200–2000） |
 | `filePreview.longPressRing` | `true` | 按住时在指针处显示进度圆圈 |
+| `translate.enabled` | `true` | 页面翻译的总开关 |
+| `translate.provider` | `'google'` | `google`（免费）、`deepl`、`microsoft`、`yandex`、`openai`、`libretranslate` |
+| `translate.providerConfig.<id>` | 依服务而定 | 各服务的凭据与端点（API 密钥、区域、文件夹、模型、URL） |
+| `translate.targetLang` | `'auto'` | `'auto'` 跟随设置语言；否则为任一可选语言代码 |
+| `translate.mode` | `'button'` | `button` 点击时翻译；`auto` 在区块滚动进入视野时翻译 |
+| `translate.display` | `'replace'` | `replace` 替换原文；`below` 在原文下方显示译文 |
+| `translate.reveal` | `'button'` | 替换模式：`button` 显示 **显示原文**；`hover` 在悬停或聚焦时查看原文 |
+| `translate.linkLabels` | `true` | 同时翻译链接文字 |
+| `translate.surfaces.<id>` | `true` | 各位置开关：`markdown`、`commits`、`titles`、`preview` |
+| `translate.cacheHours` | `24` | 缓存时长（小时，0 表示关闭缓存） |
 
 ## 画廊的构建方式
 

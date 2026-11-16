@@ -5,19 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
 wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
-Dateigrößen mit Ein-Klick-Downloads, ein Kontextmenü für Dateiaktionen und eine
-Schnellvorschau für jede Datei.
+Dateigrößen mit Ein-Klick-Downloads, ein Kontextmenü für Dateiaktionen, eine
+Schnellvorschau für jede Datei und die Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.17.2`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateien · Sicherung · Info), die Markdown-Bildergalerie, farbige
+> **Status:** früh (`0.18.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateien · Übersetzung · Sicherung · Info), die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
-> Download-Schaltflächen, ein Dateikontextmenü und eine Schnellvorschau für
-> Dateien. Weitere GitHub-Verbesserungen sind geplant.
+> Download-Schaltflächen, ein Dateikontextmenü, eine Schnellvorschau für Dateien und die
+> Übersetzung von Seiteninhalten. Weitere GitHub-Verbesserungen sind geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
@@ -226,6 +226,34 @@ Markdown oder über **Vorschau** im Dateikontextmenü:
   Hervorhebung ist begrenzt, damit eine riesige Datei den Tab nicht einfriert;
   über dem Limit verweist die Karte auf GitHub und die Rohdatei.
 
+### Übersetzung
+
+Übersetze den Text einer Seite, ohne ihr Markup zu verlieren — eine README,
+ein Issue oder eine Diskussion, einen Pull Request, einen Kommentar,
+Commit-Nachrichten, einen Titel oder die Datei in der Schnellvorschau:
+
+- **Eine Schaltfläche dort, wo der Text steht** — im README-Dateikopf, in der
+  Aktionszeile eines Kommentars, bei einem Commit oder einem Issue-Titel. Hat
+  GitHub keinen Kopf, erscheint stattdessen eine kleine Leiste über dem Text.
+- **Markup bleibt erhalten** — Links, Bilder, Inline-Code, Aufgaben-Checkboxen
+  und Hervorhebungen funktionieren weiter: Die Übersetzung ersetzt Textblöcke,
+  nie die Struktur darum herum.
+- **Auf Klick oder automatisch** — standardmäßig wird nichts gesendet, bis du
+  klickst; im automatischen Modus wird ein Block beim Scrollen ins Bild
+  übersetzt, und die Schaltfläche **Original anzeigen** bleibt.
+- **An Ort und Stelle oder darunter** — ersetze den Quelltext oder zeige die
+  Übersetzung darunter; **Original anzeigen** stellt den genauen Text wieder
+  her, und die Hover-Anzeige lässt dich hineinschauen, solange der Zeiger oder
+  Fokus im Block ist.
+- **Sechs Anbieter** — kostenloses Google als Standard (ohne Schlüssel,
+  inoffiziell und rate-limitiert), oder DeepL, Microsoft, Yandex, ein
+  OpenAI-kompatibler Endpunkt oder eine eigene LibreTranslate-Instanz. Der
+  übersetzte Text geht an den gewählten Anbieter; API-Schlüssel bleiben in
+  diesem Browser, eine Sicherung der Einstellungen enthält sie also.
+- **Zwischengespeichert** — eine Übersetzung wird standardmäßig 24 Stunden lang
+  wiederverwendet (einstellbar; 0 schaltet den Cache aus) und lässt sich auf der
+  Einstellungsseite leeren.
+
 ### Einstellungsfenster
 
 Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
@@ -267,6 +295,16 @@ Gespeichert unter `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Vorschau öffnen, indem die linke Maustaste auf einem Dateinamen oder einem Markdown-Dateilink gehalten wird |
 | `filePreview.longPressMs` | `450` | Haltezeit in ms, bis die Vorschau öffnet (200–2000) |
 | `filePreview.longPressRing` | `true` | Fortschrittskreis am Zeiger während des Haltens |
+| `translate.enabled` | `true` | Hauptschalter für die Übersetzung auf der Seite |
+| `translate.provider` | `'google'` | `google` (kostenlos), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
+| `translate.providerConfig.<id>` | je Anbieter | Zugangsdaten und Endpunkt je Anbieter (API-Schlüssel, Region, Ordner, Modell, URL) |
+| `translate.targetLang` | `'auto'` | `'auto'` folgt der Sprache der Einstellungen, sonst jeder angebotene Sprachcode |
+| `translate.mode` | `'button'` | `button` übersetzt auf Klick; `auto` übersetzt Blöcke beim Scrollen ins Bild |
+| `translate.display` | `'replace'` | `replace` ersetzt den Text; `below` zeigt die Übersetzung unter dem Original |
+| `translate.reveal` | `'button'` | Ersetzen-Modus: `button` zeigt **Original anzeigen**; `hover` zeigt den Quelltext beim Hovern oder Fokus |
+| `translate.linkLabels` | `true` | Auch Linktexte übersetzen |
+| `translate.surfaces.<id>` | `true` | Schalter je Ort: `markdown`, `commits`, `titles`, `preview` |
+| `translate.cacheHours` | `24` | Lebensdauer des Caches in Stunden (0 schaltet ihn aus) |
 
 ## Wie die Galerie aufgebaut ist
 

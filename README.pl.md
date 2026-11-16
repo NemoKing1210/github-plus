@@ -5,19 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
 wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
-i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach oraz szybki
-podgląd dowolnego pliku.
+i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach, szybki
+podgląd dowolnego pliku i tłumaczenie treści na stronie.
 
-> **Status:** wczesny etap (`0.17.2`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Pliki · Kopia zapasowa · Informacje), galeria
+> **Status:** wczesny etap (`0.18.0`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
-> plików z przyciskami pobierania, menu kontekstowe plików oraz szybki podgląd
-> plików. W planach kolejne ulepszenia GitHuba.
+> plików z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików
+> i tłumaczenie treści strony. W planach kolejne ulepszenia GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
@@ -218,6 +218,33 @@ kontekstowym pliku:
   ma limit, aby ogromny plik nie zawiesił karty; powyżej limitu karta prowadzi do
   GitHuba i surowego pliku.
 
+### Tłumaczenie
+
+Tłumacz tekst strony bez utraty znaczników — README, zgłoszenie lub dyskusję,
+pull request, komentarz, komunikaty commitów, tytuł albo plik otwarty w szybkim
+podglądzie:
+
+- **Przycisk tam, gdzie jest tekst** — w nagłówku pliku README, w wierszu akcji
+  komentarza, przy commicie lub tytule zgłoszenia. Gdy GitHub nie ma nagłówka,
+  nad tekstem pojawia się mały pasek.
+- **Znaczniki pozostają** — linki, obrazy, kod w linii, pola zadań i wyróżnienia
+  nadal działają: tłumaczenie zastępuje bloki tekstu, nigdy otaczającej je
+  struktury.
+- **Przyciskiem lub automatycznie** — domyślnie nic nie jest wysyłane, dopóki nie
+  klikniesz; tryb automatyczny tłumaczy blok, gdy wchodzi w widok, i zachowuje
+  przycisk **Pokaż oryginał**.
+- **W miejscu lub pod spodem** — zastąp tekst źródłowy albo pokaż tłumaczenie pod
+  nim; **Pokaż oryginał** przywraca dokładny tekst, a podgląd po najechaniu
+  pozwala zajrzeć do oryginału, gdy wskaźnik lub fokus jest w bloku.
+- **Sześć usług** — domyślnie darmowy Google (bez klucza, nieoficjalny i z
+  limitem zapytań) albo DeepL, Microsoft, Yandex, punkt końcowy zgodny z OpenAI
+  lub własna instancja LibreTranslate. Tłumaczony tekst trafia do wybranej
+  usługi; klucze API zostają w tej przeglądarce, więc kopia zapasowa ustawień je
+  zawiera.
+- **Pamięć podręczna** — tłumaczenie jest używane ponownie przez 24 godziny
+  domyślnie (konfigurowalne; 0 wyłącza pamięć) i można je wyczyścić na stronie
+  ustawień.
+
 ### Panel ustawień
 
 Otwórz go przyciskiem zębatki w nagłówku GitHuba, wierszem **Ustawienia GitHub Plus**
@@ -258,6 +285,16 @@ Przechowywane pod `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Otwieraj podgląd po przytrzymaniu lewego przycisku myszy na nazwie pliku lub linku Markdown |
 | `filePreview.longPressMs` | `450` | Czas przytrzymania w ms do otwarcia podglądu (200–2000) |
 | `filePreview.longPressRing` | `true` | Okrąg postępu przy wskaźniku podczas przytrzymania |
+| `translate.enabled` | `true` | Główny przełącznik tłumaczenia strony |
+| `translate.provider` | `'google'` | `google` (darmowy), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
+| `translate.providerConfig.<id>` | zależnie od usługi | Dane dostępowe i punkt końcowy usługi (klucz API, region, folder, model, URL) |
+| `translate.targetLang` | `'auto'` | `'auto'` podąża za językiem ustawień; inaczej dowolny oferowany kod języka |
+| `translate.mode` | `'button'` | `button` tłumaczy po kliknięciu; `auto` tłumaczy bloki wchodzące w widok |
+| `translate.display` | `'replace'` | `replace` zastępuje tekst; `below` pokazuje tłumaczenie pod oryginałem |
+| `translate.reveal` | `'button'` | Tryb zastępowania: `button` pokazuje **Pokaż oryginał**; `hover` pokazuje oryginał po najechaniu lub fokusie |
+| `translate.linkLabels` | `true` | Tłumacz także teksty linków |
+| `translate.surfaces.<id>` | `true` | Przełączniki miejsc: `markdown`, `commits`, `titles`, `preview` |
+| `translate.cacheHours` | `24` | Czas życia pamięci podręcznej w godzinach (0 wyłącza) |
 
 ## Jak zbudowana jest galeria
 

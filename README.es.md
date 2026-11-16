@@ -5,20 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una galería
 de imágenes para el markdown renderizado, iconos de archivo en color allí donde
 GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos,
 tamaños de archivo con descargas en un clic, un menú contextual para acciones
-de archivo y una vista rápida de cualquier archivo.
+de archivo, una vista rápida de cualquier archivo y traducción del contenido
+de la página.
 
-> **Estado:** temprano (`0.17.2`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Archivos · Copia de seguridad · Acerca de), la galería de
+> **Estado:** temprano (`0.18.0`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Archivos · Traducción · Copia de seguridad · Acerca de), la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
-> menú contextual de archivos y una vista rápida de archivos. Hay más mejoras de
-> GitHub planificadas.
+> menú contextual de archivos, una vista rápida de archivos y traducción de la
+> página. Hay más mejoras de GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -231,6 +232,32 @@ previa** en el menú contextual del archivo:
   resaltado tiene un tope para que un archivo enorme no congele la pestaña; por
   encima del límite, la tarjeta lleva a GitHub y al archivo sin formato.
 
+### Traducción
+
+Traduce el texto de una página sin perder su marcado — un README, un issue o
+debate, un pull request, un comentario, mensajes de commit, un título o el
+archivo abierto en la vista rápida:
+
+- **Un botón donde está el texto** — en el encabezado del README, en la fila de
+  acciones de un comentario, en un commit o en el título de un issue. Cuando
+  GitHub no ofrece encabezado, aparece una pequeña barra sobre el texto.
+- **El marcado se conserva** — enlaces, imágenes, código en línea, casillas de
+  tareas y énfasis siguen funcionando: la traducción sustituye bloques de texto,
+  nunca la estructura que los rodea.
+- **Con botón o automática** — por defecto no se envía nada hasta que pulses; el
+  modo automático traduce un bloque al entrar en pantalla y conserva su botón
+  **Mostrar original**.
+- **En el sitio o debajo** — sustituye el texto original o muestra la traducción
+  debajo; **Mostrar original** restaura el texto exacto, y la vista al pasar el
+  ratón permite asomarse mientras el puntero o el foco está dentro del bloque.
+- **Seis proveedores** — Google gratuito por defecto (sin clave, no oficial y
+  con límite de peticiones), o DeepL, Microsoft, Yandex, un endpoint compatible
+  con OpenAI o tu propia instancia de LibreTranslate. El texto traducido se
+  envía al proveedor elegido; las claves API se quedan en este navegador, así
+  que una copia de seguridad de los ajustes las contiene.
+- **En caché** — una traducción se reutiliza 24 horas por defecto (configurable;
+  0 desactiva la caché) y puede vaciarse desde la página de ajustes.
+
 ### Panel de ajustes
 
 Ábrelo con el botón de engranaje de la cabecera de GitHub, con la fila
@@ -272,6 +299,16 @@ Se guardan en `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Mantener el botón izquierdo sobre un nombre de archivo o un enlace de markdown para abrir la vista previa |
 | `filePreview.longPressMs` | `450` | Tiempo de pulsación en ms antes de abrir la vista previa (200–2000) |
 | `filePreview.longPressRing` | `true` | Círculo de progreso junto al puntero mientras se mantiene |
+| `translate.enabled` | `true` | Interruptor principal de la traducción en la página |
+| `translate.provider` | `'google'` | `google` (gratuito), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
+| `translate.providerConfig.<id>` | según el proveedor | Credenciales y endpoint por proveedor (clave API, región, carpeta, modelo, URL) |
+| `translate.targetLang` | `'auto'` | `'auto'` sigue el idioma de los ajustes; si no, cualquier código ofrecido |
+| `translate.mode` | `'button'` | `button` traduce al hacer clic; `auto` traduce los bloques al entrar en pantalla |
+| `translate.display` | `'replace'` | `replace` sustituye el texto; `below` muestra la traducción bajo el original |
+| `translate.reveal` | `'button'` | Modo sustitución: `button` muestra **Mostrar original**; `hover` enseña el original al pasar el ratón o con el foco |
+| `translate.linkLabels` | `true` | Traducir también el texto de los enlaces |
+| `translate.surfaces.<id>` | `true` | Interruptores por lugar: `markdown`, `commits`, `titles`, `preview` |
+| `translate.cacheHours` | `24` | Duración de la caché en horas (0 la desactiva) |
 
 ## Cómo está construida la galería
 

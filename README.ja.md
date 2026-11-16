@@ -5,19 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.17.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.18.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
 Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
 ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
-ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、そして任意の
-ファイルのクイックプレビューを提供します。
+ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、任意の
+ファイルのクイックプレビュー、ページ内テキストの翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.17.2`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル · バックアップ · このアプリについて）、Markdown 画像
+> **ステータス:** 初期段階（`0.18.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル · 翻訳 · バックアップ · このアプリについて）、Markdown 画像
 > ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
 > ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック
-> プレビュー。今後さらに GitHub の改善を追加予定です。
+> プレビュー、ページ内翻訳。今後さらに GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -205,6 +205,30 @@ GitHub Plus はその両方をファイルの行に追加します:
   ハイライトにも上限があり、巨大なファイルでタブが固まりません。上限を超えると、
   カードから GitHub と生ファイルへ移動できます。
 
+### 翻訳
+
+ページのテキストをマークアップを壊さずに翻訳します — README、Issue や
+ディスカッション、プルリクエスト、コメント、コミット メッセージ、タイトル、
+クイックプレビューで開いたファイル:
+
+- **テキストのそばにボタン** — README のファイル ヘッダー、コメントのアクション
+  行、コミットや Issue のタイトル。GitHub にヘッダーがない場合は、テキストの
+  上に小さなバーが表示されます。
+- **マークアップはそのまま** — リンク、画像、インライン コード、タスクの
+  チェックボックス、強調はそのまま機能します。翻訳が置き換えるのはテキスト
+  ブロックだけで、周囲の構造には触れません。
+- **ボタンまたは自動** — 既定ではクリックするまで何も送信しません。自動モード
+  ではブロックが画面に入ると翻訳され、**原文を表示** ボタンは残ります。
+- **その場または下に** — 原文を置き換えるか、下に訳文を表示します。
+  **原文を表示** で正確な原文に戻り、ホバー表示ではポインターまたはフォーカスが
+  ブロック内にある間だけ原文を確認できます。
+- **6 つのプロバイダー** — 既定は無料の Google（キー不要、非公式、レート制限
+  あり）。ほかに DeepL、Microsoft、Yandex、OpenAI 互換エンドポイント、自前の
+  LibreTranslate を選べます。翻訳するテキストは選択したサービスに送信され、
+  API キーはこのブラウザーにのみ保存されるため、設定のバックアップに含まれます。
+- **キャッシュ** — 訳文は既定で 24 時間再利用され（設定可能、0 で無効）、設定
+  ページから消去できます。
+
 ### 設定パネル
 
 GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
@@ -245,6 +269,16 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `filePreview.longPress` | `true` | ファイル名または Markdown のファイル リンクをマウスの左ボタンで長押ししてプレビューを開く |
 | `filePreview.longPressMs` | `450` | プレビューが開くまでの長押し時間（ミリ秒、200–2000） |
 | `filePreview.longPressRing` | `true` | 長押し中にポインター位置へ表示する進行サークル |
+| `translate.enabled` | `true` | ページ翻訳のマスター スイッチ |
+| `translate.provider` | `'google'` | `google`（無料）、`deepl`、`microsoft`、`yandex`、`openai`、`libretranslate` |
+| `translate.providerConfig.<id>` | プロバイダーごと | プロバイダー別の認証情報とエンドポイント（API キー、リージョン、フォルダー、モデル、URL） |
+| `translate.targetLang` | `'auto'` | `'auto'` は設定の言語に従う。それ以外は提供される言語コード |
+| `translate.mode` | `'button'` | `button` はクリック時に翻訳。`auto` はブロックが画面に入ると翻訳 |
+| `translate.display` | `'replace'` | `replace` は原文を置換。`below` は原文の下に訳文を表示 |
+| `translate.reveal` | `'button'` | 置換モード: `button` は **原文を表示**。`hover` はホバーまたはフォーカスで原文を表示 |
+| `translate.linkLabels` | `true` | リンクのテキストも翻訳 |
+| `translate.surfaces.<id>` | `true` | 場所ごとのスイッチ: `markdown`、`commits`、`titles`、`preview` |
+| `translate.cacheHours` | `24` | キャッシュの保持時間（時間、0 で無効） |
 
 ## ギャラリーの仕組み
 
