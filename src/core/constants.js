@@ -185,6 +185,18 @@ export const TOAST_POSITIONS = [
 /** Longest auto-hide delay a toast may be configured with, ms. */
 export const TOAST_MAX_DURATION_MS = 120000;
 
+/** Diagnostics entries kept in memory while console logging is enabled. */
+export const LOG_MAX_ENTRIES = 300;
+
+/** Longest string kept in one sanitized log detail, characters. */
+export const LOG_STRING_MAX_CHARS = 2000;
+
+/** Deepest object nesting the log sanitizer walks. */
+export const LOG_DETAIL_DEPTH = 4;
+
+/** Most array items or object keys kept in one sanitized log detail. */
+export const LOG_MAX_ITEMS = 50;
+
 /** Gallery: image lightbox over rendered markdown (README and every other
  *  markdown surface on GitHub). */
 const DEFAULT_GALLERY = {
