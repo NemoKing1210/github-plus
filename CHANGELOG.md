@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.5] - 2026-11-16
+
+### Changed
+
+- The translation status no longer names the source language a translation was
+  detected from; a successful run clears the status and leaves only the
+  Translate / Show original control
+
 ### Fixed
 
 - Markdown opened in the quick preview now behaves like page markdown: its
@@ -17,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Translate action in the quick preview is offered only for a rendered
   markdown file and disappears in source mode or when the preview moves to a
   file of another kind
+
+[0.18.5]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.5
 
 ## [0.18.4] - 2026-11-16
 

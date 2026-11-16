@@ -221,7 +221,6 @@ export default {
   'translate.showOriginal': '原文を表示',
   'translate.hideTranslation': '翻訳を隠す',
   'translate.barLabel': '翻訳',
-  'translate.detected': '{lang} から翻訳',
   'translate.sameLanguage': 'すでに翻訳先の言語です',
   'translate.partial': '一部のブロックを翻訳できませんでした',
   'translate.failed': '翻訳に失敗しました',

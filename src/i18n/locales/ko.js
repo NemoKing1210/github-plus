@@ -221,7 +221,6 @@ export default {
   'translate.showOriginal': '원문 표시',
   'translate.hideTranslation': '번역 숨기기',
   'translate.barLabel': '번역',
-  'translate.detected': '{lang}에서 번역됨',
   'translate.sameLanguage': '이미 대상 언어입니다',
   'translate.partial': '일부 블록을 번역하지 못했습니다',
   'translate.failed': '번역 실패',

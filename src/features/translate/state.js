@@ -204,7 +204,6 @@ export async function runContainer(state, { translate, focus = false } = {}) {
       el: row.el,
       data: row.data,
       translation: null,
-      detected: null,
       labelIds: [],
       labels: new Map(),
       painted: false,
@@ -279,7 +278,6 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     const record = recordById.get(id);
     if (record) {
       record.translation = result;
-      record.detected = result.detectedSourceLang || record.detected;
       maybePaint(record);
       return;
     }
@@ -338,11 +336,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   } else {
     state.status = 'shown';
     setButtonState(state.button, 'shown', { label: t('translate.showOriginal') });
-    const detected = records.find((record) => record.detected);
-    setStatus(
-      state,
-      detected ? t('translate.detected', { lang: detected.detected }) : '',
-    );
+    setStatus(state, '');
   }
 
   state.signature = state.container.textContent.length;

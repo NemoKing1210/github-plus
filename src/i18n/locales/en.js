@@ -221,7 +221,6 @@ export default {
   'translate.showOriginal': 'Show original',
   'translate.hideTranslation': 'Hide translation',
   'translate.barLabel': 'Translation',
-  'translate.detected': 'Translated from {lang}',
   'translate.sameLanguage': 'Already in the target language',
   'translate.partial': 'Some blocks could not be translated',
   'translate.failed': 'Translation failed',

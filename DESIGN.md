@@ -768,8 +768,9 @@ Where GitHub exposes no header, the button and its status live in our own
 a muted `12px` status line, with no background of its own. `.is-error` on the
 status switches it to `var(--gp-danger)`. A header-hosted action gets no bar at
 all: the header row must gain no extra block, so its status — the
-`Translating · 3/8` progress, the detected language, a failure — is carried by
-the button's own `title` tooltip. In `below` mode the translation is a
+`Translating · 3/8` progress and a failure — is carried by the button's own
+`title` tooltip. A successful run clears the status instead of naming the
+language it was translated from. In `below` mode the translation is a
 `.gp-translate-result` under the original: a 2px accent left border with `12px`
 of padding, matching the panel's quoted-callout rhythm. The action is never
 styled into GitHub's markup itself — it is our own node placed beside GitHub's

@@ -219,10 +219,20 @@ test('a header-hosted action reports status on the button, not in a bar', async 
   assert.equal(host.previousElementSibling, slot);
   assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
   assert.equal(state.button.parentElement, slot);
-  assert.match(state.button.title, /Translated from en/);
+  assert.equal(state.button.title, '');
+  assert.doesNotMatch(document.body.textContent, /Translated from/);
   teardownAllContainers();
   host.remove();
   slot.remove();
+});
+
+test('a successful translation never names the source language', async () => {
+  const state = ensureContainer(container, surface);
+  await runContainer(state, { translate: upper });
+  assert.equal(state.button.title, '');
+  assert.equal(document.querySelector('.gp-translate-status'), null);
+  assert.doesNotMatch(document.body.textContent, /Translated from/);
+  teardownAllContainers();
 });
 
 test('a header-hosted action shows progress in its label', async () => {

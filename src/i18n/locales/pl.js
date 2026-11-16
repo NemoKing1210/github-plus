@@ -221,7 +221,6 @@ export default {
   'translate.showOriginal': 'Pokaż oryginał',
   'translate.hideTranslation': 'Ukryj tłumaczenie',
   'translate.barLabel': 'Tłumaczenie',
-  'translate.detected': 'Przetłumaczono z {lang}',
   'translate.sameLanguage': 'Tekst jest już w języku docelowym',
   'translate.partial': 'Nie udało się przetłumaczyć niektórych bloków',
   'translate.failed': 'Tłumaczenie nie powiodło się',

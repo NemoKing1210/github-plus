@@ -221,7 +221,6 @@ export default {
   'translate.showOriginal': '显示原文',
   'translate.hideTranslation': '隐藏译文',
   'translate.barLabel': '翻译',
-  'translate.detected': '译自 {lang}',
   'translate.sameLanguage': '已是目标语言',
   'translate.partial': '部分区块无法翻译',
   'translate.failed': '翻译失败',
