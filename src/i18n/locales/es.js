@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': 'Las traducciones se guardan en este dispositivo.',
   'translate.cacheHours': 'Conservar traducciones (horas)',
   'translate.cacheHoursDesc': '0 desactiva la caché.',
-  'translate.cacheUsage': '{count} entradas · {size} usados',
+  'translate.cacheUsage': '{count} entradas · {size} de {limit} usados',
   'translate.cacheEmpty': 'La caché está vacía.',
   'translate.clearCache': 'Vaciar caché',
   'translate.cacheCleared': 'Caché de traducciones vaciada',

@@ -657,6 +657,39 @@ html.gp-modal-open body {
   font-size: 13px;
   font-weight: 600;
 }
+/* Rows and fields carry their own padding; a hint or a textarea placed
+ * straight into a card body would otherwise touch the card's border. */
+.gp-card__body > .gp-hint,
+.gp-provider-fields > .gp-hint,
+.gp-card__body > .gp-textarea {
+  margin: 12px 16px;
+}
+.gp-card__body > .gp-hint:empty {
+  display: none;
+}
+.gp-card__body > .gp-textarea {
+  width: auto;
+}
+.gp-provider-fields {
+  display: flex;
+  flex-direction: column;
+}
+/* Usage meter: the fill width is measured at runtime and set inline through
+ * --gp-meter-fill, so CSS cannot own it. */
+.gp-meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--gp-line);
+}
+.gp-meter__fill {
+  display: block;
+  width: var(--gp-meter-fill, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gp-accent);
+  transition: width 0.18s ease;
+}
 
 /* == Switch ================================================================= */
 .gp-switch {
@@ -1789,6 +1822,7 @@ html.gp-modal-open body {
   .gp-toast--leaving,
   .gp-switch__track,
   .gp-switch__track::after,
+  .gp-meter__fill,
   .gp-file-download,
   .gp-viewer-overlay,
   .gp-viewer__image,

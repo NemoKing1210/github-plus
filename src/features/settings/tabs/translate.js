@@ -8,7 +8,7 @@ import { targetLanguageLabel } from '../../translate/languages.js';
 import { TRANSLATION_PROVIDERS } from '../../translate/providers/registry.js';
 import { listSurfaces } from '../../translate/surfaces.js';
 import {
-  createButton, createField, createHint, createNumberInput, createRow, createSection,
+  createButton, createField, createHint, createMeter, createNumberInput, createRow, createSection,
   createSelect, createSwitch, createSwitchRow, createTextInput,
 } from '../controls.js';
 import { getDraft } from '../panel.js';
@@ -198,17 +198,22 @@ function renderCacheCard(draft) {
     hint: t('translate.cacheDesc'),
   });
   const usage = el('p', 'gp-hint');
+  const meter = createMeter();
   const paintUsage = () => {
     const stats = getCacheUsageStats();
     usage.textContent = stats.entryCount
       ? t('translate.cacheUsage', {
         count: stats.entryCount,
         size: formatSize(stats.usedBytes),
+        limit: formatSize(stats.limitBytes),
       })
       : t('translate.cacheEmpty');
+    meter.style.setProperty('--gp-meter-fill', `${stats.pct}%`);
   };
   paintUsage();
-  card.body.appendChild(usage);
+  const usageField = el('div', 'gp-field');
+  usageField.append(usage, meter);
+  card.body.appendChild(usageField);
   card.body.appendChild(createField({
     label: t('translate.cacheHours'),
     hint: t('translate.cacheHoursDesc'),
@@ -220,10 +225,12 @@ function renderCacheCard(draft) {
       onChange: (value) => { translate.cacheHours = value; },
     }),
   }));
-  card.body.appendChild(createButton(t('translate.clearCache'), () => {
-    clearCache();
-    paintUsage();
-    showToast({ type: 'success', title: t('translate.cacheCleared') });
+  card.body.appendChild(createRow({
+    control: createButton(t('translate.clearCache'), () => {
+      clearCache();
+      paintUsage();
+      showToast({ type: 'success', title: t('translate.cacheCleared') });
+    }),
   }));
   return card;
 }

@@ -360,10 +360,21 @@ between pages with wrap-around.
 | `.gp-hint` | Standalone `12px/1.5` muted paragraph |
 | `.gp-field` | Stacked column, `gap: 6px`, `padding: 12px 16px`, bottom `1px var(--gp-line)` (last child `0`) |
 | `.gp-field__label` | `13px/600` strong |
+| `.gp-meter` | Usage meter track: `8px` high, `999px` radius, `var(--gp-line)` fill, `overflow: hidden`, `aria-hidden` (the measured numbers are shown as text beside it) |
+| `.gp-meter__fill` | Accent bar, `height: 100%`, width from the inline `--gp-meter-fill` percentage, `0.18s ease` on width |
 
 A row puts label + hint left and the control right; a field stacks label above
 the control (selects, inputs, textareas) and puts an optional hint below. Use a
 field for anything wide, a row for a switch or a short control.
+
+Rows and fields carry their own `12px 16px` inset. Anything else placed
+straight into a card body — a standalone hint or a textarea — takes the same
+inset through `.gp-card__body > .gp-hint` / `> .gp-textarea`; a hint inside a
+provider block takes it through `.gp-provider-fields > .gp-hint`. An empty
+direct-child hint (the import status) collapses instead of leaving a gap.
+Actions that are not part of a field go into a `.gp-row` with the button in its
+`.gp-row__control`, never straight into the body, so the button keeps its
+padding and never stretches to the card's edges.
 
 ### Switch (`.gp-switch`)
 
@@ -816,6 +827,7 @@ each is a per-instance value that CSS cannot know).
 | Spotlight | `gp-spotlight` (row/field/cell tint) or `gp-spotlight-head` (card-head ring) over `1.6s ease-out`; no motion under reduced motion |
 | Footer dirty dot | width, margin and scale `0.18s` |
 | Switch knob | `0.2s` spring (`cubic-bezier(0.2, 0.8, 0.2, 1)`); stretches to `20px` while pressed |
+| Usage meter | `.gp-meter__fill` width `0.18s ease`; the width itself is a measured value, not decoration |
 | Controls | Border/fill changes on select, input, textarea, button, panel close, source tiles and the page download button take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
 | Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the hold time minus the appearance delay) |
@@ -832,7 +844,7 @@ each is a per-instance value that CSS cannot know).
   for the panel and confirm overlays and dialogs, the page head and page
   children, sidebar items and their pill, the dirty dot, `.gp-toast`,
   `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
-  `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image` and the search
+  `.gp-meter__fill`, `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image` and the search
   result spotlight (which keeps a static accent ring instead). The viewer spinner,
   the toast progress bar and the hold-progress ring are outside that list (a
   spinner, a countdown and hold progress are information, not decoration), so

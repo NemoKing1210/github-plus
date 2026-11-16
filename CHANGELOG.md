@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.3] - 2026-11-16
+
+### Changed
+
+- The Translation settings page keeps its hints, usage line and Clear cache
+  button off the card borders, and the cache card shows its fill level as a
+  progress bar against the size budget
+
+[0.18.3]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.3
+
 ## [0.18.2] - 2026-11-16
 
 ### Changed

@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': '번역은 이 기기에 보관됩니다.',
   'translate.cacheHours': '번역 보관 기간(시간)',
   'translate.cacheHoursDesc': '0이면 캐시를 끕니다.',
-  'translate.cacheUsage': '{count}개 항목 · {size} 사용',
+  'translate.cacheUsage': '{count}개 항목 · {size} / {limit} 사용',
   'translate.cacheEmpty': '캐시가 비어 있습니다.',
   'translate.clearCache': '캐시 지우기',
   'translate.cacheCleared': '번역 캐시를 지웠습니다',

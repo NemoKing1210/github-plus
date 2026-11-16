@@ -61,6 +61,18 @@ export function createHint(text) {
   return el('p', 'gp-hint', text);
 }
 
+/**
+ * Progress meter: a track with an accent fill. The fill is a per-instance
+ * value, so the caller writes it to the `--gp-meter-fill` custom property.
+ * It is decorative: the caller shows the measured numbers as text.
+ */
+export function createMeter() {
+  const meter = el('div', 'gp-meter');
+  meter.setAttribute('aria-hidden', 'true');
+  meter.appendChild(el('span', 'gp-meter__fill'));
+  return meter;
+}
+
 /** Row: label + optional hint on the left, control on the right. */
 export function createRow({ label, hint, control } = {}) {
   const row = el('div', 'gp-row');

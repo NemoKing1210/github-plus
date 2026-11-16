@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': 'Übersetzungen werden auf diesem Gerät gespeichert.',
   'translate.cacheHours': 'Übersetzungen aufbewahren (Stunden)',
   'translate.cacheHoursDesc': '0 schaltet den Cache aus.',
-  'translate.cacheUsage': '{count} Einträge · {size} belegt',
+  'translate.cacheUsage': '{count} Einträge · {size} von {limit} belegt',
   'translate.cacheEmpty': 'Der Cache ist leer.',
   'translate.clearCache': 'Cache leeren',
   'translate.cacheCleared': 'Übersetzungs-Cache geleert',

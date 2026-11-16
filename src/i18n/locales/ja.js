@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': '翻訳はこのデバイスに保存されます。',
   'translate.cacheHours': '翻訳を保持する（時間）',
   'translate.cacheHoursDesc': '0 でキャッシュを無効にします。',
-  'translate.cacheUsage': '{count} 件 · {size} 使用',
+  'translate.cacheUsage': '{count} 件 · {size} / {limit} 使用',
   'translate.cacheEmpty': 'キャッシュは空です。',
   'translate.clearCache': 'キャッシュをクリア',
   'translate.cacheCleared': '翻訳キャッシュをクリアしました',

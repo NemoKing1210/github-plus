@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': 'Tłumaczenia są przechowywane na tym urządzeniu.',
   'translate.cacheHours': 'Przechowuj tłumaczenia (godziny)',
   'translate.cacheHoursDesc': '0 wyłącza pamięć podręczną.',
-  'translate.cacheUsage': 'Wpisy: {count} · zajęte {size}',
+  'translate.cacheUsage': 'Wpisy: {count} · zajęte {size} z {limit}',
   'translate.cacheEmpty': 'Pamięć podręczna jest pusta.',
   'translate.clearCache': 'Wyczyść pamięć podręczną',
   'translate.cacheCleared': 'Wyczyszczono pamięć podręczną tłumaczeń',

@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': 'Переводы хранятся на этом устройстве.',
   'translate.cacheHours': 'Хранить переводы (часов)',
   'translate.cacheHoursDesc': '0 отключает кеш.',
-  'translate.cacheUsage': 'Записей: {count} · занято {size}',
+  'translate.cacheUsage': 'Записей: {count} · занято {size} из {limit}',
   'translate.cacheEmpty': 'Кеш пуст.',
   'translate.clearCache': 'Очистить кеш',
   'translate.cacheCleared': 'Кеш переводов очищен',

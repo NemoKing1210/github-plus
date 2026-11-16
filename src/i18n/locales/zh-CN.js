@@ -210,7 +210,7 @@ export default {
   'translate.cacheDesc': '译文保存在此设备上。',
   'translate.cacheHours': '保留译文（小时）',
   'translate.cacheHoursDesc': '0 表示关闭缓存。',
-  'translate.cacheUsage': '{count} 条记录 · 已用 {size}',
+  'translate.cacheUsage': '{count} 条记录 · 已用 {size} / {limit}',
   'translate.cacheEmpty': '缓存为空。',
   'translate.clearCache': '清除缓存',
   'translate.cacheCleared': '翻译缓存已清除',
