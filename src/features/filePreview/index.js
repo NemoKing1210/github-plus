@@ -41,6 +41,7 @@ let bodyObserver = null;
 let observedBody = null;
 let shellObserver = null;
 let settleTimer = null;
+let noSurfaceReported = false;
 
 function visibleSettings() {
   return getFilePreviewSettings().rowButton && getFilePreviewSettings().enabled;
@@ -154,20 +155,16 @@ function syncSurfaces() {
       observers.delete(container);
     }
   }
-  let attached = 0;
   let matched = 0;
   for (let c = 0; c < PREVIEW_SURFACE.containers.length; c += 1) {
     const found = document.querySelectorAll(PREVIEW_SURFACE.containers[c]);
     for (let index = 0; index < found.length; index += 1) {
       matched += 1;
-      if (!observers.has(found[index])) {
-        attach(found[index]);
-        attached += 1;
-      }
+      if (!observers.has(found[index])) attach(found[index]);
     }
   }
-  if (!matched) log.info('no file surface on this page yet');
-  return attached;
+  if (matched) noSurfaceReported = false;
+  return matched;
 }
 
 function stopSettle() {
@@ -181,7 +178,18 @@ function settleSurfaces() {
   let tries = 0;
   settleTimer = setInterval(() => {
     tries += 1;
-    if (!visibleSettings() || syncSurfaces() > 0 || tries >= SETTLE_TRIES) stopSettle();
+    if (!visibleSettings() || syncSurfaces() > 0) {
+      stopSettle();
+      return;
+    }
+    if (tries >= SETTLE_TRIES) {
+      stopSettle();
+      // One line per page without a file listing — never one per retry.
+      if (!noSurfaceReported) {
+        noSurfaceReported = true;
+        log.info('no file surface on this page');
+      }
+    }
   }, SETTLE_MS);
 }
 

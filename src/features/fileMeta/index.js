@@ -52,6 +52,7 @@ let bodyObserver = null;
 let observedBody = null;
 let shellObserver = null;
 let settleTimer = null;
+let noSurfaceReported = false;
 
 function visibleSettings() {
   const settings = getFileMetaSettings();
@@ -204,8 +205,8 @@ function teardown() {
 
 /**
  * Find every surface container currently in the page and make sure it is
- * watched. Returns how many containers this call attached, which is what tells
- * a late-mounting file list apart from one already in place.
+ * watched. Returns how many containers matched, which is what tells a page
+ * without a file listing apart from one where the surface is already attached.
  */
 function syncSurfaces() {
   if (!visibleSettings()) return 0;
@@ -215,7 +216,6 @@ function syncSurfaces() {
       observers.delete(container);
     }
   }
-  let attached = 0;
   let matched = 0;
   for (let s = 0; s < SURFACES.length; s += 1) {
     const surface = SURFACES[s];
@@ -223,15 +223,12 @@ function syncSurfaces() {
       const found = document.querySelectorAll(surface.containers[c]);
       for (let i = 0; i < found.length; i += 1) {
         matched += 1;
-        if (!observers.has(found[i])) {
-          attach(found[i], surface);
-          attached += 1;
-        }
+        if (!observers.has(found[i])) attach(found[i], surface);
       }
     }
   }
-  if (!matched) log.info('no file surface on this page yet');
-  return attached;
+  if (matched) noSurfaceReported = false;
+  return matched;
 }
 
 function stopSettle() {
@@ -250,7 +247,18 @@ function settleSurfaces() {
   let tries = 0;
   settleTimer = setInterval(() => {
     tries += 1;
-    if (!visibleSettings() || syncSurfaces() > 0 || tries >= SETTLE_TRIES) stopSettle();
+    if (!visibleSettings() || syncSurfaces() > 0) {
+      stopSettle();
+      return;
+    }
+    if (tries >= SETTLE_TRIES) {
+      stopSettle();
+      // One line per page without a file listing — never one per retry.
+      if (!noSurfaceReported) {
+        noSurfaceReported = true;
+        log.info('no file surface on this page');
+      }
+    }
   }, SETTLE_MS);
 }
 

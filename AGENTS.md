@@ -630,8 +630,10 @@ icon. The feature is registry-driven; every surface degrades on its own.
   on the old body dead, so the `<html>` one re-attaches it). GitHub mounts the
   file list *after* the navigation shell, so every navigation event can fire
   before the surface exists: `settleSurfaces()` retries the registry query on a
-  bounded interval (20 × 250 ms, stopped as soon as a container is attached).
-  That bounded wait is not a scan loop. Rows are tracked in a `WeakMap`
+  bounded interval (20 × 250 ms, stopped as soon as a surface is present); a
+  window that expires without one logs a single info line, so a page with no
+  file listing is not re-reported on every retry. That bounded wait is not a
+  scan loop. Rows are tracked in a `WeakMap`
   (row → injected icon plus the native glyph it hid) so a React re-render that
   drops the icon is decorated again, and a native glyph GitHub replaces in
   place — an expanded folder swaps its folder icon — is hidden again instead of
@@ -913,10 +915,13 @@ default `mode` is `button`; `auto` is opt-in.
   file/release header (the blob view uses its
   `[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])`
   row of Raw/copy/download/edit actions), or
-  the repository README's `readmeHeaderSlot`, or the new issue/PR page's own
+  the repository README's `readmeHeaderSlot`, the new issue/PR page's own
   actions row (`[data-component="PH_Actions"]`, where GitHub's copy-link icon
-  button lives — remembered in a second `WeakSet` so `isIconActionRow()` can
-  give the title action the icon-only shape); a page whose markup has no
+  button lives), or the description card's compact icon actions row
+  (`[class*="actionsSection"]` inside `[data-testid="issue-body"]`, beside the
+  kebab menu) — both remembered in a second `WeakMap` with their icon-button
+  size so `iconActionSize()` can give the action the icon-only shape (32px in
+  the page header, 28px in the description header); a page whose markup has no
   comment classes is resolved through the description's edit block
   (`[class*="editMetadata"]`, the row holding "Edited" and the edit pencil) or
   the edit control nearest the container (including
@@ -926,7 +931,10 @@ default `mode` is `button`; `auto` is opt-in.
   link) or null for the fallback bar) and `skip(node)`. A
   `plain` surface can only be displayed below its source, never replace it. The
   preview surface can never be auto-translated (`roots: []`); its action lives
-  in the preview header. `findContainers` returns live containers in document order;
+  in the preview header. `findContainers` returns live containers in document
+  order and keeps only the outermost of any nested matches (GitHub nests one
+  `.markdown-body` inside another on an issue/PR description, so decorating
+  both would stack two controls over one body);
   `surfaceForContainer`, `previewSurface`, `previewContainer`, `enabledSurfaces`
   and `surfaceRoots` are the rest of the API.
 - `blocks.js`: `collectBlocks(container)` walks to the leaf text blocks
@@ -996,8 +1004,9 @@ default `mode` is `button`; `auto` is opt-in.
   compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
   shell's `editMetadata` block, comment `ActionsButtonsContainer` row and the
   blob file header actions row, and the bare-icon
-  `.gp-translate-btn--icon` shape (32px, label visually hidden) in the page
-  header's actions row of an issue or pull request title, and
+  `.gp-translate-btn--icon` shape (label visually hidden) in the page header's
+  actions row of an issue or pull request title (32px) and in the description
+  card's header (28px, prepended before the kebab menu), and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
   into our own `.gp-translate-bar` before the container), `createResultBox(html, { preformatted })` (a `plain` surface's box
   keeps the source line breaks) and `removeChrome`.

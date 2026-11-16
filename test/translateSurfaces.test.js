@@ -33,8 +33,8 @@ globalThis.location = dom.window.location;
 globalThis.localStorage = dom.window.localStorage;
 
 const {
-  enabledSurfaces, findContainers, headerFor, isIconActionRow, surfaceForContainer,
-  previewContainer,
+  enabledSurfaces, findContainers, headerFor, iconActionSize, isIconActionRow,
+  surfaceForContainer, previewContainer,
 } = await import('../src/features/translate/surfaces.js');
 
 test('enabled surfaces come from settings', () => {
@@ -47,6 +47,18 @@ test('markdown containers skip our preview overlay', () => {
   const containers = findContainers(markdown);
   assert.equal(containers.length, 3);
   assert.ok(containers.every((node) => !node.closest('.gp-preview-overlay')));
+});
+
+test('a markdown body nested inside another is not a second container', () => {
+  const outer = document.createElement('div');
+  outer.className = 'markdown-body';
+  outer.innerHTML = '<div class="markdown-body safe-html-box">Nested text</div>';
+  document.querySelector('main').appendChild(outer);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const containers = findContainers(markdown);
+  assert.ok(containers.includes(outer));
+  assert.ok(!containers.includes(outer.firstElementChild));
+  outer.remove();
 });
 
 test('a comment header is the markdown header', () => {
@@ -208,6 +220,22 @@ test('a title without a page header keeps the heading as its host', () => {
   assert.equal(host, heading);
   assert.equal(isIconActionRow(host), false);
   heading.remove();
+});
+
+test('the description card header hosts a compact icon action', () => {
+  const section = document.createElement('div');
+  section.setAttribute('data-testid', 'issue-body');
+  section.innerHTML = '<div class="headerRow__U6n1NK"><div class="actionsSection__QKxX29">'
+    + '<button data-component="IconButton" aria-haspopup="true">kebab</button></div></div>'
+    + '<div class="IssueBody__1iGjHw"><div data-testid="markdown-body" class="markdown-body">'
+    + '<div class="markdown-body safe-html-box__Uwc6Al">Description</div></div></div>';
+  document.body.appendChild(section);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = section.querySelector('[data-testid="markdown-body"]');
+  const host = headerFor(body, markdown);
+  assert.equal(host, section.querySelector('.actionsSection__QKxX29'));
+  assert.equal(iconActionSize(host), 'small');
+  section.remove();
 });
 
 test('the preview container is resolved separately', () => {

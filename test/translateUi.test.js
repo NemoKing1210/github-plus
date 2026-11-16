@@ -69,6 +69,25 @@ test('the issue title action is a bare icon in the page-header actions', () => {
   page.remove();
 });
 
+test('a compact icon header prepends the button before its kebab menu', () => {
+  const body = document.createElement('div');
+  body.setAttribute('data-testid', 'issue-body');
+  body.innerHTML = '<div class="actionsSection__QKxX29">'
+    + '<button data-component="IconButton" aria-haspopup="true">kebab</button></div>'
+    + '<div class="markdown-body">Description</div>';
+  document.body.append(body);
+  const markdown = body.querySelector('.markdown-body');
+  const header = listSurfaces().find((surface) => surface.id === 'markdown').headerFor(markdown);
+  const button = createButton('Translate');
+  ensureChrome(markdown, { header, button });
+  assert.equal(button.parentElement, header);
+  assert.equal(button.nextElementSibling.getAttribute('aria-haspopup'), 'true');
+  assert.ok(button.classList.contains('gp-translate-btn--icon'));
+  assert.ok(button.classList.contains('gp-translate-btn--small'));
+  button.remove();
+  body.remove();
+});
+
 test('a page header outside the README slot keeps the default look', () => {
   const header = document.createElement('header');
   const markdown = document.createElement('div');

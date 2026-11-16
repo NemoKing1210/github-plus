@@ -2980,6 +2980,11 @@ audio.gp-preview__media {
   background: var(--gp-accent-soft);
   color: var(--gp-accent);
 }
+/* The description header keeps compact (28px) icon buttons beside the kebab. */
+.gp-translate-btn--icon.gp-translate-btn--small {
+  width: 28px;
+  height: 28px;
+}
 
 /* Fallback bar before a container that has no page header to host the action. */
 .gp-translate-bar {

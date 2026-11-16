@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.11] - 2026-11-16
+
+### Fixed
+
+- Console logging no longer floods a page that has no file listing: the file
+  icons, file ages, file sizes and quick preview features used to print their
+  "no surface on this page" info line on every retry of the bounded settle
+  wait (about eighty lines in five seconds); the line is now logged once when
+  that wait expires, and only again after a page with a surface has been seen
+
+[0.20.11]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.11
+
+## [0.20.10] - 2026-11-16
+
+### Fixed
+
+- An issue or pull request description no longer shows two Translate controls:
+  GitHub nests one `.markdown-body` inside another there, and the inner copy is
+  no longer decorated as a second container
+
+### Changed
+
+- The description's Translate action moved from a bar above the text into the
+  description card's own header actions row, beside the kebab menu, and is a
+  compact 28px icon button like the controls it joins
+
+[0.20.10]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.10
+
 ## [0.20.9] - 2026-11-16
 
 ### Fixed

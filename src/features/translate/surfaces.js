@@ -33,6 +33,12 @@ export const COMPACT_ACTION_ROW = `${EDIT_METADATA_ROW}, [class*="ActionsButtons
 export const PAGE_HEADER_ACTIONS = '[data-component="PH_Actions"],'
   + ' [data-component="PageHeader.Actions"]';
 
+/** The description card of the new issue and pull request shell. */
+export const ISSUE_BODY = '[data-testid="issue-body"]';
+
+/** The compact icon actions row in that card's header (the kebab menu lives there). */
+const BODY_ACTION_ROW = '[class*="actionsSection"]';
+
 /**
  * The blob file header's own actions row (Raw, copy, download and the edit
  * pencil). The `-combined` sibling only holds the kebab menu.
@@ -67,7 +73,8 @@ function actionRow(row) {
 }
 
 const actionRows = new WeakSet();
-const iconRows = new WeakSet();
+// Header → the icon-button size it lays out ('small' 28px or 'medium' 32px).
+const iconRows = new WeakMap();
 
 /** Remember a header that is really a row of GitHub's own header actions. */
 function markActionRow(node) {
@@ -76,8 +83,8 @@ function markActionRow(node) {
 }
 
 /** Remember a header that should host a bare icon button. */
-function markIconRow(node) {
-  if (node) iconRows.add(node);
+function markIconRow(node, size = 'medium') {
+  if (node) iconRows.set(node, size);
   return node;
 }
 
@@ -89,6 +96,11 @@ export function isActionRow(node) {
 /** Whether a header hosts icon-only buttons, like the page-header actions. */
 export function isIconActionRow(node) {
   return Boolean(node) && iconRows.has(node);
+}
+
+/** The icon-button size a header lays out, or null when it is not an icon row. */
+export function iconActionSize(node) {
+  return (node && iconRows.get(node)) || null;
 }
 
 
@@ -152,6 +164,13 @@ function markdownHeader(container) {
   if (release) {
     const header = release.querySelector('.release-header');
     if (header) return header;
+  }
+  const body = container.closest(ISSUE_BODY);
+  if (body) {
+    // The description card's header row holds GitHub's own compact icon
+    // actions, so the action joins them as a bare icon.
+    const actions = body.querySelector(BODY_ACTION_ROW);
+    if (actions) return markIconRow(actions, 'small');
   }
   return readmeHeader(container) || markActionRow(actionsNear(container));
 }
@@ -268,7 +287,12 @@ export function findContainers(surface) {
       });
     });
   });
-  return inDocumentOrder(found);
+  // GitHub nests one `.markdown-body` inside another on an issue or pull
+  // request description; the inner copy is the same content, not a second
+  // container — decorating both would stack two controls over one body.
+  return inDocumentOrder(
+    found.filter((node) => !found.some((other) => other !== node && other.contains(node))),
+  );
 }
 
 /** Unique root selectors of every enabled non-preview surface. */

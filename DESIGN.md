@@ -789,14 +789,17 @@ invisible buttons, so the action there takes
 `12px`/500 label.
 
 An issue or pull request title has no row of its own, so the action joins the
-page header's regular actions, beside GitHub's copy-link control.
-`.gp-translate-btn--icon` is that control's shape: a `32×32`
+page header's regular actions, beside GitHub's copy-link control; the
+description's action joins the description card's header, in front of its kebab
+menu. `.gp-translate-btn--icon` takes those controls' shape: a
 `var(--gp-radius)` square with a transparent 1px edge and fill, a 16px
 `var(--gp-text-muted)` glyph, no padding and no visible label — the label stays
 in the DOM, visually hidden, so assistive tech still reads `Translate` and its
 working states. Hover takes `var(--gp-highlight)` and `var(--gp-text)`; the
-accent tint still marks a translated title. The ring and the state styling are
-the same as every other placement.
+accent tint still marks translated content. The square follows the row it sits
+in: `32×32` beside the page header's medium buttons and `28×28` with the
+description header's compact ones (`.gp-translate-btn--icon.gp-translate-btn--small`).
+The ring and the state styling are the same as every other placement.
 
 Where GitHub exposes no header, the button lives alone in our own
 `.gp-translate-bar` inserted before the container: a flex row with no
