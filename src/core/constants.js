@@ -197,6 +197,11 @@ export const LOG_DETAIL_DEPTH = 4;
 /** Most array items or object keys kept in one sanitized log detail. */
 export const LOG_MAX_ITEMS = 50;
 
+/** Diagnostics: optional console logging, silent while disabled. */
+const DEFAULT_LOGGING = {
+  enabled: false,
+};
+
 /** Gallery: image lightbox over rendered markdown (README and every other
  *  markdown surface on GitHub). */
 const DEFAULT_GALLERY = {
@@ -279,6 +284,7 @@ const DEFAULT_TRANSLATE = {
 
 export const DEFAULT_SETTINGS = {
   language: 'auto',
+  logging: DEFAULT_LOGGING,
   gallery: DEFAULT_GALLERY,
   toasts: DEFAULT_TOASTS,
   fileIcons: DEFAULT_FILE_ICONS,

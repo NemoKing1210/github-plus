@@ -2,6 +2,7 @@ import './styles/tokens.css';
 import './styles/app.css';
 import { configureLocale } from './i18n/index.js';
 import { getSettings } from './core/settings.js';
+import { initLoggingFeature } from './features/logging/index.js';
 import { initSettingsFeature } from './features/settings/index.js';
 import { isPanelOpen, togglePanel } from './features/settings/panel.js';
 import { applyFileAgesSettings, initFileAgesFeature } from './features/fileAges/index.js';
@@ -37,6 +38,7 @@ function resetOverlaysOnNavigation() {
 }
 
 function init() {
+  initLoggingFeature();
   configureLocale(getSettings().language);
   initSettingsFeature();
   initGalleryFeature();

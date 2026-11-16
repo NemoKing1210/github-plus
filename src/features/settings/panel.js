@@ -258,6 +258,7 @@ function persist() {
     configureLocale(saved.language);
     emit('settings:gallery', saved.gallery);
     emit('settings:toasts', saved.toasts);
+    emit('settings:logging', saved.logging);
     emit('settings:language', saved.language);
     emit('settings:fileIcons', saved.fileIcons);
     emit('settings:fileAges', saved.fileAges);
@@ -281,6 +282,7 @@ export function applyExternalSettings(next) {
   configureLocale(saved.language);
   emit('settings:gallery', saved.gallery);
   emit('settings:toasts', saved.toasts);
+  emit('settings:logging', saved.logging);
   emit('settings:language', saved.language);
   emit('settings:fileIcons', saved.fileIcons);
   emit('settings:fileAges', saved.fileAges);

@@ -94,6 +94,13 @@ function normalizeSources(raw, fallback) {
   return result;
 }
 
+function normalizeLogging(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+  };
+}
+
 function normalizeGallery(raw, fallback) {
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
@@ -235,6 +242,7 @@ function normalizeSettings(raw) {
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
     language: normalizeLocale(source.language, defaults.language),
+    logging: normalizeLogging(source.logging, defaults.logging),
     gallery: normalizeGallery(source.gallery, defaults.gallery),
     toasts: normalizeToasts(source.toasts, defaults.toasts),
     fileIcons: normalizeFileIcons(source.fileIcons, defaults.fileIcons),
@@ -259,6 +267,10 @@ let settings = loadSettings();
 
 export function getSettings() {
   return settings;
+}
+
+export function getLoggingSettings() {
+  return settings.logging;
 }
 
 export function getGallerySettings() {
