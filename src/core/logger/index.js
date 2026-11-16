@@ -54,10 +54,14 @@ const BADGES = {
 };
 const CODE_STYLE = 'font-weight:bold';
 
+const BASE_MARKERS = ['github-plus', 'github plus'];
+
 let enabled = false;
 let entries = [];
 let seq = 0;
 let startedAt = Date.now();
+let markers = BASE_MARKERS.slice();
+let boundWindow = null;
 
 function isErrorLike(value) {
   return value instanceof Error || Object.prototype.toString.call(value) === '[object Error]';
@@ -183,6 +187,88 @@ function write(level, code, moduleName, message, details) {
   }
 }
 
+function scriptMarkers() {
+  const list = BASE_MARKERS.slice();
+  try {
+    const name = typeof GM_info !== 'undefined' && GM_info?.script?.name;
+    if (name) list.push(String(name).toLowerCase());
+  } catch {
+    // GM_info is optional; the bundle-name markers still work.
+  }
+  return list;
+}
+
+/** True when a filename or stack names this script, never GitHub's own code. */
+export function isScriptFailure(text) {
+  if (!text) return false;
+  let decoded = String(text);
+  try {
+    decoded = decodeURIComponent(decoded);
+  } catch {
+    // A malformed escape sequence still carries readable markers often enough.
+  }
+  const haystack = decoded.toLowerCase();
+  return markers.some((marker) => haystack.includes(marker));
+}
+
+function onError(event) {
+  if (!boundWindow || event.target !== boundWindow) return;
+  const stack = event.error && event.error.stack ? event.error.stack : '';
+  if (!isScriptFailure(`${event.filename || ''}\n${stack}`)) return;
+  write('error', Codes.UNCAUGHT_ERROR, 'global', event.message || 'Uncaught error', {
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    error: event.error,
+  });
+}
+
+function onRejection(event) {
+  const reason = event.reason;
+  const stack = reason && typeof reason === 'object' ? reason.stack : '';
+  if (!isScriptFailure(stack)) return;
+  write('error', Codes.UNHANDLED_REJECTION, 'global', 'Unhandled promise rejection',
+    isErrorLike(reason) ? reason : { reason });
+}
+
+function installGlobalHandlers() {
+  if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+  boundWindow = window;
+  boundWindow.addEventListener('error', onError, true);
+  boundWindow.addEventListener('unhandledrejection', onRejection, true);
+}
+
+function removeGlobalHandlers() {
+  if (!boundWindow) return;
+  try {
+    boundWindow.removeEventListener('error', onError, true);
+    boundWindow.removeEventListener('unhandledrejection', onRejection, true);
+  } catch {
+    // A replaced window has already dropped its listeners.
+  }
+  boundWindow = null;
+}
+
+function publishApi() {
+  if (typeof window === 'undefined') return;
+  const api = { dump: dumpLog, copy: copyLog, clear: clearLog };
+  Object.defineProperty(api, 'entries', { get: getLogEntries, enumerable: true });
+  try {
+    window.__GP_LOG__ = api;
+  } catch {
+    // A frozen page window simply gets no API object.
+  }
+}
+
+function unpublishApi() {
+  if (typeof window === 'undefined') return;
+  try {
+    delete window.__GP_LOG__;
+  } catch {
+    // Not deletable on a frozen window; the disabled logger writes nothing.
+  }
+}
+
 /** @param {{ enabled?: boolean }} [options] */
 export function configureLogger({ enabled: next } = {}) {
   if (Boolean(next) === enabled) return;
@@ -191,7 +277,39 @@ export function configureLogger({ enabled: next } = {}) {
   seq = 0;
   startedAt = Date.now();
   if (enabled) {
+    markers = scriptMarkers();
+    installGlobalHandlers();
+    publishApi();
     write('info', null, 'logger', 'logging enabled', { version: scriptVersion() });
+  } else {
+    removeGlobalHandlers();
+    unpublishApi();
+  }
+}
+
+/**
+ * Copy the current journal as JSON. Resolves `{ ok, method }` and never
+ * rejects; `console` means the clipboard was unavailable and the JSON was
+ * printed instead.
+ */
+export async function copyLog() {
+  if (!enabled) return { ok: false, method: 'disabled' };
+  const text = JSON.stringify(dumpLog(), null, 2);
+  try {
+    const nav = typeof window !== 'undefined' ? window.navigator : null;
+    const clipboard = (nav && nav.clipboard) || (typeof navigator !== 'undefined' && navigator.clipboard);
+    if (clipboard && typeof clipboard.writeText === 'function') {
+      await clipboard.writeText(text);
+      return { ok: true, method: 'clipboard' };
+    }
+  } catch {
+    // Fall through to the console so the log is still recoverable.
+  }
+  try {
+    console.info(text);
+    return { ok: true, method: 'console' };
+  } catch {
+    return { ok: false, method: 'console' };
   }
 }
 
