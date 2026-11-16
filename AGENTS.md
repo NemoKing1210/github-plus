@@ -904,9 +904,14 @@ default `mode` is `button`; `auto` is opt-in.
   (`[data-testid="commit-message"]`, `.commit-title`, `.commit-desc`), `titles`
   (issue/PR title elements) and `preview`
   (`.gp-preview-overlay .gp-preview__md`). A surface declares `containers`,
-  observation `roots`, `headerFor(container)` (the page header that should host
-  the button — the comment/file/release header, or the repository README's
-  `readmeHeaderSlot` — or null for the fallback bar) and `skip(node)`. A
+  observation `roots`, `headerFor(container)` (the row that should host the
+  button: GitHub's comment action row — `.timeline-comment-actions` or the
+  `[data-testid="comment-header-actions"]` row — the file/release header, or
+  the repository README's `readmeHeaderSlot`; a page whose markup has no
+  comment classes is resolved through the edit control nearest the container,
+  and a header found that way is remembered in a `WeakSet` so `isActionRow()`
+  can tell a real action row from a page header that merely contains an Edit
+  link) or null for the fallback bar) and `skip(node)`. A
   `plain` surface can only be displayed below its source, never replace it. The
   preview surface can never be auto-translated (`roots: []`); its action lives
   in the preview header. `findContainers` returns live containers in document order;
@@ -971,10 +976,11 @@ default `mode` is `button`; `auto` is opt-in.
 - `inject.js`: `createButton(label)` (glyph + label span), `setButtonState`
   (`data-gp-translate-state`, `aria-busy`, optional ` · count` progress),
   `ensureChrome(container, { header, button })` (the button goes into the page
-  header when there is one — taking the `.gp-translate-btn--header` look inside
-  the repository README slot, and creating no bar: `ensureChrome` returns
-  `{ button, bar: null }` — otherwise into our own `.gp-translate-bar` before
-  the container), `setBarStatus(container, text, { error })` (a no-op without
+  header when there is one — prepended into GitHub's own action row so it sits
+  beside the edit control and marked `.gp-translate-btn--actions`, taking the
+  `.gp-translate-btn--header` look inside the repository README slot, and
+  creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
+  into our own `.gp-translate-bar` before the container), `setBarStatus(container, text, { error })` (a no-op without
   a bar), `createResultBox(html, { preformatted })` (a `plain` surface's box
   keeps the source line breaks) and `removeChrome`.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
@@ -1455,9 +1461,11 @@ and check diagnostics for edited files.
 - No **Translate** button: check **Translation** is on and the matching switch
   on its **Places** card; the container must be one of the surfaces in
   `features/translate/surfaces.js` and carry text blocks (an image-only README
-  has none). A button inside a comment or file header means `headerFor` found
-  the header; a button in a bar above the container means it did not — extend
-  `headerFor`, never add a document-wide observer. The quick preview's action
+  has none). A button inside a comment or description header means `headerFor`
+  found GitHub's action row; a button in a bar above the container means it did
+  not — extend `headerFor` (the fallback already looks for the edit control
+  nearest the container), never add a document-wide observer. The quick
+  preview's action
   needs the **Quick preview** place switch too. A plain-text file (a license or
   notice such as LICENSE) needs the **Plain-text files** switch; a
   syntax-highlighted file is not plain text and is left alone, and a file over

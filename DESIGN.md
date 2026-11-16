@@ -763,6 +763,13 @@ button: `.gp-translate-btn--header` is 32px high, borderless and transparent,
 with a 16px glyph, an 8px gap and a `14px`/500 label, and it only takes the
 highlight fill on hover. The accent tint still marks a translated README.
 
+A comment or description header is GitHub's action row
+(`.timeline-comment-actions`, or the row that carries the edit control on the
+new page shell). There the action is inserted before GitHub's own buttons so it
+sits beside the edit control, and `.gp-translate-btn--actions` gives it the same
+muted `var(--gp-text-muted)` label as those buttons, darkening to
+`var(--gp-text)` on hover; the accent tint still marks a translated body.
+
 Where GitHub exposes no header, the button and its status live in our own
 `.gp-translate-bar` inserted before the container — a flex row of the button and
 a muted `12px` status line, with no background of its own. `.is-error` on the

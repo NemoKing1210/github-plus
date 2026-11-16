@@ -66,6 +66,33 @@ test('the repository README header slot hosts the action', () => {
   assert.equal(headerFor(readme, markdown).className, 'readmeHeaderSlot__EGBTUW');
 });
 
+test('a comment action row hosts the translate button', () => {
+  const comment = document.createElement('div');
+  comment.className = 'js-comment';
+  comment.innerHTML = '<div class="timeline-comment-header"></div>'
+    + '<div class="timeline-comment-actions"><button aria-label="Edit comment">pencil</button></div>'
+    + '<div class="markdown-body">Comment body</div>';
+  document.body.appendChild(comment);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = comment.querySelector('.markdown-body');
+  assert.equal(headerFor(body, markdown), comment.querySelector('.timeline-comment-actions'));
+  comment.remove();
+});
+
+test('an edit control marks the header row on a page without comment classes', () => {
+  const card = document.createElement('div');
+  card.className = 'prc-IssueBody';
+  card.innerHTML = '<div class="prc-Header"><button aria-label="Edit comment">pencil</button></div>'
+    + '<div class="markdown-body">Description body</div>';
+  document.body.appendChild(card);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = card.querySelector('.markdown-body');
+  const host = headerFor(body, markdown);
+  assert.ok(host);
+  assert.equal(host.querySelector('[aria-label="Edit comment"]').getAttribute('aria-label'), 'Edit comment');
+  card.remove();
+});
+
 test('the preview container is resolved separately', () => {
   assert.equal(previewContainer().textContent, 'Preview');
   assert.equal(surfaceForContainer(previewContainer()).id, 'preview');

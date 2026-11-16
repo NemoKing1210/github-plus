@@ -2868,6 +2868,21 @@ audio.gp-preview__media {
   background: var(--gp-accent-soft);
 }
 
+/* Inside GitHub's comment and description header actions the control matches
+ * the muted action buttons it sits beside. */
+.gp-translate-btn--actions {
+  margin-right: 4px;
+  color: var(--gp-text-muted);
+}
+.gp-translate-btn--actions:hover,
+.gp-translate-btn--actions:focus-visible {
+  color: var(--gp-text);
+}
+.gp-translate-btn--actions[data-gp-translate-state="shown"],
+.gp-translate-btn--actions[data-gp-translate-state="partial"] {
+  color: var(--gp-accent);
+}
+
 /* Fallback bar before a container that has no page header to host the action. */
 .gp-translate-bar {
   display: flex;

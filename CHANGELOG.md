@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-11-16
+
+### Fixed
+
+- The Translate action on an issue or pull request description now sits in
+  GitHub's header action row beside the edit control, in that row's muted
+  button style, instead of standing in a bar above the description — including
+  on the new page shell whose markup has no comment classes
+
+[0.20.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.1
+
 ## [0.20.0] - 2026-11-16
 
 ### Added

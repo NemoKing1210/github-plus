@@ -1,6 +1,6 @@
 import { ACTION_ICONS } from '../../ui/icons.js';
 import { t } from '../../i18n/index.js';
-import { README_HEADER_SLOT } from './surfaces.js';
+import { isActionRow, README_HEADER_SLOT } from './surfaces.js';
 
 /** Translation button with its glyph and label span. */
 export function createButton(label) {
@@ -48,12 +48,19 @@ export function ensureChrome(container, { header, button } = {}) {
     // A bar from an earlier pass must not linger beside a header-hosted action.
     const stale = findBar(container);
     if (stale) stale.remove();
-    if (control.parentElement !== header) header.appendChild(control);
+    const actions = isActionRow(header);
+    if (control.parentElement !== header) {
+      // In GitHub's own action row the button joins the row before the edit
+      // control instead of trailing it.
+      if (actions) header.insertBefore(control, header.firstChild);
+      else header.appendChild(control);
+    }
     // The README header action sits among GitHub's own buttons and takes their look.
     control.classList.toggle(
       'gp-translate-btn--header',
-      header.matches(README_HEADER_SLOT),
+      actions || header.matches(README_HEADER_SLOT),
     );
+    control.classList.toggle('gp-translate-btn--actions', actions);
     return { button: control, bar: null };
   }
   let bar = findBar(container);
@@ -67,6 +74,7 @@ export function ensureChrome(container, { header, button } = {}) {
   }
   if (control.parentElement !== bar) bar.insertBefore(control, bar.firstChild);
   control.classList.remove('gp-translate-btn--header');
+  control.classList.remove('gp-translate-btn--actions');
   return { button: control, bar };
 }
 

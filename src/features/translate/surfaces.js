@@ -9,6 +9,37 @@ const SKIP_MARKDOWN = '.gp-preview-overlay, .gp-preview__md, [data-gp-translate-
  */
 export const README_HEADER_SLOT = '[class*="readmeHeaderSlot"]';
 
+/** GitHub's row of comment/description header actions, where the edit control lives. */
+export const COMMENT_ACTION_ROW = '.timeline-comment-actions, [data-testid="comment-header-actions"]';
+
+const EDIT_CONTROL = [
+  'a[href$="/edit"]',
+  'a[aria-label*="Edit" i]',
+  'button[aria-label*="Edit" i]',
+  'summary[aria-label*="Edit" i]',
+  '[data-testid="edit-button"]',
+].join(', ');
+
+function editControl(scope) {
+  const control = scope.querySelector ? scope.querySelector(EDIT_CONTROL) : null;
+  if (!control || control.closest('form, .previewable-comment-form')) return null;
+  return control;
+}
+
+const actionRows = new WeakSet();
+
+/** Remember a header that is really a row of GitHub's own header actions. */
+function markActionRow(node) {
+  if (node) actionRows.add(node);
+  return node;
+}
+
+/** Whether a header element is a row of GitHub header actions. */
+export function isActionRow(node) {
+  return Boolean(node) && actionRows.has(node);
+}
+
+
 /** The README header slot above this container's page, or null. */
 function readmeHeader(container) {
   let scope = container.parentElement;
@@ -21,9 +52,33 @@ function readmeHeader(container) {
   return null;
 }
 
+/**
+ * The row that holds GitHub's own header actions near this container, found by
+ * the action row itself or by the edit control it lives with. New issue pages
+ * render their description without comment classes, so the edit control is the
+ * stable hook.
+ */
+function actionsNear(container) {
+  let scope = container.parentElement;
+  for (let depth = 0; scope && scope !== document.body && depth < 8; depth += 1) {
+    // A wider scope that holds other bodies is the timeline, not this card;
+    // binding there would put the button beside another comment's edit control.
+    if (scope.querySelectorAll('.markdown-body').length > 1) break;
+    const row = scope.querySelector(COMMENT_ACTION_ROW);
+    if (row) return row;
+    const edit = editControl(scope);
+    if (edit) return edit.closest(COMMENT_ACTION_ROW) || edit.parentElement;
+    scope = scope.parentElement;
+  }
+  return null;
+}
+
 function markdownHeader(container) {
   const comment = container.closest('.js-comment, .timeline-comment, .review-comment');
   if (comment) {
+    // The button belongs beside the edit control, not at the start of the header.
+    const actions = comment.querySelector(COMMENT_ACTION_ROW);
+    if (actions) return markActionRow(actions);
     const header = comment.querySelector('.timeline-comment-header, [data-testid="comment-header"]');
     if (header) return header;
   }
@@ -40,7 +95,7 @@ function markdownHeader(container) {
     const header = release.querySelector('.release-header');
     if (header) return header;
   }
-  return readmeHeader(container);
+  return readmeHeader(container) || markActionRow(actionsNear(container));
 }
 
 function commitHeader(container) {

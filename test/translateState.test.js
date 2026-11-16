@@ -20,6 +20,7 @@ globalThis.localStorage = dom.window.localStorage;
 const { ensureContainer, runContainer, toggleContainer, teardownAllContainers } = await import(
   '../src/features/translate/state.js'
 );
+const { listSurfaces } = await import('../src/features/translate/surfaces.js');
 const container = document.querySelector('.markdown-body');
 const surface = { id: 'markdown', labelKey: 'translate.surfaceMarkdown' };
 
@@ -150,6 +151,31 @@ test('a header that dropped the button gets it back on the next scan', () => {
   teardownAllContainers();
   host.remove();
   slot.remove();
+});
+
+test('a comment action row gets the button beside the edit control', () => {
+  const comment = document.createElement('div');
+  comment.className = 'js-comment';
+  const header = document.createElement('div');
+  header.className = 'timeline-comment-header';
+  const actions = document.createElement('div');
+  actions.className = 'timeline-comment-actions';
+  const edit = document.createElement('button');
+  edit.setAttribute('aria-label', 'Edit comment');
+  actions.appendChild(edit);
+  const host = document.createElement('div');
+  host.className = 'markdown-body';
+  host.innerHTML = '<p>Text with changes.</p>';
+  comment.append(header, actions, host);
+  document.body.appendChild(comment);
+  const markdown = listSurfaces().find((entry) => entry.id === 'markdown');
+  const state = ensureContainer(host, markdown);
+  assert.equal(state.button.parentElement, actions);
+  assert.equal(actions.firstElementChild, state.button);
+  assert.ok(state.button.classList.contains('gp-translate-btn--header'));
+  assert.ok(state.button.classList.contains('gp-translate-btn--actions'));
+  teardownAllContainers();
+  comment.remove();
 });
 
 test('a caller-supplied button is not bound to toggle the container', async () => {
