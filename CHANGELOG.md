@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.6] - 2026-11-16
+
+### Fixed
+
+- On the new issue and pull request shell the Translate action in a comment now
+  joins the comment header's own action buttons row, in its compact invisible
+  button style, instead of sitting in a bar above the comment text
+
+[0.20.6]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.6
+
 ## [0.20.5] - 2026-11-16
 
 ### Changed

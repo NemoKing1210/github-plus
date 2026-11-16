@@ -113,6 +113,31 @@ test('the description edit block hosts the translate button', () => {
   section.remove();
 });
 
+test('a new-shell comment header hosts the translate button in its actions', () => {
+  const article = document.createElement('article');
+  article.className = 'container__rfx-3s';
+  article.innerHTML = '<div class="header__8DCKRC">'
+    + '<div data-testid="comment-header" class="ActivityHeaderContainer__sf0_ID">'
+    + '<div class="activityHeader__V45NcJ ActivityHeaderGridLayout__Ip6-X-">'
+    + '<div data-testid="comment-header-left-side-items">FenixUzb</div>'
+    + '<div data-testid="comment-header-right-side-items" class="ActionsContainer__acCGII">'
+    + '<div class="EditsContainer__yFuvcF"></div>'
+    + '<div class="BadgesContainer__muaZQX"><span>Contributor</span></div>'
+    + '<div class="ActionsButtonsContainer__ZaEPJ0">'
+    + '<button data-component="IconButton" class="prc-Button-IconButton-fyge7">more</button>'
+    + '</div></div></div></div></div>'
+    + '<div class="body__APdwN2"><div class="prc-Stack-Stack-UQ9k6">'
+    + '<div class="markdown-body">Comment text</div></div></div>';
+  document.body.appendChild(article);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = article.querySelector('.markdown-body');
+  assert.equal(
+    headerFor(body, markdown),
+    article.querySelector('.ActionsButtonsContainer__ZaEPJ0'),
+  );
+  article.remove();
+});
+
 test('the preview container is resolved separately', () => {
   assert.equal(previewContainer().textContent, 'Preview');
   assert.equal(surfaceForContainer(previewContainer()).id, 'preview');

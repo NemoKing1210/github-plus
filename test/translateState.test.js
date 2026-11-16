@@ -209,6 +209,35 @@ test('the description edit block gets the button before the edit control', () =>
   section.remove();
 });
 
+test('a new-shell comment gets the button in its header actions', () => {
+  const article = document.createElement('article');
+  article.className = 'container__rfx-3s';
+  article.innerHTML = '<div class="header__8DCKRC">'
+    + '<div data-testid="comment-header" class="ActivityHeaderContainer__sf0_ID">'
+    + '<div class="activityHeader__V45NcJ">'
+    + '<div data-testid="comment-header-left-side-items">FenixUzb</div>'
+    + '<div data-testid="comment-header-right-side-items" class="ActionsContainer__acCGII">'
+    + '<div class="EditsContainer__yFuvcF"></div>'
+    + '<div class="BadgesContainer__muaZQX"><span>Contributor</span></div>'
+    + '<div class="ActionsButtonsContainer__ZaEPJ0">'
+    + '<button data-component="IconButton" class="prc-Button-IconButton-fyge7">more</button>'
+    + '</div></div></div></div></div>'
+    + '<div class="body__APdwN2"><div class="prc-Stack-Stack-UQ9k6">'
+    + '<div class="markdown-body"><p>Comment text.</p></div></div></div>';
+  document.body.appendChild(article);
+  const body = article.querySelector('.markdown-body');
+  const markdown = listSurfaces().find((entry) => entry.id === 'markdown');
+  const state = ensureContainer(body, markdown);
+  const row = article.querySelector('.ActionsButtonsContainer__ZaEPJ0');
+  assert.equal(state.button.parentElement, row);
+  assert.equal(row.firstElementChild, state.button);
+  assert.ok(state.button.classList.contains('gp-translate-btn--actions'));
+  assert.ok(state.button.classList.contains('gp-translate-btn--small'));
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
+  teardownAllContainers();
+  article.remove();
+});
+
 test('a caller-supplied button is not bound to toggle the container', async () => {
   const button = document.createElement('button');
   button.className = 'gp-translate-btn';

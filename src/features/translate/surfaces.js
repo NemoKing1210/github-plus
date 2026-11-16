@@ -10,7 +10,8 @@ const SKIP_MARKDOWN = '.gp-preview-overlay, .gp-preview__md, [data-gp-translate-
 export const README_HEADER_SLOT = '[class*="readmeHeaderSlot"]';
 
 /** GitHub's row of comment/description header actions, where the edit control lives. */
-export const COMMENT_ACTION_ROW = '.timeline-comment-actions, [data-testid="comment-header-actions"]';
+export const COMMENT_ACTION_ROW = '.timeline-comment-actions, [data-testid="comment-header-actions"],'
+  + ' [class*="ActionsButtonsContainer"]';
 
 /**
  * The description edit block of the new issue/PR shell: "Edited", the edit
@@ -18,6 +19,9 @@ export const COMMENT_ACTION_ROW = '.timeline-comment-actions, [data-testid="comm
  * hashed, so only the stable prefix is matched.
  */
 export const EDIT_METADATA_ROW = '[class*="editMetadata"]';
+
+/** Action rows whose neighbouring buttons are GitHub's compact (28px) ones. */
+export const COMPACT_ACTION_ROW = `${EDIT_METADATA_ROW}, [class*="ActionsButtonsContainer"]`;
 
 const EDIT_CONTROL = [
   'a[href$="/edit"]',

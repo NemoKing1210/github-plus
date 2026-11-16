@@ -779,9 +779,10 @@ new page shell). There the action is inserted before GitHub's own buttons so it
 sits beside the edit control, and `.gp-translate-btn--actions` gives it the same
 muted `var(--gp-text-muted)` label as those buttons, darkening to
 `var(--gp-text)` on hover; the accent tint still marks a translated body. The
-new shell's description edit block ("Edited" and the edit pencil) uses small
-invisible buttons, so the action there takes `.gp-translate-btn--small`: 28px
-high, `0 8px` padding, a 6px gap and a `12px`/500 label.
+new shell's description edit block ("Edited" and the edit pencil) and its
+comment action row both use small invisible buttons, so the action there takes
+`.gp-translate-btn--small`: 28px high, `0 8px` padding, a 6px gap and a
+`12px`/500 label.
 
 Where GitHub exposes no header, the button lives alone in our own
 `.gp-translate-bar` inserted before the container: a flex row with no

@@ -905,8 +905,10 @@ default `mode` is `button`; `auto` is opt-in.
   (issue/PR title elements) and `preview`
   (`.gp-preview-overlay .gp-preview__md`). A surface declares `containers`,
   observation `roots`, `headerFor(container)` (the row that should host the
-  button: GitHub's comment action row — `.timeline-comment-actions` or the
-  `[data-testid="comment-header-actions"]` row — the file/release header, or
+  button: GitHub's comment action row — `.timeline-comment-actions`, the
+  `[data-testid="comment-header-actions"]` row, or the new shell's
+  `[class*="ActionsButtonsContainer"]` row in a comment header — the
+  file/release header, or
   the repository README's `readmeHeaderSlot`; a page whose markup has no
   comment classes is resolved through the description's edit block
   (`[class*="editMetadata"]`, the row holding "Edited" and the edit pencil) or
@@ -985,7 +987,8 @@ default `mode` is `button`; `auto` is opt-in.
   beside the edit control and marked `.gp-translate-btn--actions`, taking the
   `.gp-translate-btn--header` look inside the repository README slot and the
   compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
-  shell's `editMetadata` block, and
+  shell's `editMetadata` block and comment
+  `ActionsButtonsContainer` row, and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
   into our own `.gp-translate-bar` before the container), `createResultBox(html, { preformatted })` (a `plain` surface's box
   keeps the source line breaks) and `removeChrome`.
