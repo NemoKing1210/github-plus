@@ -71,8 +71,10 @@ function restoreAfterHover(state) {
 }
 
 function pruneDetached() {
-  states.forEach((state, container) => {
-    if (!container.isConnected) states.delete(container);
+  // A detached container may share a live page header with its replacement, so
+  // dropping the state alone would leave its button stacked in that header.
+  Array.from(states.keys()).forEach((container) => {
+    if (!container.isConnected) teardownContainer(container);
   });
 }
 

@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Translate action in the quick preview is offered only for a rendered
   markdown file and disappears in source mode or when the preview moves to a
   file of another kind
+- Switching between markdown files on a repository page no longer stacks one
+  Translate button in the shared file header for every visited file: a
+  detached container is now torn down together with its control
 
 [0.18.5]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.5
 

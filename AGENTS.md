@@ -933,7 +933,10 @@ default `mode` is `button`; `auto` is opt-in.
   never piled up at the end. `toggleContainer` restores the exact original HTML
   or starts a run, and is the only caller that focuses the button, so auto mode
   never steals focus. `teardownContainer`/`teardownAllContainers` restore and
-  remove chrome. `runId` makes an in-flight response stale after a teardown.
+  remove chrome, and `pruneDetached` runs the same teardown on a container that
+  left the DOM — dropping the state alone would leave its button stacked in a
+  page header shared with the next file. `runId` makes an in-flight response
+  stale after a teardown.
   Painted blocks keep their original `innerHTML`; a list item keeps its nested
   lists. `reveal: hover` shows the source while the pointer or focus is inside
   the container and repaints on leave. A caller-supplied button (the preview

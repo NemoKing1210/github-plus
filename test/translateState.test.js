@@ -257,3 +257,26 @@ test('a header-hosted action shows progress in its label', async () => {
   host.remove();
   slot.remove();
 });
+
+test('switching files does not stack buttons in a shared header', () => {
+  const slot = document.createElement('header');
+  const first = document.createElement('div');
+  first.className = 'markdown-body';
+  first.innerHTML = '<p>First file.</p>';
+  document.body.append(slot, first);
+  const withHeader = { ...surface, headerFor: () => slot };
+  ensureContainer(first, withHeader);
+  assert.equal(slot.querySelectorAll('.gp-translate-btn').length, 1);
+
+  first.remove();
+  const second = document.createElement('div');
+  second.className = 'markdown-body';
+  second.innerHTML = '<p>Second file.</p>';
+  document.body.append(second);
+  ensureContainer(second, withHeader);
+
+  assert.equal(slot.querySelectorAll('.gp-translate-btn').length, 1);
+  teardownAllContainers();
+  second.remove();
+  slot.remove();
+});
