@@ -63,6 +63,6 @@ export function toArray(collection) {
 export function isOwnUi(node) {
   return (
     node instanceof Element
-    && !!node.closest('.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn, .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn, .gp-file-meta, .gp-context-menu, .gp-hold-ring')
+    && !!node.closest('.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn, .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn, .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-translate-btn, .gp-translate-bar, .gp-translate-result, .gp-translate-status')
   );
 }

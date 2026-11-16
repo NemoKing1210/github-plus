@@ -108,7 +108,7 @@ export const TRANSLATION_PROVIDERS = [
   {
     id: 'libretranslate',
     name: 'LibreTranslate',
-    hintKey: 'translate.providerHintLibretranslate',
+    hintKey: 'translate.providerHintLibre',
     fields: [
       {
         key: 'apiUrl',
