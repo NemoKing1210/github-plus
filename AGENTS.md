@@ -905,13 +905,18 @@ default `mode` is `button`; `auto` is opt-in.
   (issue/PR title elements) and `preview`
   (`.gp-preview-overlay .gp-preview__md`). A surface declares `containers`,
   observation `roots`, `headerFor(container)` (the row that should host the
-  button: GitHub's comment action row — `.timeline-comment-actions`, the
-  `[data-testid="comment-header-actions"]` row, or the new shell's
-  `[class*="ActionsButtonsContainer"]` row in a comment header — the
+  button: GitHub's comment action row — the inner flex row of
+  `.timeline-comment-actions` (the wrapper itself would stack the button above
+  its kebab and reply controls), the `[data-testid="comment-header-actions"]`
+  row, or the new shell's `[class*="ActionsButtonsContainer"]` row in a comment
+  header — the
   file/release header (the blob view uses its
   `[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])`
   row of Raw/copy/download/edit actions), or
-  the repository README's `readmeHeaderSlot`; a page whose markup has no
+  the repository README's `readmeHeaderSlot`, or the new issue/PR page's own
+  actions row (`[data-component="PH_Actions"]`, where GitHub's copy-link icon
+  button lives — remembered in a second `WeakSet` so `isIconActionRow()` can
+  give the title action the icon-only shape); a page whose markup has no
   comment classes is resolved through the description's edit block
   (`[class*="editMetadata"]`, the row holding "Edited" and the edit pencil) or
   the edit control nearest the container (including
@@ -990,7 +995,9 @@ default `mode` is `button`; `auto` is opt-in.
   `.gp-translate-btn--header` look inside the repository README slot and the
   compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
   shell's `editMetadata` block, comment `ActionsButtonsContainer` row and the
-  blob file header actions row, and
+  blob file header actions row, and the bare-icon
+  `.gp-translate-btn--icon` shape (32px, label visually hidden) in the page
+  header's actions row of an issue or pull request title, and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
   into our own `.gp-translate-bar` before the container), `createResultBox(html, { preformatted })` (a `plain` surface's box
   keeps the source line breaks) and `removeChrome`.

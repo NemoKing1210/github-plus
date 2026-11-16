@@ -2941,6 +2941,46 @@ audio.gp-preview__media {
   font: 500 12px/20px var(--gp-font);
 }
 
+/* The issue/PR title action is a bare icon in the page header, beside GitHub's
+ * copy-link control: the same 32px invisible icon button, with the label kept
+ * for assistive tech. */
+.gp-translate-btn--icon {
+  position: relative;
+  box-sizing: border-box;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  gap: 0;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--gp-text-muted);
+}
+.gp-translate-btn--icon:hover {
+  background: var(--gp-highlight);
+  color: var(--gp-text);
+}
+.gp-translate-btn--icon .gp-translate-btn__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.gp-translate-btn--icon[data-gp-translate-state="loading"] {
+  background: transparent;
+}
+.gp-translate-btn--icon[data-gp-translate-state="shown"],
+.gp-translate-btn--icon[data-gp-translate-state="partial"] {
+  border-color: transparent;
+  background: var(--gp-accent-soft);
+  color: var(--gp-accent);
+}
+
 /* Fallback bar before a container that has no page header to host the action. */
 .gp-translate-bar {
   display: flex;

@@ -775,7 +775,10 @@ highlight fill on hover. The accent tint still marks a translated README.
 
 A comment or description header is GitHub's action row
 (`.timeline-comment-actions`, or the row that carries the edit control on the
-new page shell). There the action is inserted before GitHub's own buttons so it
+new page shell). In the classic markup `.timeline-comment-actions` is only a
+wrapper around one flex row, so the action goes into that inner row — inserting
+into the wrapper would stack it above the kebab and reply controls. There the
+action is inserted before GitHub's own buttons so it
 sits beside the edit control, and `.gp-translate-btn--actions` gives it the same
 muted `var(--gp-text-muted)` label as those buttons, darkening to
 `var(--gp-text)` on hover; the accent tint still marks a translated body. The
@@ -784,6 +787,16 @@ action row and the blob file header's Raw/copy/download/edit row all use small
 invisible buttons, so the action there takes
 `.gp-translate-btn--small`: 28px high, `0 8px` padding, a 6px gap and a
 `12px`/500 label.
+
+An issue or pull request title has no row of its own, so the action joins the
+page header's regular actions, beside GitHub's copy-link control.
+`.gp-translate-btn--icon` is that control's shape: a `32×32`
+`var(--gp-radius)` square with a transparent 1px edge and fill, a 16px
+`var(--gp-text-muted)` glyph, no padding and no visible label — the label stays
+in the DOM, visually hidden, so assistive tech still reads `Translate` and its
+working states. Hover takes `var(--gp-highlight)` and `var(--gp-text)`; the
+accent tint still marks a translated title. The ring and the state styling are
+the same as every other placement.
 
 Where GitHub exposes no header, the button lives alone in our own
 `.gp-translate-bar` inserted before the container: a flex row with no

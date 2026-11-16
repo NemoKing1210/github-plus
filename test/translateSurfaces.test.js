@@ -33,7 +33,8 @@ globalThis.location = dom.window.location;
 globalThis.localStorage = dom.window.localStorage;
 
 const {
-  enabledSurfaces, findContainers, headerFor, surfaceForContainer, previewContainer,
+  enabledSurfaces, findContainers, headerFor, isIconActionRow, surfaceForContainer,
+  previewContainer,
 } = await import('../src/features/translate/surfaces.js');
 
 test('enabled surfaces come from settings', () => {
@@ -76,6 +77,28 @@ test('a comment action row hosts the translate button', () => {
   const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
   const body = comment.querySelector('.markdown-body');
   assert.equal(headerFor(body, markdown), comment.querySelector('.timeline-comment-actions'));
+  comment.remove();
+});
+
+test('the classic comment actions wrapper resolves to its inner flex row', () => {
+  const comment = document.createElement('div');
+  comment.className = 'js-comment';
+  comment.innerHTML = '<div class="edit-comment-hide">'
+    + '<div class="clearfix d-flex flex-row-reverse flex-items-center">'
+    + '<div class="timeline-comment-actions flex-shrink-0">'
+    + '<div class="d-flex flex-row flex-items-center">'
+    + '<comment-actions-container><button>kebab</button></comment-actions-container>'
+    + '</div></div>'
+    + '<h3 class="timeline-comment-header-text">libracoder</h3>'
+    + '</div></div>'
+    + '<div class="comment-body markdown-body js-comment-body">Comment body</div>';
+  document.body.appendChild(comment);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = comment.querySelector('.markdown-body');
+  assert.equal(
+    headerFor(body, markdown),
+    comment.querySelector('.timeline-comment-actions > div'),
+  );
   comment.remove();
 });
 
@@ -157,6 +180,34 @@ test('a blob file header hosts the button in its raw-actions row', () => {
     pane.querySelector('[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])'),
   );
   pane.remove();
+});
+
+test('an issue title action joins the page-header icon row', () => {
+  const page = document.createElement('div');
+  page.setAttribute('data-component', 'PageHeader');
+  page.innerHTML = '<div data-component="TitleArea">'
+    + '<h1><bdi data-testid="issue-title">A title</bdi></h1></div>'
+    + '<div data-component="PH_Actions"><div class="menuActionsContainer__S_GMw3">'
+    + '<button data-component="IconButton" aria-label="Copy link">copy</button>'
+    + '</div></div>';
+  document.body.appendChild(page);
+  const titles = enabledSurfaces().find((surface) => surface.id === 'titles');
+  const title = page.querySelector('[data-testid="issue-title"]');
+  const host = headerFor(title, titles);
+  assert.equal(host, page.querySelector('.menuActionsContainer__S_GMw3'));
+  assert.equal(isIconActionRow(host), true);
+  page.remove();
+});
+
+test('a title without a page header keeps the heading as its host', () => {
+  const heading = document.createElement('h1');
+  heading.innerHTML = '<bdi data-testid="issue-title">A title</bdi>';
+  document.body.appendChild(heading);
+  const titles = enabledSurfaces().find((surface) => surface.id === 'titles');
+  const host = headerFor(heading.querySelector('[data-testid="issue-title"]'), titles);
+  assert.equal(host, heading);
+  assert.equal(isIconActionRow(host), false);
+  heading.remove();
 });
 
 test('the preview container is resolved separately', () => {

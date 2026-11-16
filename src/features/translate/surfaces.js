@@ -25,6 +25,15 @@ export const COMPACT_ACTION_ROW = `${EDIT_METADATA_ROW}, [class*="ActionsButtons
   + ' [class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])';
 
 /**
+ * The new issue/PR page header's regular actions, where GitHub's own copy-link
+ * icon button lives. Class suffixes are hashed, so only the stable
+ * `data-component` hook is matched; the context-area row is its narrow-screen
+ * twin and carries a duplicate of the same actions.
+ */
+export const PAGE_HEADER_ACTIONS = '[data-component="PH_Actions"],'
+  + ' [data-component="PageHeader.Actions"]';
+
+/**
  * The blob file header's own actions row (Raw, copy, download and the edit
  * pencil). The `-combined` sibling only holds the kebab menu.
  */
@@ -45,7 +54,20 @@ function editControl(scope) {
   return control;
 }
 
+/**
+ * The element GitHub lays its own header controls out in. The classic
+ * `.timeline-comment-actions` is a wrapper around one flex row, so inserting
+ * into the wrapper stacks the button above that row instead of beside the
+ * edit and kebab controls.
+ */
+function actionRow(row) {
+  if (!row || !row.matches('.timeline-comment-actions')) return row;
+  const inner = row.firstElementChild;
+  return inner && inner.matches('[class*="d-flex"]') ? inner : row;
+}
+
 const actionRows = new WeakSet();
+const iconRows = new WeakSet();
 
 /** Remember a header that is really a row of GitHub's own header actions. */
 function markActionRow(node) {
@@ -53,9 +75,20 @@ function markActionRow(node) {
   return node;
 }
 
+/** Remember a header that should host a bare icon button. */
+function markIconRow(node) {
+  if (node) iconRows.add(node);
+  return node;
+}
+
 /** Whether a header element is a row of GitHub header actions. */
 export function isActionRow(node) {
   return Boolean(node) && actionRows.has(node);
+}
+
+/** Whether a header hosts icon-only buttons, like the page-header actions. */
+export function isIconActionRow(node) {
+  return Boolean(node) && iconRows.has(node);
 }
 
 
@@ -84,11 +117,11 @@ function actionsNear(container) {
     // binding there would put the button beside another comment's edit control.
     if (scope.querySelectorAll('.markdown-body').length > 1) break;
     const row = scope.querySelector(COMMENT_ACTION_ROW);
-    if (row) return row;
+    if (row) return actionRow(row);
     const metadata = scope.querySelector(EDIT_METADATA_ROW);
     if (metadata) return metadata;
     const edit = editControl(scope);
-    if (edit) return edit.closest(COMMENT_ACTION_ROW) || edit.parentElement;
+    if (edit) return actionRow(edit.closest(COMMENT_ACTION_ROW)) || edit.parentElement;
     scope = scope.parentElement;
   }
   return null;
@@ -99,7 +132,7 @@ function markdownHeader(container) {
   if (comment) {
     // The button belongs beside the edit control, not at the start of the header.
     const actions = comment.querySelector(COMMENT_ACTION_ROW);
-    if (actions) return markActionRow(actions);
+    if (actions) return markActionRow(actionRow(actions));
     const header = comment.querySelector('.timeline-comment-header, [data-testid="comment-header"]');
     if (header) return header;
   }
@@ -125,6 +158,21 @@ function markdownHeader(container) {
 
 function commitHeader(container) {
   return container.closest('header, [data-testid="commit-header"]');
+}
+
+/**
+ * The issue/PR title's action row: the page header's own icon actions, beside
+ * the copy-link control, so the button takes GitHub's icon-button shape there
+ * instead of sitting inside the heading.
+ */
+function titleHeader(container) {
+  const page = container.closest('[data-component="PageHeader"]');
+  const actions = page && page.querySelector(PAGE_HEADER_ACTIONS);
+  // The inner flex row is what lays the icon buttons out; the wrapper itself
+  // would stack the action under them.
+  const row = actions && (actions.querySelector('[class*="menuActionsContainer"]') || actions);
+  if (row) return markIconRow(row);
+  return container.parentElement;
 }
 
 const SURFACES = [
@@ -163,7 +211,7 @@ const SURFACES = [
     hintKey: 'translate.surfaceTitlesHint',
     containers: ['[data-testid="issue-title"]', '.js-issue-title', '[data-testid="pr-title"]'],
     roots: ['main'],
-    headerFor: (container) => container.parentElement,
+    headerFor: titleHeader,
     skip: (node) => isOwnUi(node),
   },
   {

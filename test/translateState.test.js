@@ -182,6 +182,32 @@ test('a comment action row gets the button beside the edit control', () => {
   comment.remove();
 });
 
+test('a classic comment actions wrapper gets the button in its inner row', () => {
+  const comment = document.createElement('div');
+  comment.className = 'js-comment';
+  comment.innerHTML = '<div class="edit-comment-hide">'
+    + '<div class="clearfix d-flex flex-row-reverse flex-items-center">'
+    + '<div class="timeline-comment-actions flex-shrink-0">'
+    + '<div class="d-flex flex-row flex-items-center">'
+    + '<comment-actions-container><button>kebab</button></comment-actions-container>'
+    + '</div></div>'
+    + '<h3 class="timeline-comment-header-text">libracoder</h3>'
+    + '</div></div>'
+    + '<div class="comment-body markdown-body js-comment-body"><p>Comment text.</p></div>';
+  document.body.appendChild(comment);
+  const body = comment.querySelector('.markdown-body');
+  const markdown = listSurfaces().find((entry) => entry.id === 'markdown');
+  const state = ensureContainer(body, markdown);
+  const row = comment.querySelector('.timeline-comment-actions > div');
+  assert.equal(state.button.parentElement, row);
+  assert.equal(row.firstElementChild, state.button);
+  assert.ok(state.button.classList.contains('gp-translate-btn--header'));
+  assert.ok(state.button.classList.contains('gp-translate-btn--actions'));
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
+  teardownAllContainers();
+  comment.remove();
+});
+
 test('the description edit block gets the button before the edit control', () => {
   const section = document.createElement('section');
   section.className = 'container__qcj0r_';

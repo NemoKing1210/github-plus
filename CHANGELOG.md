@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.9] - 2026-11-16
+
+### Fixed
+
+- On classic comment pages, including Discussions, the Translate action now sits
+  in the same row as the comment's own kebab and reply controls instead of
+  stacking above them: `.timeline-comment-actions` is a wrapper around that flex
+  row, so the action is inserted into the row itself
+
+[0.20.9]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.9
+
+## [0.20.8] - 2026-11-16
+
+### Fixed
+
+- The Translate action for an issue or pull request title is now a bare icon
+  button in the page header's own actions row, beside GitHub's copy-link
+  control, instead of a labelled button inside the title heading
+
+[0.20.8]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.20.8
+
 ## [0.20.7] - 2026-11-16
 
 ### Fixed

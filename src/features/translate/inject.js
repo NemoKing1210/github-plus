@@ -1,6 +1,8 @@
 import { ACTION_ICONS } from '../../ui/icons.js';
 import { t } from '../../i18n/index.js';
-import { COMPACT_ACTION_ROW, isActionRow, README_HEADER_SLOT } from './surfaces.js';
+import {
+  COMPACT_ACTION_ROW, isActionRow, isIconActionRow, README_HEADER_SLOT,
+} from './surfaces.js';
 
 const RING_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true">'
   + '<circle class="gp-translate-ring__track" cx="8" cy="8" r="6.5" pathLength="100"></circle>'
@@ -70,6 +72,7 @@ export function ensureChrome(container, { header, button } = {}) {
     const stale = findBar(container);
     if (stale) stale.remove();
     const actions = isActionRow(header);
+    const icon = isIconActionRow(header);
     if (control.parentElement !== header) {
       // In GitHub's own action row the button joins the row before the edit
       // control instead of trailing it.
@@ -82,8 +85,13 @@ export function ensureChrome(container, { header, button } = {}) {
       actions || header.matches(README_HEADER_SLOT),
     );
     control.classList.toggle('gp-translate-btn--actions', actions);
+    // The issue/PR title action is a bare icon beside GitHub's copy-link control.
+    control.classList.toggle('gp-translate-btn--icon', icon);
     // The new shell's edit block uses small (28px) invisible buttons.
-    control.classList.toggle('gp-translate-btn--small', header.matches(COMPACT_ACTION_ROW));
+    control.classList.toggle(
+      'gp-translate-btn--small',
+      !icon && header.matches(COMPACT_ACTION_ROW),
+    );
     return { button: control, bar: null };
   }
   let bar = findBar(container);
@@ -98,6 +106,7 @@ export function ensureChrome(container, { header, button } = {}) {
   if (control.parentElement !== bar) bar.insertBefore(control, bar.firstChild);
   control.classList.remove('gp-translate-btn--header');
   control.classList.remove('gp-translate-btn--actions');
+  control.classList.remove('gp-translate-btn--icon');
   control.classList.remove('gp-translate-btn--small');
   return { button: control, bar };
 }

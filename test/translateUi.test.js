@@ -7,6 +7,7 @@ import { isOwnUi } from '../src/utils/dom.js';
 import {
   createButton, ensureChrome, setButtonState,
 } from '../src/features/translate/inject.js';
+import { listSurfaces } from '../src/features/translate/surfaces.js';
 
 const dom = new JSDOM('<!doctype html><body><div class="gp-translate-bar"></div></body>');
 globalThis.window = dom.window;
@@ -43,6 +44,29 @@ test('the README header action takes the header button look', () => {
   button.remove();
   slot.remove();
   markdown.remove();
+});
+
+test('the issue title action is a bare icon in the page-header actions', () => {
+  const page = document.createElement('div');
+  page.setAttribute('data-component', 'PageHeader');
+  page.innerHTML = '<div data-component="TitleArea"><h1>'
+    + '<bdi data-testid="issue-title">A title</bdi></h1></div>'
+    + '<div data-component="PH_Actions"><div class="menuActionsContainer__S_GMw3">'
+    + '<button data-component="IconButton" aria-label="Copy link">copy</button>'
+    + '</div></div>';
+  document.body.append(page);
+  const title = page.querySelector('[data-testid="issue-title"]');
+  const titles = listSurfaces().find((surface) => surface.id === 'titles');
+  const header = titles.headerFor(title);
+  const button = createButton('Translate');
+  ensureChrome(title, { header, button });
+  assert.equal(button.parentElement, header);
+  assert.ok(button.classList.contains('gp-translate-btn--icon'));
+  assert.ok(!button.classList.contains('gp-translate-btn--actions'));
+  assert.ok(!button.classList.contains('gp-translate-btn--small'));
+  assert.equal(button.querySelector('.gp-translate-btn__label').textContent, 'Translate');
+  button.remove();
+  page.remove();
 });
 
 test('a page header outside the README slot keeps the default look', () => {
