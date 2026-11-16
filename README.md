@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.18.6-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.19.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, an image gallery
 for rendered markdown, colored file icons wherever GitHub lists files,
@@ -13,7 +13,7 @@ blame-style age colors for those files, file sizes with one-click downloads,
 a context menu for file actions, a quick preview for any file, and on-page
 translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.18.6`). Settings panel with instant search (General ·
+> **Status:** early (`0.19.0`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Backup · About), the markdown image gallery,
 > colored file icons, blame-style file age colors, file sizes with download
 > buttons, a file context menu, a quick file preview, and on-page translation.
@@ -261,6 +261,7 @@ Stored under `gp_settings_v1`.
 | `toasts.enabled` | `true` | Toast notifications |
 | `toasts.position` | `'bottom-right'` | `bottom-right`, `bottom-left`, `top-right`, `top-left` |
 | `toasts.duration` | `5000` | Auto-hide delay in ms (`0` keeps a toast until dismissed) |
+| `logging.enabled` | `false` | Console diagnostics with GP codes, module, details and stack; off by default |
 | `fileIcons.enabled` | `true` | Master switch for file and folder icons |
 | `fileIcons.folders` | `true` | Folder-specific icons for common folder names |
 | `fileIcons.specialNames` | `true` | Dedicated icons for well-known filenames |

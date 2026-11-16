@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.18.6-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.19.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴,
 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.18.6`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 · 백업 ·
+> **상태:** 초기(`0.19.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 · 백업 ·
 > 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
 > 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴, 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub
 > 개선이 예정되어 있습니다.
@@ -242,6 +242,7 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `toasts.enabled` | `true` | 토스트 알림 |
 | `toasts.position` | `'bottom-right'` | `bottom-right`, `bottom-left`, `top-right`, `top-left` |
 | `toasts.duration` | `5000` | 자동 숨김 지연(ms, `0`은 닫을 때까지 유지) |
+| `logging.enabled` | `false` | 콘솔 진단: GP 코드, 모듈, 세부 정보, 스택. 기본적으로 꺼짐 |
 | `fileIcons.enabled` | `true` | 파일 및 폴더 아이콘 마스터 스위치 |
 | `fileIcons.folders` | `true` | 흔한 폴더 이름의 전용 아이콘 |
 | `fileIcons.specialNames` | `true` | 알려진 파일 이름의 전용 아이콘 |

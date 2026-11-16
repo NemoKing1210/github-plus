@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-11-16
+
+### Added
+
+- Optional diagnostics logging, off by default: when enabled, GitHub Plus
+  failures and traces print to the browser console with a `GP-####` code, the
+  module, sanitized details, the stack and a session history exposed through
+  `window.__GP_LOG__`; uncaught errors and unhandled rejections from the script
+  are captured too
+
+[0.19.0]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.19.0
+
 ## [0.18.6] - 2026-11-16
 
 ### Fixed

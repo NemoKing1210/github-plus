@@ -37,7 +37,9 @@ github-plus/
 │   │   ├── constants.js    # DEFAULT_SETTINGS, storage key, limits, timings
 │   │   ├── settings.js     # Settings state, normalization, persistence
 │   │   ├── bus.js          # Minimal pub/sub (on / off / emit)
-│   │   └── debug.js        # Structured console diagnostics (GP-#### codes)
+│   │   └── logger/
+│   │       ├── index.js    # State, console output, buffer, global capture (GP-####)
+│   │       └── sanitize.js # JSON-safe details + error/cause serialization (pure)
 │   ├── i18n/
 │   │   ├── index.js        # configureLocale / t
 │   │   ├── meta.js         # SUPPORTED_LOCALES, aliases, native names
@@ -52,6 +54,8 @@ github-plus/
 │   │   └── sources/
 │   │       └── markdown.js # Markdown images source (side-effect registration)
 │   ├── features/
+│   │   ├── logging/
+│   │   │   └── index.js    # Applies logging.enabled to core/logger (boot + bus)
 │   │   ├── settings/
 │   │   │   ├── index.js    # Settings entry: header button, user-menu row, pages
 │   │   │   ├── userMenu.js # Settings row inside GitHub's user (avatar) menu
@@ -59,7 +63,7 @@ github-plus/
 │   │   │   ├── controls.js # Section / row / field / switch / select / input / button
 │   │   │   ├── confirm.js  # Promise-based confirm dialog
 │   │   │   └── tabs/
-│   │   │       ├── general.js   # Interface language, toast notifications
+│   │   │       ├── general.js   # Interface language, notifications, diagnostics
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
 │   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu, preview
 │   │   │       ├── translate.js # Translation trigger, places, provider, cache
@@ -133,7 +137,7 @@ github-plus/
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
 ├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview,
-│                           #   translate*, locales, download)
+│                           #   translate*, logger*, locales, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -146,7 +150,8 @@ github-plus/
 
 ### `src/main.js` — entry
 
-`init()`: `configureLocale(getSettings().language)` → `initSettingsFeature()` →
+`init()`: `initLoggingFeature()` → `configureLocale(getSettings().language)` →
+`initSettingsFeature()` →
 `initGalleryFeature()` + `applyGallerySettings()` → `initFileIconsFeature()` +
 `applyFileIconsSettings()` → `initFileAgesFeature()` + `applyFileAgesSettings()`
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
@@ -187,6 +192,9 @@ Single place for magic values.
   values), `GALLERY_DEFAULT_MAX_ZOOM` (8), `BADGE_HOSTS` (badge/status
   services), `IMAGE_EXTENSIONS` (extensions that count as a direct image file).
 - Toasts: `TOAST_POSITIONS`, `TOAST_MAX_DURATION_MS` (120000).
+- Diagnostics: `LOG_MAX_ENTRIES` (300, ring-buffer cap),
+  `LOG_STRING_MAX_CHARS` (2000), `LOG_DETAIL_DEPTH` (4) and `LOG_MAX_ITEMS`
+  (50 — array items and object keys per detail).
 - File ages: `AGE_BUCKET_COUNT` (10 shades; the threshold table itself lives in
   `features/fileAges/age.js`).
 - File menu: `FILE_COPY_MAX_BYTES` (1 MiB — the ceiling for "copy contents").
@@ -210,10 +218,10 @@ Single place for magic values.
   `TRANSLATE_MAX_BLOCKS` (300) / `_MAX_BLOCK_CHARS` (12000), and the surface
   observer timings `TRANSLATE_OBSERVE_DEBOUNCE_MS` (150), `TRANSLATE_SETTLE_MS`
   (250) × `TRANSLATE_SETTLE_TRIES` (20).
-- `DEFAULT_SETTINGS` (`language`, `gallery`, `toasts`, `fileIcons`, `fileAges`,
-  `fileMeta`, `fileMenu`, `filePreview`, `translate`) plus `getDefaults()`,
-  which returns a deep clone — never mutate the shared constants.
-  `DEFAULT_FILE_ICONS` is
+- `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
+  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `translate`) plus
+  `getDefaults()`, which returns a deep clone — never mutate the shared
+  constants. `DEFAULT_LOGGING` is `{ enabled: false }`; `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
   `DEFAULT_FILE_MENU` is `{ enabled }`, `DEFAULT_FILE_PREVIEW` is
@@ -225,7 +233,7 @@ Single place for magic values.
 
 Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
-Public API: `loadSettings`, `getSettings`, `getGallerySettings`,
+Public API: `loadSettings`, `getSettings`, `getLoggingSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
 `getFileMenuSettings`, `getFilePreviewSettings`, `getTranslateSettings`,
 `saveSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
@@ -235,7 +243,8 @@ Key facts that must survive refactors:
 - `saveSettings()` does **not** notify features — the caller (settings UI)
   emits the matching bus event afterwards. Keep that separation: persistence in
   `core`, reactions in the UI/features via the bus.
-- Every value is normalized on load and on save: locale whitelist, booleans,
+- Every value is normalized on load and on save: locale whitelist, the
+  `logging` boolean, booleans,
   toast positions from `TOAST_POSITIONS`, toast duration clamped to
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
@@ -262,6 +271,8 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:gallery` — emitted by the panel footer Save (and by a backup
   import). The `gallery` feature listens and repaints its stylesheet.
 - `settings:toasts` — emitted by the same Save; reserved for toast listeners.
+- `settings:logging` — emitted by the same Save and by a backup import; the
+  logging feature applies the switch to `core/logger` without a reload.
 - `settings:language` — emitted by the same Save; the settings entry listens to
   relabel its header button, and the file-meta feature repaints its localized
   column label and download labels.
@@ -287,21 +298,50 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   listens to for repainting its header, footer and card labels, and the
   translate feature for its button and status labels.
 
-### `src/core/debug.js` — diagnostics
+### `src/core/logger/` — diagnostics
 
-Structured console logging. Every failure carries a stable `GP-####` code
-(grep the code to find the throw site): the `Codes` registry, `logError` and
-`logWarn` (always printed, styled badge + details object), `logInfo(area, …)`
-(verbose only — enable with `localStorage gp_debug=1` or
-`window.__GP_DEBUG__=true`), and `isVerbose()` for callers that want to skip
-building expensive log payloads. Codes in use: `GP-1001` bus listener, `GP-1002` settings
-persist, `GP-1003` settings load, `GP-1004` settings import, `GP-1101` gallery
-open, `GP-1102` gallery source, `GP-1103` gallery image load, `GP-1104`
-gallery download button, `GP-1301` file-icons surface, `GP-1302` file-ages
-surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
-file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
-`GP-1201` UI mount. Rules: log once per user-visible failure at the outermost point; layers
-below only throw, they never log.
+Opt-in structured logging, silent until **Console logging** on the General
+settings page is on (`logging.enabled`, off by default). While off, every
+helper returns after one boolean check: no console call, no entry, no global
+listener, no `window.__GP_LOG__`.
+
+- `sanitize.js`: `sanitizeValue(value)` and `serializeError(error)` (pure)
+  turn arbitrary details into JSON-safe data — strings truncate at
+  `LOG_STRING_MAX_CHARS`, arrays and objects cap at `LOG_MAX_ITEMS`, nesting
+  stops at `LOG_DETAIL_DEPTH`, DOM nodes become `tag#id.class` descriptors,
+  cycles become `[Circular]`, throwing getters `[Unreadable]`; an Error keeps
+  `name`, `message`, `stack` and up to two nested `cause` levels. Neither
+  function throws.
+- `index.js`: `Codes` (the `GP-####` registry), `configureLogger({ enabled })`,
+  `isLoggingEnabled()`, `createLogger(module)`, `getLogEntries()`, `dumpLog()`,
+  `clearLog()`, `copyLog()` and `isScriptFailure(text)`.
+  `createLogger('file-icons')` returns frozen `error(code, message, details?)`,
+  `warn(...)` and `info(message, details?)` helpers; the module name is part of
+  every entry. An entry carries `seq`, `time`, `elapsedMs`, `level`, `code`
+  (`null` for info), `module`, `message`, sanitized `details`, a parsed `error`
+  and `repeats`. Consecutive identical entries bump `repeats` instead of
+  printing again; the buffer holds `LOG_MAX_ENTRIES`.
+- Enabling installs `error` and `unhandledrejection` listeners (capture) and
+  publishes `window.__GP_LOG__` (`dump()`, `copy()`, `clear()`, and a live
+  `entries` getter); disabling removes both and clears the buffer. Global
+  failures are recorded only when `isScriptFailure()` finds `github-plus`,
+  `github plus` or the `GM_info` script name in the decoded `filename`/stack,
+  so GitHub's own errors and resource-load failures never enter the journal.
+  `GP-9001` is an uncaught error, `GP-9002` an unhandled rejection.
+- `copyLog()` resolves `{ ok, method }` (`clipboard`, `console` or `disabled`)
+  and never rejects.
+- `window.__GP_LOG__` lives in the context the script runs in; in a sandboxed
+  manager, switch the devtools console context to the userscript to read it. No
+  `unsafeWindow` grant is added.
+- Codes in use: `GP-1001` bus listener, `GP-1002` settings persist, `GP-1003`
+  settings load, `GP-1004` settings import, `GP-1101` gallery open, `GP-1102`
+  gallery source, `GP-1103` gallery image load, `GP-1104` gallery download
+  button, `GP-1201` UI mount, `GP-1301` file-icons surface, `GP-1302` file-ages
+  surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
+  file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
+  `GP-9001` uncaught error, `GP-9002` unhandled rejection. Rules: log once per
+  user-visible failure at the outermost point; layers below only throw, they
+  never log.
 
 ### `src/gallery/sources.js` — source registry
 
@@ -445,6 +485,13 @@ menu and navigation (the file-menu feature calls `closeContextMenu` from its
 `watchNavigation` hook). The menu renders only `gp-context-menu*` classes and
 never touches page markup; `isOwnUi()` covers it.
 
+### `src/features/logging/` — diagnostics lifecycle
+
+`applyLoggingSettings()` hands `getLoggingSettings()` to `configureLogger()`;
+`initLoggingFeature()` runs it first in `main.js` and subscribes to
+`settings:logging`, so Save (and a backup import) turns logging on or off
+without a reload. Nothing else in the feature layer touches the logger.
+
 ### `src/features/settings/` — panel
 
 - `index.js`: registers the pages, `ensureSettingsButton()` places the entry in
@@ -518,7 +565,10 @@ never touches page markup; `isOwnUi()` covers it.
   the switch inside it is plain markup, never a nested `label`), `createSelect`,
   `createNumberInput`, `createTextarea`, `createButton`, `getIconSvg`.
 - `tabs/general.js`: interface language select (`auto` + `SUPPORTED_LOCALES`
-  native names), toast switch, corner select, auto-hide seconds input.
+  native names), toast switch, corner select, auto-hide seconds input, and the
+  Diagnostics card (console-logging switch plus a **Copy log** button that
+  follows the applied logger and reports the `copyLog()` outcome through a
+  toast).
 - `tabs/gallery.js`: gallery master switch in the section header, source grid
   from `listSources()`, badge filtering, full-size upgrade, thumbnail strip,
   wrap-around, zoom ceiling.
@@ -978,7 +1028,7 @@ classes.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 252
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 260
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1069,12 +1119,13 @@ probes `fullSrc` and swaps it in when it loads.
 header button / menu command → `togglePanel(true)` → draft =
 deep clone of persisted settings → page `render(container)` mutates the draft →
 footer Save → `saveSettings(draft)` → `configureLocale(language)` →
-`emit('settings:gallery' | 'settings:toasts' | 'settings:language' |
-'settings:fileIcons' | 'settings:fileAges' | 'settings:fileMeta' |
-'settings:fileMenu' | 'settings:filePreview' | 'settings:translate')` → gallery
-repaints its stylesheet, file and translate features rescan or tear down,
-settings entry relabels itself
-and updates its dot → success toast → panel closes and `unlockPageScroll()`.
+`emit('settings:gallery' | 'settings:toasts' | 'settings:logging' |
+'settings:language' | 'settings:fileIcons' | 'settings:fileAges' |
+'settings:fileMeta' | 'settings:fileMenu' | 'settings:filePreview' |
+'settings:translate')` → gallery repaints its stylesheet, the logger applies
+its switch, file and translate features rescan or tear down, settings entry
+relabels itself and updates its dot → success toast → panel closes and
+`unlockPageScroll()`.
 
 ## End-to-end data flow (preview)
 
@@ -1144,6 +1195,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | Key | Default | Notes |
 |-----|---------|-------|
 | `language` | `'auto'` | Settings-panel UI language, not the page language |
+| `logging.enabled` | `false` | Console diagnostics: GP codes, module, details, stack; off by default |
 | `gallery.enabled` | `true` | Master switch; disabling removes the injected affordance stylesheet |
 | `gallery.sources.markdown` | `true` | Per-source switches keyed by source id |
 | `gallery.skipBadges` | `true` | Skip badge hosts, emoji and images smaller than `GALLERY_MIN_SIZE_PX` |
@@ -1215,7 +1267,9 @@ fixed brand colors come from the generated Material Icon Theme data, not from
 tokens. The file-age scale is the other fixed palette: commit age is data, so
 `--gp-age-1` … `--gp-age-10` are literal shades that run from the theme's muted
 grey (oldest) to a warm accent (newest), with separate light and dark ramps that
-keep the tinted date readable in either theme.
+keep the tinted date readable in either theme. The Diagnostics card reuses the
+existing section, switch-row and button controls, so DESIGN.md needs no new
+rules for it.
 Before touching any visible element, read DESIGN.md; visual changes update
 DESIGN.md, `tokens.css` and the stylesheet in the same change, get rebuilt and
 eyeballed on a live GitHub page.
@@ -1298,9 +1352,13 @@ and check diagnostics for edited files.
 
 - GM storage key: `gp_settings_v1` (`localStorage.gp_settings_v1` in a plain
   browser) — delete it to test a cold start and the defaults.
-- Verbose logs: `localStorage.setItem('gp_debug', '1')` or
-  `window.__GP_DEBUG__ = true`; failures print with their `GP-####` code even
-  without it.
+- Diagnostics: nothing is printed until **Console logging** is on under
+  **General → Diagnostics**. While on, every entry carries a `GP-####` code,
+  the module and the cause; expand the entry object in the console, or run
+  `__GP_LOG__.dump()` / `__GP_LOG__.copy()` (switch the devtools console
+  context to the userscript in a sandboxed manager). `__GP_LOG__.clear()`
+  empties the buffer. Only uncaught errors and rejections attributable to this
+  bundle are captured; GitHub's own failures stay out.
 - Gallery does not open on click: check the source is enabled, the click was a
   plain left click (no modifier), the image is inside a `.markdown-body`
   container or the quick preview's `.gp-preview__md` / `.gp-preview__content`,

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.18.6-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.19.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
 renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
@@ -13,7 +13,7 @@ wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
 i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach, szybki
 podgląd dowolnego pliku i tłumaczenie treści na stronie.
 
-> **Status:** wczesny etap (`0.18.6`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.19.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Kopia zapasowa · Informacje), galeria
 > obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
 > plików z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików
@@ -271,6 +271,7 @@ Przechowywane pod `gp_settings_v1`.
 | `toasts.enabled` | `true` | Powiadomienia toast |
 | `toasts.position` | `'bottom-right'` | `bottom-right`, `bottom-left`, `top-right`, `top-left` |
 | `toasts.duration` | `5000` | Opóźnienie automatycznego ukrycia w ms (`0` oznacza toast do zamknięcia) |
+| `logging.enabled` | `false` | Diagnostyka w konsoli: kody GP, moduł, szczegóły i stos; domyślnie wyłączona |
 | `fileIcons.enabled` | `true` | Główny przełącznik ikon plików i folderów |
 | `fileIcons.folders` | `true` | Ikony dla popularnych nazw folderów |
 | `fileIcons.specialNames` | `true` | Dedykowane ikony dla znanych nazw plików |

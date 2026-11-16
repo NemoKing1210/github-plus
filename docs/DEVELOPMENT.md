@@ -272,19 +272,27 @@ checks are on `github.com` (the script also matches `gist.github.com`).
 
 ## Debugging
 
-Verbose tracing is off by default. Turn it on from the page console:
+Diagnostics are silent by default. Turn them on in **GitHub Plus settings →
+General → Diagnostics → Console logging** and press **Save**. From then on every
+failure and trace prints to the browser console with its `GP-####` code, the
+module that raised it, sanitized details and the error stack. Save applies the
+switch without a reload; turning it off stops all output immediately.
 
-```js
-localStorage.setItem('gp_debug', '1'); // persists across reloads
-window.__GP_DEBUG__ = true;            // this page load only
-```
+While logging is on, `window.__GP_LOG__` offers the session journal:
+`__GP_LOG__.entries` (live array), `__GP_LOG__.dump()` (app metadata plus the
+entries), `__GP_LOG__.copy()` (JSON to the clipboard, with a console fallback)
+and `__GP_LOG__.clear()`. In a sandboxed manager the API lives in the script's
+context — switch the devtools console context to the userscript. Only uncaught
+errors and unhandled rejections attributable to this bundle are captured;
+GitHub's own failures and resource-load errors are ignored.
 
-`logInfo` traces print only in verbose mode; `logError` and `logWarn` always
-print. The flag is read from `localStorage` (not from GM storage), so set it in
-the page console of the github.com tab where the script runs.
+The **Copy log** button on the same card does the same without the console. The
+buffer keeps the last 300 entries; consecutive identical entries collapse into
+one with a `repeats` count.
 
 Every failure carries a stable `GP-####` code — grep the repository for the
-code to jump to the throw site. The codes come from `src/core/debug.js`:
+code to jump to the throw site. The codes come from
+`src/core/logger/index.js`:
 
 | Code | Name | Meaning |
 |---|---|---|
@@ -302,6 +310,10 @@ code to jump to the throw site. The codes come from `src/core/debug.js`:
 | `GP-1303` | `FILE_META` | A file-meta surface or its selectors failed. |
 | `GP-1401` | `FILE_MENU` | A file-menu clipboard write or raw-content fetch failed. |
 | `GP-1501` | `FILE_PREVIEW` | A preview could not fetch or render its file. |
+| `GP-1601` | `TRANSLATE` | A container could not be translated at all. |
+| `GP-1602` | `TRANSLATE_CACHE` | Reading or persisting the translation cache failed. |
+| `GP-9001` | `UNCAUGHT_ERROR` | An uncaught runtime error attributable to this script. |
+| `GP-9002` | `UNHANDLED_REJECTION` | An unhandled promise rejection attributable to this script. |
 
 Settings persist under the key `gp_settings_v1` (`SETTINGS_KEY` in
 `src/core/constants.js`): via `GM_setValue` when the manager provides it,
@@ -319,7 +331,9 @@ otherwise via `localStorage`. Delete that key for a cold start:
   `TOAST_MAX_DURATION_MS`, `FILE_COPY_MAX_BYTES` (1 MiB),
   `PREVIEW_TEXT_MAX_BYTES` (2 MiB), `PREVIEW_PDF_MAX_BYTES` (25 MiB),
   `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS`,
-  `PREVIEW_LONG_PRESS_MS` and `DEFAULT_SETTINGS` / `getDefaults()` (including
+  `PREVIEW_LONG_PRESS_MS`, the diagnostics limits `LOG_MAX_ENTRIES` (300),
+  `LOG_STRING_MAX_CHARS` (2000), `LOG_DETAIL_DEPTH` (4), `LOG_MAX_ITEMS` (50),
+  and `DEFAULT_SETTINGS` / `getDefaults()` (including `DEFAULT_LOGGING`,
   `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS`, `DEFAULT_FILE_AGES`,
   `DEFAULT_FILE_MENU` and `DEFAULT_FILE_PREVIEW`).
 - `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
