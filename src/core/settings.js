@@ -6,6 +6,8 @@ import {
   SETTINGS_KEY,
   TOAST_MAX_DURATION_MS,
   TOAST_POSITIONS,
+  TRANSLATE_CACHE_HOURS_MAX,
+  TRANSLATE_TARGET_LANGUAGES,
   getDefaults,
 } from './constants.js';
 import { Codes, logError } from './debug.js';
@@ -157,6 +159,74 @@ function normalizeFilePreview(raw, fallback) {
   };
 }
 
+function normalizeProviderId(value, fallback) {
+  return Object.keys(fallback.providerConfig).includes(value)
+    ? value
+    : fallback.provider;
+}
+
+function normalizeProviderConfig(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  const result = {};
+  for (const id of Object.keys(fallback.providerConfig)) {
+    const defaults = fallback.providerConfig[id];
+    const stored = source[id] && typeof source[id] === 'object' ? source[id] : {};
+    const entry = {};
+    for (const key of Object.keys(defaults)) {
+      const value = stored[key];
+      if (key === 'plan') {
+        entry[key] = value === 'free' || value === 'pro' ? value : defaults[key];
+      } else {
+        entry[key] = typeof value === 'string' ? value.slice(0, 500) : defaults[key];
+      }
+    }
+    result[id] = entry;
+  }
+  return result;
+}
+
+function normalizeTargetLang(value, fallback) {
+  if (value === 'auto') return 'auto';
+  return TRANSLATE_TARGET_LANGUAGES.some((lang) => lang.code === value)
+    ? value
+    : fallback;
+}
+
+function normalizeEnum(value, allowed, fallback) {
+  return allowed.includes(value) ? value : fallback;
+}
+
+function normalizeTranslateSurfaces(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  const result = {};
+  for (const id of Object.keys(fallback)) {
+    result[id] = normalizeBoolean(source[id], fallback[id]);
+  }
+  return result;
+}
+
+function normalizeCacheHours(value, fallback) {
+  const hours = Number(value);
+  if (!Number.isFinite(hours)) return fallback;
+  return Math.min(TRANSLATE_CACHE_HOURS_MAX, Math.max(0, Math.round(hours)));
+}
+
+function normalizeTranslate(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+    provider: normalizeProviderId(source.provider, fallback),
+    providerConfig: normalizeProviderConfig(source.providerConfig, fallback),
+    targetLang: normalizeTargetLang(source.targetLang, fallback.targetLang),
+    mode: normalizeEnum(source.mode, ['button', 'auto'], fallback.mode),
+    display: normalizeEnum(source.display, ['replace', 'below'], fallback.display),
+    reveal: normalizeEnum(source.reveal, ['button', 'hover'], fallback.reveal),
+    linkLabels: normalizeBoolean(source.linkLabels, fallback.linkLabels),
+    surfaces: normalizeTranslateSurfaces(source.surfaces, fallback.surfaces),
+    cacheHours: normalizeCacheHours(source.cacheHours, fallback.cacheHours),
+  };
+}
+
 /** Normalize a whole settings payload against the shipped defaults. */
 function normalizeSettings(raw) {
   const defaults = getDefaults();
@@ -170,6 +240,7 @@ function normalizeSettings(raw) {
     fileMeta: normalizeFileMeta(source.fileMeta, defaults.fileMeta),
     fileMenu: normalizeFileMenu(source.fileMenu, defaults.fileMenu),
     filePreview: normalizeFilePreview(source.filePreview, defaults.filePreview),
+    translate: normalizeTranslate(source.translate, defaults.translate),
   };
 }
 
@@ -210,6 +281,10 @@ export function getFileMenuSettings() {
 
 export function getFilePreviewSettings() {
   return settings.filePreview;
+}
+
+export function getTranslateSettings() {
+  return settings.translate;
 }
 
 /**

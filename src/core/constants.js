@@ -64,6 +64,75 @@ export const IMAGE_EXTENSIONS = [
   'svg',
 ];
 
+/** Target languages offered by the translation settings (Google-style codes). */
+export const TRANSLATE_TARGET_LANGUAGES = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+  { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+  { code: 'be', name: 'Беларуская', flag: '🇧🇾' },
+  { code: 'zh-CN', name: '中文（简体）', flag: '🇨🇳' },
+  { code: 'zh-TW', name: '中文（繁體）', flag: '🇹🇼' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'pt', name: 'Português', flag: '🇧🇷' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'he', name: 'עברית', flag: '🇮🇱' },
+  { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+  { code: 'bn', name: 'বাংলা', flag: '🇧🇩' },
+  { code: 'th', name: 'ไทย', flag: '🇹🇭' },
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+  { code: 'ms', name: 'Bahasa Melayu', flag: '🇲🇾' },
+  { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
+  { code: 'no', name: 'Norsk', flag: '🇳🇴' },
+  { code: 'da', name: 'Dansk', flag: '🇩🇰' },
+  { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
+  { code: 'cs', name: 'Čeština', flag: '🇨🇿' },
+  { code: 'sk', name: 'Slovenčina', flag: '🇸🇰' },
+  { code: 'ro', name: 'Română', flag: '🇷🇴' },
+  { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
+  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
+  { code: 'bg', name: 'Български', flag: '🇧🇬' },
+  { code: 'sr', name: 'Српски', flag: '🇷🇸' },
+  { code: 'hr', name: 'Hrvatski', flag: '🇭🇷' },
+  { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
+  { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
+  { code: 'et', name: 'Eesti', flag: '🇪🇪' },
+  { code: 'fa', name: 'فارسی', flag: '🇮🇷' },
+];
+
+/** GM storage key for the persistent translation cache. */
+export const TRANSLATION_CACHE_KEY = 'gp_translation_cache_v1';
+
+/** Longest translation cache lifetime, hours; 0 disables the cache. */
+export const TRANSLATE_CACHE_HOURS_MAX = 168;
+
+/** Soft size budget for the translation cache, bytes. */
+export const TRANSLATE_CACHE_SOFT_LIMIT_BYTES = 512 * 1024;
+
+/** Containers translated at the same time in automatic mode. */
+export const TRANSLATE_MAX_CONCURRENCY = 2;
+
+/** Segments joined into one provider request. */
+export const TRANSLATE_BATCH_MAX_SEGMENTS = 8;
+export const TRANSLATE_BATCH_MAX_CHARS = 4000;
+
+/** Limits for one translated container. */
+export const TRANSLATE_MAX_BLOCKS = 300;
+export const TRANSLATE_MAX_BLOCK_CHARS = 12000;
+
+/** Debounce for surface observers, and the bounded wait for late mounts. */
+export const TRANSLATE_OBSERVE_DEBOUNCE_MS = 150;
+export const TRANSLATE_SETTLE_MS = 250;
+export const TRANSLATE_SETTLE_TRIES = 20;
+
 /** Shades in the file-age colour scale (1 = oldest, N = newest). */
 export const AGE_BUCKET_COUNT = 10;
 
@@ -171,6 +240,31 @@ const DEFAULT_FILE_PREVIEW = {
   longPressRing: true,
 };
 
+/**
+ * Translation: block-level translation of markdown, commit messages and
+ * titles. The `providerConfig` keys are the provider whitelist and the
+ * `surfaces` keys are the surface whitelist.
+ */
+const DEFAULT_TRANSLATE = {
+  enabled: true,
+  provider: 'google',
+  providerConfig: {
+    google: {},
+    deepl: { apiKey: '', plan: 'free' },
+    microsoft: { apiKey: '', region: 'global' },
+    yandex: { apiKey: '', folderId: '' },
+    openai: { apiKey: '', model: 'gpt-4o-mini', baseUrl: 'https://api.openai.com/v1' },
+    libretranslate: { apiUrl: 'https://libretranslate.com', apiKey: '' },
+  },
+  targetLang: 'auto',
+  mode: 'button',
+  display: 'replace',
+  reveal: 'button',
+  linkLabels: true,
+  surfaces: { markdown: true, commits: true, titles: true, preview: true },
+  cacheHours: 24,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   gallery: DEFAULT_GALLERY,
@@ -180,6 +274,7 @@ export const DEFAULT_SETTINGS = {
   fileMeta: DEFAULT_FILE_META,
   fileMenu: DEFAULT_FILE_MENU,
   filePreview: DEFAULT_FILE_PREVIEW,
+  translate: DEFAULT_TRANSLATE,
 };
 
 /** Deep-cloned defaults, used on reset. */
