@@ -1,18 +1,21 @@
 import { TOAST_POSITIONS, TOAST_MAX_DURATION_MS } from '../../../core/constants.js';
+import { copyLog, isLoggingEnabled } from '../../../core/logger/index.js';
 import { t } from '../../../i18n/index.js';
 import { LOCALE_NATIVE_NAMES, SUPPORTED_LOCALES } from '../../../i18n/meta.js';
+import { showToast } from '../../../ui/toast.js';
 import {
+  createButton,
   createField,
   createNumberInput,
+  createRow,
   createSection,
   createSelect,
   createSwitchRow,
 } from '../controls.js';
 import { getDraft } from '../panel.js';
 
-/** General page: interface language and notifications. */
-export function renderGeneral(container) {
-  const draft = getDraft();
+/** General page: interface language, notifications and diagnostics. */
+export function renderGeneral(container, draft = getDraft()) {
 
   const language = createSection({
     title: t('general.language'),
@@ -75,5 +78,37 @@ export function renderGeneral(container) {
     }),
   }));
 
-  container.append(language, toasts);
+  const diagnostics = createSection({
+    title: t('general.diagnostics'),
+    hint: t('general.diagnosticsDesc'),
+  });
+  diagnostics.body.appendChild(createSwitchRow({
+    checked: draft.logging.enabled,
+    label: t('logging.enabled'),
+    hint: t('logging.enabledDesc'),
+    onChange: (value) => {
+      draft.logging.enabled = value;
+    },
+  }));
+  const copyButton = createButton(t('logging.copy'), () => {
+    copyLog().then((result) => {
+      if (result.ok) {
+        showToast({ type: 'success', title: t('toast.copied'), message: t('toast.copiedDesc') });
+      } else {
+        showToast({
+          type: 'error',
+          title: t('logging.copyFailed'),
+          message: t('logging.copyFailedDesc'),
+        });
+      }
+    });
+  }, 'gp-button--ghost');
+  copyButton.disabled = !isLoggingEnabled();
+  diagnostics.body.appendChild(createRow({
+    label: t('logging.copy'),
+    hint: t('logging.copyDesc'),
+    control: copyButton,
+  }));
+
+  container.append(language, toasts, diagnostics);
 }
