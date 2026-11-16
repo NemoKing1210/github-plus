@@ -1,5 +1,5 @@
 import { getTranslateSettings } from '../../core/settings.js';
-import { Codes, logError } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { getLocale, t } from '../../i18n/index.js';
 import { toArray } from '../../utils/dom.js';
 import { showToast } from '../../ui/toast.js';
@@ -12,6 +12,8 @@ import { resolveTargetLang } from './languages.js';
 import { missingProviderFields } from './providers/registry.js';
 import { findContainers } from './surfaces.js';
 import { stripTokens } from './tokens.js';
+
+const log = createLogger('translate');
 
 const states = new Map();
 
@@ -323,7 +325,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     state.status = 'error';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
     setStatus(state, t('translate.failed'), { error: true });
-    logError(Codes.TRANSLATE, 'Translation failed for a container.', {
+    log.error(Codes.TRANSLATE, 'Translation failed for a container.', {
       surface: state.surface && state.surface.id,
     });
     showToast({

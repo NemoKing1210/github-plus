@@ -1,5 +1,5 @@
 import { on } from '../core/bus.js';
-import { Codes, logWarn } from '../core/debug.js';
+import { Codes, createLogger } from '../core/logger/index.js';
 import { getGallerySettings } from '../core/settings.js';
 import { t } from '../i18n/index.js';
 import { VIEWER_ICONS } from '../ui/icons.js';
@@ -11,6 +11,8 @@ import { collectGallery, matchIndex, resolveContainer } from './collect.js';
 import { listSources } from './sources.js';
 // Registers the markdown source (side effect).
 import './sources/markdown.js';
+
+const log = createLogger('gallery');
 
 /**
  * Image gallery: clicking an image in rendered markdown opens it in the
@@ -250,7 +252,7 @@ function onPointerOver(event) {
     showDownloadButton(node);
   } catch (error) {
     hideDownloadButton();
-    logWarn(Codes.GALLERY_DOWNLOAD, 'could not show the image download button', {
+    log.warn(Codes.GALLERY_DOWNLOAD, 'could not show the image download button', {
       error,
       src: node.getAttribute('src'),
     });
@@ -286,7 +288,7 @@ function onClick(event) {
     event.stopPropagation();
     openGallery(entries, index, settings);
   } catch (error) {
-    logWarn(Codes.GALLERY_FAILED, 'could not open the image gallery', {
+    log.warn(Codes.GALLERY_FAILED, 'could not open the image gallery', {
       error,
       src: node.getAttribute('src'),
     });

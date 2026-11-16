@@ -1,5 +1,5 @@
 import { on } from '../../core/bus.js';
-import { Codes, logInfo, logWarn } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { getFilePreviewSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
 import { closeFilePreview, openFilePreview } from '../../ui/filePreview.js';
@@ -14,6 +14,8 @@ import { PREVIEW_SURFACE, currentRef, resolvePreviewRow, siblingsForRow } from '
 import {
   createPreviewTranslateAction, isPreviewTranslationEnabled,
 } from '../translate/previewAction.js';
+
+const log = createLogger('file-preview');
 
 /**
  * Quick file preview: an eye button in every listing row, plus the entry
@@ -119,7 +121,7 @@ function processContainer(container) {
   try {
     rows = container.querySelectorAll(PREVIEW_SURFACE.rows);
   } catch (error) {
-    logWarn(Codes.FILE_PREVIEW, 'file-preview surface has an invalid row selector', { error });
+    log.warn(Codes.FILE_PREVIEW, 'file-preview surface has an invalid row selector', { error });
     return;
   }
   for (let index = 0; index < rows.length; index += 1) processRow(rows[index]);
@@ -164,7 +166,7 @@ function syncSurfaces() {
       }
     }
   }
-  if (!matched) logInfo('file-preview', 'no file surface on this page yet');
+  if (!matched) log.info('no file surface on this page yet');
   return attached;
 }
 

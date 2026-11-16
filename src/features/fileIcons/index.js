@@ -1,11 +1,13 @@
 import { on } from '../../core/bus.js';
-import { Codes, logInfo, logWarn } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { getFileIconsSettings } from '../../core/settings.js';
 import { debounce } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { clearIcons, hideNative, isNativeHidden, placeIcon, renderIcon } from './inject.js';
 import { pickIcon } from './match.js';
 import { SURFACES } from './surfaces.js';
+
+const log = createLogger('file-icons');
 
 /**
  * File icons: a colored, type-aware icon in place of GitHub's generic file and
@@ -72,7 +74,7 @@ function processContainer(container, surface) {
   try {
     rows = container.querySelectorAll(surface.rows);
   } catch (error) {
-    logWarn(Codes.FILE_ICONS, 'file-icons surface has an invalid row selector', {
+    log.warn(Codes.FILE_ICONS, 'file-icons surface has an invalid row selector', {
       surface: surface.id,
       error,
     });
@@ -122,7 +124,7 @@ function syncSurfaces() {
       }
     }
   }
-  if (!matched) logInfo('file-icons', 'no file-list surface on this page yet');
+  if (!matched) log.info('no file-list surface on this page yet');
   return attached;
 }
 

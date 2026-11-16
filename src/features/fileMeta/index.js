@@ -1,5 +1,5 @@
 import { on } from '../../core/bus.js';
-import { Codes, logInfo, logWarn } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { getFileMetaSettings } from '../../core/settings.js';
 import { debounce } from '../../utils/dom.js';
 import { downloadFile } from '../../utils/download.js';
@@ -8,6 +8,8 @@ import { formatSize } from '../../utils/size.js';
 import { t } from '../../i18n/index.js';
 import { clearMeta, placeCell, placeHead, renderMeta, setMetaSize } from './inject.js';
 import { SURFACES } from './surfaces.js';
+
+const log = createLogger('file-meta');
 
 /**
  * File sizes and downloads in a column of their own in the repository file
@@ -167,7 +169,7 @@ function processContainer(container, surface) {
   try {
     rows = container.querySelectorAll(surface.rows);
   } catch (error) {
-    logWarn(Codes.FILE_META, 'file-meta surface has an invalid row selector', {
+    log.warn(Codes.FILE_META, 'file-meta surface has an invalid row selector', {
       surface: surface.id,
       error,
     });
@@ -228,7 +230,7 @@ function syncSurfaces() {
       }
     }
   }
-  if (!matched) logInfo('file-meta', 'no file surface on this page yet');
+  if (!matched) log.info('no file surface on this page yet');
   return attached;
 }
 

@@ -1,11 +1,13 @@
 import { on } from '../../core/bus.js';
-import { Codes, logInfo, logWarn } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { getFileAgesSettings } from '../../core/settings.js';
 import { debounce } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { ageBucket } from './age.js';
 import { clearAges, paintAge } from './inject.js';
 import { SURFACES } from './surfaces.js';
+
+const log = createLogger('file-ages');
 
 /**
  * File ages: blame-style coloring of the last-commit date of every file and
@@ -49,7 +51,7 @@ function processContainer(container, surface) {
   try {
     rows = container.querySelectorAll(surface.rows);
   } catch (error) {
-    logWarn(Codes.FILE_AGES, 'file-ages surface has an invalid row selector', {
+    log.warn(Codes.FILE_AGES, 'file-ages surface has an invalid row selector', {
       surface: surface.id,
       error,
     });
@@ -100,7 +102,7 @@ function syncSurfaces() {
       }
     }
   }
-  if (!matched) logInfo('file-ages', 'no file-list surface on this page yet');
+  if (!matched) log.info('no file-list surface on this page yet');
   return attached;
 }
 

@@ -4,13 +4,15 @@ import {
   PREVIEW_PDF_MAX_BYTES,
   PREVIEW_TEXT_MAX_BYTES,
 } from '../../core/constants.js';
-import { Codes, logError } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { el } from '../../utils/dom.js';
 import { formatSize } from '../../utils/size.js';
 import { renderBinaryCard, renderEmptyCard, renderFailureCard, renderTooLargeCard } from './cards.js';
 import { renderCode } from './code.js';
 import { countLines, highlightLanguage, previewKind } from './kind.js';
 import { renderMarkdown } from './markdown.js';
+
+const log = createLogger('file-preview');
 
 const FILE_PATH = /^\/([^/]+)\/([^/]+)\/(?:blob|blame|raw)\/(.+)$/;
 
@@ -246,7 +248,7 @@ export async function loadPreview(file, options = {}) {
     if (error?.tooLarge) {
       return remember(key, { node: renderTooLargeCard({ ...file, limit: error.limit }) });
     }
-    logError(Codes.FILE_PREVIEW, 'Failed to load a file preview', {
+    log.error(Codes.FILE_PREVIEW, 'Failed to load a file preview', {
       rawUrl: file.rawUrl,
       error,
     });

@@ -1,6 +1,6 @@
 import { on } from '../../core/bus.js';
 import { FILE_COPY_MAX_BYTES } from '../../core/constants.js';
-import { Codes, logError } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { getFileMenuSettings, getFilePreviewSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
 import { closeContextMenu, openContextMenu } from '../../ui/contextMenu.js';
@@ -12,6 +12,8 @@ import { resolveFileTarget } from '../../utils/fileTarget.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { openPreviewForTarget } from '../filePreview/index.js';
 import { isCopyableContent } from './copy.js';
+
+const log = createLogger('file-menu');
 
 /**
  * File context menu: right-click a file in the repository listing, in the file
@@ -32,7 +34,7 @@ function toast(titleKey, messageKey, type = 'success', vars = {}) {
 }
 
 function failed(message, details) {
-  logError(Codes.FILE_MENU, message, details);
+  log.error(Codes.FILE_MENU, message, details);
   toast('fileMenu.copyFailed', 'fileMenu.copyFailedDesc', 'error');
 }
 

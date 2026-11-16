@@ -1,4 +1,6 @@
-import { Codes, logError } from './debug.js';
+import { Codes, createLogger } from './logger/index.js';
+
+const log = createLogger('bus');
 
 /**
  * Minimal pub/sub bus used to notify features about settings changes and
@@ -21,7 +23,7 @@ export function emit(event, payload) {
     try {
       fn(payload);
     } catch (error) {
-      logError(Codes.BUS_LISTENER, `listener for "${event}" failed`, { event, error });
+      log.error(Codes.BUS_LISTENER, `listener for "${event}" failed`, { event, error });
     }
   });
 }

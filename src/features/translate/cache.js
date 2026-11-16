@@ -4,7 +4,9 @@ import {
   TRANSLATE_CACHE_SOFT_LIMIT_BYTES,
 } from '../../core/constants.js';
 import { getTranslateSettings } from '../../core/settings.js';
-import { Codes, logWarn } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
+
+const log = createLogger('translate');
 
 const PERSIST_DEBOUNCE_MS = 400;
 const HOUR_MS = 60 * 60 * 1000;
@@ -129,7 +131,7 @@ function readStore() {
       return parseStore(localStorage.getItem(TRANSLATION_CACHE_KEY));
     }
   } catch (error) {
-    logWarn(Codes.TRANSLATE_CACHE, 'Could not read the translation cache.', error);
+    log.warn(Codes.TRANSLATE_CACHE, 'Could not read the translation cache.', error);
   }
   return {};
 }
@@ -223,6 +225,6 @@ export function persistCacheNow() {
     }
     dirty = false;
   } catch (error) {
-    logWarn(Codes.TRANSLATE_CACHE, 'Could not persist the translation cache.', error);
+    log.warn(Codes.TRANSLATE_CACHE, 'Could not persist the translation cache.', error);
   }
 }

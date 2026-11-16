@@ -10,7 +10,9 @@ import {
   TRANSLATE_TARGET_LANGUAGES,
   getDefaults,
 } from './constants.js';
-import { Codes, logError } from './debug.js';
+import { Codes, createLogger } from './logger/index.js';
+
+const log = createLogger('settings');
 
 /* ------------------------------------------------------------------ */
 /* Storage                                                             */
@@ -24,7 +26,7 @@ function readStorage() {
     if (!raw) return null;
     return typeof raw === 'string' ? JSON.parse(raw) : raw;
   } catch (error) {
-    logError(Codes.SETTINGS_LOAD, 'reading settings failed, using defaults', { error });
+    log.error(Codes.SETTINGS_LOAD, 'reading settings failed, using defaults', { error });
     return null;
   }
 }
@@ -35,7 +37,7 @@ function writeStorage(value) {
     if (typeof GM_setValue === 'function') GM_setValue(SETTINGS_KEY, raw);
     else localStorage.setItem(SETTINGS_KEY, raw);
   } catch (error) {
-    logError(Codes.SETTINGS_PERSIST, 'persisting settings failed', { error });
+    log.error(Codes.SETTINGS_PERSIST, 'persisting settings failed', { error });
   }
 }
 

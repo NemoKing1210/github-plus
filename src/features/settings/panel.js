@@ -1,7 +1,7 @@
 import { SCRIPT_NAME, getDefaults } from '../../core/constants.js';
 import { emit } from '../../core/bus.js';
 import { getSettings, normalizeImportedSettings, saveSettings } from '../../core/settings.js';
-import { Codes, logError } from '../../core/debug.js';
+import { Codes, createLogger } from '../../core/logger/index.js';
 import { configureLocale, t } from '../../i18n/index.js';
 import { el, toArray } from '../../utils/dom.js';
 import { lockPageScroll, unlockPageScroll } from '../../utils/scrollLock.js';
@@ -10,6 +10,8 @@ import { isFilePreviewOpen } from '../../ui/filePreview.js';
 import { isViewerOpen } from '../../ui/viewer.js';
 import { createButton, getIconSvg } from './controls.js';
 import { confirmDialog } from './confirm.js';
+
+const log = createLogger('settings');
 
 /**
  * Settings panel shell.
@@ -265,7 +267,7 @@ function persist() {
     emit('settings:translate', saved.translate);
     showToast({ type: 'success', title: t('toast.saved'), message: t('toast.savedDesc') });
   } catch (error) {
-    logError(Codes.SETTINGS_PERSIST, 'saving settings from the panel failed', { error });
+    log.error(Codes.SETTINGS_PERSIST, 'saving settings from the panel failed', { error });
   }
   closePanel();
 }
