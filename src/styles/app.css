@@ -2768,3 +2768,80 @@ audio.gp-preview__media {
     padding: 20px 18px 36px;
   }
 }
+
+/* == Translation ========================================================== */
+/* The action rides in GitHub's own comment, file and release headers, so it
+ * borrows their 28px action-button shape instead of introducing new spacing. */
+.gp-translate-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-2);
+  color: var(--gp-text);
+  font: 500 12px/20px var(--gp-font);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.gp-translate-btn:hover {
+  background: var(--gp-highlight);
+}
+.gp-translate-btn:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: 1px;
+}
+.gp-translate-btn svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.gp-translate-btn[data-gp-translate-state="loading"] {
+  opacity: 0.7;
+  cursor: progress;
+}
+.gp-translate-btn[data-gp-translate-state="shown"],
+.gp-translate-btn[data-gp-translate-state="partial"] {
+  border-color: var(--gp-accent);
+  background: var(--gp-accent-soft);
+  color: var(--gp-accent);
+}
+
+/* Fallback bar before a container that has no page header to host the action. */
+.gp-translate-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+.gp-translate-status {
+  color: var(--gp-text-muted);
+  font: 400 12px/1.5 var(--gp-font);
+}
+.gp-translate-status.is-error {
+  color: var(--gp-danger);
+}
+
+/* The translation kept under the original in `below` mode. */
+.gp-translate-result {
+  margin-top: 6px;
+  padding-left: 12px;
+  border-left: 2px solid var(--gp-accent);
+  color: var(--gp-text);
+}
+
+/* Extra actions supplied to the quick preview header, beside its own tools. */
+.gp-preview__extra {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+.gp-preview__extra[hidden] {
+  display: none;
+}

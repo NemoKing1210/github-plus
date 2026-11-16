@@ -33,7 +33,8 @@ grouped sidebar, search field and results, pages, cards, rows, controls), the
 confirm dialog, toasts, the context menu, the image viewer, the `.gp-fi` file
 and folder glyphs, the `.gp-age-date` coloring of GitHub's last-commit
 timestamps and its settings-page legend, the `.gp-file-meta` size column added
-to file rows, and the gallery's page-level cursor/hover affordances
+to file rows, the `.gp-translate-*` action, status bar and translated-result
+boxes, and the gallery's page-level cursor/hover affordances
 (§11). Anything GitHub already renders is out of scope except through those
 affordances: no other rule may target page markup.
 
@@ -46,7 +47,8 @@ Two invariants hold for every selector:
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
-  .gp-file-meta, .gp-context-menu, .gp-hold-ring`).
+  .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-translate-btn,
+  .gp-translate-bar, .gp-translate-result, .gp-translate-status`).
   Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
@@ -691,6 +693,7 @@ shared `--gp-scrim` with the same blur as the viewer.
 | `.gp-preview__name` | The file name, `h2`-like, truncating with an ellipsis; the meta line beside it is `11px` mono `var(--gp-text-muted)` |
 | `.gp-preview__seg`, `.gp-preview__seg-btn` | Segmented Preview/Source control: 28px pill row on `var(--gp-bg-2)`; the pressed segment takes `var(--gp-bg-1)` with a `var(--gp-border)` ring and `var(--gp-text)` |
 | `.gp-preview__tools`, `.gp-preview__tool` | GitHub icon-button row: `28×28`, `var(--gp-radius)`, transparent fill, `var(--gp-text-muted)` 16px glyphs, `var(--gp-highlight)` + `var(--gp-text)` on hover; close is the same shape with the danger tone on hover |
+| `.gp-preview__extra` | Flex row for caller-supplied header actions (the translate button) beside the tools; an empty one is `[hidden]` and drawn as nothing |
 | `.gp-preview__content` | The scrolling body, `overflow: auto`, focusable so a long file can be scrolled by keyboard |
 | `.gp-preview__spinner`, `.gp-preview__spinner-ring` | The shared accent spinner while a file loads |
 | `.gp-preview__footer` | Footer bar: `var(--gp-bg-2)`, top border, prev/next at the ends and the position centered |
@@ -731,6 +734,30 @@ Hiding cancels the CSS animation, so the next press starts the fill again.
 | `.gp-hold-ring[hidden]` | `display: none`; hiding also resets the fill animation |
 | `.gp-hold-ring svg` | Rotated `-90deg` so the arc starts at twelve o'clock |
 | `.gp-hold-ring__track` / `.gp-hold-ring__fill` | `r = 15.9155` (so the circumference is exactly 100), `stroke-width: 3`, no fill; the track is `var(--gp-line)`, the fill is `var(--gp-accent)` and runs over the configured hold time |
+
+### Translation controls (`.gp-translate-*`)
+
+The translate action sits in GitHub's own comment, file and release headers, so
+it uses the header action-button shape rather than inventing a new one: 28px
+high, `var(--gp-radius)`, a 1px `var(--gp-border)` edge on `var(--gp-bg-2)`, a
+16px accent-neutral glyph and a `12px`/500 label. Hover raises it to
+`var(--gp-highlight)`. Its `data-gp-translate-state` drives the two working
+states: `loading` drops to `opacity: 0.7` and shows a progress cursor; `shown`
+and `partial` take the accent tint (`var(--gp-accent-soft)` fill, accent edge
+and label) because the container is currently translated.
+
+Where GitHub exposes no header, the button and its status live in our own
+`.gp-translate-bar` inserted before the container — a flex row of the button and
+a muted `12px` status line, with no background of its own. `.is-error` on the
+status switches it to `var(--gp-danger)`. In `below` mode the translation is a
+`.gp-translate-result` under the original: a 2px accent left border with `12px`
+of padding, matching the panel's quoted-callout rhythm. The action is never
+styled into GitHub's markup itself — it is our own node placed beside GitHub's
+controls, and the preview header renders it through `.gp-preview__extra`.
+
+In `reveal: hover` mode nothing extra is drawn: the source returns while the
+pointer or keyboard focus is inside the translated container, and the same
+accent-tinted button stays available as the explicit control.
 
 ## 7. States
 
