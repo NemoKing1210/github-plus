@@ -35,6 +35,8 @@ export const Codes = {
   FILE_MENU: 'GP-1401',
   /** A quick-preview file failed to load or render. */
   FILE_PREVIEW: 'GP-1501',
+  /** Reading or persisting the translation cache failed. */
+  TRANSLATE_CACHE: 'GP-1602',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
 };
