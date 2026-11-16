@@ -2811,6 +2811,27 @@ audio.gp-preview__media {
   color: var(--gp-accent);
 }
 
+/* The repository README action sits among GitHub's own header buttons. */
+.gp-translate-btn--header {
+  height: 32px;
+  gap: 8px;
+  padding: 0 12px;
+  border-color: transparent;
+  background: transparent;
+  font: 500 14px/20px var(--gp-font);
+}
+.gp-translate-btn--header:hover {
+  background: var(--gp-highlight);
+}
+.gp-translate-btn--header[data-gp-translate-state="loading"] {
+  background: transparent;
+}
+.gp-translate-btn--header[data-gp-translate-state="shown"],
+.gp-translate-btn--header[data-gp-translate-state="partial"] {
+  border-color: transparent;
+  background: var(--gp-accent-soft);
+}
+
 /* Fallback bar before a container that has no page header to host the action. */
 .gp-translate-bar {
   display: flex;

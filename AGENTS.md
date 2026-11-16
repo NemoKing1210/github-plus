@@ -844,7 +844,8 @@ default `mode` is `button`; `auto` is opt-in.
   `.commit-desc`), `titles` (issue/PR title elements) and `preview`
   (`.gp-preview-overlay .gp-preview__md`). A surface declares `containers`,
   observation `roots`, `headerFor(container)` (the page header that should host
-  the button, or null for the fallback bar) and `skip(node)`. The preview
+  the button — the comment/file/release header, or the repository README's
+  `readmeHeaderSlot` — or null for the fallback bar) and `skip(node)`. The preview
   surface can never be auto-translated (`roots: []`); its action lives in the
   preview header. `findContainers` returns live containers in document order;
   `surfaceForContainer`, `previewSurface`, `previewContainer`, `enabledSurfaces`
@@ -905,13 +906,15 @@ default `mode` is `button`; `auto` is opt-in.
 - `inject.js`: `createButton(label)` (glyph + label span), `setButtonState`
   (`data-gp-translate-state`, `aria-busy`, optional ` · count` progress),
   `ensureChrome(container, { header, button })` (the button goes into the page
-  header when there is one, otherwise into our own `.gp-translate-bar` before
-  the container), `setBarStatus(container, text, { error })`,
+  header when there is one — taking the `.gp-translate-btn--header` look inside
+  the repository README slot — otherwise into our own `.gp-translate-bar`
+  before the container), `setBarStatus(container, text, { error })`,
   `createResultBox(html)` and `removeChrome`.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
   `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
   a container (returns the existing state when the content signature is
-  unchanged), `runContainer` translates every block (missing-config preflight
+  unchanged, re-inserting a control a React re-render dropped from its header),
+  `runContainer` translates every block (missing-config preflight
   before any request, button states, bar status with a `done / total` progress
   line, partial-failure handling, unchanged-response detection, `GP-1601` and a
   toast on total failure). A block whose provider response lost more than half

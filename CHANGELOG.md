@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.2] - 2026-11-16
+
+### Changed
+
+- The Translate action for a repository README now sits in GitHub's README
+  header slot beside the Edit and Outline controls and adopts that row's
+  button styling, instead of appearing in the fallback bar above the file;
+  the action is restored if a header re-render drops it
+
+[0.18.2]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.2
+
 ## [0.18.1] - 2026-11-16
 
 ### Fixed

@@ -135,6 +135,23 @@ test('a response for a stale run is discarded', async () => {
   teardownAllContainers();
 });
 
+test('a header that dropped the button gets it back on the next scan', () => {
+  const slot = document.createElement('header');
+  const host = document.createElement('div');
+  host.className = 'markdown-body';
+  host.innerHTML = '<p>Text with changes.</p>';
+  document.body.append(slot, host);
+  const withHeader = { ...surface, headerFor: () => slot };
+  const state = ensureContainer(host, withHeader);
+  assert.equal(state.button.parentElement, slot);
+  state.button.remove();
+  ensureContainer(host, withHeader);
+  assert.equal(state.button.parentElement, slot);
+  teardownAllContainers();
+  host.remove();
+  slot.remove();
+});
+
 test('a caller-supplied button is not bound to toggle the container', async () => {
   const button = document.createElement('button');
   button.className = 'gp-translate-btn';

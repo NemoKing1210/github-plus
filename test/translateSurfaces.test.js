@@ -12,6 +12,14 @@ const dom = new JSDOM(`<!doctype html><html><body><main>
     <div class="markdown-body">File text</div>
   </div>
   <div class="gp-preview-overlay"><div class="gp-preview__md markdown-body">Preview</div></div>
+  <section class="readme-shell">
+    <div itemscope itemtype="https://schema.org/abstract" class="Box_3__Na7qEQ">
+      <nav aria-label="Repository files"></nav>
+      <div class="readmeHeaderSlot__EGBTUW"></div>
+      <button class="editButton__tKaHj8">Edit file</button>
+    </div>
+    <article class="markdown-body">Root README</article>
+  </section>
   <h1 data-testid="issue-title">A title</h1>
   <div data-testid="commit-message">A commit message</div>
 </main></body></html>`, { pretendToBeVisual: true, url: 'https://github.com/o/r' });
@@ -36,7 +44,7 @@ test('enabled surfaces come from settings', () => {
 test('markdown containers skip our preview overlay', () => {
   const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
   const containers = findContainers(markdown);
-  assert.equal(containers.length, 2);
+  assert.equal(containers.length, 3);
   assert.ok(containers.every((node) => !node.closest('.gp-preview-overlay')));
 });
 
@@ -50,6 +58,12 @@ test('the blob file header is found through the filename', () => {
   const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
   const file = document.querySelector('#repos-split-pane-content .markdown-body');
   assert.equal(headerFor(file, markdown).getAttribute('data-testid'), 'file-header');
+});
+
+test('the repository README header slot hosts the action', () => {
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const readme = document.querySelector('.readme-shell .markdown-body');
+  assert.equal(headerFor(readme, markdown).className, 'readmeHeaderSlot__EGBTUW');
 });
 
 test('the preview container is resolved separately', () => {

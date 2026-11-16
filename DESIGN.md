@@ -746,6 +746,12 @@ states: `loading` drops to `opacity: 0.7` and shows a progress cursor; `shown`
 and `partial` take the accent tint (`var(--gp-accent-soft)` fill, accent edge
 and label) because the container is currently translated.
 
+The repository README header has its own slot beside the README nav, among
+GitHub's Edit and Outline controls, so the action there adopts that row's
+button: `.gp-translate-btn--header` is 32px high, borderless and transparent,
+with a 16px glyph, an 8px gap and a `14px`/500 label, and it only takes the
+highlight fill on hover. The accent tint still marks a translated README.
+
 Where GitHub exposes no header, the button and its status live in our own
 `.gp-translate-bar` inserted before the container — a flex row of the button and
 a muted `12px` status line, with no background of its own. `.is-error` on the

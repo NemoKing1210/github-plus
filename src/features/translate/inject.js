@@ -1,5 +1,6 @@
 import { ACTION_ICONS } from '../../ui/icons.js';
 import { t } from '../../i18n/index.js';
+import { README_HEADER_SLOT } from './surfaces.js';
 
 /** Translation button with its glyph and label span. */
 export function createButton(label) {
@@ -56,6 +57,11 @@ export function ensureChrome(container, { header, button } = {}) {
   } else if (control.parentElement !== bar) {
     bar.insertBefore(control, bar.firstChild);
   }
+  // The README header action sits among GitHub's own buttons and takes their look.
+  control.classList.toggle(
+    'gp-translate-btn--header',
+    !!header && header.matches(README_HEADER_SLOT),
+  );
   return { button: control, bar };
 }
 

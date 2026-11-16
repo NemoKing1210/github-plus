@@ -3,6 +3,24 @@ import { isOwnUi, toArray } from '../../utils/dom.js';
 
 const SKIP_MARKDOWN = '.gp-preview-overlay, .gp-preview__md, [data-gp-translate-ui], .previewable-comment-form';
 
+/**
+ * The slot GitHub renders beside the repository README nav for header actions.
+ * The class suffix is hashed, so only the stable prefix is matched.
+ */
+export const README_HEADER_SLOT = '[class*="readmeHeaderSlot"]';
+
+/** The README header slot above this container's page, or null. */
+function readmeHeader(container) {
+  let scope = container.parentElement;
+  while (scope && scope !== document.body) {
+    if (scope.matches && scope.matches(README_HEADER_SLOT)) return scope;
+    const slot = scope.querySelector ? scope.querySelector(README_HEADER_SLOT) : null;
+    if (slot) return slot;
+    scope = scope.parentElement;
+  }
+  return null;
+}
+
 function markdownHeader(container) {
   const comment = container.closest('.js-comment, .timeline-comment, .review-comment');
   if (comment) {
@@ -22,7 +40,7 @@ function markdownHeader(container) {
     const header = release.querySelector('.release-header');
     if (header) return header;
   }
-  return null;
+  return readmeHeader(container);
 }
 
 function commitHeader(container) {

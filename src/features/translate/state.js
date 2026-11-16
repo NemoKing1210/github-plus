@@ -74,7 +74,17 @@ export function ensureContainer(container, surface, { button } = {}) {
 
   const existing = states.get(container);
   if (existing) {
-    if (existing.signature === container.textContent.length) return existing;
+    if (existing.signature === container.textContent.length) {
+      // A React re-render can drop our control from a page header without
+      // touching the container's content, so a dropped button is put back.
+      if (!existing.button.isConnected) {
+        const header = existing.surface && typeof existing.surface.headerFor === 'function'
+          ? existing.surface.headerFor(container)
+          : null;
+        ensureChrome(container, { header, button: existing.button });
+      }
+      return existing;
+    }
     teardownContainer(container);
   }
 
