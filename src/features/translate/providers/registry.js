@@ -139,3 +139,14 @@ export function getProvider(id) {
 export function isKnownProvider(id) {
   return PROVIDER_IDS.indexOf(id) !== -1;
 }
+
+/** Required fields that carry no value for this provider, in field order. */
+export function missingProviderFields(id, config) {
+  const provider = getProvider(id);
+  if (!provider) return [];
+  const values = config && typeof config === 'object' ? config : {};
+  return provider.fields
+    .filter((field) => field.required)
+    .filter((field) => !String(values[field.key] ?? '').trim())
+    .map((field) => field.key);
+}

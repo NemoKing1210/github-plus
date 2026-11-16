@@ -214,7 +214,7 @@ export default {
   'translate.cacheEmpty': '캐시가 비어 있습니다.',
   'translate.clearCache': '캐시 지우기',
   'translate.cacheCleared': '번역 캐시를 지웠습니다',
-  'translate.privacy': '번역할 텍스트가 선택한 서비스로 전송됩니다. API 키는 이 브라우저에만 저장됩니다.',
+  'translate.privacy': '번역할 텍스트가 선택한 서비스로 전송됩니다. API 키는 이 브라우저에만 저장되며 설정 백업에도 포함됩니다.',
   'translate.button': '번역',
   'translate.translating': '번역 중…',
   'translate.progress': '{done} / {total}',

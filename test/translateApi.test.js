@@ -6,7 +6,19 @@ globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 const { buildBatches, splitBatchResponse, translateSegments } = await import(
   '../src/features/translate/api.js'
 );
-const { SEGMENT_START, SEGMENT_END } = await import('../src/features/translate/tokens.js');
+const { SEGMENT_START, SEGMENT_END, makeToken } = await import(
+  '../src/features/translate/tokens.js'
+);
+const { cacheKey, setCached, clearCache } = await import(
+  '../src/features/translate/cache.js'
+);
+
+test('batches keep inline-element tokens for the provider', () => {
+  const text = `Read ${makeToken(0)} and ${makeToken(1)}`;
+  const batches = buildBatches([{ id: 0, text }]);
+  assert.ok(batches[0].text.includes(makeToken(0)));
+  assert.ok(batches[0].text.includes(makeToken(1)));
+});
 
 test('batches respect the segment and character caps', () => {
   const segments = Array.from({ length: 10 }, (_, id) => ({ id, text: 'hello' }));
@@ -65,4 +77,68 @@ test('a segment that keeps failing lands in failed', async () => {
   );
   assert.equal(out.results.get(0).text, 'GOOD');
   assert.deepEqual(out.failed, [1]);
+});
+
+test('progress is reported after every segment settles', async () => {
+  const seen = [];
+  const out = await translateSegments(
+    [{ id: 0, text: 'one' }, { id: 1, text: 'two' }],
+    'ru',
+    {
+      translate: async (text) => ({ text, detectedSourceLang: 'en' }),
+      onProgress: (done, total) => seen.push(`${done}/${total}`),
+    },
+  );
+  assert.deepEqual(out.failed, []);
+  assert.deepEqual(seen, ['1/2', '2/2']);
+});
+
+test('a throttled batch fails without a per-segment retry storm', async () => {
+  let calls = 0;
+  const translate = async () => {
+    calls += 1;
+    const error = new Error('quota exceeded');
+    error.status = 429;
+    throw error;
+  };
+  const out = await translateSegments(
+    [{ id: 0, text: 'one' }, { id: 1, text: 'two' }],
+    'ru',
+    { translate },
+  );
+  assert.equal(calls, 1);
+  assert.deepEqual(out.failed, [0, 1]);
+});
+
+test('a provider that is down stops receiving requests after three failed batches', async () => {
+  let calls = 0;
+  const translate = async () => {
+    calls += 1;
+    throw new Error('down');
+  };
+  const segments = Array.from({ length: 26 }, (_, id) => ({ id, text: `sentence ${id}` }));
+  const out = await translateSegments(segments, 'ru', { translate });
+  // 26 segments → batches of 8/8/8/2; the first three cost a batch call plus
+  // eight per-segment retries, the last batch is rejected without a request.
+  assert.equal(calls, 27);
+  assert.equal(out.failed.length, 26);
+});
+
+test('a cached segment is served without a provider request', async () => {
+  setCached(cacheKey('google', 'ru', 'hello'), { text: 'привет', detected: 'en', len: 5 });
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    throw new Error('offline');
+  };
+  try {
+    const out = await translateSegments([{ id: 0, text: 'hello' }], 'ru');
+    assert.equal(out.results.get(0).text, 'привет');
+    assert.equal(out.failed.length, 0);
+    assert.equal(calls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+    clearCache();
+  }
 });

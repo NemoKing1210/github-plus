@@ -14,6 +14,8 @@ import {
 } from './state.js';
 import { enabledSurfaces, findContainers, surfaceRoots } from './surfaces.js';
 
+const SHELL_MS = 200;
+
 let initialized = false;
 let observers = [];
 let settleTimer = null;
@@ -22,9 +24,14 @@ let autoObserver = null;
 let autoObserved = new WeakSet();
 let autoQueue = [];
 let autoInFlight = 0;
+let bodyObserver = null;
+let observedBody = null;
+let shellObserver = null;
+
+const debouncedScan = debounce(() => scanTranslateSurfaces(), TRANSLATE_OBSERVE_DEBOUNCE_MS);
 
 function stopObservers() {
-  observers.forEach((observer) => observer.disconnect());
+  observers.forEach(({ observer }) => observer.disconnect());
   observers = [];
 }
 
@@ -101,16 +108,58 @@ export function scanTranslateSurfaces() {
   });
 }
 
-function startObservers() {
+/**
+ * Keep one observer per live surface root: attach new roots, prune the ones a
+ * soft navigation disconnected.
+ */
+function syncObservers() {
   if (typeof MutationObserver !== 'function') return;
-  const debouncedScan = debounce(() => scanTranslateSurfaces(), TRANSLATE_OBSERVE_DEBOUNCE_MS);
+  observers = observers.filter(({ root, observer }) => {
+    if (root.isConnected) return true;
+    observer.disconnect();
+    return false;
+  });
+  const attached = new Set(observers.map(({ root }) => root));
   surfaceRoots().forEach((selector) => {
     toArray(document.querySelectorAll(selector)).forEach((root) => {
+      if (attached.has(root)) return;
       const observer = new MutationObserver(() => debouncedScan());
       observer.observe(root, { childList: true, subtree: true });
-      observers.push(observer);
+      observers.push({ root, observer });
     });
   });
+}
+
+/** Reattach to the shell after GitHub swaps the body or a direct child. */
+function onShellChange() {
+  if (!getTranslateSettings().enabled) return;
+  syncObservers();
+  scanTranslateSurfaces();
+}
+
+function observeBody() {
+  if (typeof MutationObserver !== 'function') return;
+  const body = document.body;
+  if (!body || (bodyObserver && observedBody === body)) return;
+  if (bodyObserver) bodyObserver.disconnect();
+  observedBody = body;
+  bodyObserver = new MutationObserver(debounce(onShellChange, SHELL_MS));
+  bodyObserver.observe(body, { childList: true });
+}
+
+/**
+ * Watch the navigation shell through direct children only. A replaced body
+ * leaves both the root observers and the old body observer dead.
+ */
+function observeShell() {
+  observeBody();
+  if (shellObserver || typeof MutationObserver !== 'function' || !document.documentElement) return;
+  shellObserver = new MutationObserver(debounce(() => {
+    if (observedBody === document.body) return;
+    observeBody();
+    onShellChange();
+  }, SHELL_MS));
+  shellObserver.observe(document.documentElement, { childList: true });
 }
 
 /** A decorated page surface — the preview's header action does not count. */
@@ -136,6 +185,7 @@ function startSettle() {
  * feature is on. Observers are attached only to the registered surface roots.
  */
 export function applyTranslateSettings() {
+  observeShell();
   stopObservers();
   stopSettle();
   stopAuto();
@@ -144,7 +194,7 @@ export function applyTranslateSettings() {
   const settings = getTranslateSettings();
   if (!settings.enabled) return;
   scanTranslateSurfaces();
-  startObservers();
+  syncObservers();
   startSettle();
   if (settings.mode === 'auto') startAuto();
 }
@@ -156,6 +206,7 @@ export function initTranslateFeature() {
   on('settings:translate', () => applyTranslateSettings());
   on('settings:language', () => repaintTranslateLabels());
   watchNavigation(() => applyTranslateSettings());
+  observeShell();
   if (typeof window !== 'undefined') {
     window.addEventListener('pagehide', () => persistCacheNow());
   }

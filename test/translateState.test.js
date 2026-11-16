@@ -57,6 +57,57 @@ test('a provider that drops a link token still keeps the link', async () => {
   teardownAllContainers();
 });
 
+test('inline elements keep their place inside the translated block', async () => {
+  const state = ensureContainer(container, surface);
+  await runContainer(state, { translate: upper });
+  assert.match(
+    container.querySelector('p').innerHTML,
+    /^READ <a href="https:\/\/x">DOCS<\/a>\.$/,
+  );
+  teardownAllContainers();
+});
+
+test('a provider that drops most placeholders leaves the block untouched', async () => {
+  const state = ensureContainer(container, surface);
+  const paragraph = container.querySelector('p');
+  const original = paragraph.innerHTML;
+  await runContainer(state, {
+    translate: async () => ({ text: 'Перевод.', detectedSourceLang: 'en' }),
+  });
+  assert.equal(paragraph.innerHTML, original);
+  assert.equal(state.status, 'partial');
+  teardownAllContainers();
+});
+
+test('a provider missing its API key is reported before any request', async () => {
+  const { saveSettings } = await import('../src/core/settings.js');
+  saveSettings({ translate: { provider: 'deepl' } });
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    throw new Error('offline');
+  };
+  const state = ensureContainer(container, surface);
+  try {
+    await runContainer(state, {});
+  } finally {
+    globalThis.fetch = originalFetch;
+    saveSettings({ translate: { provider: 'google' } });
+  }
+  assert.equal(calls, 0);
+  assert.equal(state.status, 'error');
+  assert.match(document.querySelector('.gp-translate-status').textContent, /API key/);
+  teardownAllContainers();
+});
+
+test('an automatic run does not move focus to the button', async () => {
+  const state = ensureContainer(container, surface);
+  await runContainer(state, { translate: upper });
+  assert.notEqual(document.activeElement, state.button);
+  teardownAllContainers();
+});
+
 test('a partial failure keeps the blocks that succeeded', async () => {
   const state = ensureContainer(container, surface);
   const translate = async (text) => {

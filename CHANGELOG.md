@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-11-16
+
+### Fixed
+
+- Translation sent inline markup (links, images, inline code, task-list
+  checkboxes) to the provider stripped of its placeholders, so the elements
+  were reattached at the end of the block instead of their position; tokens now
+  survive the request
+- A translated link label could rewrite the link address when the label text
+  also appeared in an attribute; labels are now replaced through explicit
+  markers inside the anchor's text
+- Issue and PR titles and commit messages produced no translatable blocks
+  because the surface container is itself the text block
+- Markdown translated inside the quick preview lost all its inline markup
+- The persistent cache was written but never read, so every run sent the same
+  text again; cache hits are now served before any request
+- A provider missing a required field (an API key, a Yandex folder id) failed
+  as a network error instead of showing the configuration message
+- A provider that drops most placeholders now leaves that block in its
+  original language instead of piling every inline element at its end
+- Automatic translation moved keyboard focus to each Translate button as it ran
+- A throttled or unreachable provider could trigger one request per segment
+  (up to hundreds on a long README); 401/403/429 now fail the batch immediately,
+  three consecutive failed batches stop the run, and the button reports
+  `done / total` progress
+- Translation observers stayed attached to a replaced app shell after a soft
+  navigation; the feature now watches the shell and reattaches
+- The provider privacy hint now also states that an exported settings backup
+  contains the API keys
+
+[0.18.1]: https://github.com/NemoKing1210/github-plus/releases/tag/v0.18.1
+
 ## [0.18.0] - 2026-11-15
 
 ### Added

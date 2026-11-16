@@ -1,7 +1,7 @@
 import { TRANSLATE_MAX_BLOCKS, TRANSLATE_MAX_BLOCK_CHARS } from '../../core/constants.js';
 import { isOwnUi, toArray } from '../../utils/dom.js';
 import {
-  hasLetters, makeToken, restoreTokens, stripTokens,
+  LABEL_END, LABEL_START, hasLetters, makeToken, restoreTokens, stripTokens,
 } from './tokens.js';
 
 export const BLOCK_SELECTOR = 'h1,h2,h3,h4,h5,h6,p,li,dt,dd,td,th,blockquote,figcaption,caption,summary';
@@ -87,6 +87,11 @@ export function collectBlocks(container, { maxBlocks = TRANSLATE_MAX_BLOCKS } = 
   };
 
   visit(container);
+  // A surface container that is itself the text block (an issue title, a
+  // commit message) has no descendant candidates to collect.
+  if (!blocks.length && !isSkipped(container) && extractBlock(container)) {
+    blocks.push(container);
+  }
   return blocks;
 }
 
@@ -96,14 +101,60 @@ function skipSubtree(node) {
     return true;
   }
   if (node.hasAttribute('data-gp-translate-ui')) return true;
-  return isOwnUi(node);
+  // The preview overlay is our UI, but its rendered markdown is page content.
+  return isOwnChrome(node);
 }
 
-function serializeToken(node) {
-  if (node.tagName !== 'INPUT') return node.outerHTML;
+/** Wrap the anchor's visible label in markers, never a copy inside an attribute. */
+function markLabel(clone, label) {
+  const doc = clone.ownerDocument;
+  const nodes = [];
+  const walker = doc.createTreeWalker(clone, 4);
+  let current = walker.nextNode();
+  while (current) {
+    nodes.push(current);
+    current = walker.nextNode();
+  }
+  const starts = [];
+  let text = '';
+  nodes.forEach((node) => {
+    starts.push(text.length);
+    text += node.nodeValue;
+  });
+  const start = text.indexOf(label);
+  if (start < 0) return;
+  const end = start + label.length;
+
+  const locate = (offset) => {
+    for (let index = nodes.length - 1; index >= 0; index -= 1) {
+      if (starts[index] <= offset) {
+        return { node: nodes[index], offset: offset - starts[index] };
+      }
+    }
+    return null;
+  };
+  const from = locate(start);
+  const to = locate(end);
+  if (!from || !to) return;
+
+  const range = doc.createRange();
+  range.setStart(from.node, from.offset);
+  range.setEnd(to.node, to.offset);
+  const wrapper = doc.createDocumentFragment();
+  wrapper.appendChild(doc.createTextNode(LABEL_START));
+  wrapper.appendChild(range.extractContents());
+  wrapper.appendChild(doc.createTextNode(LABEL_END));
+  range.insertNode(wrapper);
+}
+
+function serializeToken(node, label) {
   const clone = node.cloneNode(true);
-  if (node.checked) clone.setAttribute('checked', '');
-  if (node.disabled) clone.setAttribute('disabled', '');
+  if (node.tagName === 'INPUT') {
+    if (node.checked) clone.setAttribute('checked', '');
+    if (node.disabled) clone.setAttribute('disabled', '');
+  } else if (label) {
+    markLabel(clone, label);
+  }
   return clone.outerHTML;
 }
 
@@ -144,10 +195,8 @@ export function extractBlock(block) {
       if (block.tagName === 'LI' && LIST_TAGS.has(tag)) continue;
       if (TOKEN_TAGS.has(tag)) {
         source += makeToken(tokens.length);
-        tokens.push({
-          html: serializeToken(child),
-          label: tag === 'A' ? (child.textContent || '').trim() || null : null,
-        });
+        const label = tag === 'A' ? (child.textContent || '').trim() || null : null;
+        tokens.push({ html: serializeToken(child, label), label });
         continue;
       }
       walk(child, bold || BOLD_TAGS.has(tag), italic || ITALIC_TAGS.has(tag));
@@ -165,11 +214,14 @@ export function extractBlock(block) {
   };
 }
 
-/** Rebuild a block from its translated text, restoring inline markup. */
-export function renderBlockHtml(extracted, translated, labels = []) {
-  const { html } = restoreTokens(translated, extracted.tokens, labels);
+/**
+ * Rebuild a block from its translated text, restoring inline markup. The
+ * token report lets the caller detect a provider that ate the placeholders.
+ */
+export function renderBlockResult(extracted, translated, labels = []) {
+  const { html, missing, duplicated } = restoreTokens(translated, extracted.tokens, labels);
   let result = html;
   if (extracted.italic) result = `<em>${result}</em>`;
   if (extracted.bold) result = `<strong>${result}</strong>`;
-  return result;
+  return { html: result, missing, duplicated };
 }

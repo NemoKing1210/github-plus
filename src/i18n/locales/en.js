@@ -214,7 +214,7 @@ export default {
   'translate.cacheEmpty': 'The cache is empty.',
   'translate.clearCache': 'Clear cache',
   'translate.cacheCleared': 'Translation cache cleared',
-  'translate.privacy': 'Translated text is sent to the selected service. API keys are stored only in this browser.',
+  'translate.privacy': 'Translated text is sent to the selected service. API keys are stored only in this browser, and a settings backup contains them.',
   'translate.button': 'Translate',
   'translate.translating': 'Translating…',
   'translate.progress': '{done} / {total}',

@@ -214,7 +214,7 @@ export default {
   'translate.cacheEmpty': 'キャッシュは空です。',
   'translate.clearCache': 'キャッシュをクリア',
   'translate.cacheCleared': '翻訳キャッシュをクリアしました',
-  'translate.privacy': '翻訳するテキストは選択したサービスに送信されます。API キーはこのブラウザーにのみ保存されます。',
+  'translate.privacy': '翻訳するテキストは選択したサービスに送信されます。API キーはこのブラウザーにのみ保存され、設定のバックアップにも含まれます。',
   'translate.button': '翻訳',
   'translate.translating': '翻訳中…',
   'translate.progress': '{done} / {total}',

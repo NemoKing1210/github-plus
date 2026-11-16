@@ -214,7 +214,7 @@ export default {
   'translate.cacheEmpty': 'Кеш пуст.',
   'translate.clearCache': 'Очистить кеш',
   'translate.cacheCleared': 'Кеш переводов очищен',
-  'translate.privacy': 'Переводимый текст отправляется выбранному сервису. API-ключи хранятся только в этом браузере.',
+  'translate.privacy': 'Переводимый текст отправляется выбранному сервису. API-ключи хранятся только в этом браузере, и резервная копия настроек содержит их.',
   'translate.button': 'Перевести',
   'translate.translating': 'Перевод…',
   'translate.progress': '{done} / {total}',

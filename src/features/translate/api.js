@@ -3,8 +3,8 @@ import {
   TRANSLATE_BATCH_MAX_SEGMENTS,
 } from '../../core/constants.js';
 import { getTranslateSettings } from '../../core/settings.js';
-import { cacheKey, setCached } from './cache.js';
-import { SEGMENT_END, SEGMENT_START, stripTokens } from './tokens.js';
+import { cacheKey, getCached, setCached } from './cache.js';
+import { SEGMENT_END, SEGMENT_START, stripSegmentMarkers } from './tokens.js';
 import { translateWithDeepL } from './providers/deepl.js';
 import { translateWithGoogle } from './providers/google.js';
 import { translateWithLibreTranslate } from './providers/libretranslate.js';
@@ -15,7 +15,7 @@ import { translateWithYandex } from './providers/yandex.js';
 const SENTINEL_RE = /\uE100\s*(\d+)\s*\uE101/g;
 
 function joinPiece(index, text) {
-  return `${SEGMENT_START}${index}${SEGMENT_END}\n${stripTokens(text)}`;
+  return `${SEGMENT_START}${index}${SEGMENT_END}\n${stripSegmentMarkers(text)}`;
 }
 
 /**
@@ -119,17 +119,32 @@ function normalizeResult(result) {
   return { text, detectedSourceLang: result.detectedSourceLang || null };
 }
 
+/** Statuses where retrying per segment only multiplies load on a closed door. */
+const FATAL_STATUSES = [401, 403, 429];
+/** Consecutive all-failed batches after which the provider is treated as down. */
+const MAX_FAILED_BATCHES = 3;
+
+function isFatal(error) {
+  return FATAL_STATUSES.includes(Number(error && error.status));
+}
+
 /**
  * Translate segments through the configured provider (or an injected
- * `translate`), falling back to one request per segment when a batch cannot be
- * split.
+ * `translate`), serving cache hits first and falling back to one request per
+ * segment when a batch cannot be split. An auth or throttle status fails the
+ * whole batch instead of retrying each of its segments.
  * @param {Array<{ id: number | string, text: string }>} segments
  * @param {string} targetLang
- * @param {{ translate?: Function, onResult?: Function }} [options]
+ * @param {{ translate?: Function, onResult?: Function,
+ *   onProgress?: (done: number, total: number) => void }} [options]
  * @returns {Promise<{ results: Map<number | string, { text: string,
  *   detectedSourceLang: string | null }>, failed: Array<number | string> }>}
  */
-export async function translateSegments(segments, targetLang, { translate, onResult } = {}) {
+export async function translateSegments(
+  segments,
+  targetLang,
+  { translate, onResult, onProgress } = {},
+) {
   const results = new Map();
   const failed = [];
   const list = Array.isArray(segments) ? segments : [];
@@ -138,6 +153,17 @@ export async function translateSegments(segments, targetLang, { translate, onRes
   const runner = typeof translate === 'function' ? translate : defaultTranslate;
   const useCache = typeof translate !== 'function';
   const providerId = getTranslateSettings().provider;
+  let settled = 0;
+
+  const advance = () => {
+    settled += 1;
+    if (typeof onProgress !== 'function') return;
+    try {
+      onProgress(settled, list.length);
+    } catch {
+      // A progress callback must never fail the translation itself.
+    }
+  };
 
   const commit = (segment, result) => {
     results.set(segment.id, result);
@@ -155,40 +181,77 @@ export async function translateSegments(segments, targetLang, { translate, onRes
         // A display callback must never fail the translation itself.
       }
     }
+    advance();
+  };
+
+  const reject = (segment) => {
+    failed.push(segment.id);
+    advance();
   };
 
   const translateOne = async (segment) => {
     try {
       commit(segment, normalizeResult(await runner(segment.text, targetLang)));
     } catch {
-      failed.push(segment.id);
+      reject(segment);
     }
   };
 
-  for (const batch of buildBatches(list)) {
+  const pending = [];
+  list.forEach((segment) => {
+    const cached = useCache
+      ? getCached(cacheKey(providerId, targetLang, segment.text))
+      : null;
+    if (cached && cached.text) {
+      commit(segment, { text: cached.text, detectedSourceLang: cached.detected || null });
+    } else {
+      pending.push(segment);
+    }
+  });
+
+  let failedBatches = 0;
+  const noteBatch = (members, failedBefore) => {
+    const failedInBatch = failed.length - failedBefore;
+    failedBatches = failedInBatch > 0 && failedInBatch === members.length
+      ? failedBatches + 1
+      : 0;
+  };
+  for (const batch of buildBatches(pending)) {
     const members = batch.ids
-      .map((id) => list.find((segment) => segment.id === id))
+      .map((id) => pending.find((segment) => segment.id === id))
       .filter(Boolean);
-    let mapped = null;
+    if (failedBatches >= MAX_FAILED_BATCHES) {
+      members.forEach(reject);
+      continue;
+    }
+    const failedBefore = failed.length;
+    let fatal = false;
     try {
       const response = await runner(batch.text, targetLang);
       const normalized = normalizeResult(response);
-      mapped = splitBatchResponse(normalized.text, batch.ids);
+      const mapped = splitBatchResponse(normalized.text, batch.ids);
       if (mapped) {
         members.forEach((segment) => {
           const text = mapped.get(segment.id);
           if (!text) {
-            failed.push(segment.id);
+            reject(segment);
             return;
           }
           commit(segment, { text, detectedSourceLang: normalized.detectedSourceLang });
         });
+        noteBatch(members, failedBefore);
         continue;
       }
-    } catch {
-      mapped = null;
+    } catch (error) {
+      fatal = isFatal(error);
+    }
+    if (fatal) {
+      members.forEach(reject);
+      noteBatch(members, failedBefore);
+      continue;
     }
     for (const segment of members) await translateOne(segment);
+    noteBatch(members, failedBefore);
   }
 
   return { results, failed };

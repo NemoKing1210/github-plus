@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  makeToken, restoreTokens, stripTokens, hasLetters, SEGMENT_START, SEGMENT_END,
+  LABEL_START, LABEL_END, makeToken, restoreTokens, stripTokens, hasLetters,
+  SEGMENT_START, SEGMENT_END,
 } from '../src/features/translate/tokens.js';
 
 const tokens = [
-  { html: '<a href="/x">docs</a>', label: 'docs' },
+  { html: `<a href="/x">${LABEL_START}docs${LABEL_END}</a>`, label: 'docs' },
   { html: '<code>npm i</code>', label: null },
 ];
 
@@ -40,6 +41,21 @@ test('an unknown token id is kept as escaped text', () => {
 test('translated link labels replace the original label', () => {
   const out = restoreTokens(`Lisez ${makeToken(0)}`, [tokens[0]], ['la documentation']);
   assert.equal(out.html, 'Lisez <a href="/x">la documentation</a>');
+});
+
+test('label markup characters are escaped exactly once', () => {
+  const token = {
+    html: `<a href="/x">${LABEL_START}a &amp; b${LABEL_END}</a>`,
+    label: 'a & b',
+  };
+  assert.equal(
+    restoreTokens(`Lisez ${makeToken(0)}`, [token]).html,
+    'Lisez <a href="/x">a &amp; b</a>',
+  );
+  assert.equal(
+    restoreTokens(`Lisez ${makeToken(0)}`, [token], ['l&l']).html,
+    'Lisez <a href="/x">l&amp;l</a>',
+  );
 });
 
 test('private-use token characters are stripped from source text', () => {

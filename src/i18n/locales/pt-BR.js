@@ -214,7 +214,7 @@ export default {
   'translate.cacheEmpty': 'O cache está vazio.',
   'translate.clearCache': 'Limpar cache',
   'translate.cacheCleared': 'Cache de traduções limpo',
-  'translate.privacy': 'O texto traduzido é enviado ao serviço selecionado. As chaves de API ficam armazenadas apenas neste navegador.',
+  'translate.privacy': 'O texto traduzido é enviado ao serviço selecionado. As chaves de API ficam armazenadas apenas neste navegador, e um backup das configurações as contém.',
   'translate.button': 'Traduzir',
   'translate.translating': 'Traduzindo…',
   'translate.progress': '{done} / {total}',

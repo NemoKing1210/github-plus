@@ -854,37 +854,47 @@ default `mode` is `button`; `auto` is opt-in.
   `caption`, `summary`), skipping `pre`, code, our own UI and GitHub's heading
   anchors. A block that contains another candidate recurses instead of being
   collected; a list item that only wraps a nested list is still collected, and
-  its nested lists are excluded from its own content. `extractBlock(block)`
-  turns a block into `{ source, tokens, bold, italic }` — text nodes plus a
-  token per `a`, `code`, `kbd`, `samp`, `img`, `picture`, `svg`, `br`, `input`,
-  `hr`, `video`, `audio` (the element's `outerHTML` is recorded, anchors keep
-  their label), `null` when there is nothing to translate or the block exceeds
+  its nested lists are excluded from its own content. A surface container with
+  no descendant candidates (an issue title, a commit message) is collected as
+  the block itself. `extractBlock(block)` turns a block into
+  `{ source, tokens, bold, italic }` — text nodes plus a token per `a`, `code`,
+  `kbd`, `samp`, `img`, `picture`, `svg`, `br`, `input`, `hr`, `video`, `audio`
+  (the element's `outerHTML` is recorded; an anchor's label is wrapped in the
+  label markers at the exact text-node range, never located by substring),
+  `null` when there is nothing to translate or the block exceeds
   `TRANSLATE_MAX_BLOCK_CHARS`. Inline emphasis is inlined per the design;
-  `renderBlockHtml` reassembles the translated block, escaping the provider
-  text and restoring the tokens.
+  `renderBlockResult` reassembles the translated block, escaping the provider
+  text and restoring the tokens (the report carries `missing`/`duplicated`).
 - `tokens.js`: pure marker code. `TOKEN_START`/`TOKEN_END`
   (U+E000/U+E001) wrap an inline-element index; `SEGMENT_START`/`SEGMENT_END`
-  (U+E100/U+E101) mark batch segments. `restoreTokens(translated, tokens,
-  labels)` returns `{ html, missing, duplicated }`: missing tokens are appended
-  in order, duplicates render once, unknown ids stay escaped text. `hasLetters`
-  gates blocks with no letters.
+  (U+E100/U+E101) mark batch segments; `LABEL_START`/`LABEL_END`
+  (U+E200/U+E201) wrap an anchor's visible label. `restoreTokens(translated,
+  tokens, labels)` returns `{ html, missing, duplicated }`: missing tokens are
+  appended in order, duplicates render once, unknown ids stay escaped text.
+  `stripTokens` removes page text that would collide with any marker;
+  `stripSegmentMarkers` removes sentinels only, so inline tokens reach the
+  provider. `hasLetters` gates blocks with no letters.
 - `languages.js`: `TRANSLATE_TARGET_LANGUAGES` presentation,
   `resolveTargetLang(preference, locale)` (`auto` maps the UI locale, else
   English) and `targetLanguageLabel(code)` for the picker.
 - `providers/registry.js`: the ordered provider list — `google` (default, free,
   keyless), `deepl`, `microsoft`, `yandex`, `openai` (OpenAI-compatible),
   `libretranslate` — each with a name, a `hintKey` and field definitions that
-  drive both the settings form and the config whitelist. `providers/request.js`
+  drive both the settings form and the config whitelist; `missingProviderFields`
+  reports the `required` fields with no value. `providers/request.js`
   is the transport (`GM_xmlhttpRequest` when present, `fetch` otherwise, 20 s
   timeout). Each provider module parses its own response shape and maps the
   canonical target code; failures throw, the layers above decide.
 - `api.js`: `buildBatches(segments)` joins up to 8 segments / 4000 characters
-  with a sentinel before each segment's text; `splitBatchResponse` requires the
-  sentinels exactly once and in order, else the batch is rejected;
-  `translateSegments(segments, target, { translate, onResult })` translates
-  batch by batch, retries a failed split per segment, dedupes identical
-  in-flight requests and writes results to the cache when no `translate`
-  override is injected.
+  with a sentinel before each segment's text; inline tokens are preserved.
+  `splitBatchResponse` requires the sentinels exactly once and in order, else
+  the batch is rejected; `translateSegments(segments, target, { translate,
+  onResult, onProgress })` serves cache hits first, translates batch by batch,
+  retries a failed split per segment, dedupes identical in-flight requests and
+  writes results to the cache when no `translate` override is injected. A
+  401/403/429 fails the whole batch without per-segment retries, and three
+  consecutive all-failed batches stop the remaining requests. `onResult`/`onProgress`
+  fire per settled segment, cached ones included.
 - `cache.js`: the persistent cache under `TRANSLATION_CACHE_KEY`. Keys are
   `provider|target|FNV-1a(text)|length`, entries carry `{ text, detected, at }`,
   and reads honor the TTL from `translate.cacheHours`. Writes are debounced
@@ -901,22 +911,29 @@ default `mode` is `button`; `auto` is opt-in.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
   `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
   a container (returns the existing state when the content signature is
-  unchanged), `runContainer` translates every block (button states, bar status,
-  partial-failure handling, unchanged-response detection, `GP-1601` and a toast
-  on total failure), `toggleContainer` restores the exact original HTML or
-  starts a run, and `teardownContainer`/`teardownAllContainers` restore and
+  unchanged), `runContainer` translates every block (missing-config preflight
+  before any request, button states, bar status with a `done / total` progress
+  line, partial-failure handling, unchanged-response detection, `GP-1601` and a
+  toast on total failure). A block whose provider response lost more than half
+  of its inline tokens is left untouched and counts as failed, so markup is
+  never piled up at the end. `toggleContainer` restores the exact original HTML
+  or starts a run, and is the only caller that focuses the button, so auto mode
+  never steals focus. `teardownContainer`/`teardownAllContainers` restore and
   remove chrome. `runId` makes an in-flight response stale after a teardown.
   Painted blocks keep their original `innerHTML`; a list item keeps its nested
   lists. `reveal: hover` shows the source while the pointer or focus is inside
   the container and repaints on leave. A caller-supplied button (the preview
   action) is not bound by `ensureContainer` — its owner toggles instead.
 - `index.js`: the lifecycle. `scanTranslateSurfaces()` decorates live
-  containers; one `MutationObserver` per enabled surface root (debounced) plus
-  the bounded settle wait (`TRANSLATE_SETTLE_MS` × `TRANSLATE_SETTLE_TRIES`,
-  stopped as soon as a page surface is decorated — a preview action does not
-  count) catch late mounts; `applyTranslateSettings()` tears everything down and
-  reapplies. In `auto` mode one shared `IntersectionObserver` queues visible
-  containers through a concurrency-2 queue. `initTranslateFeature()` subscribes
+  containers; one `MutationObserver` per enabled surface root (debounced, pruned
+  and reattached by `syncObservers`) plus the bounded settle wait
+  (`TRANSLATE_SETTLE_MS` × `TRANSLATE_SETTLE_TRIES`, stopped as soon as a page
+  surface is decorated — a preview action does not count) catch late mounts.
+  Direct-children watchers on `<html>` and `<body>` rescan after an app-shell
+  swap, since a replaced body leaves the root observers dead;
+  `applyTranslateSettings()` tears everything down and reapplies. In `auto` mode
+  one shared `IntersectionObserver` queues visible containers through a
+  concurrency-2 queue. `initTranslateFeature()` subscribes
   to `settings:translate` and `settings:language`, re-applies on navigation and
   flushes the cache on `pagehide`.
 - `previewAction.js`: `isPreviewTranslationEnabled()` (`enabled &&

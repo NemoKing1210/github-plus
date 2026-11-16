@@ -214,7 +214,7 @@ export default {
   'translate.cacheEmpty': '缓存为空。',
   'translate.clearCache': '清除缓存',
   'translate.cacheCleared': '翻译缓存已清除',
-  'translate.privacy': '待翻译文本会发送到所选服务。API 密钥仅保存在此浏览器中。',
+  'translate.privacy': '待翻译文本会发送到所选服务。API 密钥仅保存在此浏览器中，设置备份会包含它们。',
   'translate.button': '翻译',
   'translate.translating': '翻译中…',
   'translate.progress': '{done} / {total}',

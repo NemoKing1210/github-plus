@@ -4,11 +4,12 @@ import { getLocale, t } from '../../i18n/index.js';
 import { toArray } from '../../utils/dom.js';
 import { showToast } from '../../ui/toast.js';
 import { translateSegments } from './api.js';
-import { collectBlocks, extractBlock, renderBlockHtml } from './blocks.js';
+import { collectBlocks, extractBlock, renderBlockResult } from './blocks.js';
 import {
   createButton, createResultBox, ensureChrome, removeChrome, setBarStatus, setButtonState,
 } from './inject.js';
 import { resolveTargetLang } from './languages.js';
+import { missingProviderFields } from './providers/registry.js';
 import { stripTokens } from './tokens.js';
 
 const states = new Map();
@@ -119,9 +120,10 @@ export function stateFor(container) {
 
 /**
  * Collect the container's blocks and translate them through the configured
- * provider (or an injected `translate`).
+ * provider (or an injected `translate`). `focus` is set only by a user
+ * gesture, so auto translation never steals focus.
  */
-export async function runContainer(state, { translate } = {}) {
+export async function runContainer(state, { translate, focus = false } = {}) {
   if (!state || !state.container || state.status === 'loading') return;
 
   const blocks = collectBlocks(state.container);
@@ -136,6 +138,25 @@ export async function runContainer(state, { translate } = {}) {
   }
 
   const settings = getTranslateSettings();
+  if (typeof translate !== 'function') {
+    const missing = missingProviderFields(
+      settings.provider,
+      settings.providerConfig[settings.provider],
+    );
+    if (missing.length) {
+      state.status = 'error';
+      setButtonState(state.button, 'idle', { label: t('translate.button') });
+      setBarStatus(state.container, t('translate.missingConfigDesc'), { error: true });
+      showToast({
+        type: 'error',
+        title: t('translate.missingConfig'),
+        message: t('translate.missingConfigDesc'),
+        key: 'translate-missing-config',
+      });
+      return;
+    }
+  }
+
   const display = state.display || settings.display || 'replace';
   const target = resolveTargetLang(settings.targetLang, getLocale());
   const runId = state.runId + 1;
@@ -163,6 +184,7 @@ export async function runContainer(state, { translate } = {}) {
       labelIds: [],
       labels: new Map(),
       painted: false,
+      failed: false,
     };
     records.push(record);
     recordById.set(blockId, record);
@@ -173,19 +195,26 @@ export async function runContainer(state, { translate } = {}) {
       const labelId = `l${index}_${tokenIndex}`;
       record.labelIds.push({ id: labelId, tokenIndex });
       labelOwner.set(labelId, record);
-      segments.push({ id: labelId, text: token.label });
+      segments.push({ id: labelId, text: stripTokens(token.label) });
     });
   });
 
   const paint = (record) => {
-    if (record.painted || !record.translation) return;
+    if (record.painted || record.failed || !record.translation) return;
     record.painted = true;
     const labels = [];
     record.labelIds.forEach(({ id, tokenIndex }) => {
       const value = record.labels.get(id);
       if (typeof value === 'string' && value) labels[tokenIndex] = value;
     });
-    const html = renderBlockHtml(record.data, record.translation.text, labels);
+    const result = renderBlockResult(record.data, record.translation.text, labels);
+    // A provider that ate most placeholders would pile every inline element at
+    // the end of the block; leave that block in its original language instead.
+    if (record.data.tokens.length && result.missing.length > record.data.tokens.length / 2) {
+      record.failed = true;
+      return;
+    }
+    const html = result.html;
     if (display === 'below') {
       const box = createResultBox(html);
       const tag = record.el.tagName;
@@ -206,9 +235,14 @@ export async function runContainer(state, { translate } = {}) {
   };
 
   const maybePaint = (record) => {
-    if (record.painted || !record.translation) return;
+    if (record.painted || record.failed || !record.translation) return;
     if (record.labelIds.some(({ id }) => !record.labels.has(id))) return;
     paint(record);
+  };
+
+  const onProgress = (done, total) => {
+    if (state.runId !== runId) return;
+    setBarStatus(state.container, t('translate.progress', { done, total }));
   };
 
   const onResult = (id, result) => {
@@ -230,7 +264,7 @@ export async function runContainer(state, { translate } = {}) {
   setBarStatus(state.container, t('translate.translating'));
 
   try {
-    await translateSegments(segments, target, { translate, onResult });
+    await translateSegments(segments, target, { translate, onResult, onProgress });
   } catch {
     // Every segment is reported as failed by the missing results below.
   }
@@ -240,10 +274,10 @@ export async function runContainer(state, { translate } = {}) {
     if (record.translation) paint(record);
   });
 
-  const failedCount = records.filter((record) => !record.translation).length;
-  const unchanged = failedCount === 0 && records.every((record) => (
-    record.translation
-    && stripTokens(record.translation.text) === stripTokens(record.data.source)
+  const completed = records.filter((record) => record.translation && !record.failed);
+  const failedCount = records.length - completed.length;
+  const unchanged = failedCount === 0 && completed.every((record) => (
+    stripTokens(record.translation.text) === stripTokens(record.data.source)
   ));
 
   if (unchanged) {
@@ -283,7 +317,7 @@ export async function runContainer(state, { translate } = {}) {
   }
 
   state.signature = state.container.textContent.length;
-  if (state.button && typeof state.button.focus === 'function') state.button.focus();
+  if (focus && state.button && typeof state.button.focus === 'function') state.button.focus();
 }
 
 /** Show the original again, or translate when the container is idle. */
@@ -299,7 +333,7 @@ export function toggleContainer(state) {
     setBarStatus(state.container, '');
     return;
   }
-  runContainer(state).catch(() => {});
+  runContainer(state, { focus: true }).catch(() => {});
 }
 
 /** Restore a container, remove its chrome and forget it. */
