@@ -15,8 +15,13 @@ const TOKEN_TAGS = new Set([
 const BOLD_TAGS = new Set(['STRONG', 'B']);
 const ITALIC_TAGS = new Set(['EM', 'I']);
 
+/** The preview overlay is our UI, but the markdown rendered inside it is page content. */
+function isOwnChrome(node) {
+  return isOwnUi(node) && !node.closest('.gp-preview-overlay');
+}
+
 function isSkipped(node) {
-  return node.matches(SKIP_SELECTOR) || isOwnUi(node);
+  return node.matches(SKIP_SELECTOR) || isOwnChrome(node);
 }
 
 function isInsideSkipped(node, stop) {

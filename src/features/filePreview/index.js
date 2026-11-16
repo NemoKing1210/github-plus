@@ -10,6 +10,9 @@ import { mountHoldRing } from './holdRing.js';
 import { installLongPress, uninstallLongPress } from './longPress.js';
 import { loadPreview } from './render.js';
 import { PREVIEW_SURFACE, currentRef, resolvePreviewRow, siblingsForRow } from './surfaces.js';
+import {
+  createPreviewTranslateAction, isPreviewTranslationEnabled,
+} from '../translate/previewAction.js';
 
 /**
  * Quick file preview: an eye button in every listing row, plus the entry
@@ -66,7 +69,12 @@ export function openPreviewForTarget(target) {
       index = set.index;
     }
   }
-  openFilePreview({ files, index, load: loadPreview });
+  openFilePreview({
+    files,
+    index,
+    load: loadPreview,
+    headerActions: isPreviewTranslationEnabled() ? [createPreviewTranslateAction()] : [],
+  });
 }
 
 function processRow(row) {

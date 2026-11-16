@@ -63,7 +63,9 @@ export function ensureContainer(container, surface, { button } = {}) {
     runId: 0,
     signature: container.textContent.length,
   };
-  control.addEventListener('click', () => toggleContainer(state));
+  // A caller-supplied control (the preview header action) owns its own handler;
+  // binding here too would toggle twice per click.
+  if (!button) control.addEventListener('click', () => toggleContainer(state));
   states.set(container, state);
   setButtonState(control, 'idle', { label: t('translate.button') });
   return state;

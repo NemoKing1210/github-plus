@@ -63,7 +63,10 @@ const SURFACES = [
     hintKey: 'translate.surfacePreviewHint',
     containers: ['.gp-preview-overlay .gp-preview__md'],
     roots: [],
-    headerFor: () => null,
+    headerFor: (container) => {
+      const overlay = container.closest('.gp-preview-overlay');
+      return overlay ? overlay.querySelector('.gp-preview__extra') : null;
+    },
     skip: () => false,
   },
 ];

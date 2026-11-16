@@ -57,6 +57,9 @@ function buildShell() {
   segSource.dataset.mode = 'source';
   segmented.append(segPreview, segSource);
 
+  const extra = el('div', 'gp-preview__extra');
+  extra.hidden = true;
+
   const tools = el('div', 'gp-preview__tools');
   const openLink = tool(ACTION_ICONS.external, '', 'a');
   openLink.target = '_blank';
@@ -71,7 +74,7 @@ function buildShell() {
   tools.append(openLink, rawLink, download, copy, close);
 
   const header = el('header', 'gp-preview__header');
-  header.append(heading, segmented, tools);
+  header.append(heading, segmented, extra, tools);
 
   const content = el('div', 'gp-preview__content');
   content.tabIndex = 0;
@@ -115,6 +118,7 @@ function buildShell() {
     segmented,
     segPreview,
     segSource,
+    extra,
     openLink,
     rawLink,
     download,
@@ -398,10 +402,11 @@ function onKeyDown(event) {
  * Open the preview over the current page.
  * @param {{files: Array<{name: string, href: string, rawUrl: string,
  *   relative: string, ref?: string}>, index?: number,
- *   load: (file: object, options: {mode: string, signal: AbortSignal}) => Promise<object>}} options
+ *   load: (file: object, options: {mode: string, signal: AbortSignal}) => Promise<object>,
+ *   headerActions?: Array<HTMLElement>}} options
  * @returns {boolean} whether the preview opened
  */
-export function openFilePreview({ files, index = 0, load }) {
+export function openFilePreview({ files, index = 0, load, headerActions = [] }) {
   const list = Array.isArray(files) ? files.filter((file) => file && file.rawUrl) : [];
   if (!list.length || typeof load !== 'function') return false;
   const node = ensureShell();
@@ -427,6 +432,9 @@ export function openFilePreview({ files, index = 0, load }) {
   state.abort?.abort();
   state.abort = null;
   refreshChrome();
+  while (node.extra.firstChild) node.extra.removeChild(node.extra.firstChild);
+  headerActions.forEach((action) => node.extra.appendChild(action));
+  node.extra.hidden = headerActions.length === 0;
   renderFooter();
   node.root.hidden = false;
   show(state.index, 'preview');

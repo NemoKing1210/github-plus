@@ -83,3 +83,13 @@ test('a response for a stale run is discarded', async () => {
   assert.equal(container.innerHTML, original);
   teardownAllContainers();
 });
+
+test('a caller-supplied button is not bound to toggle the container', async () => {
+  const button = document.createElement('button');
+  button.className = 'gp-translate-btn';
+  const state = ensureContainer(container, surface, { button });
+  assert.ok(state);
+  button.click();
+  assert.equal(state.status, 'idle');
+  teardownAllContainers();
+});

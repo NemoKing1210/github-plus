@@ -113,13 +113,19 @@ function startObservers() {
   });
 }
 
+/** A decorated page surface — the preview's header action does not count. */
+function hasSurfaceButton() {
+  return toArray(document.querySelectorAll('.gp-translate-btn'))
+    .some((node) => !node.closest('.gp-preview-overlay'));
+}
+
 function startSettle() {
-  if (document.querySelector('.gp-translate-btn')) return;
+  if (hasSurfaceButton()) return;
   settleTries = 0;
   settleTimer = setInterval(() => {
     settleTries += 1;
     scanTranslateSurfaces();
-    if (document.querySelector('.gp-translate-btn') || settleTries >= TRANSLATE_SETTLE_TRIES) {
+    if (hasSurfaceButton() || settleTries >= TRANSLATE_SETTLE_TRIES) {
       stopSettle();
     }
   }, TRANSLATE_SETTLE_MS);
