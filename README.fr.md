@@ -72,8 +72,8 @@ Chaque conteneur de markdown rendu sur GitHub forme un ensemble de galerie :
 
 - **Cliquez sur n'importe quelle image** — dans le README d'un dépôt, la vue d'un
   fichier `.md`, une page wiki, un ticket, une pull request, un commentaire de
-  revue (partout où GitHub rend `.markdown-body`) — et elle s'ouvre en plein
-  écran dans la visionneuse intégrée.
+  revue (partout où GitHub rend `.markdown-body`) ou dans le markdown rendu de
+  l'aperçu rapide — et elle s'ouvre en plein écran dans la visionneuse intégrée.
 - **Parcourez tout l'ensemble** — `←`/`→` (ou les flèches) passent aux autres
   images du même conteneur, la bande de vignettes centrée permet d'aller
   n'importe où et le compteur indique votre position.
@@ -213,9 +213,10 @@ liste de fichiers, avec un lien vers un fichier dans du markdown rendu ou
   l'autre, la position actuelle étant indiquée en pied.
 - **Aperçu par appui long** — maintenez le bouton gauche de la souris sur le nom
   d'un fichier dans une liste ou sur un lien vers un fichier dans du markdown
-  rendu pour ouvrir son aperçu ; la durée de l'appui (450 ms par défaut) et le
-  cercle de progression près du pointeur sont configurables ; un clic rapide
-  ouvre toujours le fichier, et un glissement ou une sélection de texte annule.
+  rendu (y compris dans l'aperçu déjà ouvert) pour ouvrir son aperçu ; la durée
+  de l'appui (450 ms par défaut) et le cercle de progression près du pointeur
+  sont configurables ; un clic rapide ouvre toujours le fichier, et un
+  glissement ou une sélection de texte annule.
 - **Actions dans l'en-tête** — ouvrir le fichier sur GitHub, copier son contenu
   brut, son lien ou son chemin, ou le télécharger sous son propre nom.
 - **Markdown : aperçu ou source** — un contrôle segmenté bascule entre le
@@ -231,7 +232,7 @@ liste de fichiers, avec un lien vers un fichier dans du markdown rendu ou
 
 Traduisez le texte d'une page sans perdre son balisage — un README, un ticket
 ou une discussion, une pull request, un commentaire, des messages de commit, un
-titre ou le fichier ouvert dans l'aperçu rapide :
+titre ou le fichier markdown ouvert dans l'aperçu rapide :
 
 - **Un bouton là où se trouve le texte** — dans l'en-tête du README, la ligne
   d'actions d'un commentaire, un commit ou le titre d'un ticket. Si GitHub

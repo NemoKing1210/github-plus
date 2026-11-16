@@ -320,7 +320,10 @@ images live:
 | `match(node)` | optional container lookup override |
 
 `src/gallery/sources/markdown.js` registers the `markdown` source by import
-side effect (the gallery imports it). Adding a source touches four places
+side effect (the gallery imports it). It covers GitHub's `.markdown-body`
+containers and the markdown/image content rendered by the quick preview
+(`.gp-preview__md` / `.gp-preview__content`), so the preview is one gallery
+set too. Adding a source touches four places
 together: the source module + its import, `DEFAULT_GALLERY.sources.<id>` in
 `core/constants.js`, and the `source.<id>` / `source.<id>Desc` keys in **all
 ten** locales. The settings panel builds its source switches from the registry,
@@ -694,9 +697,10 @@ submodules, images, media and foreign links keep the browser menu.
   file row of the sidebar file tree (`li[role="treeitem"]` in
   `#repos-file-tree`, path from the row's `-item` id, blob address rebuilt from
   the page's repo and the current ref); `markdown` reads a file link inside a
-  `.markdown-body` container — the only surface that resolves a *link* rather
-  than the page it sits on, with hash-only, query-only, media and foreign-host
-  links skipped; `blob` applies only when the path is a blob or blame view and
+  `.markdown-body` container or the preview's `.gp-preview__md` — the only
+  surface that resolves a *link* rather than the page it sits on, with
+  hash-only, query-only, media and foreign-host links skipped; `blob` applies
+  only when the path is a blob or blame view and
   the node sits inside GitHub's file content (breadcrumbs and the filename
   heading, code area, `.markdown-body`), skipping native media and foreign
   links but allowing the file's own header link.
@@ -776,7 +780,8 @@ keys move between siblings.
 - `longPress.js`: `installLongPress(handler)` / `uninstallLongPress()` — one
   delegated capture-phase `pointerdown` listener on the document, the same
   shape as the gallery and the file menu. A left-button press on a listing file
-  name or a rendered markdown file link starts a timer for the configured
+  name or a rendered markdown file link (including a file link in the preview's
+  own markdown) starts a timer for the configured
   `filePreview.longPressMs` (default `PREVIEW_LONG_PRESS_MS`); moving past
   `PREVIEW_LONG_PRESS_MOVE_PX`, releasing, `pointercancel` or a touch pointer
   cancels it and hides the ring, so a drag, a text selection and a plain click
@@ -817,14 +822,17 @@ keys move between siblings.
   load, headerActions = [] })`, `closeFilePreview()`, `isFilePreviewOpen()`.
   Header with the file name, a preview/source segmented control for Markdown,
   an `.gp-preview__extra` row for caller-supplied header actions (the translate
-  feature's button), and the tools (open on
+  feature's button, offered only while the file resolves to rendered markdown
+  and the preview mode is on), and the tools (open on
   GitHub, copy contents/link/path through an elevated `ui/contextMenu.js`,
   download through `utils/download.js`); body with a spinner, the rendered
   result and a `@`-style meta line; footer with the position and prev/next. A
   stale load is dropped by an abort controller plus a request token, `Escape`
   and the focus trap are handled only outside the content pane (so links inside
-  stay usable) and all shell keys are ignored while the copy menu is open, it
-  takes the shared scroll lock and closes with a 160 ms exit animation. The
+  stay usable), all shell keys are ignored while the copy menu is open, and
+  every shell key is ignored while the image viewer is open above it (one
+  `Escape` must not close both overlays). It takes the shared scroll lock and
+  closes with a 160 ms exit animation. The
   shell never imports a feature; `features/filePreview/index.js` passes the
   translate action in when that surface is on.
 
@@ -974,7 +982,10 @@ classes.
   `toArray`, `escapeHtml(text)`, `isOwnUi(node)` (true inside
   `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`,
   `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
-  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`). `eachNode`/`toArray` exist because DOM collections
+  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`) and
+  `isOwnUiChrome(node)` (the same check minus the repository content inside
+  `.gp-preview__content`, whose images and file links must behave like page
+  content). `eachNode`/`toArray` exist because DOM collections
   (`NodeList`, `HTMLCollection`, `addedNodes`, `classList`) are **not iterable
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
@@ -1090,9 +1101,10 @@ hover reveal) restores the exact source.
   classic `pushState` navigation elsewhere) and re-renders parts of the page
   from React. Never cache DOM references across navigations; re-query from the
   click target. Route new page watchers through `utils/navigation.js`.
-- Rendered markdown always lives in a `.markdown-body` container (repository
-  README, blob view, wiki, issue, discussion, review comment). That container
-  is the gallery set boundary.
+- Rendered markdown always lives in a `.markdown-body` container on GitHub
+  (repository README, blob view, wiki, issue, discussion, review comment).
+  That container is the gallery set boundary; the quick preview renders its
+  own markdown into `.gp-preview__md`, which is a gallery boundary too.
 - GitHub's header markup changes over time. Keep `HEADER_TARGETS` ordered from
   most to least specific and always insert *next to* GitHub's own actions
   (never replace, move or restyle them), so a header rework degrades to "no
@@ -1285,7 +1297,8 @@ and check diagnostics for edited files.
   without it.
 - Gallery does not open on click: check the source is enabled, the click was a
   plain left click (no modifier), the image is inside a `.markdown-body`
-  container, and the image is not a badge, emoji or small icon. Inspect
+  container or the quick preview's `.gp-preview__md` / `.gp-preview__content`,
+  and the image is not a badge, emoji or small icon. Inspect
   `#gp-gallery-style` — no stylesheet means no enabled source.
 - File icons missing: check **File icons** is on and the row is one of the
   surfaces in `features/fileIcons/surfaces.js`. The sidebar file tree is
@@ -1351,7 +1364,7 @@ and check diagnostics for edited files.
   The hold gesture needs a mouse: touch pointers are ignored, and moving more
   than 8 px before the configured `longPressMs` timer (450 ms by default) fires
   turns it into a drag. The hold works on a file link inside `.markdown-body`
-  too, and the row must be a
+  and on a file link in the preview's own markdown too, and the row must be a
   `tr.react-directory-row` inside `[data-testid="directory-content"]`; the
   menu also opens the preview on a blob
   or blame page, for the file itself. A card saying the file could not be shown

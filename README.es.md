@@ -74,7 +74,8 @@ Cada contenedor de markdown renderizado en GitHub es un conjunto de la galería:
 - **Haz clic en cualquier imagen** — en el README de un repositorio, en la vista
   de un archivo `.md`, en una página de wiki, en un issue, pull request o
   comentario de revisión (en cualquier lugar donde GitHub renderice
-  `.markdown-body`) — y se abre a pantalla completa en el visor integrado.
+  `.markdown-body`) o en el markdown renderizado de la vista rápida — y se abre
+  a pantalla completa en el visor integrado.
 - **Recorre todo el conjunto** — `←`/`→` (o las flechas) pasan a las demás
   imágenes del mismo contenedor, la tira de miniaturas centrada salta a
   cualquiera y el contador indica dónde estás.
@@ -216,10 +217,10 @@ previa** en el menú contextual del archivo:
   la posición actual en el pie.
 - **Mantén para previsualizar** — mantén pulsado el botón izquierdo sobre el
   nombre de un archivo en una lista o sobre un enlace a un archivo en markdown
-  renderizado para abrir su vista previa; el tiempo de pulsación (450 ms por
-  defecto) y el círculo de progreso junto al puntero son configurables; un clic
-  rápido sigue abriendo el archivo, y arrastrar o seleccionar texto cancela el
-  gesto.
+  renderizado (también dentro de la propia vista rápida) para abrir su vista
+  previa; el tiempo de pulsación (450 ms por defecto) y el círculo de progreso
+  junto al puntero son configurables; un clic rápido sigue abriendo el archivo,
+  y arrastrar o seleccionar texto cancela el gesto.
 - **Acciones en la cabecera** — abre el archivo en GitHub, copia su contenido
   sin formato, su enlace o su ruta, o descárgalo con su propio nombre.
 - **Markdown: vista previa o código** — un control segmentado alterna entre el
@@ -236,7 +237,7 @@ previa** en el menú contextual del archivo:
 
 Traduce el texto de una página sin perder su marcado — un README, un issue o
 debate, un pull request, un comentario, mensajes de commit, un título o el
-archivo abierto en la vista rápida:
+archivo markdown abierto en la vista rápida:
 
 - **Un botón donde está el texto** — en el encabezado del README, en la fila de
   acciones de un comentario, en un commit o en el título de un issue. Cuando

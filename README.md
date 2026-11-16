@@ -68,7 +68,8 @@ Every rendered markdown container on GitHub is one gallery set:
 
 - **Click any image** — in a repository README, a blob view of a `.md` file, a
   wiki page, an issue, a pull request, a review comment (anywhere GitHub
-  renders `.markdown-body`) — and it opens fullscreen in the built-in viewer.
+  renders `.markdown-body`) or in the quick preview's rendered markdown — and it
+  opens fullscreen in the built-in viewer.
 - **Browse the whole set** — `←`/`→` (or the arrows) walk the other images of
   the same container, a centered thumbnail strip jumps anywhere, and the
   counter shows where you are.
@@ -194,10 +195,10 @@ context menu:
   previous/next buttons and the arrow keys step between them, with the current
   position in the footer.
 - **Hold to preview** — hold the left mouse button on a file name in a listing
-  or on a file link in rendered markdown to open its preview; the hold time
-  (450 ms by default) and the progress circle at the pointer are both
-  configurable, a quick click still opens the file, and dragging or selecting
-  text cancels.
+  or on a file link in rendered markdown (including markdown already open in
+  the preview) to open its preview; the hold time (450 ms by default) and the
+  progress circle at the pointer are both configurable, a quick click still
+  opens the file, and dragging or selecting text cancels.
 - **Actions in the header** — open the file on GitHub, copy its raw contents,
   link or path, or download it under its own name.
 - **Markdown preview or source** — a segmented control switches rendered
@@ -213,7 +214,7 @@ context menu:
 
 Translate the text a page shows without losing its markup — a README, an
 issue or discussion, a pull request, a comment, commit messages, a title, or
-the file open in the quick preview:
+the markdown file open in the quick preview:
 
 - **A button where the text lives** — in the README file header, a comment's
   action row, a commit or an issue title. Where GitHub has no header to host it,

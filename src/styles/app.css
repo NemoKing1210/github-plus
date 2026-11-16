@@ -1372,7 +1372,7 @@ html.gp-modal-open body {
 /* == Page image download =================================================== */
 .gp-download-btn {
   position: fixed;
-  z-index: 999999;
+  z-index: 1000003;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1410,7 +1410,8 @@ html.gp-modal-open body {
 .gp-viewer-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1000002;
+  /* Above the quick preview, whose markdown can open the gallery. */
+  z-index: 1000003;
   display: flex;
   font-family: var(--gp-font);
   color: var(--gp-text);
@@ -2698,7 +2699,8 @@ audio.gp-preview__media {
 /* Hold-progress ring: transient pointer feedback for the long-press gesture. */
 .gp-hold-ring {
   position: fixed;
-  z-index: 999997;
+  /* Above the quick preview, where markdown links also support the hold. */
+  z-index: 1000003;
   width: 36px;
   height: 36px;
   margin: -18px 0 0 -18px;

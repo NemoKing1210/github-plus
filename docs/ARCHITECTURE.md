@@ -154,7 +154,7 @@ sequenceDiagram
   participant C as gallery/collect.js
   participant V as ui/viewer.js
 
-  U->>D: click on an image in .markdown-body
+  U->>D: click on an image in .markdown-body or the quick preview
   D->>G: click (capture phase)
   G->>G: enabled? plain left click? not own UI?
   G->>C: resolveContainer + collectGallery

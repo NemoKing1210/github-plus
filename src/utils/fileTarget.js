@@ -91,7 +91,7 @@ export function fileTarget(href, base = 'https://github.com', ref = '') {
  * except the file's own header link and now a link to another file.
  */
 const LISTING = '[data-testid="directory-content"]';
-const MARKDOWN_BODY = '.markdown-body';
+const MARKDOWN_BODY = '.markdown-body, .gp-preview__md';
 const FILE_VIEW_ONLY_PATH = /^\/[^/]+\/[^/]+\/(?:blob|blame)\//;
 const FILE_VIEW_CONTENT = [
   '[data-testid="breadcrumbs"]',

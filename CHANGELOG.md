@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Markdown opened in the quick preview now behaves like page markdown: its
+  images open the custom gallery, file links support hold-to-preview and the
+  file context menu, and the viewer/hold feedback paint above the preview
+  overlay. `Escape` closes the viewer first, leaving the preview open for the
+  next press
+- The Translate action in the quick preview is offered only for a rendered
+  markdown file and disappears in source mode or when the preview moves to a
+  file of another kind
+
 ## [0.18.4] - 2026-11-16
 
 ### Fixed

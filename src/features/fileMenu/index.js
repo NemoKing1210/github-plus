@@ -6,7 +6,7 @@ import { t } from '../../i18n/index.js';
 import { closeContextMenu, openContextMenu } from '../../ui/contextMenu.js';
 import { ACTION_ICONS } from '../../ui/icons.js';
 import { showToast } from '../../ui/toast.js';
-import { isOwnUi } from '../../utils/dom.js';
+import { isOwnUiChrome } from '../../utils/dom.js';
 import { downloadFile } from '../../utils/download.js';
 import { resolveFileTarget } from '../../utils/fileTarget.js';
 import { watchNavigation } from '../../utils/navigation.js';
@@ -124,17 +124,20 @@ function buildItems(target) {
 }
 
 function onContextMenu(event) {
-  if (event.defaultPrevented || isOwnUi(event.target)) return;
+  if (event.defaultPrevented || isOwnUiChrome(event.target)) return;
   const target = resolveFileTarget(event.target);
   if (!target) return;
   event.preventDefault();
   event.stopPropagation();
   const keyboard = event.clientX === 0 && event.clientY === 0;
+  const elevated = event.target instanceof Element
+    && !!event.target.closest('.gp-preview-overlay');
   openContextMenu({
     x: event.clientX,
     y: event.clientY,
     anchor: keyboard ? target.anchor : null,
     keyboard,
+    elevated,
     label: t('fileMenu.menuLabel', { name: target.name }),
     items: buildItems(target),
   });

@@ -1,6 +1,6 @@
 import { PREVIEW_LONG_PRESS_MOVE_PX, PREVIEW_RING_DELAY_MS } from '../../core/constants.js';
 import { getFilePreviewSettings } from '../../core/settings.js';
-import { isOwnUi } from '../../utils/dom.js';
+import { isOwnUiChrome } from '../../utils/dom.js';
 import { hideHoldRing, showHoldRing } from './holdRing.js';
 import { resolvePreviewLink } from './surfaces.js';
 
@@ -25,7 +25,7 @@ function cancel() {
 
 function onPointerDown(event) {
   if (!onOpen || event.button !== 0 || event.defaultPrevented) return;
-  if (event.pointerType === 'touch' || isOwnUi(event.target)) return;
+  if (event.pointerType === 'touch' || isOwnUiChrome(event.target)) return;
   cancel();
   const found = resolvePreviewLink(event.target);
   if (!found) return;

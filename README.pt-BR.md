@@ -72,8 +72,9 @@ Cada contêiner de markdown renderizado no GitHub é um conjunto da galeria:
 
 - **Clique em qualquer imagem** — no README de um repositório, na visualização
   de um arquivo `.md`, numa página de wiki, numa issue, pull request, comentário
-  de revisão (onde quer que o GitHub renderize `.markdown-body`) — e ela abre em
-  tela cheia no visualizador integrado.
+  de revisão (onde quer que o GitHub renderize `.markdown-body`) ou no markdown
+  renderizado da pré-visualização rápida — e ela abre em tela cheia no
+  visualizador integrado.
 - **Navegue pelo conjunto inteiro** — `←`/`→` (ou as setas) vão para as outras
   imagens do mesmo contêiner, a faixa de miniaturas centralizada salta para
   qualquer uma e o contador mostra a posição atual.
@@ -209,10 +210,10 @@ arquivos, por um link para um arquivo em markdown renderizado ou por
   posição atual no rodapé.
 - **Segure para pré-visualizar** — segure o botão esquerdo do mouse sobre o nome
   de um arquivo em uma lista ou sobre um link para um arquivo em markdown
-  renderizado para abrir sua pré-visualização; o tempo de pressionamento (450 ms
-  por padrão) e o círculo de progresso junto ao ponteiro são configuráveis; um
-  clique rápido ainda abre o arquivo, e arrastar ou selecionar texto cancela o
-  gesto.
+  renderizado (inclusive dentro da própria pré-visualização) para abrir sua
+  pré-visualização; o tempo de pressionamento (450 ms por padrão) e o círculo de
+  progresso junto ao ponteiro são configuráveis; um clique rápido ainda abre o
+  arquivo, e arrastar ou selecionar texto cancela o gesto.
 - **Ações no cabeçalho** — abra o arquivo no GitHub, copie seu conteúdo bruto,
   link ou caminho, ou baixe-o com o próprio nome.
 - **Markdown: pré-visualização ou fonte** — um controle segmentado alterna entre
@@ -228,7 +229,7 @@ arquivos, por um link para um arquivo em markdown renderizado ou por
 
 Traduza o texto de uma página sem perder a marcação — um README, uma issue ou
 discussão, um pull request, um comentário, mensagens de commit, um título ou o
-arquivo aberto na pré-visualização rápida:
+arquivo markdown aberto na pré-visualização rápida:
 
 - **Um botão onde o texto está** — no cabeçalho do README, na linha de ações de
   um comentário, em um commit ou no título de uma issue. Onde o GitHub não

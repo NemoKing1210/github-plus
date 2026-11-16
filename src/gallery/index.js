@@ -4,7 +4,7 @@ import { getGallerySettings } from '../core/settings.js';
 import { t } from '../i18n/index.js';
 import { VIEWER_ICONS } from '../ui/icons.js';
 import { openViewer } from '../ui/viewer.js';
-import { el, isOwnUi } from '../utils/dom.js';
+import { el, isOwnUiChrome } from '../utils/dom.js';
 import { downloadImage } from '../utils/download.js';
 import { watchNavigation } from '../utils/navigation.js';
 import { collectGallery, matchIndex, resolveContainer } from './collect.js';
@@ -217,7 +217,7 @@ function onPointerOver(event) {
   // pointerout, leaving the button pinned over content that is gone.
   if (downloadNode && !downloadNode.isConnected) hideDownloadButton();
   const target = event.target;
-  if (!(target instanceof Element) || isOwnUi(target)) return;
+  if (!(target instanceof Element) || isOwnUiChrome(target)) return;
   const node = target.closest('img');
   if (!node) {
     if (downloadNode && isDownloadHover(target)) cancelDownloadHide();
@@ -273,7 +273,7 @@ function onClick(event) {
   if (event.defaultPrevented || event.button !== 0) return;
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   const target = event.target;
-  if (!(target instanceof Element) || isOwnUi(target)) return;
+  if (!(target instanceof Element) || isOwnUiChrome(target)) return;
   const node = target.closest('img');
   if (!node || node.closest('a.anchor')) return;
   try {

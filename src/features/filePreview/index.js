@@ -7,6 +7,7 @@ import { debounce } from '../../utils/dom.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { clearPreviewCells, placeCell, placeHead, renderPreviewButton } from './inject.js';
 import { mountHoldRing } from './holdRing.js';
+import { previewKind } from './kind.js';
 import { installLongPress, uninstallLongPress } from './longPress.js';
 import { loadPreview } from './render.js';
 import { PREVIEW_SURFACE, currentRef, resolvePreviewRow, siblingsForRow } from './surfaces.js';
@@ -73,7 +74,13 @@ export function openPreviewForTarget(target) {
     files,
     index,
     load: loadPreview,
-    headerActions: isPreviewTranslationEnabled() ? [createPreviewTranslateAction()] : [],
+    headerActions: (file, mode) => (
+      mode === 'preview'
+      && previewKind(file.name) === 'markdown'
+      && isPreviewTranslationEnabled()
+        ? [createPreviewTranslateAction()]
+        : []
+    ),
   });
 }
 

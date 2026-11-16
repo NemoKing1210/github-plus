@@ -19,6 +19,7 @@ const { openFilePreview, closeFilePreview } = await import('../src/ui/filePrevie
 const { createPreviewTranslateAction, isPreviewTranslationEnabled } = await import(
   '../src/features/translate/previewAction.js'
 );
+const { openPreviewForTarget } = await import('../src/features/filePreview/index.js');
 const { stateFor, teardownAllContainers } = await import('../src/features/translate/state.js');
 
 const FILE = {
@@ -78,4 +79,67 @@ test('the action is offered only while the preview surface is on', async () => {
   assert.equal(isPreviewTranslationEnabled(), false);
   saveSettings({ translate: { surfaces: { preview: true } } });
   assert.equal(isPreviewTranslationEnabled(), true);
+});
+
+test('header actions can follow the file and preview mode', async () => {
+  const modes = [];
+  openFilePreview({
+    files: [FILE],
+    load: async () => ({ node: markdownPane(), sourceMode: true }),
+    headerActions: (file, mode) => {
+      modes.push(`${file.name}:${mode}`);
+      const action = document.createElement('button');
+      action.className = 'dynamic-action';
+      return mode === 'preview' ? [action] : [];
+    },
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.ok(document.querySelector('.gp-preview__extra .dynamic-action'));
+  document.querySelector('.gp-preview__seg-btn[data-mode="source"]').click();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(document.querySelector('.gp-preview__extra .dynamic-action'), null);
+  assert.equal(document.querySelector('.gp-preview__extra').hidden, true);
+  document.querySelector('.gp-preview__seg-btn[data-mode="preview"]').click();
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.ok(document.querySelector('.gp-preview__extra .dynamic-action'));
+  assert.deepEqual(modes, [
+    'README.md:preview',
+    'README.md:source',
+    'README.md:preview',
+  ]);
+  closeFilePreview();
+});
+
+test('the quick preview offers translation only for rendered markdown files', async () => {
+  globalThis.Blob = window.Blob;
+  globalThis.fetch = async (url) => {
+    const text = String(url).endsWith('.md') ? '# Hello' : 'const answer = 42;';
+    return {
+      ok: true,
+      headers: { get: () => null },
+      blob: async () => new window.Blob([text], { type: 'text/plain' }),
+    };
+  };
+  const target = (name) => ({
+    name,
+    href: `/o/r/blob/main/${name}`,
+    rawUrl: `/o/r/raw/main/${name}`,
+    relative: name,
+    source: 'markdown',
+  });
+
+  openPreviewForTarget(target('a.js'));
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(document.querySelector('.gp-preview__extra .gp-translate-btn'), null);
+  closeFilePreview();
+
+  openPreviewForTarget(target('README.md'));
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.ok(document.querySelector('.gp-preview__extra .gp-translate-btn'));
+  closeFilePreview();
 });

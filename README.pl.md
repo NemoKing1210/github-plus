@@ -69,8 +69,8 @@ Każdy renderowany kontener Markdownu w GitHubie to jeden zestaw galerii:
 
 - **Kliknij dowolny obraz** — w README repozytorium, podglądzie pliku `.md`, stronie
   wiki, zgłoszeniu, pull requeście, komentarzu recenzji (wszędzie, gdzie GitHub
-  renderuje `.markdown-body`) — otworzy się pełnoekranowo w wbudowanej
-  przeglądarce.
+  renderuje `.markdown-body`) lub w wyrenderowanym Markdownie szybkiego podglądu —
+  otworzy się pełnoekranowo w wbudowanej przeglądarce.
 - **Przeglądaj cały zestaw** — `←`/`→` (lub strzałki) przechodzą do pozostałych
   obrazów z tego samego kontenera, wyśrodkowany pasek miniatur pozwala przeskoczyć
   w dowolne miejsce, a licznik pokazuje pozycję.
@@ -203,10 +203,10 @@ kontekstowym pliku:
   przyciski poprzedni/następny i klawisze strzałek przełączają między nimi, a
   bieżąca pozycja jest w stopce.
 - **Podgląd po przytrzymaniu** — przytrzymaj lewy przycisk myszy na nazwie pliku
-  na liście lub na linku do pliku w wyrenderowanym Markdownie, aby otworzyć jego
-  podgląd; czas przytrzymania (domyślnie 450 ms) i okrąg postępu przy wskaźniku
-  można skonfigurować; szybkie kliknięcie nadal otwiera plik,
-  a przeciąganie lub zaznaczanie tekstu anuluje gest.
+  na liście lub na linku do pliku w wyrenderowanym Markdownie (także w otwartym
+  już szybkim podglądzie), aby otworzyć jego podgląd; czas przytrzymania
+  (domyślnie 450 ms) i okrąg postępu przy wskaźniku można skonfigurować; szybkie
+  kliknięcie nadal otwiera plik, a przeciąganie lub zaznaczanie tekstu anuluje gest.
 - **Działania w nagłówku** — otwórz plik na GitHubie, skopiuj jego surową treść,
   link lub ścieżkę albo pobierz go pod jego własną nazwą.
 - **Markdown: podgląd lub źródło** — kontrolka segmentowa przełącza wyrenderowany
@@ -221,8 +221,8 @@ kontekstowym pliku:
 ### Tłumaczenie
 
 Tłumacz tekst strony bez utraty znaczników — README, zgłoszenie lub dyskusję,
-pull request, komentarz, komunikaty commitów, tytuł albo plik otwarty w szybkim
-podglądzie:
+pull request, komentarz, komunikaty commitów, tytuł albo plik Markdown otwarty
+w szybkim podglądzie:
 
 - **Przycisk tam, gdzie jest tekst** — w nagłówku pliku README, w wierszu akcji
   komentarza, przy commicie lub tytule zgłoszenia. Gdy GitHub nie ma nagłówka,

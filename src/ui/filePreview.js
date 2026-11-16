@@ -6,6 +6,7 @@ import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
 import { closeContextMenu, isContextMenuOpen, openContextMenu } from './contextMenu.js';
 import { ACTION_ICONS, VIEWER_ICONS } from './icons.js';
 import { showToast } from './toast.js';
+import { isViewerOpen } from './viewer.js';
 
 /**
  * Modal shell for the quick file preview: header tools, a content pane the
@@ -166,6 +167,26 @@ function refreshHeader(file) {
   node.openLink.href = file.href || file.rawUrl;
   node.rawLink.href = file.rawUrl;
   node.meta.textContent = [file.relative, file.ref].filter(Boolean).join(' · ');
+  refreshHeaderActions(file);
+}
+
+/**
+ * Caller-supplied header actions may be static or depend on the file and
+ * render mode. Rebuilding only when that pair changes keeps a static action
+ * mounted while the user steps through a listing, and lets a markdown-only
+ * action disappear on a source view or on a sibling of another kind.
+ */
+function refreshHeaderActions(file) {
+  const node = ensureShell();
+  if (state.headerActionsFile === file && state.headerActionsMode === state.mode) return;
+  state.headerActionsFile = file;
+  state.headerActionsMode = state.mode;
+  const actions = typeof state.headerActions === 'function'
+    ? state.headerActions(file, state.mode) || []
+    : state.headerActions || [];
+  while (node.extra.firstChild) node.extra.removeChild(node.extra.firstChild);
+  actions.forEach((action) => node.extra.appendChild(action));
+  node.extra.hidden = actions.length === 0;
 }
 
 function updateMeta(file, meta) {
@@ -370,6 +391,9 @@ function trapFocus(event) {
 function onKeyDown(event) {
   // The copy menu owns its keys while it is open.
   if (!state || isContextMenuOpen()) return;
+  // The image viewer sits above the preview: it owns Escape and the arrow keys
+  // until it closes, otherwise one Escape would close both overlays.
+  if (isViewerOpen()) return;
   const tag = event.target instanceof Element ? event.target.tagName : '';
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
   if (event.key === 'Tab') {
@@ -403,7 +427,7 @@ function onKeyDown(event) {
  * @param {{files: Array<{name: string, href: string, rawUrl: string,
  *   relative: string, ref?: string}>, index?: number,
  *   load: (file: object, options: {mode: string, signal: AbortSignal}) => Promise<object>,
- *   headerActions?: Array<HTMLElement>}} options
+ *   headerActions?: Array<HTMLElement> | ((file: object, mode: string) => Array<HTMLElement>)}} options
  * @returns {boolean} whether the preview opened
  */
 export function openFilePreview({ files, index = 0, load, headerActions = [] }) {
@@ -420,6 +444,9 @@ export function openFilePreview({ files, index = 0, load, headerActions = [] }) 
       abort: null,
       token: 0,
       mode: 'preview',
+      headerActions: [],
+      headerActionsFile: null,
+      headerActionsMode: null,
     };
     document.addEventListener('keydown', onKeyDown);
     lockPageScroll();
@@ -427,14 +454,14 @@ export function openFilePreview({ files, index = 0, load, headerActions = [] }) 
   state.files = list;
   state.index = Math.min(Math.max(0, Number(index) || 0), list.length - 1);
   state.load = load;
+  state.headerActions = headerActions;
+  state.headerActionsFile = null;
+  state.headerActionsMode = null;
   state.result?.dispose?.();
   state.result = null;
   state.abort?.abort();
   state.abort = null;
   refreshChrome();
-  while (node.extra.firstChild) node.extra.removeChild(node.extra.firstChild);
-  headerActions.forEach((action) => node.extra.appendChild(action));
-  node.extra.hidden = headerActions.length === 0;
   renderFooter();
   node.root.hidden = false;
   show(state.index, 'preview');

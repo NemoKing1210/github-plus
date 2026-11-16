@@ -9,6 +9,7 @@ function installDom() {
     url: 'https://github.com/',
   });
   dom.window.scrollTo = () => {};
+  dom.window.Element.prototype.scrollIntoView = () => {};
   globalThis.window = dom.window;
   globalThis.document = dom.window.document;
   globalThis.localStorage = dom.window.localStorage;
@@ -138,4 +139,36 @@ test('the toast layer paints above the preview overlay', async () => {
     return Number(/z-index:\s*(\d+)/.exec(block)[1]);
   };
   assert.ok(zIndex('.gp-toasts') > zIndex('.gp-preview-overlay'));
+});
+
+test('the viewer and hold feedback paint above the preview overlay', async () => {
+  const css = await readFile(new URL('../src/styles/app.css', import.meta.url), 'utf8');
+  const zIndex = (selector) => {
+    const start = css.indexOf(`${selector} {`);
+    assert.notEqual(start, -1, `${selector} is missing`);
+    const block = css.slice(start, css.indexOf('}', start));
+    return Number(/z-index:\s*(\d+)/.exec(block)[1]);
+  };
+  const preview = zIndex('.gp-preview-overlay');
+  assert.ok(zIndex('.gp-viewer-overlay') > preview);
+  assert.ok(zIndex('.gp-download-btn') > preview);
+  assert.ok(zIndex('.gp-hold-ring') > preview);
+});
+
+test('Escape closes the viewer above the preview before the preview itself', async () => {
+  installDom();
+  const { openFilePreview, closeFilePreview, isFilePreviewOpen } = await import(
+    '../src/ui/filePreview.js'
+  );
+  const { openViewer, isViewerOpen } = await import('../src/ui/viewer.js');
+  const load = async () => ({ node: document.createElement('div') });
+  openFilePreview({ files: FILES, index: 0, load });
+  await Promise.resolve();
+  await Promise.resolve();
+  openViewer({ images: [{ src: 'https://example.com/a.png' }], index: 0 });
+  assert.equal(isViewerOpen(), true);
+  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(isViewerOpen(), false);
+  assert.equal(isFilePreviewOpen(), true);
+  closeFilePreview();
 });

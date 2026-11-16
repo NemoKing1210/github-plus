@@ -70,8 +70,9 @@ Jeder gerenderte Markdown-Container auf GitHub ist ein Galerie-Set:
 
 - **Klick auf ein beliebiges Bild** — in einer Repository-README, in der
   Ansicht einer `.md`-Datei, auf einer Wiki-Seite, in einem Issue, Pull Request
-  oder Review-Kommentar (überall, wo GitHub `.markdown-body` rendert) — öffnet
-  es bildschirmfüllend im integrierten Viewer.
+  oder Review-Kommentar (überall, wo GitHub `.markdown-body` rendert) oder im
+  gerenderten Markdown der Schnellvorschau — öffnet es bildschirmfüllend im
+  integrierten Viewer.
 - **Das ganze Set durchblättern** — `←`/`→` (oder die Pfeile) wechseln zu den
   anderen Bildern desselben Containers, eine zentrierte Miniaturleiste springt
   an jede Stelle, und der Zähler zeigt die aktuelle Position.
@@ -210,10 +211,11 @@ Markdown oder über **Vorschau** im Dateikontextmenü:
   Zurück/Weiter-Schaltflächen und die Pfeiltasten wechseln zwischen ihnen, die
   Position steht in der Fußzeile.
 - **Vorschau per Halten** — halten Sie die linke Maustaste auf einem Dateinamen
-  in einer Liste oder auf einem Dateilink in gerendertem Markdown gedrückt, um
-  seine Vorschau zu öffnen; Haltezeit (standardmäßig 450 ms) und
-  Fortschrittskreis am Zeiger sind einstellbar; ein kurzer Klick öffnet
-  weiterhin die Datei, Ziehen oder Textauswahl bricht den Griff ab.
+  in einer Liste oder auf einem Dateilink in gerendertem Markdown (auch im
+  bereits geöffneten Vorschaufenster) gedrückt, um die Vorschau zu öffnen;
+  Haltezeit (standardmäßig 450 ms) und Fortschrittskreis am Zeiger sind
+  einstellbar; ein kurzer Klick öffnet weiterhin die Datei, Ziehen oder
+  Textauswahl bricht den Griff ab.
 - **Aktionen in der Kopfzeile** — die Datei auf GitHub öffnen, ihren rohen
   Inhalt, Link oder Pfad kopieren oder sie unter ihrem eigenen Namen
   herunterladen.
@@ -230,7 +232,7 @@ Markdown oder über **Vorschau** im Dateikontextmenü:
 
 Übersetze den Text einer Seite, ohne ihr Markup zu verlieren — eine README,
 ein Issue oder eine Diskussion, einen Pull Request, einen Kommentar,
-Commit-Nachrichten, einen Titel oder die Datei in der Schnellvorschau:
+Commit-Nachrichten, einen Titel oder die Markdown-Datei in der Schnellvorschau:
 
 - **Eine Schaltfläche dort, wo der Text steht** — im README-Dateikopf, in der
   Aktionszeile eines Kommentars, bei einem Commit oder einem Issue-Titel. Hat

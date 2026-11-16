@@ -31,6 +31,34 @@ function installDom() {
   return dom;
 }
 
+function installPreviewDom() {
+  const dom = new JSDOM(
+    `<!doctype html><html><body>
+      <div class="gp-preview-overlay">
+        <div class="gp-preview">
+          <header class="gp-preview__header">
+            <button class="gp-preview__tool" type="button">close</button>
+          </header>
+          <div class="gp-preview__content">
+            <div class="gp-preview__md">
+              <p><a href="/o/r/blob/main/src/a.js">a.js</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body></html>`,
+    { pretendToBeVisual: true, url: 'https://github.com/o/r/blob/main/docs/README.md' },
+  );
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  globalThis.Element = dom.window.Element;
+  globalThis.HTMLElement = dom.window.HTMLElement;
+  globalThis.Node = dom.window.Node;
+  globalThis.location = dom.window.location;
+  globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+  return dom;
+}
+
 function pointer(type, target, { x = 10, y = 10 } = {}) {
   const event = new window.MouseEvent(type, {
     bubbles: true,
@@ -215,6 +243,37 @@ test('a folder name does not start a preview', async (t) => {
   );
   installLongPress((target) => calls.push(target));
   pointer('pointerdown', document.querySelector('a[href*="/tree/"]'));
+  t.mock.timers.tick(600);
+  uninstallLongPress();
+  assert.equal(calls.length, 0);
+});
+
+test('holding a file link inside the quick preview opens its preview', async (t) => {
+  installPreviewDom();
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const calls = [];
+  const { installLongPress, uninstallLongPress } = await import(
+    '../src/features/filePreview/longPress.js'
+  );
+  installLongPress((target) => calls.push(target));
+  const link = document.querySelector('.gp-preview__md a');
+  pointer('pointerdown', link);
+  t.mock.timers.tick(600);
+  uninstallLongPress();
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].name, 'a.js');
+  assert.equal(calls[0].source, 'markdown');
+});
+
+test('the quick preview chrome never starts a long press', async (t) => {
+  installPreviewDom();
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const calls = [];
+  const { installLongPress, uninstallLongPress } = await import(
+    '../src/features/filePreview/longPress.js'
+  );
+  installLongPress((target) => calls.push(target));
+  pointer('pointerdown', document.querySelector('.gp-preview__tool'));
   t.mock.timers.tick(600);
   uninstallLongPress();
   assert.equal(calls.length, 0);

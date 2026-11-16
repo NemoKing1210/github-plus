@@ -5,16 +5,20 @@ import { registerSource } from '../sources.js';
 /**
  * Markdown images: every rendered `.markdown-body` on GitHub (repository
  * READMEs, blob views of `.md` files, wikis, issues, pull requests, review
- * comments, discussions). One container is one gallery set, so the arrows
- * walk the images of the file you are reading.
+ * comments, discussions) plus the markdown and image content rendered by the
+ * quick preview. One container is one gallery set, so the arrows walk the
+ * images of the file you are reading.
  */
 
-const CONTAINER_SELECTOR = '.markdown-body';
+const CONTAINER_SELECTOR = '.markdown-body, .gp-preview__md, .gp-preview__content';
 
 /** Clickable affordance: the image itself and the link GitHub wraps it in. */
 const CURSOR_SELECTOR = [
   '.markdown-body img:not(.emoji)',
   '.markdown-body a:has(> img:not(.emoji))',
+  '.gp-preview__md img:not(.emoji)',
+  '.gp-preview__md a:has(> img:not(.emoji))',
+  '.gp-preview__content .gp-preview__image',
 ].join(', ');
 
 const REPO_BLOB_PATH = /^\/[^/]+\/[^/]+\/blob\//;

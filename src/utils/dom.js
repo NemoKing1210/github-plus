@@ -66,3 +66,13 @@ export function isOwnUi(node) {
     && !!node.closest('.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn, .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn, .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-translate-btn, .gp-translate-bar, .gp-translate-result, .gp-translate-status')
   );
 }
+
+/**
+ * Our own UI, excluding the repository content rendered inside the quick
+ * preview. The preview overlay is our chrome, but its body renders markdown
+ * and images from the repository, and those must behave like page content:
+ * they open the gallery, resolve file links and accept the file context menu.
+ */
+export function isOwnUiChrome(node) {
+  return isOwnUi(node) && !(node instanceof Element && !!node.closest('.gp-preview__content'));
+}
