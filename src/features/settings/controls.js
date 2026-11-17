@@ -166,7 +166,7 @@ export function createNumberInput({ value = 0, min = 0, max = 120, step = 1, onC
 }
 
 export function createTextInput({ value = '', type = 'text', placeholder = '', onChange, label = '' } = {}) {
-  const input = el('input', 'gp-input');
+  const input = el('input', 'gp-input gp-input--wide');
   input.type = type;
   input.value = value;
   if (placeholder) input.placeholder = placeholder;
