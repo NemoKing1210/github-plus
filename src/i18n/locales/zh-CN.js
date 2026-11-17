@@ -327,6 +327,8 @@ export default {
   'palette.details.openNewTab': '在新标签页中打开',
   'palette.details.copyLink': '复制链接',
   'palette.details.copyPath': '复制路径',
+  'palette.details.copyNumber': '复制编号',
+  'palette.details.copyClone': '复制克隆 URL',
   'palette.details.pin': '添加到收藏',
   'palette.details.unpin': '取消收藏',
   'palette.details.run': '运行',

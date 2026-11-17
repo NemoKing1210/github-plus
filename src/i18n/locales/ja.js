@@ -327,6 +327,8 @@ export default {
   'palette.details.openNewTab': '新しいタブで開く',
   'palette.details.copyLink': 'リンクをコピー',
   'palette.details.copyPath': 'パスをコピー',
+  'palette.details.copyNumber': '番号をコピー',
+  'palette.details.copyClone': 'クローン URL をコピー',
   'palette.details.pin': 'お気に入りに追加',
   'palette.details.unpin': 'お気に入りから削除',
   'palette.details.run': '実行',

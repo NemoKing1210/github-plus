@@ -11,11 +11,13 @@ import { Codes, createLogger } from '../../core/logger/index.js';
 import { getCommandPaletteSettings } from '../../core/settings.js';
 import { showToast } from '../../ui/toast.js';
 import { closeCommandPalette, isCommandPaletteOpen, openCommandPalette } from '../../ui/commandPalette.js';
+import { openContextMenu } from '../../ui/contextMenu.js';
 import { PALETTE_ICONS } from '../../ui/icons.js';
 import { registerHeaderAction } from '../../ui/headerActions.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { formatShortcut, otherOverlayOpen, shouldOpenPalette, shortcutMatches } from './hotkey.js';
 import { markPinned } from './rank.js';
+import { cloneAddress, rowMenuItems } from './rowMenu.js';
 import { searchPalette } from './search.js';
 import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
@@ -79,6 +81,8 @@ function detailLabels() {
     openNewTab: t('palette.details.openNewTab'),
     copyLink: t('palette.details.copyLink'),
     copyPath: t('palette.details.copyPath'),
+    copyNumber: t('palette.details.copyNumber'),
+    copyClone: t('palette.details.copyClone'),
     pin: t('palette.details.pin'),
     unpin: t('palette.details.unpin'),
     run: t('palette.details.run'),
@@ -267,6 +271,7 @@ function actionOptions() {
 function copyTextFor(item) {
   if (item.kind === 'repo') return `https://github.com/${item.data?.fullName || ''}`;
   if (item.kind === 'file') return item.data?.url || '';
+  if (item.kind === 'issue') return item.data?.run?.url || item.data?.url || '';
   return '';
 }
 
@@ -302,12 +307,17 @@ function onPin(item) {
   refreshView();
 }
 
-function handleDetailAction(actionId, item) {
+function handleRowAction(actionId, item) {
   if (actionId === 'open' || actionId === 'run') return onSelect(item, { newTab: false });
   if (actionId === 'newTab') return onSelect(item, { newTab: true });
   if (actionId === 'pin') return onPin(item);
   if (actionId === 'copyLink') return runAction({ type: 'copy', text: copyTextFor(item) }, actionOptions());
   if (actionId === 'copyPath') return runAction({ type: 'copy', text: item.data?.path || '' }, actionOptions());
+  if (actionId === 'copyClone') return runAction({ type: 'copy', text: cloneAddress(item) }, actionOptions());
+  if (actionId === 'copyNumber') {
+    const number = item.data?.number;
+    return runAction({ type: 'copy', text: number ? `#${number}` : '' }, actionOptions());
+  }
   return undefined;
 }
 
@@ -340,10 +350,20 @@ export function openPalette() {
     renderDetail: (item) => renderDetail(item, {
       labels: detailLabels(),
       pinned: Boolean(paletteState?.pinnedKeys.includes(item.key)),
-      onAction: handleDetailAction,
+      onAction: handleRowAction,
     }),
     onSelect,
     onPin,
+    onContextMenu: (item, position) => openContextMenu({
+      ...position,
+      label: item.title || '',
+      layer: 'palette',
+      items: rowMenuItems(item, {
+        labels: detailLabels(),
+        pinned: Boolean(paletteState?.pinnedKeys.includes(item.key)),
+        onAction: (actionId) => handleRowAction(actionId, item),
+      }),
+    }),
     onClose: () => {
       handle = null;
       paletteState = null;

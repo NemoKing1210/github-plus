@@ -327,6 +327,8 @@ export default {
   'palette.details.openNewTab': '새 탭에서 열기',
   'palette.details.copyLink': '링크 복사',
   'palette.details.copyPath': '경로 복사',
+  'palette.details.copyNumber': '번호 복사',
+  'palette.details.copyClone': '클론 URL 복사',
   'palette.details.pin': '즐겨찾기에 추가',
   'palette.details.unpin': '즐겨찾기에서 제거',
   'palette.details.run': '실행',

@@ -327,6 +327,8 @@ export default {
   'palette.details.openNewTab': 'Otwórz w nowej karcie',
   'palette.details.copyLink': 'Kopiuj link',
   'palette.details.copyPath': 'Kopiuj ścieżkę',
+  'palette.details.copyNumber': 'Kopiuj numer',
+  'palette.details.copyClone': 'Kopiuj URL klonowania',
   'palette.details.pin': 'Dodaj do ulubionych',
   'palette.details.unpin': 'Usuń z ulubionych',
   'palette.details.run': 'Uruchom',
