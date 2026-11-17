@@ -855,6 +855,7 @@ scrolls inside the card while the footer stays put. Everything is
 | `.gp-command__row[aria-selected="true"]`, `.is-active` | The active row fills with `var(--gp-accent-soft)` and its icon and title take `var(--gp-accent)`; no border or outline is drawn, so a moving selection never shifts the list |
 | `.gp-command__muted` | The muted prefix (a starred marker, a command's scope) in `13px` `var(--gp-text-muted)`, never wrapping |
 | `.gp-command__title` | `14px`, one line, ellipsized |
+| `.gp-command__pin` | Leading star inside a favorite's title: inline-flex, `14×14` glyph in `var(--gp-accent)`, `6px` right margin, `aria-hidden` |
 | `.gp-command__mark` | A matched range: `var(--gp-accent)` and 600 weight on a transparent background — a highlight, not a chip |
 | `.gp-command__badge` | Pill `11px` on `var(--gp-bg-2)`, `999px` radius; inside the active row it flips to `var(--gp-bg-1)` so it stays legible on the accent tint |
 | `.gp-command__meta` | Right-hand metadata (stars, size, shortcut) in `12px` tabular `var(--gp-text-muted)` |

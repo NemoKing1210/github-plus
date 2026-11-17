@@ -3197,6 +3197,18 @@ audio.gp-preview__media {
   white-space: nowrap;
 }
 
+.gp-command__pin {
+  display: inline-flex;
+  margin: 0 6px 0 0;
+  color: var(--gp-accent);
+  vertical-align: -2px;
+}
+
+.gp-command__pin svg {
+  width: 14px;
+  height: 14px;
+}
+
 .gp-command__title {
   overflow: hidden;
   font-size: 14px;

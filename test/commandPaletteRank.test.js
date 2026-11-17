@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseQuery, scoreText, rankCandidates } from '../src/features/commandPalette/rank.js';
+import { parseQuery, scoreText, rankCandidates, markPinned } from '../src/features/commandPalette/rank.js';
 
 test('prefixes split mode and text', () => {
   assert.deepEqual(parseQuery('> open'), { mode: 'commands', text: 'open' });
@@ -56,4 +56,42 @@ test('the total cap trims groups in order', () => {
   }));
   const { groups } = rankCandidates(many, 'repo', { pinnedKeys: [], recentKeys: [], maxResults: 10 });
   assert.equal(groups.flatMap((group) => group.items).length, 10);
+});
+
+test('a typed query lists favorites first and only once', () => {
+  const candidates = [
+    { key: 'repo:a', kind: 'repo', groupId: 'repos', title: 'alpha', rankFields: [{ text: 'alpha', weight: 3 }] },
+    { key: 'repo:b', kind: 'repo', groupId: 'repos', title: 'alphabet', rankFields: [{ text: 'alphabet', weight: 3 }] },
+  ];
+  const result = rankCandidates(candidates, 'alpha', {
+    pinnedKeys: ['repo:a'],
+    titles: { pinned: 'Favorites', recent: 'Recent' },
+  });
+  assert.equal(result.groups[0].id, 'pinned');
+  assert.deepEqual(result.groups[0].items.map((item) => item.key), ['repo:a']);
+  const rest = result.groups.flatMap((group) => group.items.map((item) => item.key));
+  assert.equal(rest.filter((key) => key === 'repo:a').length, 1);
+  assert.deepEqual(result.groups[1].items.map((item) => item.key), ['repo:b']);
+});
+
+test('markPinned adds the badge once and keeps the rest intact', () => {
+  const marked = markPinned([
+    { key: 'repo:a', badges: ['starred'] },
+    { key: 'file:x', badges: ['pinned'] },
+  ], ['repo:a', 'file:x']);
+  assert.deepEqual(marked[0].badges, ['starred', 'pinned']);
+  assert.equal(marked[0].pinned, true);
+  assert.deepEqual(marked[1].badges, ['pinned']);
+});
+
+test('a prefix mode keeps only favorites of that kind', () => {
+  const candidates = [
+    { key: 'repo:a', kind: 'repo', groupId: 'repos', title: 'alpha', rankFields: [{ text: 'alpha', weight: 3 }] },
+    { key: 'file:a.js', kind: 'file', groupId: 'files', title: 'a.js', rankFields: [{ text: 'a.js', weight: 3 }] },
+  ];
+  const result = rankCandidates(candidates, '#a', {
+    pinnedKeys: ['repo:a', 'file:a.js'],
+    titles: { pinned: 'Favorites', recent: 'Recent' },
+  });
+  assert.deepEqual(result.groups[0].items.map((item) => item.key), ['file:a.js']);
 });

@@ -173,8 +173,27 @@ function emptyQuery(candidates, options, titles) {
 }
 
 /**
+ * Mark the candidates that are pinned (favorites), adding the badge once.
+ * Rows keep their identity otherwise, so a caller can render the star from
+ * `pinned` and the extra badge from `badges`.
+ */
+export function markPinned(candidates, pinnedKeys) {
+  const pinned = new Set(pinnedKeys || []);
+  return (Array.isArray(candidates) ? candidates : []).map((candidate) => {
+    if (!pinned.has(candidate.key)) return candidate;
+    const badges = candidate.badges || [];
+    return {
+      ...candidate,
+      pinned: true,
+      badges: badges.includes('pinned') ? badges : [...badges, 'pinned'],
+    };
+  });
+}
+
+/**
  * Rank candidates for a query. The query is parsed for its prefix mode; the
- * result keeps only non-empty groups, sorted by their best score.
+ * result keeps only non-empty groups, sorted by their best score. Pinned
+ * candidates form their own first group and never appear in another group.
  */
 export function rankCandidates(candidates, rawQuery, options = {}) {
   const parsed = parseQuery(rawQuery);
@@ -210,9 +229,16 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
     });
   }
 
+  const byScore = (left, right) => {
+    if (right.score !== left.score) return right.score - left.score;
+    return (left.sortKey ?? 0) - (right.sortKey ?? 0);
+  };
+  const pinnedItems = scored.filter((item) => pinned.has(item.key)).sort(byScore);
+  const rest = scored.filter((item) => !pinned.has(item.key));
+
   const groupCaps = options.groupCaps || { command: 8, file: 12, repo: 15 };
   const byGroup = new Map();
-  for (const item of scored) {
+  for (const item of rest) {
     if (!byGroup.has(item.groupId)) byGroup.set(item.groupId, []);
     byGroup.get(item.groupId).push(item);
   }
@@ -228,10 +254,7 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
   };
 
   const groups = [...byGroup.entries()].map(([id, items]) => {
-    items.sort((left, right) => {
-      if (right.score !== left.score) return right.score - left.score;
-      return (left.sortKey ?? 0) - (right.sortKey ?? 0);
-    });
+    items.sort(byScore);
     return { ...buildGroup(items[0], items.slice(0, rankGroup(id))) };
   });
 
@@ -242,6 +265,9 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
     return rankOf(left.id) - rankOf(right.id);
   });
 
-  const capped = applyTotalCap(groups, options.maxResults ?? 30);
+  const pinnedGroup = pinnedItems.length
+    ? { id: 'pinned', title: titles.pinned, items: pinnedItems.slice(0, GROUP_LIMIT) }
+    : null;
+  const capped = applyTotalCap(pinnedGroup ? [pinnedGroup, ...groups] : groups, options.maxResults ?? 30);
   return { groups: capped.filter((group) => group.items.length), total: scored.length };
 }

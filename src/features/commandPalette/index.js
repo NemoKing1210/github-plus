@@ -15,6 +15,7 @@ import { PALETTE_ICONS } from '../../ui/icons.js';
 import { registerHeaderAction } from '../../ui/headerActions.js';
 import { watchNavigation } from '../../utils/navigation.js';
 import { formatShortcut, otherOverlayOpen, shouldOpenPalette, shortcutMatches } from './hotkey.js';
+import { markPinned } from './rank.js';
 import { searchPalette } from './search.js';
 import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
@@ -153,12 +154,12 @@ function dedupe(candidates) {
 }
 
 function buildCandidates(state) {
-  return dedupe([
+  return markPinned(dedupe([
     ...commandCandidates(state),
     ...repoCandidates(state),
     ...fileCandidates(state),
     ...snapshotCandidates(state),
-  ]);
+  ]), state.pinnedKeys);
 }
 
 function repositoriesEnabled(settings) {
@@ -328,7 +329,10 @@ export function openPalette() {
     labels: paletteLabels(),
     showDetails: state.settings.showDetails,
     search: (query) => ({
-      ...searchPalette(state, query),
+      ...searchPalette(state, query, {
+        pinned: t('palette.group.pinned'),
+        recent: t('palette.group.recent'),
+      }),
       status: state.status === 'loading' ? 'loading' : 'ready',
       note: noteFor(state),
     }),

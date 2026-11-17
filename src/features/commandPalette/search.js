@@ -5,7 +5,7 @@ import { searchCommands } from './commands.js';
  * Resolve one query against the palette's candidates. A query that matches
  * nothing becomes a GitHub search for the same text instead of a dead end.
  */
-export function searchPalette(state, query) {
+export function searchPalette(state, query, titles) {
   const parsed = parseQuery(query);
 
   if (parsed.mode === 'search') {
@@ -17,6 +17,7 @@ export function searchPalette(state, query) {
     pinnedKeys: state.pinnedKeys,
     recentKeys: state.recentKeys,
     maxResults: state.settings.maxResults,
+    titles,
   });
   if (result.total === 0 && parsed.text) {
     const items = searchCommands(parsed.text);

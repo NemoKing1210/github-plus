@@ -162,3 +162,17 @@ test('refresh keeps the selected key and Alt+P pins it', () => {
   input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'p', altKey: true, bubbles: true }));
   assert.deepEqual(seen, [['pin', 'cmd:two']]);
 });
+
+test('a pinned row shows a star before its title', () => {
+  shell.openCommandPalette({
+    labels: labels(),
+    showDetails: false,
+    search: () => ({
+      groups: [{ id: 'pinned', title: 'Favorites', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha', pinned: true }] }],
+    }),
+    renderDetail: () => document.createElement('div'),
+    onSelect: () => {},
+    onPin: () => {},
+  });
+  assert.ok(document.querySelector('.gp-command__row .gp-command__pin'));
+});

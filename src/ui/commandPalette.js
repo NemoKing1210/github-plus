@@ -120,6 +120,12 @@ function buildRow(current, item) {
   icon.innerHTML = PALETTE_ICONS[item.icon] || '';
   const muted = el('span', 'gp-command__muted', item.titleMuted || '');
   const title = el('span', 'gp-command__title');
+  if (item.pinned) {
+    const pin = el('span', 'gp-command__pin');
+    pin.innerHTML = PALETTE_ICONS.star;
+    pin.setAttribute('aria-hidden', 'true');
+    title.appendChild(pin);
+  }
   appendHighlighted(title, String(item.title || ''), item.highlight || []);
   const badges = el('span', 'gp-command__badges');
   for (const badge of item.badges || []) {
