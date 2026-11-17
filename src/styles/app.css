@@ -2221,6 +2221,10 @@ html.gp-modal-open body {
 .gp-context-menu--elevated {
   z-index: 1000003;
 }
+/* … and one opened from the command palette above the palette itself. */
+.gp-context-menu--palette {
+  z-index: 1000006;
+}
 .gp-context-menu__sep {
   height: 1px;
   margin: 4px 0;

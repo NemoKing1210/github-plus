@@ -169,12 +169,15 @@ Rules:
   `box-sizing` reset and must not add one — GitHub's own page is not ours.
 - Overlay stacking order, highest last: `.gp-panel-overlay` `1000000`,
   `.gp-confirm-overlay` `1000001`, `.gp-viewer-overlay` / `.gp-preview-overlay`
-  `1000002`, `.gp-context-menu--elevated` `1000003`, `.gp-toasts` `1000004`.
-  Toasts are always on top, so feedback raised from a modal stays visible; a
-  menu opened from the preview asks for the elevated variant because the plain
-  context menu sits below all of them at `999998` (just under the page download
-  button's `999999`) — it is an affordance over the page, not a modal. Keep new
-  full-screen UI inside this band and document it here.
+  `1000002`, `.gp-context-menu--elevated` `1000003`, `.gp-toasts` `1000004`,
+  `.gp-command-overlay` `1000005`, `.gp-context-menu--palette` `1000006`.
+  Toasts are always on top of the modal band, so feedback raised from a modal
+  stays visible; a menu opened from the preview asks for the elevated layer
+  because the plain context menu sits below all of them at `999998` (just
+  under the page download button's `999999`) — it is an affordance over the
+  page, not a modal. The palette's row menu asks for the `palette` layer for
+  the same reason. Keep new full-screen UI inside this band and document it
+  here.
 - Modal overlays pin the page with `lockPageScroll()`:
   `html.gp-modal-open, html.gp-modal-open body { overflow: hidden;
   overscroll-behavior: none }` plus `body { position: fixed }` and a
@@ -541,6 +544,7 @@ and GitHub's own menus do not animate either.
 | `.gp-context-menu__label` | `min-width: 0`, ellipsized in one line |
 | `.gp-context-menu__sep` | `1px` rule in `var(--gp-line)` with `4px` vertical margins |
 | `.gp-context-menu--elevated` | `z-index: 1000003` — the same menu opened from the quick preview, which must float above that overlay (`1000002`) |
+| `.gp-context-menu--palette` | `z-index: 1000006` — the same menu opened from the command palette, which must float above that overlay (`1000005`) |
 
 The menu root is `role="menu"` and takes an `aria-label` naming the file; the
 icon wrappers are `aria-hidden` (the label carries the meaning). A keyboard

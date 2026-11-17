@@ -85,13 +85,28 @@ export function isContextMenuOpen() {
 
 /**
  * Open the menu at a point, or next to `anchor` for keyboard opens.
- * @param {{x?: number, y?: number, anchor?: Element|null, keyboard?: boolean, label: string, items: ContextMenuItem[], elevated?: boolean}} options
+ * `layer: 'preview'` floats above the quick preview and `'palette'` above the
+ * command palette; `elevated` is the older name for the preview layer.
+ * @param {{x?: number, y?: number, anchor?: Element|null, keyboard?: boolean, label: string, items: ContextMenuItem[], layer?: 'default'|'preview'|'palette', elevated?: boolean}} options
  */
-export function openContextMenu({ x = 0, y = 0, anchor = null, keyboard = false, label = '', items = [], elevated = false }) {
+export function openContextMenu({
+  x = 0,
+  y = 0,
+  anchor = null,
+  keyboard = false,
+  label = '',
+  items = [],
+  layer = 'default',
+  elevated = false,
+}) {
   closeContextMenu();
   if (!items.length) return;
 
-  const root = el('div', elevated ? 'gp-context-menu gp-context-menu--elevated' : 'gp-context-menu');
+  const resolvedLayer = elevated ? 'preview' : layer;
+  const classes = ['gp-context-menu'];
+  if (resolvedLayer === 'preview') classes.push('gp-context-menu--elevated');
+  if (resolvedLayer === 'palette') classes.push('gp-context-menu--palette');
+  const root = el('div', classes.join(' '));
   root.id = ROOT_ID;
   root.setAttribute('role', 'menu');
   if (label) root.setAttribute('aria-label', label);
