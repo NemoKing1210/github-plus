@@ -7,6 +7,7 @@ import { getIconSvg } from './controls.js';
 import { registerPage, togglePanel } from './panel.js';
 import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
+import { renderCommandPalette } from './tabs/commandPalette.js';
 import { renderFiles } from './tabs/files.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
@@ -183,6 +184,14 @@ function registerPages() {
     labelKey: 'tab.translate',
     descKey: 'tab.translate.desc',
     render: renderTranslate,
+  });
+  registerPage({
+    id: 'commandPalette',
+    group: 'preferences',
+    icon: 'palette',
+    labelKey: 'tab.palette',
+    descKey: 'tab.palette.desc',
+    render: renderCommandPalette,
   });
   registerPage({
     id: 'backup',
