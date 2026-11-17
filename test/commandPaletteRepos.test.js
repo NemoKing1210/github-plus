@@ -82,3 +82,24 @@ test('ensureRepositories caches a successful load and refetches on force', async
   assert.equal(second.status, 'cached');
   delete globalThis.GM_xmlhttpRequest;
 });
+
+test('a repository refresh keeps a tree written while it was in flight', async () => {
+  const { writeCacheRecord, readCacheRecord } = await import('../src/features/commandPalette/store.js');
+  let requests = 0;
+  globalThis.GM_xmlhttpRequest = (options) => {
+    requests += 1;
+    if (requests === 2) {
+      writeCacheRecord({
+        login: 'alice',
+        tokenFingerprint: '',
+        sources: {},
+        trees: { 'o/r@main': { items: [], fetchedAt: 7 } },
+        rateLimit: null,
+      });
+    }
+    options.onload({ status: 200, responseText: '[]', responseHeaders: '' });
+  };
+  await ensureRepositories({ force: true });
+  assert.deepEqual(readCacheRecord().trees, { 'o/r@main': { items: [], fetchedAt: 7 } });
+  delete globalThis.GM_xmlhttpRequest;
+});

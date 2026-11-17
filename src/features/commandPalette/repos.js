@@ -8,7 +8,7 @@ import { t } from '../../i18n/index.js';
 import { Codes, createLogger } from '../../core/logger/index.js';
 import { fetchRepoSource } from './api.js';
 import {
-  isFresh, isRateBlocked, readPaletteState, writeCacheRecord,
+  isFresh, isRateBlocked, readCacheRecord, readPaletteState, writeCacheRecord,
 } from './store.js';
 
 const log = createLogger('command-palette');
@@ -246,14 +246,18 @@ async function load({ force, signal }) {
 
   if (!updated) return { status: 'error', error: firstError };
 
+  // A tree load can finish while these requests are in flight; take the disk
+  // record again so its trees survive this write.
+  const latest = readCacheRecord();
+  const latestSameIdentity = Boolean(latest && latest.login === state.identity);
   writeCacheRecord({
     version: 1,
     login: state.identity,
     tokenLogin: state.tokenLogin,
     tokenFingerprint: state.fingerprint,
     sources,
-    trees: sameIdentity ? record.trees || {} : {},
-    rateLimit,
+    trees: latestSameIdentity ? latest.trees || {} : {},
+    rateLimit: rateLimit || (latestSameIdentity ? latest.rateLimit || null : null),
   });
   return { status: 'updated' };
 }
