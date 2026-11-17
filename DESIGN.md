@@ -400,6 +400,7 @@ is elsewhere (rows), the input carries `aria-label`; grid cells reuse
 | `.gp-select` | Shared control box + custom chevron: two `5×5` `currentColor` gradients at `calc(100% - 15px)` / `-(10px)`, `padding-right: 28px`, `cursor: pointer` |
 | `.gp-input` | Number input, fixed `width: 88px` |
 | `.gp-input--wide` | Every text input (token, provider keys, endpoints): `width: 100%`, mono `12px` |
+| `.gp-shortcut-field` | Key recorder: a `button` styled as a full-width `.gp-input--wide` (mono `12px`, left-aligned), `cursor: pointer` |
 | `.gp-textarea` | `width: 100%`, `min-height: 128px`, `padding: 8px 10px`, mono `12px/1.5`, `box-sizing: border-box`, `resize: vertical` |
 
 `.gp-select` and `.gp-input` share: `appearance: none`,

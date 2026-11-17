@@ -785,6 +785,27 @@ html.gp-modal-open body {
   font-family: var(--gp-mono);
   font-size: 12px;
 }
+.gp-shortcut-field {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-1);
+  color: var(--gp-text);
+  font: 12px/1.4 var(--gp-mono);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+}
+.gp-shortcut-field:hover {
+  border-color: var(--gp-text-muted);
+}
+.gp-shortcut-field:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: -1px;
+}
 .gp-select:focus-visible,
 .gp-input:focus-visible,
 .gp-textarea:focus-visible {

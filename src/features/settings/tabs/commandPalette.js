@@ -16,6 +16,7 @@ import {
   createRow,
   createSection,
   createSelect,
+  createShortcutRecorder,
   createSwitchCell,
   createSwitchRow,
   createTextInput,
@@ -80,21 +81,46 @@ function activationSection(draft) {
       draft.commandPalette.enabled = value;
     },
   }));
+  const isCustom = (value) => !SHORTCUT_LABELS[value];
+  const recorderField = createField({
+    label: t('palette.shortcut'),
+    hint: t('palette.shortcut.invalid'),
+    control: createShortcutRecorder({
+      value: isCustom(draft.commandPalette.shortcut) ? draft.commandPalette.shortcut : '',
+      onChange: (value) => {
+        draft.commandPalette.shortcut = value || 'mod+k';
+      },
+      label: t('palette.shortcut'),
+      emptyLabel: t('palette.shortcut.press'),
+    }),
+  });
+  recorderField.hidden = !isCustom(draft.commandPalette.shortcut);
   section.body.appendChild(createField({
     label: t('palette.shortcut'),
     hint: t('palette.shortcutDesc'),
     control: createSelect({
-      options: COMMAND_PALETTE_SHORTCUTS.map((value) => ({
-        value,
-        label: t(SHORTCUT_LABELS[value]),
-      })),
-      value: draft.commandPalette.shortcut,
+      options: [
+        ...COMMAND_PALETTE_SHORTCUTS.map((value) => ({
+          value,
+          label: t(SHORTCUT_LABELS[value]),
+        })),
+        { value: 'custom', label: t('palette.shortcut.custom') },
+      ],
+      value: isCustom(draft.commandPalette.shortcut) ? 'custom' : draft.commandPalette.shortcut,
       label: t('palette.shortcut'),
       onChange: (value) => {
+        if (value === 'custom') {
+          draft.commandPalette.shortcut = 'mod+k';
+          recorderField.hidden = false;
+          recorderField.querySelector('.gp-shortcut-field')?.setValue('mod+k');
+          return;
+        }
         draft.commandPalette.shortcut = value;
+        recorderField.hidden = true;
       },
     }),
   }));
+  section.body.appendChild(recorderField);
   return section;
 }
 

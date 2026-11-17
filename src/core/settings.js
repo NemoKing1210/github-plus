@@ -3,7 +3,6 @@ import {
   COMMAND_PALETTE_CACHE_HOURS_MAX,
   COMMAND_PALETTE_MAX_RESULTS_MAX,
   COMMAND_PALETTE_MAX_RESULTS_MIN,
-  COMMAND_PALETTE_SHORTCUTS,
   GALLERY_MAX_ZOOM,
   PREVIEW_LONG_PRESS_MAX_MS,
   PREVIEW_LONG_PRESS_MIN_MS,
@@ -15,6 +14,7 @@ import {
   getDefaults,
 } from './constants.js';
 import { Codes, createLogger } from './logger/index.js';
+import { normalizeShortcutValue } from '../utils/shortcut.js';
 
 const log = createLogger('settings');
 
@@ -251,7 +251,7 @@ export function normalizeCommandPalette(raw, fallback) {
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
     enabled: normalizeBoolean(source.enabled, fallback.enabled),
-    shortcut: normalizeEnum(source.shortcut, COMMAND_PALETTE_SHORTCUTS, fallback.shortcut),
+    shortcut: normalizeShortcutValue(source.shortcut) || fallback.shortcut,
     token: typeof source.token === 'string' ? source.token.trim().slice(0, 400) : fallback.token,
     sources: normalizeSources(source.sources, fallback.sources),
     hideForks: normalizeBoolean(source.hideForks, fallback.hideForks),

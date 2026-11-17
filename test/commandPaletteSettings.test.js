@@ -53,3 +53,13 @@ test('palette diagnostics codes are registered', async () => {
   assert.equal(Codes.PALETTE_LOAD, 'GP-1701');
   assert.equal(Codes.PALETTE_CACHE, 'GP-1702');
 });
+
+test('a custom shortcut is accepted and nonsense falls back', async () => {
+  const { getDefaults } = await import('../src/core/constants.js');
+  const { normalizeCommandPalette } = await import('../src/core/settings.js');
+  const defaults = getDefaults().commandPalette;
+  assert.equal(normalizeCommandPalette({ shortcut: 'ctrl+alt+p' }, defaults).shortcut, 'ctrl+alt+p');
+  assert.equal(normalizeCommandPalette({ shortcut: ' Mod+Shift+K ' }, defaults).shortcut, 'mod+shift+k');
+  assert.equal(normalizeCommandPalette({ shortcut: 'k' }, defaults).shortcut, 'mod+k');
+  assert.equal(normalizeCommandPalette({ shortcut: 'hyper+k' }, defaults).shortcut, 'mod+k');
+});

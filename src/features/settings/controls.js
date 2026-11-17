@@ -1,4 +1,5 @@
 import { el } from '../../utils/dom.js';
+import { formatShortcut, isValidShortcut, shortcutFromEvent } from '../../utils/shortcut.js';
 
 /**
  * Reusable settings controls in GitHub's visual language (see DESIGN.md).
@@ -173,6 +174,43 @@ export function createTextInput({ value = '', type = 'text', placeholder = '', o
   if (label) input.setAttribute('aria-label', label);
   input.addEventListener('input', () => onChange?.(input.value));
   return input;
+}
+
+/**
+ * A key-recording field: focus it and press a combination. The element exposes
+ * `setValue` so a caller that switches back to the presets can keep the display
+ * in step with the draft.
+ */
+export function createShortcutRecorder({ value = '', onChange, label = '', emptyLabel = '' } = {}) {
+  const field = el('button', 'gp-shortcut-field');
+  field.type = 'button';
+  if (label) field.setAttribute('aria-label', label);
+  let current = value;
+  const paint = () => {
+    field.textContent = formatShortcut(current) || emptyLabel;
+  };
+  paint();
+  field.setValue = (next) => {
+    current = next;
+    paint();
+  };
+  field.addEventListener('keydown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.key === 'Escape') return;
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      current = '';
+      paint();
+      onChange?.('');
+      return;
+    }
+    const next = shortcutFromEvent(event);
+    if (!next || !isValidShortcut(next)) return;
+    current = next;
+    paint();
+    onChange?.(next);
+  });
+  return field;
 }
 
 export function createTextarea({ value = '', placeholder = '', onInput, label = '' } = {}) {
