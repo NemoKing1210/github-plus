@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,7 +13,7 @@ wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
 any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.21.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.22.0`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
@@ -244,6 +244,8 @@ the markdown file open in the quick preview:
 Press `Ctrl/⌘+K` anywhere on GitHub for one search field over everything you do
 there:
 
+- **From the header** — the palette button next to GitHub's own header actions
+  opens it from any page and shows the shortcut currently in effect.
 - **Your repositories** — every repository you own, owned ones first, with
   stars, language, last push and visibility in the details pane. Type `@` to
   search repositories only.
@@ -252,12 +254,21 @@ there:
 - **Files in this repository** — type `#` for every path in the current
   repository (or a query that matches one); a file opens on GitHub at the ref
   you are browsing.
+- **Open issues and pull requests** — the current repository's open issues and
+  pull requests, marked with an issue or pull-request badge and carrying the
+  author, update time and comment count in the details pane; search them by
+  title, number or author.
 - **GitHub pages and GitHub Plus actions** — open your issues, pulls,
   notifications or settings; open the GitHub Plus panel; toggle its features;
   refresh the cache. Type `>` to limit the list to commands, or `?` to send the
   query to GitHub's own search.
-- **Pins and recents** — pin what you use constantly (`Alt+P`) and recently
-  opened rows come back to the top on the next open, per GitHub account.
+- **Favorites and recents** — pin what you use constantly (`Alt+P`); pinned
+  rows carry a star and come first, on the empty list and on typed queries, and
+  recently opened rows come back to the top on the next open, per GitHub
+  account.
+- **Actions on any row** — right-click a row, press `Shift+F10` or click its
+  `⋯` button to open it, open it in a new tab, copy its link, path, clone
+  address or issue number, and pin or unpin it.
 - **Fast and quiet** — the palette renders the cached list instantly, refreshes
   it in the background and keeps your selection in place. Results are cached
   with ETags for the session and across reloads, so browsing the palette does
@@ -272,7 +283,8 @@ there:
 - **Keyboard first** — `↑`/`↓` move, `Enter` opens, `Ctrl/⌘+Enter` opens in a
   new tab, `Alt+P` pins, `Esc` clears the query and then closes; the palette
   stays out of the way while you type in a comment or README editor, and closes
-  itself on navigation.
+  itself on navigation. The shortcut is a preset or any combination you record
+  on the palette's settings page.
 
 ### Settings panel
 
@@ -326,9 +338,10 @@ Stored under `gp_settings_v1`.
 | `translate.surfaces.<id>` | `true` | Per-place switches: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Cache lifetime in hours (0 disables the cache) |
 | `commandPalette.enabled` | `true` | Master switch for the `Ctrl/⌘+K` command palette |
-| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k` or `off` |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k`, `off`, or a combination recorded on the settings page |
 | `commandPalette.token` | `''` | Optional GitHub token for private repositories and higher limits (sent only to `api.github.com`, never exported) |
-| `commandPalette.sources.<id>` | `true` | Per-source switches: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.sources.<id>` | `true` | Per-source switches: `commands`, `repositories`, `starred`, `files`, `issues`, `recent` |
+| `commandPalette.sources.issues` | `true` | Open issues and pull requests of the current repository |
 | `commandPalette.hideForks` | `false` | Hide forked repositories |
 | `commandPalette.hideArchived` | `false` | Hide archived repositories |
 | `commandPalette.showDetails` | `true` | Details pane beside the list (hidden below 760 px) |

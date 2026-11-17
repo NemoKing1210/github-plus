@@ -116,14 +116,16 @@ github-plus/
 │   │   │       ├── request.js  # GM_xmlhttpRequest / fetch transport
 │   │   │       └── google.js deepl.js microsoft.js yandex.js openai.js libretranslate.js
 │   │   └── commandPalette/
-│   │       ├── index.js    # Lifecycle: hotkey, candidate assembly, loads, shell wiring
+│   │       ├── index.js    # Lifecycle: hotkey, header entry, candidate assembly, loads, shell wiring
 │   │       ├── context.js  # Page login/repo/ref and the effective identity (pure/DOM)
-│   │       ├── rank.js     # parseQuery, scoreText, rankCandidates (pure)
+│   │       ├── rank.js     # parseQuery, scoreText, rankCandidates, markPinned (pure)
 │   │       ├── search.js   # searchPalette: query → groups, the GitHub search fallback
 │   │       ├── commands.js # Navigation, toggle and maintenance commands
 │   │       ├── actions.js  # Action descriptors, runAction, navigate, searchUrl
 │   │       ├── repos.js    # Repo normalization/merge, repoCandidates, ensureRepositories
 │   │       ├── files.js    # Tree normalization, fileCandidates, ensureTree
+│   │       ├── issues.js   # Open issues/PRs of the current repo: candidates, ensureIssues
+│   │       ├── rowMenu.js  # Per-row action list for the palette context menu
 │   │       ├── api.js      # GitHub REST client (ETags, pagination, rate limits)
 │   │       ├── store.js    # Cache record, recents/pins, freshness, rate-limit state
 │   │       ├── hotkey.js   # shortcutMatches, isEditableTarget, shouldOpenPalette
@@ -134,6 +136,7 @@ github-plus/
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
 │   ├── ui/
 │   │   ├── icons.js        # 16×16 stroke SVG set (viewer toolbar, context-menu actions)
+│   │   ├── headerActions.js# One registry for GitHub header entries (mount/sync/remove)
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)
 │   │   ├── filePreview.js  # Quick preview modal shell (header actions, footer, loading, keyboard)
@@ -146,6 +149,7 @@ github-plus/
 │       ├── http.js         # request(): status + headers, GM/fetch transport
 │       ├── navigation.js   # watchNavigation (turbo/pjax/pushState URL watcher)
 │       ├── scrollLock.js   # counted page scroll lock for modal overlays
+│       ├── shortcut.js     # Shortcut parsing, matching and display (pure)
 │       └── size.js         # formatSize(bytes): pure size formatting
 ├── scripts/
 │   ├── lib/artifacts.mjs   # ARTIFACT_FILES list (single source of truth)
@@ -153,7 +157,8 @@ github-plus/
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
 ├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview,
-│                           #   translate*, logger*, commandPalette*, locales, download)
+│                           #   translate*, logger*, commandPalette* incl. issues/rowMenu/detail,
+│                           #   headerActions, contextMenu, shortcut, locales, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -182,10 +187,13 @@ listener, and the file menu is one delegated `contextmenu` listener, so content
 that GitHub renders after load behaves like server-rendered content with no
 rescanning. The file-icons and translation features watch one observer per known
 container or surface root (never the document); a surface whose selector stops
-matching is a no-op, not a break. Only the settings entries re-mount themselves (see
-`features/settings/index.js` and `userMenu.js`): the
-header button when GitHub swaps the header, the user-menu row on every open of
-the avatar menu — the latter through one observer on Primer's overlay portal
+matching is a no-op, not a break. Only the header entries and the settings
+user-menu row re-mount themselves: `ui/headerActions.js` owns every header
+button (the settings entry and the palette entry register with it), mounting
+them next to GitHub's own actions and re-syncing the whole set when GitHub
+swaps the header — the body's own children, an `<html>` observer for a replaced
+body, a bounded poll and one `watchNavigation`; `userMenu.js` re-adds the
+avatar-menu row on every open through one observer on Primer's overlay portal
 root (`#__primerPortalRoot__`), a container that holds overlays and nothing
 else.
 
@@ -239,10 +247,14 @@ Single place for magic values.
   observer timings `TRANSLATE_OBSERVE_DEBOUNCE_MS` (150), `TRANSLATE_SETTLE_MS`
   (250) × `TRANSLATE_SETTLE_TRIES` (20).
 - Command palette: `COMMAND_PALETTE_SHORTCUTS` (`mod+k`, `mod+shift+k`,
-  `alt+k`, `off`), the three storage keys `gp_palette_cache_v1` /
+  `alt+k`, `off` — the presets; a stored value may also be any combination
+  recorded on the settings page, parsed by `utils/shortcut.js`), the three
+  storage keys `gp_palette_cache_v1` /
   `gp_palette_recents_v1` / `gp_palette_pins_v1`,
   `COMMAND_PALETTE_CACHE_HOURS_MAX` (168) and
-  `COMMAND_PALETTE_MAX_RESULTS_MIN` / `_MAX` (10…100).
+  `COMMAND_PALETTE_MAX_RESULTS_MIN` / `_MAX` (10…100). The issues source's
+  pagination caps (`PER_PAGE` 100, 3 pages with a token, 1 without, 5
+  repositories and 300 KB per record) live in `features/commandPalette/issues.js`.
 - `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
   `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `translate`,
   `commandPalette`) plus
@@ -286,8 +298,10 @@ Key facts that must survive refactors:
   surface switches keyed by the defaults, and `cacheHours` clamped to
   0…`TRANSLATE_CACHE_HOURS_MAX`. Unknown values fall back to defaults, never
   crash.
-- The `commandPalette` section normalizes the shortcut against
-  `COMMAND_PALETTE_SHORTCUTS`, the five source switches, the fork/archived/
+- The `commandPalette` section normalizes the shortcut through
+  `utils/shortcut.js` (a preset or any recorded combination; `off` disables the
+  hotkey), the six source switches (`commands`, `repositories`, `starred`,
+  `files`, `issues`, `recent`), the fork/archived/
   details booleans, `cacheHours` (0…`COMMAND_PALETTE_CACHE_HOURS_MAX`) and
   `maxResults` (10…100). The token is trimmed to 400 characters and **never
   leaves the browser**: `toExportableSettings()` blanks it for a backup and
@@ -331,7 +345,8 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   its observers when the feature is on, so a provider, target-language or mode
   change never leaves stale output.
 - `settings:commandPalette` — emitted by the same Save and by a backup import;
-  the command palette closes, forgets its session attempts and reinstalls or
+  the command palette closes, forgets its session attempts, relabels or removes
+  its header entry and reinstalls or
   removes its document hotkey. The settings page also writes palette data (a verified token) on its
   own, outside Save, because verification is an immediate network check.
 - The same Save also emits `settings:language`, which the preview feature
@@ -506,14 +521,34 @@ auto-hide progress bar). Honors `toasts.enabled`, `toasts.position` and
 `toasts.duration` from settings at call time. Save, import and copy actions
 report through it.
 
+### `src/ui/headerActions.js` — GitHub header entries
+
+`registerHeaderAction({ id, order, className, icon, label, onClick })` mounts
+one button into GitHub's header and returns `{ node, update(patch), remove() }`;
+`headerActionNode(id)` and `syncHeaderActions()` complete the API. `HEADER_TARGETS`
+is ordered most to least specific (`.AppHeader-globalBar-end`,
+`.AppHeader-globalBar`, `#user-links`). Actions are kept in one registry Map
+keyed by `id`, sorted by `order` (the palette is 10, settings 20), and mounted
+as siblings of GitHub's own actions — before `.AppHeader-user` when that is a
+child of the target, inside an `li.gp-header-item` when the target is a `ul`.
+Every button carries `.gp-header-btn` plus its registered class, an icon
+`.gp-header-btn__icon` and the label as both `title` and `aria-label`, so
+`isOwnUi()` has one root class to scan. A sync re-mounts every registration
+(the registry is the source of truth, never stale DOM). The registry installs
+the watchers once on the first registration — direct-children observers on
+`<html>` and `<body>` for an app-shell swap, a bounded poll (12 × 500 ms) for a
+header rendered late, and one `watchNavigation` — never a document-wide
+observer. A page with no header target simply has no buttons until one appears.
+
 ### `src/ui/contextMenu.js` — reusable menu
 
-`openContextMenu({ x, y, anchor, keyboard, label, items, elevated })`,
+`openContextMenu({ x, y, anchor, keyboard, label, items, layer })`,
 `closeContextMenu()` and `isContextMenuOpen()` for a fixed-position menu
 appended to `<body>` (one instance at a time; opening replaces an open menu).
-`elevated: true` adds `.gp-context-menu--elevated`, which lifts the menu above
-the quick preview's overlay — the preview's copy menu is the only caller that
-needs it.
+`layer: 'preview'` lifts the menu above the quick preview's overlay and
+`layer: 'palette'` above the command palette (`elevated: true` is the older
+name for the preview layer); the palette's row menu is the only `palette`
+caller.
 `items` is `[{ label, icon?, disabled?, onSelect }]` with a `null` entry as a
 separator; `label` becomes the menu's `aria-label`, and the entries are plain
 `button[role="menuitem"]` rows (icons are decorative). Pointer opens place the
@@ -523,7 +558,8 @@ close — pointer opens restore nothing. Keyboard inside the menu: arrows with
 wrap-around, `Home`/`End`, `Escape` and `Tab` close. It is dismissed by an
 outside `pointerdown`, any `scroll` (capture), `resize`, focus leaving the
 menu and navigation (the file-menu feature calls `closeContextMenu` from its
-`watchNavigation` hook). The menu renders only `gp-context-menu*` classes and
+`watchNavigation` hook; the palette closes it when the palette closes). The menu
+renders only `gp-context-menu*` classes and
 never touches page markup; `isOwnUi()` covers it.
 
 ### `src/features/logging/` — diagnostics lifecycle
@@ -535,16 +571,11 @@ without a reload. Nothing else in the feature layer touches the logger.
 
 ### `src/features/settings/` — panel
 
-- `index.js`: registers the pages, `ensureSettingsButton()` places the entry in
-  the current header (`HEADER_TARGETS`, most specific first:
-  `.AppHeader-globalBar-end`, `.AppHeader-globalBar`, `#user-links`) as a
-  sibling of GitHub's own actions — inserted before `.AppHeader-user` when
-  present, wrapped in an `li.gp-settings-item` when the target is a `ul`.
-  `pollForHeader()` waits a bounded time (12 × 500 ms) for a late-rendered
-  header, `observeChrome()` watches the current `document.body`'s own children
-  (`{ childList: true }`, deliberately **no** `subtree`) for a swapped app
-  shell and re-attaches when GitHub replaces the body element itself,
-  `watchNavigation(ensureSettingsButton)` covers client-side navigation,
+- `index.js`: registers the pages and the settings header entry through
+  `ui/headerActions.js` (`{ id: 'settings', order: 20, className:
+  'gp-settings-btn' }`), so the entry is mounted next to GitHub's own actions
+  by the shared registry — inserted before `.AppHeader-user` when present,
+  wrapped in an `li.gp-header-item` when the target is a `ul`.
   `updateSettingsButtonState()` lights the `gp-header-btn--custom` dot when
   settings differ from defaults, and `GM_registerMenuCommand` opens the panel
   from the manager's menu. Both `refreshLabels()` and
@@ -604,7 +635,9 @@ without a reload. Nothing else in the feature layer touches the logger.
   card), `createRow`, `createField`, `createHint`, `createSwitch`,
   `createSwitchRow`, `createSwitchCell` (grid cell; the cell is the `label` and
   the switch inside it is plain markup, never a nested `label`), `createSelect`,
-  `createNumberInput`, `createTextarea`, `createButton`, `getIconSvg`.
+  `createNumberInput`, `createTextarea`, `createButton`, `createShortcutRecorder`
+  (a button that records a key combination through `utils/shortcut.js`;
+  `Escape` is ignored, `Backspace`/`Delete` clears it), `getIconSvg`.
 - `tabs/general.js`: interface language select (`auto` + `SUPPORTED_LOCALES`
   native names), toast switch, corner select, auto-hide seconds input, and the
   Diagnostics card (console-logging switch plus a **Copy log** button that
@@ -621,9 +654,10 @@ without a reload. Nothing else in the feature layer touches the logger.
   input and the progress-circle switch (`icons.*`, `ages.*`, `files.*`,
   `fileMenu.*`, `preview.*` keys). The features stay independent, so the page
   has no switch of its own.
-- `tabs/commandPalette.js`: activation (switch, shortcut select), GitHub
+- `tabs/commandPalette.js`: activation (switch, preset select plus a
+  `createShortcutRecorder` field revealed for **Custom**), GitHub
   access (password token field, **Check token**, **Remove token**, an
-  identity-mismatch hint), the five source switches, fork/archived filters, the
+  identity-mismatch hint), the six source switches, fork/archived filters, the
   details-pane switch, and cache lifetime with a stats line and **Clear
   cache**. Verification is an immediate `GET /user`, so this page writes the
   cache record outside the draft; the token itself is saved only by the footer
@@ -1119,40 +1153,52 @@ classes.
 
 ### `src/features/commandPalette/` — command palette
 
-A modal search surface on `Ctrl/⌘+K` (configurable, or off): the user's
-repositories, starred repositories, the current repository's files, GitHub
-pages, GitHub Plus controls and a GitHub search fallback, with pins and recents
-and an optional details pane. Without a token it reads public data and commands
-still work; with a verified token it also sees private repositories.
+A modal search surface on `Ctrl/⌘+K` (a preset or any recorded combination, or
+off), opened from that hotkey, the palette button in the GitHub header or the
+manager's menu: the user's repositories, starred repositories, the current
+repository's open issues and pull requests, its files, GitHub pages, GitHub
+Plus controls and a GitHub search fallback, with favorites (pins), recents, a
+per-row context menu and an optional details pane. Without a token it reads
+public data and commands still work; with a verified token it also sees private
+repositories.
 
 - `index.js` — the only module that assembles display state: reads
   `readPaletteState()`, builds candidates through `commandCandidates`,
-  `repoCandidates`, `fileCandidates` and `snapshotCandidates`, opens
-  `ui/commandPalette.js`, installs the document hotkey and owns the load
-  lifecycle. `kickLoads()` starts `ensureRepositories()` and `ensureTree()`
-  without awaiting them, flips `state.status` to `loading` and refreshes the
-  shell over the cached rows; each load settles into `refreshView()`. Every
-  source is attempted once per page session (`sessionRefreshes`, trees keyed by
-  `tree:<repo@ref>`), a manual refresh bypasses that, and an idle-time refresh
-  runs only when the cache is warm and stale. The palette rebuilds candidates
-  from storage on every open, so a settings change or a manual refresh never
-  needs a stale in-memory list.
+  `repoCandidates`, `fileCandidates`, `issueCandidates` and
+  `snapshotCandidates`, opens `ui/commandPalette.js`, installs the document
+  hotkey, registers the header entry through `ui/headerActions.js` (`order: 10`,
+  label `t('palette.title')` plus the current shortcut) and owns the load
+  lifecycle. `kickLoads()` starts `ensureRepositories()`, `ensureTree()` and
+  `ensureIssues()` without awaiting them, flips `state.status` to `loading` and
+  refreshes the shell over the cached rows; each load settles into
+  `refreshView()`. Every source is attempted once per page session
+  (`sessionRefreshes`, trees keyed by `tree:<repo@ref>`, issues by
+  `issues:<repo>`), a manual refresh bypasses that, and an idle-time refresh
+  runs only when the cache is warm and stale. `openPalette` wires `onPin`,
+  `onContextMenu` (a `layer: 'palette'` menu built by `rowMenu.js`) and
+  `renderDetail`; `handleRowAction` maps every row action to `onSelect`,
+  `onPin` or a copy `runAction`. The palette rebuilds candidates from storage on
+  every open, so a settings change or a manual refresh never needs a stale
+  in-memory list.
 - `store.js` — all persistence. Cache record
-  `{ version, login, tokenLogin, tokenFingerprint, sources, trees, rateLimit }`
-  under `gp_palette_cache_v1`; `readPaletteState()` returns the page context,
-  settings, identity and the cache **only when the record belongs to that
-  identity**, so switching accounts can never render another account's data.
-  Recents (`gp_palette_recents_v1`, cap 20) and pins
-  (`gp_palette_pins_v1`, cap 50) are stored per identity; another identity's
+  `{ version, login, tokenLogin, tokenFingerprint, sources, trees, issues,
+  rateLimit }` under `gp_palette_cache_v1`; `readPaletteState()` returns the page
+  context, settings, identity and the cache **only when the record belongs to
+  that identity**, so switching accounts can never render another account's
+  data.
+  Recents (`gp_palette_recents_v1`, cap 20) and pins — the favorites
+  (`gp_palette_pins_v1`, cap 50) — are stored per identity; another identity's
   non-command entries are hidden while commands survive. `isFresh()` honors
   `cacheHours` (0 disables), `rateLimitFromHeaders()`/`isRateBlocked()` guard
   exhausted limits, `clearDataCache()` keeps the identity fields. Every storage
   call is try/catch and logs `GP-1702`.
 - `api.js` — GitHub REST with `utils/http.js`: `GET /user` for verification,
-  `/user/repos` or `/users/{login}/repos`, `/user/starred`, and the recursive
-  `git/trees/{ref}`. Sends `Accept`, `X-GitHub-Api-Version`, `Authorization:
-  Bearer` when a token exists and `If-None-Match` for every cached page; a
-  `304` reuses the cached page, a `200` replaces it with its new ETag.
+  `/user/repos` or `/users/{login}/repos`, `/user/starred`,
+  `/repos/{owner}/{repo}/issues?state=open&sort=updated&direction=desc` and the
+  recursive `git/trees/{ref}`. Sends `Accept`, `X-GitHub-Api-Version`,
+  `Authorization: Bearer` when a token exists and `If-None-Match` for every
+  cached page; a `304` reuses the cached page, a `200` replaces it with its new
+  ETag.
   Pagination stops at a page shorter than 100 items (10 pages with a token, 2
   without); the starred source retries once without `star+json` after a 415/404
   on its first page. Non-2xx responses throw an error carrying `status`,
@@ -1170,6 +1216,21 @@ still work; with a verified token it also sees private repositories.
   ETag revalidation, 20 000-item cap, disk records capped to the three newest
   and 1.5 MB each, oversized records kept in a session map, `GP-1701` on a real
   failure only).
+- `issues.js` — `normalizeIssue` (the cached shape: number, title, url, author,
+  updatedAt, kindLabel `issue`/`pullRequest` from GitHub's `pull_request` field,
+  comments, repo), `issueCandidates` (source toggle, the page's repository,
+  group `issues`, `#N Title`, an issue or pull-request icon and badge, rank
+  fields for title, `#N` and author, data with the URL, author, update time,
+  comments and `state: 'open'`), `ensureIssues` (identity guard, single-flight
+  per repo + token fingerprint, ETag revalidation, 3 pages with a token and 1
+  without, `GP-1701` on a real failure) and `forgetIssues`. The record is capped
+  at 5 repositories and 300 KB and its write re-reads the disk record so
+  repository and tree loads survive.
+- `rowMenu.js` — pure: `rowMenuItems(item, { labels, onAction, pinned })` and
+  `cloneAddress(item)`. Repos offer open, new tab, copy link, copy clone
+  address, pin; files open, new tab, copy path, copy link, pin; issues open,
+  new tab, copy link, copy number, pin; commands run and pin. A `null` entry is
+  the separator.
 - `context.js` — `readContext()` for the login, repository and ref (embedded
   React payload first, then URL, then the default-branch meta, then `HEAD`),
   `tokenFingerprint()` (FNV-1a, never the token) and `resolveIdentity()`: a
@@ -1180,8 +1241,12 @@ still work; with a verified token it also sees private repositories.
   `?` GitHub search), exact-substring and subsequence scoring with highlight
   ranges, pinned (+1000) and recent (+100) boosts, per-group caps
   (command 8, file 12, repo 15) and the `maxResults` total cap. The empty query
-  builds pinned and recent groups, then the browse order
-  (`repository, github, plus, repos, starred, search`) and never lists files.
+  builds the favorites and recent groups, then the browse order
+  (`repository, issues, github, plus, repos, starred, search`) and never lists
+  files. On a typed query `markPinned`-flagged candidates form their own first
+  `pinned` group (cap 8) and are removed from their kind's group; the two
+  synthetic group titles (`palette.group.pinned` / `.recent`) arrive through
+  `options.titles`, so `rank.js` stays free of i18n.
 - `search.js` — `searchPalette(state, query)`: the `?` mode and a query with no
   match both become the GitHub search command.
 - `commands.js` — repository commands (only on a repository page; Settings only
@@ -1196,40 +1261,56 @@ still work; with a verified token it also sees private repositories.
   arrive as callbacks (`openSettings`, `clearTranslationCache`) so this module
   imports no other feature. `searchUrl` is defined in `commands.js` and
   re-exported here to keep the two modules acyclic.
-- `hotkey.js` — `shortcutMatches` (mod = Ctrl or ⌘; every other modifier must
-  match exactly), `isEditableTarget` (input, textarea, select, contenteditable),
-  `otherOverlayOpen` (settings, confirm, viewer, preview — never the palette
-  itself) and `shouldOpenPalette` (also ignores handled, composing and repeated
-  keys).
+- `hotkey.js` — re-exports `utils/shortcut.js` and adds `shortcutMatches` (mod
+  = Ctrl or ⌘; every other modifier must match exactly), `isEditableTarget`
+  (input, textarea, select, contenteditable), `otherOverlayOpen` (settings,
+  confirm, viewer, preview — never the palette itself) and `shouldOpenPalette`
+  (also ignores handled, composing and repeated keys).
 - `detail.js` — the aside for a repo (description, language, stars, forks,
   updated, visibility badges, Open / New tab / Copy link / Pin), a file (path,
-  repository, ref, size, Open / Copy path) or a command (label, description,
-  shortcut, Run). Every string comes from the caller's `labels`.
+  repository, ref, size, Open / Copy path), an issue or pull request (author,
+  update time, comment count, open-state and kind tags, Open / New tab / Copy
+  link / Copy number) or a command (label, description, shortcut, Run). Every
+  string comes from the caller's `labels`.
 - `format.js` — `formatCount` (compact `k`/`M`) and `relativeTime`
   (`Intl.RelativeTimeFormat`, so no new translation keys).
 
 `src/ui/commandPalette.js` is the generic shell: it imports only utils, the
-scroll lock and `ui/icons.js`, never a feature. `openCommandPalette({ labels,
-search, renderDetail, onSelect, onPin, onClose, showDetails })` mounts the
+scroll lock, `ui/contextMenu.js` and `ui/icons.js`, never a feature.
+`openCommandPalette({ labels, search, renderDetail, onSelect, onPin,
+onContextMenu, onClose, showDetails })` mounts the
 overlay, locks the page, focuses the combobox and returns
 `{ refresh, close, setQuery }`. The list is a single `role="listbox"` with
 group titles and `role="option"` rows; the active row is tracked by key (so a
-refresh keeps the selection) and mirrored to `aria-activedescendant`. Keys:
+refresh keeps the selection) and mirrored to `aria-activedescendant`. A
+favorite's row draws a star inside `.gp-command__title`.
+`onContextMenu(item, { x, y, anchor, keyboard })` fires from a right-click on a
+row (the pointer position), the row's `⋯` button (`anchor` + `keyboard: true`)
+or `Shift+F10`/`ContextMenu` on the active row; every row carries the button in
+a trailing grid column (`.gp-command__row--menued`) and it stays invisible and
+untargetable until the row is hovered, active or the button is focused.
+Keys:
 arrows with wrap, Home/End, Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin,
 Escape clears a non-empty query before it closes, the shortcut closes, Tab
 traps focus. An outside pointerdown closes; closing marks the palette closed
-synchronously, restores focus, unlocks the page and removes the overlay after
+synchronously, restores focus, unlocks the page, closes any open row menu and
+removes the overlay after
 120 ms. Items with `highlight` ranges render marks from text nodes, never
-`innerHTML`; `labels.badges` names the badge ids.
+`innerHTML`; `labels.badges` names the badge ids (including `issue` and
+`pullRequest`).
 
 The settings page (`features/settings/tabs/commandPalette.js`) edits the draft
-only: activation and shortcut, GitHub access (password field, **Check token**
-through `fetchUser`, **Remove token**, an identity-mismatch hint), the five
+only: activation (switch, preset select and the `createShortcutRecorder` field
+that appears when **Custom** is chosen), GitHub access (password field, **Check
+token**
+through `fetchUser`, **Remove token**, an identity-mismatch hint), the six
 source switches, fork/archived filters, the details-pane switch, and cache
 lifetime plus a stats line and **Clear cache**. Verifying a token writes
 `login`, `tokenLogin` and the fingerprint into the cache immediately and wipes
 data that belonged to another account; the token itself is persisted only by
-the panel footer Save.
+the panel footer Save. Selecting a preset hides the recorder and stores the
+preset; recording a combination stores it as the shortcut and clears the
+select back to **Custom** on the next open.
 
 ### `src/i18n/`
 
@@ -1241,7 +1322,7 @@ the panel footer Save.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 403
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 417
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1270,6 +1351,15 @@ the panel footer Save.
 - `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
   three significant digits (`2929` → `2.86 KB`). Unit-tested by
   `test/fileMeta.test.js`.
+- `shortcut.js`: `isMacPlatform()`, `keyNameFromEvent(event)`,
+  `shortcutFromEvent(event, { mac })`, `isValidShortcut(value)`,
+  `normalizeShortcutValue(value)` and `formatShortcut(value, { mac })` — pure
+  parsing and display for stored shortcuts, with platform detection
+  injectable. The stored form is lowercase modifier names plus a key
+  (`mod+shift+k`); `mod` is Ctrl on Windows/Linux and ⌘ on macOS, and anything
+  that is not a valid combination (or `off`) normalizes to `''`. Shared by
+  `core/settings.js` (so `core` imports this `utils` module), the palette
+  hotkey and the settings recorder; unit-tested by `test/shortcut.test.js`.
 - `http.js`: `request({ url, method, headers, body, timeout, signal })` and
   `normalizeHeaders(raw)` — one transport over `GM_xmlhttpRequest` (when the
   manager provides it) or `fetch`, resolving `{ status, text, headers }` for
@@ -1310,10 +1400,15 @@ surface: `--gp-bg-1` stage, `--gp-bg-2` bars).
 must not own feature state. Rules that keep it acyclic:
 
 - `core/settings.js` knows nothing about features or the bus — notifying is the
-  caller's job.
+  caller's job. Its one dependency below `core` is `utils/shortcut.js`, which
+  is pure and also serves the palette hotkey and the settings recorder.
+- Every header entry registers through `ui/headerActions.js` instead of
+  touching the header itself; the registry knows no feature and features only
+  pass `{ icon, label, onClick }`.
 - `gallery` never imports from `features`; `features/settings` imports the
   gallery registry (`listSources`) but not the gallery wiring.
-- `ui/viewer.js`, `ui/toast.js`, `ui/contextMenu.js` and `ui/filePreview.js`
+- `ui/viewer.js`, `ui/toast.js`, `ui/contextMenu.js`, `ui/headerActions.js` and
+  `ui/filePreview.js`
   import only `i18n`, `utils`, `core` and sibling `ui` helpers — they are
   reusable, not gallery- or file-specific. The preview shell takes its content
   loader as a `load` callback, so the feature supplies rendering and the shell
@@ -1332,8 +1427,10 @@ must not own feature state. Rules that keep it acyclic:
   `commandPalette` except `features/settings/index.js`, which registers the
   settings page's `render` function.
 - `ui/commandPalette.js` is a generic shell like `ui/filePreview.js`: it
-  imports only `i18n`, `utils`, `core` and `ui/icons.js`. Search, details and
-  selection arrive as callbacks, so the shell never imports a feature.
+  imports only `i18n`, `utils`, `core`, `ui/icons.js` and sibling
+  `ui/contextMenu.js` (to close an open row menu with the palette). Search,
+  details, selection and the row menu's items arrive as callbacks, so the shell
+  never imports a feature.
 - Side-effect registrations (the markdown source, page registration in
   `features/settings/index.js`) run at import time — a module that must be
   registered is imported by the module that owns its lifecycle.
@@ -1388,19 +1485,27 @@ hover reveal) restores the exact source.
 
 ## End-to-end data flow (command palette)
 
-hotkey, menu command or header entry → `shouldOpenPalette` guards (feature on,
+hotkey, header entry or menu command → `shouldOpenPalette` guards (feature on,
 shortcut match, not editable, no other overlay, not handled/repeated) →
 `openPalette` → `readPaletteState()` (page context, settings, identity, that
 identity's cache) → `buildCandidates` over cache-backed `commandCandidates`,
-`repoCandidates`, `fileCandidates` and the cold-source snapshots from recents
-and pins → `openCommandPalette({ search: searchPalette, ... })` renders the
-warm list immediately → `kickLoads()` starts `ensureRepositories()` /
-`ensureTree()` without awaiting → each settles and calls `refreshView()`,
+`repoCandidates`, `fileCandidates`, `issueCandidates` and the cold-source
+snapshots from recents
+and pins, then `markPinned` → `openCommandPalette({ search: searchPalette, ... })`
+renders the
+warm list immediately, with favorites starred and in their own first group →
+`kickLoads()` starts `ensureRepositories()` /
+`ensureTree()` / `ensureIssues()` without awaiting → each settles and calls
+`refreshView()`,
 which reruns `buildCandidates` from storage and `palette.refresh()` keeps the
 active row by key → Enter (or click) records a recent, closes the palette and
 runs the action: `navigate` for a URL, `saveSettings` + the matching bus event
-+ toast for a toggle, `ensure*({ force: true })` for a refresh. Settings Save
-emits `settings:commandPalette`, which closes an open palette and installs or
++ toast for a toggle, `ensure*({ force: true })` for a refresh; a row's `⋯`,
+right-click or `Shift+F10` opens the palette-layer context menu, whose entries
+run the same select path, toggle the pin or copy a link, path, clone address or
+issue number. Settings Save
+emits `settings:commandPalette`, which closes an open palette, relabels the
+header entry and installs or
 removes the document hotkey.
 
 ## GitHub DOM notes
@@ -1414,9 +1519,9 @@ removes the document hotkey.
   That container is the gallery set boundary; the quick preview renders its
   own markdown into `.gp-preview__md`, which is a gallery boundary too.
 - GitHub's header markup changes over time. Keep `HEADER_TARGETS` ordered from
-  most to least specific and always insert *next to* GitHub's own actions
-  (never replace, move or restyle them), so a header rework degrades to "no
-  button" instead of a broken header.
+  most to least specific and let `ui/headerActions.js` insert entries *next to*
+  GitHub's own actions (never replace, move or restyle them), so a header
+  rework degrades to "no button" instead of a broken header.
 - Every GitHub overlay is a Primer portal. `AnchoredOverlay`, `ActionMenu` and
   their tooltips are mounted into
   `#__primerPortalRoot__ > div[data-component="Portal"]` when they open and
@@ -1482,14 +1587,15 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `translate.linkLabels` | `true` | Translate anchor labels as their own segments |
 | `translate.surfaces.<id>` | `true` | Per-surface switches (`markdown`, `plaintext`, `commits`, `titles`, `preview`) |
 | `translate.cacheHours` | `24` | Cache lifetime in hours (`0` disables it), clamped to 0…`TRANSLATE_CACHE_HOURS_MAX` |
-| `commandPalette.enabled` | `true` | Master switch; off removes the document hotkey and the menu command |
-| `commandPalette.shortcut` | `'mod+k'` | One of `COMMAND_PALETTE_SHORTCUTS` (`mod+k`, `mod+shift+k`, `alt+k`, `off`) |
+| `commandPalette.enabled` | `true` | Master switch; off removes the header entry, the document hotkey and the menu command |
+| `commandPalette.shortcut` | `'mod+k'` | A `COMMAND_PALETTE_SHORTCUTS` preset (`mod+k`, `mod+shift+k`, `alt+k`, `off`) or any combination recorded on the settings page |
 | `commandPalette.token` | `''` | Optional GitHub token: private repositories, complete lists, 5000 requests/h; sent only to `api.github.com` |
-| `commandPalette.sources.<id>` | `true` | Per-source switches (`commands`, `repositories`, `starred`, `files`, `recent`) |
+| `commandPalette.sources.<id>` | `true` | Per-source switches (`commands`, `repositories`, `starred`, `files`, `issues`, `recent`) |
+| `commandPalette.sources.issues` | `true` | Open issues and pull requests of the repository the page shows |
 | `commandPalette.hideForks` | `false` | Hide forked repositories from the repository groups |
 | `commandPalette.hideArchived` | `false` | Hide archived repositories |
 | `commandPalette.showDetails` | `true` | Details pane beside the list (the shell hides it below 760px regardless) |
-| `commandPalette.cacheHours` | `6` | Repository/tree cache lifetime in hours (`0` disables it), clamped to 0…`COMMAND_PALETTE_CACHE_HOURS_MAX` |
+| `commandPalette.cacheHours` | `6` | Repository, tree and issue cache lifetime in hours (`0` disables it), clamped to 0…`COMMAND_PALETTE_CACHE_HOURS_MAX` |
 | `commandPalette.maxResults` | `30` | Row cap per result set, clamped to `COMMAND_PALETTE_MAX_RESULTS_MIN`…`_MAX` |
 
 ## Localization
@@ -1605,8 +1711,11 @@ Build facts agents need to know:
   committed.
 - `npm test` covers the pure modules and the DOM shells. The command palette
   is spread over `test/commandPalette*.test.js` — store, api, repos, files,
-  commands, format, shell, hotkey and search — plus `test/http.test.js` for the
-  shared transport; a palette change that touches ranking or identity rules
+  issues, commands, rank, rowMenu, detail, format, settings, index, shell,
+  hotkey and search — plus `test/http.test.js` for the shared transport,
+  `test/headerActions.test.js` for the header registry, `test/contextMenu.test.js`
+  for the menu layers and `test/shortcut.test.js` for shortcut parsing; a
+  palette change that touches ranking or identity rules
   belongs in one of them, not in a manual check.
 
 After every source, style, metadata, or version change, run `npm run build` so
@@ -1659,8 +1768,11 @@ and check diagnostics for edited files.
   `.react-directory-row` or drops the table header turns the surface into a
   no-op — extend the registry, never add a document-wide observer.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
-  that `.gp-settings-btn` is inside it. A header rework on GitHub's side is the
-  usual cause — extend the list, never restyle GitHub's own header.
+  that the registered button (`.gp-header-btn` with `.gp-settings-btn` /
+  `.gp-palette-btn`) is inside it. A header rework on GitHub's side is the
+  usual cause — extend the list, never restyle GitHub's own header. A page
+  with no target at all has no buttons until one appears; the registry's
+  bounded poll and shell observers are what catch it.
 - File context menu not opening: check **File context menu** is on, the page is a
   repository listing, the sidebar file tree, a blob/blame view or rendered
   markdown, and the right-click landed on a file row link, a tree file row, a
@@ -1731,8 +1843,21 @@ and check diagnostics for edited files.
   GitHub Plus overlay is open (panel, confirm, viewer, preview), and that
   GitHub itself did not call `preventDefault()` on the key. Settings Save
   reinstalls the hotkey through `settings:commandPalette`, so a save that went
-  through is never the reason it stops firing; `GM_registerMenuCommand` opens
-  the same palette as a fallback.
+  through is never the reason it stops firing; the header button and
+  `GM_registerMenuCommand` open the same palette as fallbacks.
+- Palette row menu not opening: the `⋯` button appears only on hover, on the
+  active row or when focused; right-click must land on a row, and
+  `Shift+F10`/the menu key needs an active row. The menu is the shared
+  `#gp-context-menu` with `layer: 'palette'` — if it renders behind the
+  palette, the layer was lost (it must not be `default`).
+- Issues missing from the palette: the **Issues** source switch must be on and
+  the page must be a repository (the source reads the repository the page
+  shows); the row appears only after `ensureIssues()` has written a record —
+  `GP-1701` in the console means the request failed. A pull request carries the
+  pull-request badge because GitHub's issue endpoint returned its
+  `pull_request` field; a row without a badge is an issue. The list is capped at
+  3 pages with a token and 1 without, so a repository with many open items
+  shows the most recently updated ones.
 - Palette opens with no repositories: a token that has not been verified
   yields no identity and reads public data only until **Check token**
   succeeds; an identity-mismatch hint means the cache belongs to another

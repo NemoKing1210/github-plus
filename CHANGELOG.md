@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-11-18
+
+### Added
+
+- Header button for the command palette, placed next to GitHub's own header
+  actions and labelled with the current shortcut; the settings button now
+  shares the same header registry, so both survive a header re-render and stay
+  in a stable order
+- Favorites in the command palette: pinned rows carry a star and a badge and
+  form their own first group, on the empty list and on typed queries
+- Per-row actions in the command palette: right-click a row, press `Shift+F10`
+  or click its `⋯` button to open it, open it in a new tab, copy its link, path,
+  clone address or issue number, and pin or unpin it
+- Open issues and pull requests of the current repository in the command
+  palette, marked with an issue or pull-request badge, with the author, update
+  time, comment count and state in the details pane; the list is cached with
+  ETags alongside the repositories and file tree
+- A recorded keyboard shortcut for the command palette: pick a preset or press
+  any combination on the settings page, and the header button label follows it
+
+[0.22.0]: https://github.com/NemoKing1210/github-plus/compare/v0.21.0...v0.22.0
+
 ## [0.21.0] - 2026-11-18
 
 ### Added

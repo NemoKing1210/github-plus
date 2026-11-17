@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
@@ -14,7 +14,7 @@ antigüedad al estilo blame para esos archivos, tamaños de archivo con descarga
 en un clic, un menú contextual para acciones de archivo, una vista rápida de
 cualquier archivo y traducción del contenido de la página.
 
-> **Estado:** temprano (`0.21.0`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.22.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Traducción · Paleta · Copia de seguridad ·
 > Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de imágenes de
 > markdown, los iconos de archivo en color, los colores de antigüedad al estilo
@@ -268,6 +268,9 @@ archivo markdown abierto en la vista rápida:
 Pulsa `Ctrl/⌘+K` en cualquier página de GitHub para abrir un único campo de
 búsqueda sobre todo lo que haces allí:
 
+- **Desde la cabecera** — el botón de la paleta junto a las acciones propias de
+  la cabecera de GitHub la abre desde cualquier página y muestra el atajo
+  vigente.
 - **Tus repositorios** — todos los que posees, los propios primero, con
   estrellas, lenguaje, último push y visibilidad en el panel de detalles. Escribe
   `@` para buscar solo repositorios.
@@ -276,13 +279,22 @@ búsqueda sobre todo lo que haces allí:
 - **Archivos del repositorio actual** — `#` muestra todas las rutas del
   repositorio actual (o una consulta que coincida); un archivo se abre en GitHub
   en la revisión que estás viendo.
+- **Issues y pull requests abiertos** — los issues y pull requests abiertos del
+  repositorio actual, con su distintivo de issue o pull request y, en el panel
+  de detalles, autor, fecha de actualización y número de comentarios; búscalos
+  por título, número o autor.
 - **Páginas de GitHub y acciones de GitHub Plus** — abre tus issues, pull
   requests, notificaciones o ajustes; abre el panel de GitHub Plus; activa o
   desactiva sus funciones; actualiza la caché. `>` limita la lista a comandos y
   `?` envía la consulta a la búsqueda propia de GitHub.
-- **Fijados y recientes** — fija lo que usas constantemente (`Alt+P`) y las filas
-  abiertas recientemente vuelven arriba la próxima vez, por separado para cada
-  cuenta de GitHub.
+- **Favoritos y recientes** — fija lo que usas constantemente (`Alt+P`); las
+  filas fijadas llevan una estrella y van primero, tanto en la lista vacía como
+  en los resultados de búsqueda. Las filas abiertas recientemente vuelven arriba
+  la próxima vez, por separado para cada cuenta de GitHub.
+- **Acciones en cualquier fila** — haz clic derecho en una fila, pulsa
+  `Shift+F10` o su botón `⋯` para abrirla, abrirla en una pestaña nueva, copiar
+  su enlace, ruta, dirección de clonación o número de issue, y fijarla o
+  quitarla.
 - **Rápida y discreta** — la paleta muestra al instante la lista en caché, la
   actualiza en segundo plano y mantiene tu selección. Los resultados se guardan
   con ETags durante la sesión y entre recargas, así que la paleta no gasta cuota
@@ -296,7 +308,9 @@ búsqueda sobre todo lo que haces allí:
 - **Primero el teclado** — `↑`/`↓` mueven la selección, `Enter` abre,
   `Ctrl/⌘+Enter` abre en una pestaña nueva, `Alt+P` fija, `Esc` vacía la consulta
   y luego cierra; la paleta no estorba mientras escribes en un editor de
-  comentarios o README y se cierra sola al navegar.
+  comentarios o README y se cierra sola al navegar. El atajo es una opción
+  predefinida o cualquier combinación que grabes en la página de ajustes de la
+  paleta.
 
 ### Panel de ajustes
 
@@ -351,9 +365,10 @@ Se guardan en `gp_settings_v1`.
 | `translate.surfaces.<id>` | `true` | Interruptores por lugar: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Duración de la caché en horas (0 la desactiva) |
 | `commandPalette.enabled` | `true` | Interruptor principal de la paleta de comandos `Ctrl/⌘+K` |
-| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k` u `off` |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k`, `off` o una combinación grabada en la página de ajustes |
 | `commandPalette.token` | `''` | Token de GitHub opcional para repositorios privados y límites más altos (solo a `api.github.com`, nunca se exporta) |
-| `commandPalette.sources.<id>` | `true` | Interruptores de origen: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.sources.<id>` | `true` | Interruptores de origen: `commands`, `repositories`, `starred`, `files`, `issues`, `recent` |
+| `commandPalette.sources.issues` | `true` | Issues y pull requests abiertos del repositorio actual |
 | `commandPalette.hideForks` | `false` | Ocultar forks de repositorios |
 | `commandPalette.hideArchived` | `false` | Ocultar repositorios archivados |
 | `commandPalette.showDetails` | `true` | Panel de detalles junto a la lista (oculto por debajo de 760 px) |

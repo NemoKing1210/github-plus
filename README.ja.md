@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -14,7 +14,7 @@ blame 風の経過日数カラー、ファイルサイズとワンクリック �
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
 翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.21.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.22.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
@@ -239,6 +239,8 @@ GitHub Plus はその両方をファイルの行に追加します:
 どの GitHub ページでも `Ctrl/⌘+K` を押すと、そこで行うすべてを対象にした 1 つの
 検索フィールドが開きます:
 
+- **ヘッダーのボタン** — GitHub ヘッダーの操作の隣にあるパレットのボタンから、
+  どのページでもパレットを開けます。現在のショートカットも表示されます。
 - **自分のリポジトリ** — 所有するすべてのリポジトリ。自分のものが先頭で、スター、
   言語、最終 push、公開範囲が詳細ペインに表示されます。`@` を入力すると
   リポジトリだけを検索します。
@@ -247,11 +249,18 @@ GitHub Plus はその両方をファイルの行に追加します:
 - **現在のリポジトリのファイル** — `#` で現在のリポジトリのすべてのパス（または
   それに一致するクエリ）を表示します。ファイルは閲覧中のリビジョンで GitHub 上に
   開きます。
+- **オープンな issue と pull request** — 現在のリポジトリのオープンな issue と
+  pull request。issue または pull request のバッジが付き、詳細ペインに作成者、
+  更新日時、コメント数が表示されます。タイトル、番号、作成者で検索できます。
 - **GitHub のページと GitHub Plus の操作** — issue、pull request、通知、設定を
   開く。GitHub Plus パネルを開く。機能を切り替える。キャッシュを更新する。`>` で
   コマンドだけに絞り込み、`?` でクエリを GitHub 自身の検索に渡します。
-- **ピンと最近使った項目** — よく使うものは `Alt+P` でピン留めでき、最近開いた行は
-  次回開いたときに先頭へ戻ります（GitHub アカウントごと）。
+- **お気に入りと最近使った項目** — よく使うものは `Alt+P` でピン留めできます。
+  ピン留めした行はスターが付いて先頭に並びます（空の一覧でも検索結果でも）。最近
+  開いた行は次回開いたときに先頭へ戻ります（GitHub アカウントごと）。
+- **各行の操作** — 行を右クリックするか `Shift+F10`、または `⋯` ボタンで、開く、
+  新しいタブで開く、リンク・パス・クローン用アドレス・issue 番号のコピー、
+  ピン留めと解除ができます。
 - **高速で控えめ** — パレットはキャッシュ済みの一覧をすぐに表示し、バックグラウンド
   で更新しながら選択行を保ちます。結果は ETag 付きでセッション中も再読み込み後も
   キャッシュされるため、API の割り当てを消費しません。トークンがなくても公開
@@ -264,6 +273,7 @@ GitHub Plus はその両方をファイルの行に追加します:
 - **キーボード優先** — `↑`/`↓` で移動、`Enter` で開く、`Ctrl/⌘+Enter` で新しい
   タブに開く、`Alt+P` でピン留め、`Esc` でクエリを消してから閉じます。コメントや
   README のエディターで入力中は邪魔をせず、ナビゲーション時には自動で閉じます。
+  ショートカットはプリセットか、パレットの設定ページで記録した任意の組み合わせです。
 
 ### 設定パネル
 
@@ -317,9 +327,10 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `translate.surfaces.<id>` | `true` | 場所ごとのスイッチ: `markdown`、`plaintext`、`commits`、`titles`、`preview` |
 | `translate.cacheHours` | `24` | キャッシュの保持時間（時間、0 で無効） |
 | `commandPalette.enabled` | `true` | `Ctrl/⌘+K` コマンドパレットのマスター スイッチ |
-| `commandPalette.shortcut` | `'mod+k'` | `mod+k`、`mod+shift+k`、`alt+k`、`off` のいずれか |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`、`mod+shift+k`、`alt+k`、`off`、または設定ページで記録した組み合わせ |
 | `commandPalette.token` | `''` | プライベート リポジトリと高い制限のための任意の GitHub トークン（`api.github.com` にのみ送信、エクスポートされません） |
-| `commandPalette.sources.<id>` | `true` | ソースのスイッチ: `commands`、`repositories`、`starred`、`files`、`recent` |
+| `commandPalette.sources.<id>` | `true` | ソースのスイッチ: `commands`、`repositories`、`starred`、`files`、`issues`、`recent` |
+| `commandPalette.sources.issues` | `true` | 現在のリポジトリのオープンな issue と pull request |
 | `commandPalette.hideForks` | `false` | リポジトリのフォークを隠す |
 | `commandPalette.hideArchived` | `false` | アーカイブ済みリポジトリを隠す |
 | `commandPalette.showDetails` | `true` | 一覧の横の詳細ペイン（760 px 未満では常に非表示） |
