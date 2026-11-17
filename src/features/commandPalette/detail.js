@@ -118,12 +118,42 @@ function renderCommand(item, labels, onAction) {
   return root;
 }
 
-/** Render the aside for a repo, file or command row; null for anything else. */
+function renderIssue(item, labels, onAction) {
+  const issue = item.data || {};
+  const root = el('div', 'gp-detail');
+  root.appendChild(el('h2', 'gp-detail__title', item.title || (issue.number ? `#${issue.number}` : '')));
+
+  const facts = el('div', 'gp-detail__facts');
+  if (issue.author) facts.appendChild(fact(PALETTE_ICONS.repo, labels.author || '{login}', { login: issue.author }));
+  const updated = relativeTime(issue.updatedAt, { locale: labels.locale || 'en' });
+  if (updated) facts.appendChild(fact(PALETTE_ICONS.refresh, labels.updated, { when: updated }));
+  if (issue.comments) {
+    facts.appendChild(fact(PALETTE_ICONS.issueOpened, labels.comments || '{count} comments', { count: issue.comments }));
+  }
+  if (facts.childElementCount) root.appendChild(facts);
+
+  const tags = el('div', 'gp-detail__tags');
+  if (issue.state === 'open' && labels.stateOpen) tags.appendChild(tag(labels.stateOpen));
+  const kindLabel = issue.kindLabel === 'pullRequest' ? labels.badges?.pullRequest : labels.badges?.issue;
+  if (kindLabel) tags.appendChild(tag(kindLabel));
+  if (tags.childElementCount) root.appendChild(tags);
+
+  root.appendChild(actionList(labels, item, onAction, [
+    ['open', labels.open, PALETTE_ICONS.external],
+    ['newTab', labels.openNewTab, PALETTE_ICONS.external],
+    ['copyLink', labels.copyLink, PALETTE_ICONS.copy],
+    ['copyNumber', labels.copyNumber, PALETTE_ICONS.copy],
+  ]));
+  return root;
+}
+
+/** Render the aside for a repo, file, issue or command row; null for anything else. */
 export function renderDetail(item, { labels = {}, onAction, pinned } = {}) {
   if (!item) return null;
   const isPinned = pinned ?? Boolean(item.snapshot?.pinned);
   if (item.kind === 'repo') return renderRepo(item, labels, onAction, isPinned);
   if (item.kind === 'file') return renderFile(item, labels, onAction);
+  if (item.kind === 'issue') return renderIssue(item, labels, onAction);
   if (item.kind === 'command') return renderCommand(item, labels, onAction);
   return null;
 }

@@ -22,6 +22,7 @@ import { searchPalette } from './search.js';
 import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
 import { ensureTree, fileCandidates, forgetTrees, treeKey } from './files.js';
+import { ensureIssues, forgetIssues, issueCandidates } from './issues.js';
 import { renderDetail } from './detail.js';
 import { navigate, runAction } from './actions.js';
 import {
@@ -62,6 +63,8 @@ function paletteLabels() {
       starred: t('palette.badge.starred'),
       fork: t('palette.badge.fork'),
       archived: t('palette.badge.archived'),
+      issue: t('palette.badge.issue'),
+      pullRequest: t('palette.badge.pullRequest'),
     },
   };
 }
@@ -87,6 +90,9 @@ function detailLabels() {
     unpin: t('palette.details.unpin'),
     run: t('palette.details.run'),
     ref: t('palette.details.ref'),
+    author: t('palette.details.author'),
+    comments: t('palette.details.comments'),
+    stateOpen: t('palette.details.stateOpen'),
   };
 }
 
@@ -163,6 +169,7 @@ function buildCandidates(state) {
     ...commandCandidates(state),
     ...repoCandidates(state),
     ...fileCandidates(state),
+    ...issueCandidates(state),
     ...snapshotCandidates(state),
   ]), state.pinnedKeys);
 }
@@ -240,6 +247,13 @@ function kickLoads() {
       tasks.push(ensureTree());
     }
   }
+  if (state.settings.sources.issues !== false && state.context.repo) {
+    const key = `issues:${state.context.repo}`;
+    if (!sessionRefreshes.has(key)) {
+      sessionRefreshes.add(key);
+      tasks.push(ensureIssues());
+    }
+  }
   if (!tasks.length) return;
   state.status = 'loading';
   handle?.refresh();
@@ -258,6 +272,7 @@ function actionOptions() {
     clearPaletteCache: () => {
       clearDataCache();
       forgetTrees();
+      forgetIssues();
       sessionRefreshes.clear();
       if (paletteState) {
         paletteState.cache = null;
@@ -379,6 +394,9 @@ function idleRefresh() {
   if (repositoriesEnabled(state.settings)) ensureRepositories().catch(() => {});
   if (state.settings.sources.files !== false && state.context.repo && state.context.ref) {
     ensureTree().catch(() => {});
+  }
+  if (state.settings.sources.issues !== false && state.context.repo) {
+    ensureIssues().catch(() => {});
   }
 }
 

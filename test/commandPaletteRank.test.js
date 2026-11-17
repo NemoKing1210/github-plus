@@ -95,3 +95,12 @@ test('a prefix mode keeps only favorites of that kind', () => {
   });
   assert.deepEqual(result.groups[0].items.map((item) => item.key), ['file:a.js']);
 });
+
+test('issues browse directly under this repository', () => {
+  const result = rankCandidates([
+    { key: 'repo.ctx', kind: 'command', groupId: 'repository', title: 'Code', rankFields: [{ text: 'Code', weight: 3 }] },
+    { key: 'issue:1', kind: 'issue', groupId: 'issues', title: '#1 Bug', rankFields: [{ text: '#1 Bug', weight: 3 }] },
+    { key: 'repo:o/r', kind: 'repo', groupId: 'repos', title: 'o/r', rankFields: [{ text: 'o/r', weight: 3 }] },
+  ], '', { titles: { pinned: 'Favorites', recent: 'Recent' } });
+  assert.deepEqual(result.groups.map((group) => group.id), ['repository', 'issues', 'repos']);
+});

@@ -32,6 +32,7 @@ export function normalizeIssue(raw, repo) {
     author: raw?.user?.login || '',
     updatedAt: typeof raw?.updated_at === 'string' ? raw.updated_at : '',
     kindLabel: raw?.pull_request ? 'pullRequest' : 'issue',
+    comments: Number(raw?.comments) || 0,
     repo,
   };
 }
@@ -59,6 +60,12 @@ function buildIssueCandidate(item, repo) {
       run: { type: 'navigate', url: item.url },
       number: item.number,
       repo,
+      url: item.url,
+      author: item.author,
+      updatedAt: item.updatedAt,
+      kindLabel: item.kindLabel,
+      comments: item.comments || 0,
+      state: 'open',
     },
   };
 }

@@ -25,6 +25,10 @@ globalThis.localStorage = {
 };
 
 globalThis.GM_xmlhttpRequest = (options) => {
+  if (options.url.includes('/issues')) {
+    options.onload({ status: 200, responseText: '[]', responseHeaders: '' });
+    return;
+  }
   if (options.url.includes('/starred')) {
     options.onload({ status: 200, responseText: '[]', responseHeaders: '' });
     return;
@@ -51,6 +55,7 @@ globalThis.GM_xmlhttpRequest = (options) => {
 
 const palette = await import('../src/features/commandPalette/index.js');
 const shell = await import('../src/ui/commandPalette.js');
+const { writeCacheRecord } = await import('../src/features/commandPalette/store.js');
 const { t } = await import('../src/i18n/index.js');
 
 afterEach(() => {
@@ -79,4 +84,36 @@ test('the palette never opens over another GitHub Plus overlay', () => {
   palette.openPalette();
   assert.equal(shell.isCommandPaletteOpen(), false);
   panel.remove();
+});
+
+test('a cold open lists a cached issue under this repository', async () => {
+  // Earlier opens write their loads when they settle; let those writes land so
+  // the record below is the one the palette reads.
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  writeCacheRecord({
+    version: 1, login: 'alice', tokenLogin: null, tokenFingerprint: '', sources: {}, trees: {}, rateLimit: null,
+    issues: { 'alice/repo': { etag: '"i"', items: [{ number: 3, title: 'Broken build', url: 'https://github.com/alice/repo/issues/3', author: 'ann', updatedAt: '2026-11-01T00:00:00Z', kindLabel: 'issue', repo: 'alice/repo' }], fetchedAt: Date.now() } },
+  });
+  palette.openPalette();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.match(document.querySelector('.gp-command__list').textContent, /#3 Broken build/);
+  shell.closeCommandPalette();
+});
+
+test('an empty cached issue list produces no rows and no failure note', async () => {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  writeCacheRecord({
+    version: 1, login: 'alice', tokenLogin: null, tokenFingerprint: '', sources: {}, trees: {}, rateLimit: null,
+    issues: { 'alice/repo': { etag: '"i"', items: [], fetchedAt: Date.now() } },
+  });
+  palette.openPalette();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.equal(document.querySelectorAll('.gp-command__row[data-key^="issue:"]').length, 0);
+  // This fixture's tree is truncated, so the incomplete note is real; only a
+  // failed load may add one of the failure notes.
+  const note = document.querySelector('.gp-command__note')?.textContent || '';
+  for (const key of ['palette.status.offline', 'palette.status.rateLimited', 'palette.status.invalidToken']) {
+    assert.notEqual(note, t(key));
+  }
+  shell.closeCommandPalette();
 });

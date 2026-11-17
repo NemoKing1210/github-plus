@@ -11,7 +11,7 @@ const PREFIX_MODES = {
   '?': 'search',
 };
 
-const BROWSE_ORDER = ['repository', 'github', 'plus', 'repos', 'starred', 'search'];
+const BROWSE_ORDER = ['repository', 'issues', 'github', 'plus', 'repos', 'starred', 'search'];
 const GROUP_LIMIT = 8;
 const BOUNDARY = /[\s/\-_.@:]/;
 
