@@ -47,7 +47,7 @@ Two invariants hold for every selector:
   unprefixed selector.
 - Every UI-root class that must be excluded from page scanning is listed in
   `isOwnUi()` in `src/utils/dom.js`
-  (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
+  (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-header-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
   .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-command-overlay,
   .gp-translate-btn, .gp-translate-bar, .gp-translate-result`).
@@ -246,19 +246,21 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 Class names below are the ones actually built by the components; a class that
 exists in `app.css` without a rule is listed as "structural".
 
-### Settings entry button
+### Header actions
 
 | Class | Purpose |
 |---|---|
-| `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-2)` |
-| `.gp-settings-btn` | Second class on the same element (built by `src/features/settings/index.js`); the root scanned in `isOwnUi()` |
-| `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the Octicons `gear` glyph, filled with `currentColor`, styled by `.gp-header-btn svg`, `16×16`) |
-| `.gp-settings-item` | `<li>` host when the header target is a `<ul>`; structural, no rules |
+| `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-2)`; every header entry carries it, and it is the root scanned in `isOwnUi()` |
+| `.gp-settings-btn` | Second class on the settings entry (registered by `src/features/settings/index.js`) |
+| `.gp-palette-btn` | Second class on the command palette entry (registered by `src/features/commandPalette/index.js`) |
+| `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the feature glyph, filled with `currentColor`, styled by `.gp-header-btn svg`, `16×16`) |
+| `.gp-header-item` | `<li>` host when the header target is a `<ul>`; structural, no rules |
 | `.gp-header-btn--custom` | Modifier added while any setting differs from defaults; draws a `6×6` `var(--gp-accent)` dot at top-right 4px |
 
-The button is mounted into `.AppHeader-globalBar-end`, then
-`.AppHeader-globalBar`, then `#user-links`, and is re-mounted when GitHub
-swaps the header. It carries `title` and `aria-label` from `settings.open`.
+Both entries are built by `src/ui/headerActions.js`, which mounts registered
+actions into `.AppHeader-globalBar-end`, then `.AppHeader-globalBar`, then
+`#user-links`, sorts them by `order` and re-mounts them when GitHub swaps the
+header. Each button carries `title` and `aria-label` from its registered label.
 
 ### Settings entry — user menu row
 

@@ -1249,7 +1249,7 @@ the panel footer Save.
 
 - `dom.js`: `el(tag, className, text)`, `append`, `debounce`, `eachNode`,
   `toArray`, `escapeHtml(text)`, `isOwnUi(node)` (true inside
-  `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`,
+  `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-header-btn`,
   `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
   `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`,
   `.gp-command-overlay`) and
