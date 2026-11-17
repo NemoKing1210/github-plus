@@ -1,4 +1,4 @@
-import { normalizeImportedSettings } from '../../../core/settings.js';
+import { normalizeImportedSettings, toExportableSettings } from '../../../core/settings.js';
 import { t } from '../../../i18n/index.js';
 import { el } from '../../../utils/dom.js';
 import { showToast } from '../../../ui/toast.js';
@@ -37,9 +37,9 @@ export function renderBackup(container) {
   const exportRow = el('div', 'gp-row');
   const exportActions = el('div', 'gp-row__control');
   exportActions.append(
-    createButton(t('backup.exportFile'), () => downloadBackup(draft)),
+    createButton(t('backup.exportFile'), () => downloadBackup(toExportableSettings(draft))),
     createButton(t('backup.exportClipboard'), () => {
-      copyBackup(draft).catch(() => showToast({
+      copyBackup(toExportableSettings(draft)).catch(() => showToast({
         type: 'error',
         title: t('toast.importFailed'),
         message: t('toast.importFailedDesc'),

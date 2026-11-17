@@ -1,5 +1,9 @@
 import { SUPPORTED_LOCALES } from '../i18n/meta.js';
 import {
+  COMMAND_PALETTE_CACHE_HOURS_MAX,
+  COMMAND_PALETTE_MAX_RESULTS_MAX,
+  COMMAND_PALETTE_MAX_RESULTS_MIN,
+  COMMAND_PALETTE_SHORTCUTS,
   GALLERY_MAX_ZOOM,
   PREVIEW_LONG_PRESS_MAX_MS,
   PREVIEW_LONG_PRESS_MIN_MS,
@@ -236,6 +240,33 @@ function normalizeTranslate(raw, fallback) {
   };
 }
 
+function normalizeClamp(value, min, max, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(number)));
+}
+
+/** Normalize the command palette section; the token is trimmed and bounded. */
+export function normalizeCommandPalette(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+    shortcut: normalizeEnum(source.shortcut, COMMAND_PALETTE_SHORTCUTS, fallback.shortcut),
+    token: typeof source.token === 'string' ? source.token.trim().slice(0, 400) : fallback.token,
+    sources: normalizeSources(source.sources, fallback.sources),
+    hideForks: normalizeBoolean(source.hideForks, fallback.hideForks),
+    hideArchived: normalizeBoolean(source.hideArchived, fallback.hideArchived),
+    showDetails: normalizeBoolean(source.showDetails, fallback.showDetails),
+    cacheHours: normalizeClamp(source.cacheHours, 0, COMMAND_PALETTE_CACHE_HOURS_MAX, fallback.cacheHours),
+    maxResults: normalizeClamp(
+      source.maxResults,
+      COMMAND_PALETTE_MAX_RESULTS_MIN,
+      COMMAND_PALETTE_MAX_RESULTS_MAX,
+      fallback.maxResults,
+    ),
+  };
+}
+
 /** Normalize a whole settings payload against the shipped defaults. */
 function normalizeSettings(raw) {
   const defaults = getDefaults();
@@ -251,6 +282,7 @@ function normalizeSettings(raw) {
     fileMenu: normalizeFileMenu(source.fileMenu, defaults.fileMenu),
     filePreview: normalizeFilePreview(source.filePreview, defaults.filePreview),
     translate: normalizeTranslate(source.translate, defaults.translate),
+    commandPalette: normalizeCommandPalette(source.commandPalette, defaults.commandPalette),
   };
 }
 
@@ -301,6 +333,17 @@ export function getTranslateSettings() {
   return settings.translate;
 }
 
+export function getCommandPaletteSettings() {
+  return settings.commandPalette;
+}
+
+/** Settings as they may leave the browser: a token never belongs in a backup. */
+export function toExportableSettings(value) {
+  const copy = JSON.parse(JSON.stringify(value));
+  if (copy.commandPalette) copy.commandPalette.token = '';
+  return copy;
+}
+
 /**
  * Merge a partial patch, normalize it, persist it and return the new state.
  * Deliberately does not notify features: the caller emits the matching bus
@@ -320,7 +363,9 @@ export function saveSettings(patch) {
  */
 export function normalizeImportedSettings(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
-  return normalizeSettings(raw);
+  const next = normalizeSettings(raw);
+  next.commandPalette.token = '';
+  return next;
 }
 
 /** True when the current settings differ from the shipped defaults. */

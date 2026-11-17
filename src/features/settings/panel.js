@@ -266,6 +266,7 @@ function persist() {
     emit('settings:fileMenu', saved.fileMenu);
     emit('settings:filePreview', saved.filePreview);
     emit('settings:translate', saved.translate);
+    emit('settings:commandPalette', saved.commandPalette);
     showToast({ type: 'success', title: t('toast.saved'), message: t('toast.savedDesc') });
   } catch (error) {
     log.error(Codes.SETTINGS_PERSIST, 'saving settings from the panel failed', { error });
@@ -290,6 +291,7 @@ export function applyExternalSettings(next) {
   emit('settings:fileMenu', saved.fileMenu);
   emit('settings:filePreview', saved.filePreview);
   emit('settings:translate', saved.translate);
+  emit('settings:commandPalette', saved.commandPalette);
   if (panelOpen) refreshPanelDraft();
   return saved;
 }
