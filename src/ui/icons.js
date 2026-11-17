@@ -85,3 +85,51 @@ export const ACTION_ICONS = {
     + '<path d="M8.75 13.75 11 7.25l2.25 6.5M9.5 11.75h3.25"/>',
   ),
 };
+
+/** Command palette glyphs, reusing the shared ones where the shape is identical. */
+export const PALETTE_ICONS = {
+  palette: svg(
+    '<rect x="2.25" y="2.75" width="11.5" height="10.5" rx="2.25"/>'
+    + '<path d="M5.25 6h5.5M5.25 9h3.25"/>',
+  ),
+  search: svg(
+    '<circle cx="7" cy="7" r="4.25"/>'
+    + '<path d="m10.3 10.3 3.2 3.2"/>',
+  ),
+  repo: svg(
+    '<path d="M3.5 2.5h7.25L13 4.75v8.75H3.5Z"/>'
+    + '<path d="M5.75 5.5h4.5M5.75 8h4.5M5.75 10.5h2.75"/>',
+  ),
+  star: svg(
+    '<path d="m8 2.5 1.65 3.45 3.85.5-2.8 2.65.7 3.8L8 11l-3.4 1.9.7-3.8-2.8-2.65 3.85-.5Z"/>',
+  ),
+  folder: svg('<path d="M2.5 4.5h3.75l1.25 1.5h6v6.5h-11Z"/>'),
+  file: svg(
+    '<path d="M9 2.5H4.5v11h7V6Z"/>'
+    + '<path d="M9 2.5V6h2.5"/>',
+  ),
+  terminal: svg(
+    '<path d="m4 5.25 3 2.75-3 2.75"/>'
+    + '<path d="M8.75 11h3.25"/>',
+  ),
+  pin: svg(
+    '<path d="M6 2.5h4l-.5 3 2 2v1H4.5v-1l2-2Z"/>'
+    + '<path d="M8 9v4.5"/>',
+  ),
+  copy: ACTION_ICONS.copy,
+  external: VIEWER_ICONS.external,
+  refresh: svg(
+    '<path d="M13 8a5 5 0 1 1-1.46-3.54"/>'
+    + '<path d="M13 2.5v3h-3"/>',
+  ),
+  check: svg('<path d="m3.5 8.5 3 3 6-7"/>'),
+  gear: svg(
+    '<circle cx="8" cy="8" r="2.25"/>'
+    + '<path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14M3.8 3.8l1 1M11.2 11.2l1 1M12.2 3.8l-1 1M4.8 11.2l-1 1"/>',
+  ),
+  trash: svg(
+    '<path d="M3 4.5h10"/>'
+    + '<path d="M6.5 4.5V3h3v1.5"/>'
+    + '<path d="m4.5 4.5.5 8.5h6l.5-8.5"/>',
+  ),
+};

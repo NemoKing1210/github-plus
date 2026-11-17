@@ -5,21 +5,22 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-Un userscript que mejora GitHub con un panel de ajustes completo, una galería
-de imágenes para el markdown renderizado, iconos de archivo en color allí donde
-GitHub lista archivos, colores de antigüedad al estilo blame para esos archivos,
-tamaños de archivo con descargas en un clic, un menú contextual para acciones
-de archivo, una vista rápida de cualquier archivo y traducción del contenido
-de la página.
+Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
+comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
+iconos de archivo en color allí donde GitHub lista archivos, colores de
+antigüedad al estilo blame para esos archivos, tamaños de archivo con descargas
+en un clic, un menú contextual para acciones de archivo, una vista rápida de
+cualquier archivo y traducción del contenido de la página.
 
-> **Estado:** temprano (`0.20.11`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Archivos · Traducción · Copia de seguridad · Acerca de), la galería de
-> imágenes de markdown, los iconos de archivo en color, los colores de
-> antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
-> menú contextual de archivos, una vista rápida de archivos y traducción de la
-> página. Hay más mejoras de GitHub planificadas.
+> **Estado:** temprano (`0.21.0`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Archivos · Traducción · Paleta · Copia de seguridad ·
+> Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de imágenes de
+> markdown, los iconos de archivo en color, los colores de antigüedad al estilo
+> blame, los tamaños de archivo con botones de descarga, un menú contextual de
+> archivos, una vista rápida de archivos y traducción de la página. Hay más
+> mejoras de GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -262,6 +263,41 @@ archivo markdown abierto en la vista rápida:
 - **En caché** — una traducción se reutiliza 24 horas por defecto (configurable;
   0 desactiva la caché) y puede vaciarse desde la página de ajustes.
 
+### Paleta de comandos
+
+Pulsa `Ctrl/⌘+K` en cualquier página de GitHub para abrir un único campo de
+búsqueda sobre todo lo que haces allí:
+
+- **Tus repositorios** — todos los que posees, los propios primero, con
+  estrellas, lenguaje, último push y visibilidad en el panel de detalles. Escribe
+  `@` para buscar solo repositorios.
+- **Repositorios con estrella** — los proyectos a los que vuelves una y otra vez;
+  van después de los tuyos y llevan una estrella.
+- **Archivos del repositorio actual** — `#` muestra todas las rutas del
+  repositorio actual (o una consulta que coincida); un archivo se abre en GitHub
+  en la revisión que estás viendo.
+- **Páginas de GitHub y acciones de GitHub Plus** — abre tus issues, pull
+  requests, notificaciones o ajustes; abre el panel de GitHub Plus; activa o
+  desactiva sus funciones; actualiza la caché. `>` limita la lista a comandos y
+  `?` envía la consulta a la búsqueda propia de GitHub.
+- **Fijados y recientes** — fija lo que usas constantemente (`Alt+P`) y las filas
+  abiertas recientemente vuelven arriba la próxima vez, por separado para cada
+  cuenta de GitHub.
+- **Rápida y discreta** — la paleta muestra al instante la lista en caché, la
+  actualiza en segundo plano y mantiene tu selección. Los resultados se guardan
+  con ETags durante la sesión y entre recargas, así que la paleta no gasta cuota
+  de API; sin token lee datos públicos y todos los comandos siguen funcionando.
+- **Token de GitHub opcional** — añádelo en la página de ajustes de la paleta
+  para ver repositorios privados y listas completas (5 000 solicitudes por hora
+  en lugar de 60). El token se verifica antes de usarse, se guarda solo en este
+  navegador, nunca se escribe en una copia de seguridad y se envía solo a
+  `api.github.com`; la caché pertenece a cada cuenta, así que cambiar de cuenta
+  nunca muestra repositorios ajenos.
+- **Primero el teclado** — `↑`/`↓` mueven la selección, `Enter` abre,
+  `Ctrl/⌘+Enter` abre en una pestaña nueva, `Alt+P` fija, `Esc` vacía la consulta
+  y luego cierra; la paleta no estorba mientras escribes en un editor de
+  comentarios o README y se cierra sola al navegar.
+
 ### Panel de ajustes
 
 Ábrelo con el botón de engranaje de la cabecera de GitHub, con la fila
@@ -314,6 +350,15 @@ Se guardan en `gp_settings_v1`.
 | `translate.linkLabels` | `true` | Traducir también el texto de los enlaces |
 | `translate.surfaces.<id>` | `true` | Interruptores por lugar: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Duración de la caché en horas (0 la desactiva) |
+| `commandPalette.enabled` | `true` | Interruptor principal de la paleta de comandos `Ctrl/⌘+K` |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k` u `off` |
+| `commandPalette.token` | `''` | Token de GitHub opcional para repositorios privados y límites más altos (solo a `api.github.com`, nunca se exporta) |
+| `commandPalette.sources.<id>` | `true` | Interruptores de origen: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.hideForks` | `false` | Ocultar forks de repositorios |
+| `commandPalette.hideArchived` | `false` | Ocultar repositorios archivados |
+| `commandPalette.showDetails` | `true` | Panel de detalles junto a la lista (oculto por debajo de 760 px) |
+| `commandPalette.cacheHours` | `6` | Duración de la caché de repositorios y árboles de archivos en horas (0 la desactiva) |
+| `commandPalette.maxResults` | `30` | Número máximo de filas por conjunto de resultados (10–100) |
 
 ## Cómo está construida la galería
 

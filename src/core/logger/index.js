@@ -39,6 +39,10 @@ export const Codes = {
   TRANSLATE: 'GP-1601',
   /** Reading or persisting the translation cache failed. */
   TRANSLATE_CACHE: 'GP-1602',
+  /** Palette repository, starred or tree loading failed. */
+  PALETTE_LOAD: 'GP-1701',
+  /** Reading or persisting the palette cache failed. */
+  PALETTE_CACHE: 'GP-1702',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
   /** An uncaught runtime error attributable to this script. */

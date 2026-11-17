@@ -5,19 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-GitHub を改善するユーザースクリプトです。充実した設定パネル、レンダリングされた
-Markdown の画像ギャラリー、GitHub がファイルを一覧するあらゆる場所でのカラー
-ファイル アイコン、それらのファイルの blame 風の経過日数カラー、ファイルサイズと
-ワンクリック ダウンロード、ファイル操作用のコンテキスト メニュー、任意の
-ファイルのクイックプレビュー、ページ内テキストの翻訳を提供します。
+GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
+コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
+ファイルを一覧するあらゆる場所でのカラー ファイル アイコン、それらのファイルの
+blame 風の経過日数カラー、ファイルサイズとワンクリック ダウンロード、ファイル操作
+用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
+翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.20.11`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル · 翻訳 · バックアップ · このアプリについて）、Markdown 画像
-> ギャラリー、カラー ファイル アイコン、blame 風の経過日数カラー、ファイルサイズと
-> ダウンロード ボタン、ファイルのコンテキスト メニュー、ファイルのクイック
-> プレビュー、ページ内翻訳。今後さらに GitHub の改善を追加予定です。
+> **ステータス:** 初期段階（`0.21.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
+> `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
+> blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
+> コンテキスト メニュー、ファイルのクイックプレビュー、ページ内翻訳。今後さらに
+> GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -232,6 +234,37 @@ GitHub Plus はその両方をファイルの行に追加します:
 - **キャッシュ** — 訳文は既定で 24 時間再利用され（設定可能、0 で無効）、設定
   ページから消去できます。
 
+### コマンドパレット
+
+どの GitHub ページでも `Ctrl/⌘+K` を押すと、そこで行うすべてを対象にした 1 つの
+検索フィールドが開きます:
+
+- **自分のリポジトリ** — 所有するすべてのリポジトリ。自分のものが先頭で、スター、
+  言語、最終 push、公開範囲が詳細ペインに表示されます。`@` を入力すると
+  リポジトリだけを検索します。
+- **スター付きリポジトリ** — 何度も戻ってくるプロジェクト。自分のリポジトリの後に
+  並び、スターで示されます。
+- **現在のリポジトリのファイル** — `#` で現在のリポジトリのすべてのパス（または
+  それに一致するクエリ）を表示します。ファイルは閲覧中のリビジョンで GitHub 上に
+  開きます。
+- **GitHub のページと GitHub Plus の操作** — issue、pull request、通知、設定を
+  開く。GitHub Plus パネルを開く。機能を切り替える。キャッシュを更新する。`>` で
+  コマンドだけに絞り込み、`?` でクエリを GitHub 自身の検索に渡します。
+- **ピンと最近使った項目** — よく使うものは `Alt+P` でピン留めでき、最近開いた行は
+  次回開いたときに先頭へ戻ります（GitHub アカウントごと）。
+- **高速で控えめ** — パレットはキャッシュ済みの一覧をすぐに表示し、バックグラウンド
+  で更新しながら選択行を保ちます。結果は ETag 付きでセッション中も再読み込み後も
+  キャッシュされるため、API の割り当てを消費しません。トークンがなくても公開
+  データを読み取り、すべてのコマンドが使えます。
+- **任意の GitHub トークン** — パレットの設定ページで追加すると、プライベート
+  リポジトリと完全な一覧を表示できます（1 時間 60 回ではなく 5,000 回）。トークンは
+  使用前に検証され、このブラウザーにのみ保存され、バックアップには決して書き込まれ
+  ず、`api.github.com` にだけ送信されます。キャッシュはアカウントごとに分かれる
+  ため、アカウントを切り替えても他人のリポジトリが表示されることはありません。
+- **キーボード優先** — `↑`/`↓` で移動、`Enter` で開く、`Ctrl/⌘+Enter` で新しい
+  タブに開く、`Alt+P` でピン留め、`Esc` でクエリを消してから閉じます。コメントや
+  README のエディターで入力中は邪魔をせず、ナビゲーション時には自動で閉じます。
+
 ### 設定パネル
 
 GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
@@ -283,6 +316,15 @@ GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Pl
 | `translate.linkLabels` | `true` | リンクのテキストも翻訳 |
 | `translate.surfaces.<id>` | `true` | 場所ごとのスイッチ: `markdown`、`plaintext`、`commits`、`titles`、`preview` |
 | `translate.cacheHours` | `24` | キャッシュの保持時間（時間、0 で無効） |
+| `commandPalette.enabled` | `true` | `Ctrl/⌘+K` コマンドパレットのマスター スイッチ |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`、`mod+shift+k`、`alt+k`、`off` のいずれか |
+| `commandPalette.token` | `''` | プライベート リポジトリと高い制限のための任意の GitHub トークン（`api.github.com` にのみ送信、エクスポートされません） |
+| `commandPalette.sources.<id>` | `true` | ソースのスイッチ: `commands`、`repositories`、`starred`、`files`、`recent` |
+| `commandPalette.hideForks` | `false` | リポジトリのフォークを隠す |
+| `commandPalette.hideArchived` | `false` | アーカイブ済みリポジトリを隠す |
+| `commandPalette.showDetails` | `true` | 一覧の横の詳細ペイン（760 px 未満では常に非表示） |
+| `commandPalette.cacheHours` | `6` | リポジトリとファイル ツリーのキャッシュ保持時間（時間、0 で無効） |
+| `commandPalette.maxResults` | `30` | 結果セットあたりの最大行数（10–100） |
 
 ## ギャラリーの仕組み
 

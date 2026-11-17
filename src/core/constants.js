@@ -282,6 +282,33 @@ const DEFAULT_TRANSLATE = {
   cacheHours: 24,
 };
 
+export const COMMAND_PALETTE_SHORTCUTS = ['mod+k', 'mod+shift+k', 'alt+k', 'off'];
+export const COMMAND_PALETTE_CACHE_KEY = 'gp_palette_cache_v1';
+export const COMMAND_PALETTE_RECENTS_KEY = 'gp_palette_recents_v1';
+export const COMMAND_PALETTE_PINS_KEY = 'gp_palette_pins_v1';
+export const COMMAND_PALETTE_CACHE_HOURS_MAX = 168;
+export const COMMAND_PALETTE_MAX_RESULTS_MIN = 10;
+export const COMMAND_PALETTE_MAX_RESULTS_MAX = 100;
+
+/** Command palette: keyboard search over repositories, files and actions. */
+const DEFAULT_COMMAND_PALETTE = {
+  enabled: true,
+  shortcut: 'mod+k',
+  token: '',
+  sources: {
+    commands: true,
+    repositories: true,
+    starred: true,
+    files: true,
+    recent: true,
+  },
+  hideForks: false,
+  hideArchived: false,
+  showDetails: true,
+  cacheHours: 6,
+  maxResults: 30,
+};
+
 export const DEFAULT_SETTINGS = {
   language: 'auto',
   logging: DEFAULT_LOGGING,
@@ -293,6 +320,7 @@ export const DEFAULT_SETTINGS = {
   fileMenu: DEFAULT_FILE_MENU,
   filePreview: DEFAULT_FILE_PREVIEW,
   translate: DEFAULT_TRANSLATE,
+  commandPalette: DEFAULT_COMMAND_PALETTE,
 };
 
 /** Deep-cloned defaults, used on reset. */

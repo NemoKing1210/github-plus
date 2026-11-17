@@ -5,18 +5,20 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-Userskrypt ulepszający GitHub: pełny panel ustawień, galeria obrazów dla
-renderowanego Markdownu, kolorowe ikony plików wszędzie tam, gdzie GitHub
-wyświetla pliki, kolory wieku tych plików w stylu blame, rozmiary plików
-i pobieranie jednym kliknięciem, menu kontekstowe operacji na plikach, szybki
-podgląd dowolnego pliku i tłumaczenie treści na stronie.
+Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
+`Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
+wszędzie tam, gdzie GitHub wyświetla pliki, kolory wieku tych plików w stylu
+blame, rozmiary plików i pobieranie jednym kliknięciem, menu kontekstowe
+operacji na plikach, szybki podgląd dowolnego pliku i tłumaczenie treści na
+stronie.
 
-> **Status:** wczesny etap (`0.20.11`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Kopia zapasowa · Informacje), galeria
-> obrazów Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary
-> plików z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików
+> **Status:** wczesny etap (`0.21.0`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Paleta · Kopia
+> zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
+> Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary plików
+> z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików
 > i tłumaczenie treści strony. W planach kolejne ulepszenia GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
@@ -248,6 +250,41 @@ w szybkim podglądzie:
   domyślnie (konfigurowalne; 0 wyłącza pamięć) i można je wyczyścić na stronie
   ustawień.
 
+### Paleta poleceń
+
+Naciśnij `Ctrl/⌘+K` na dowolnej stronie GitHuba, aby otworzyć jedno pole
+wyszukiwania obejmujące wszystko, co tam robisz:
+
+- **Twoje repozytoria** — wszystkie, których jesteś właścicielem, własne
+  najpierw, z gwiazdkami, językiem, ostatnim push i widocznością w panelu
+  szczegółów. Wpisz `@`, aby szukać tylko repozytoriów.
+- **Repozytoria z gwiazdką** — projekty, do których wracasz; są po twoich
+  własnych i oznaczone gwiazdką.
+- **Pliki bieżącego repozytorium** — `#` pokazuje wszystkie ścieżki bieżącego
+  repozytorium (lub pasujące zapytanie); plik otwiera się w GitHubie na wersji,
+  którą przeglądasz.
+- **Strony GitHuba i akcje GitHub Plus** — otwórz swoje issue, pull requesty,
+  powiadomienia lub ustawienia; otwórz panel GitHub Plus; przełącz jego funkcje;
+  odśwież pamięć podręczną. `>` ogranicza listę do poleceń, a `?` przekazuje
+  zapytanie do wyszukiwania samego GitHuba.
+- **Przypięte i ostatnie** — przypnij to, czego używasz stale (`Alt+P`), a
+  ostatnio otwarte wiersze wrócą na górę przy następnym otwarciu, osobno dla
+  każdego konta GitHuba.
+- **Szybko i dyskretnie** — paleta od razu pokazuje listę z pamięci podręcznej,
+  odświeża ją w tle i zachowuje zaznaczony wiersz. Wyniki są buforowane z ETagami
+  w ramach sesji i między przeładowaniami, więc paleta nie zużywa limitu API; bez
+  tokenu czyta dane publiczne, a wszystkie polecenia nadal działają.
+- **Opcjonalny token GitHuba** — dodaj go na stronie ustawień palety, aby widzieć
+  prywatne repozytoria i pełne listy (5 000 żądań na godzinę zamiast 60). Token
+  jest sprawdzany przed użyciem, przechowywany tylko w tej przeglądarce, nigdy nie
+  trafia do kopii zapasowej i jest wysyłany wyłącznie na `api.github.com`; pamięć
+  podręczna należy do każdego konta, więc zmiana konta nigdy nie pokazuje cudzych
+  repozytoriów.
+- **Najpierw klawiatura** — `↑`/`↓` przesuwają zaznaczenie, `Enter` otwiera,
+  `Ctrl/⌘+Enter` otwiera w nowej karcie, `Alt+P` przypina, `Esc` czyści zapytanie,
+  a potem zamyka; paleta nie przeszkadza podczas pisania w edytorze komentarza
+  lub README i sama zamyka się przy nawigacji.
+
 ### Panel ustawień
 
 Otwórz go przyciskiem zębatki w nagłówku GitHuba, wierszem **Ustawienia GitHub Plus**
@@ -299,6 +336,15 @@ Przechowywane pod `gp_settings_v1`.
 | `translate.linkLabels` | `true` | Tłumacz także teksty linków |
 | `translate.surfaces.<id>` | `true` | Przełączniki miejsc: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Czas życia pamięci podręcznej w godzinach (0 wyłącza) |
+| `commandPalette.enabled` | `true` | Główny przełącznik palety poleceń `Ctrl/⌘+K` |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k` lub `off` |
+| `commandPalette.token` | `''` | Opcjonalny token GitHuba dla prywatnych repozytoriów i wyższych limitów (tylko na `api.github.com`, nigdy nie eksportowany) |
+| `commandPalette.sources.<id>` | `true` | Przełączniki źródeł: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.hideForks` | `false` | Ukrywaj forki repozytoriów |
+| `commandPalette.hideArchived` | `false` | Ukrywaj zarchiwizowane repozytoria |
+| `commandPalette.showDetails` | `true` | Panel szczegółów obok listy (i tak ukryty poniżej 760 px) |
+| `commandPalette.cacheHours` | `6` | Czas życia pamięci podręcznej repozytoriów i drzew plików w godzinach (0 wyłącza) |
+| `commandPalette.maxResults` | `30` | Maksymalna liczba wierszy w zestawie wyników (10–100) |
 
 ## Jak zbudowana jest galeria
 

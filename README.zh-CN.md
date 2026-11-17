@@ -5,15 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-一个改进 GitHub 的用户脚本：完整的设置面板、渲染后 Markdown 的图片画廊、GitHub
-列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、文件大小与一键下载，
-用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的翻译。
+一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
+的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
+文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的
+翻译。
 
-> **状态：** 早期（`0.20.11`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 · 备份 ·
-> 关于）、Markdown 图片画廊、彩色文件图标、blame 风格的年龄着色、带下载按钮的
-> 文件大小、文件上下文菜单、快速文件预览，以及页面翻译。计划加入更多 GitHub 改进。
+> **状态：** 早期（`0.21.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
+> 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件图标、
+> blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件预览，以及
+> 页面翻译。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -189,6 +191,31 @@ GitHub Plus 把两者直接加到文件行上：
   文本会发送到所选服务；API 密钥只保存在此浏览器中，因此设置备份会包含它们。
 - **缓存** —— 译文默认复用 24 小时（可配置；0 表示关闭缓存），并可在设置页清除。
 
+### 命令面板
+
+在任意 GitHub 页面按下 `Ctrl/⌘+K`，即可用一个搜索框覆盖你在 GitHub 上的一切操作：
+
+- **你的仓库** —— 你拥有的所有仓库，自己的排在前面，详情面板显示星标、语言、
+  最近推送和可见性。输入 `@` 只搜索仓库。
+- **星标仓库** —— 你反复回访的项目，排在自有仓库之后并带有星标。
+- **当前仓库的文件** —— `#` 列出当前仓库的所有路径（或与之匹配的查询）；文件会在
+  GitHub 上按你正在浏览的版本打开。
+- **GitHub 页面和 GitHub Plus 操作** —— 打开你的 issue、pull request、通知或设置；
+  打开 GitHub Plus 面板；切换它的功能；刷新缓存。`>` 只列出命令，`?` 把查询交给
+  GitHub 自己的搜索。
+- **固定与最近** —— 用 `Alt+P` 固定常用条目，最近打开的行会在下次打开时回到顶部，
+  并按 GitHub 账号分别记录。
+- **快速且安静** —— 命令面板立即渲染缓存列表，在后台刷新，并保持当前选中行。结果
+  在本次会话和多次刷新之间都带 ETag 缓存，因此不会消耗 API 配额；没有令牌时读取
+  公开数据，所有命令依然可用。
+- **可选的 GitHub 令牌** —— 在命令面板的设置页添加后，可查看私有仓库和完整列表
+  （每小时 5 000 次请求，而非 60 次）。令牌在使用前会先验证，只保存在此浏览器中，
+  永远不会写入备份，并且只发送到 `api.github.com`；缓存按账号隔离，切换账号绝不会
+  显示他人的仓库。
+- **键盘优先** —— `↑`/`↓` 移动，`Enter` 打开，`Ctrl/⌘+Enter` 在新标签页打开，
+  `Alt+P` 固定，`Esc` 先清空查询再关闭；在评论或 README 编辑器中输入时命令面板不会
+  打扰，导航时会自动关闭。
+
 ### 设置面板
 
 可从 GitHub 头部的齿轮按钮、头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub
@@ -239,6 +266,15 @@ GitHub Plus 把两者直接加到文件行上：
 | `translate.linkLabels` | `true` | 同时翻译链接文字 |
 | `translate.surfaces.<id>` | `true` | 各位置开关：`markdown`、`plaintext`、`commits`、`titles`、`preview` |
 | `translate.cacheHours` | `24` | 缓存时长（小时，0 表示关闭缓存） |
+| `commandPalette.enabled` | `true` | `Ctrl/⌘+K` 命令面板的总开关 |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`、`mod+shift+k`、`alt+k` 或 `off` |
+| `commandPalette.token` | `''` | 可选的 GitHub 令牌，用于私有仓库和更高限额（只发送到 `api.github.com`，不会导出） |
+| `commandPalette.sources.<id>` | `true` | 来源开关：`commands`、`repositories`、`starred`、`files`、`recent` |
+| `commandPalette.hideForks` | `false` | 隐藏仓库的 fork |
+| `commandPalette.hideArchived` | `false` | 隐藏已归档的仓库 |
+| `commandPalette.showDetails` | `true` | 列表旁的详情面板（低于 760 px 时无论如何都会隐藏） |
+| `commandPalette.cacheHours` | `6` | 仓库和文件树缓存的时长（小时，0 表示关闭缓存） |
+| `commandPalette.maxResults` | `30` | 每组结果的最大行数（10–100） |
 
 ## 画廊的构建方式
 

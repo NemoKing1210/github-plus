@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-11-18
+
+### Added
+
+- Command palette on `Ctrl/⌘+K`: repositories, starred repositories, files of
+  the current repository, GitHub pages and GitHub Plus actions, with a details
+  pane, pins and recents
+- Optional GitHub token: private repositories, complete lists, a higher API
+  limit, with cached ETag refreshes and per-account isolation
+- Command palette settings page: shortcut, sources, filters, cache lifetime and
+  diagnostics for the token
+
+[0.21.0]: https://github.com/NemoKing1210/github-plus/compare/v0.20.11...v0.21.0
+
 ## [0.20.11] - 2026-11-16
 
 ### Fixed
