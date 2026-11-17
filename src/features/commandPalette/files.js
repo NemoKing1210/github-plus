@@ -8,7 +8,7 @@ import { Codes, createLogger } from '../../core/logger/index.js';
 import { formatSize } from '../../utils/size.js';
 import { fetchTreePage } from './api.js';
 import {
-  isFresh, isRateBlocked, readCacheRecord, readPaletteState, writeCacheRecord,
+  isFresh, isRateBlocked, persistRateLimit, readCacheRecord, readPaletteState, writeCacheRecord,
 } from './store.js';
 
 const log = createLogger('command-palette');
@@ -125,6 +125,15 @@ function persistTree(state, key, record, rateLimit) {
   });
 }
 
+/**
+ * Drop the trees held in memory. Clearing the persistent cache without this
+ * would leave the page session serving rows the user just asked to forget.
+ */
+export function forgetTrees() {
+  memoryTrees.clear();
+  inflight.clear();
+}
+
 function rememberTree(key, record) {
   memoryTrees.set(key, record);
   if (memoryTrees.size <= MEMORY_KEEP) return;
@@ -162,6 +171,7 @@ async function loadTree(state, { repo, ref, force, signal }) {
     });
   } catch (error) {
     log.error(Codes.PALETTE_LOAD, 'palette file tree failed', { source: 'tree', repo, error });
+    persistRateLimit(state, error?.rateLimit);
     return { status: 'error', error };
   }
 

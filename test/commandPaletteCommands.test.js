@@ -46,6 +46,9 @@ test('the search command encodes the query and its scopes', () => {
   assert.equal(searchUrl('users', 'x'), 'https://github.com/search?q=x&type=users');
 });
 
-test('togglePatch is the exact saveSettings shape', () => {
-  assert.deepEqual(togglePatch('fileIcons', false), { fileIcons: { enabled: false } });
+test('togglePatch carries the live section, not just the switch', () => {
+  const patch = togglePatch('fileIcons', false);
+  assert.equal(patch.fileIcons.enabled, false);
+  assert.equal(patch.fileIcons.folders, true);
+  assert.equal(patch.fileIcons.specialNames, true);
 });

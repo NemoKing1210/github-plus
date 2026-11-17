@@ -121,6 +121,35 @@ test('an outside pointer closes and focus returns to the opener', () => {
   assert.equal(document.activeElement, document.getElementById('opener'));
 });
 
+test('the footer lists the keyboard hints', () => {
+  open();
+  const hints = document.querySelector('.gp-command__hints').textContent;
+  for (const label of ['navigate', 'open', 'new tab', 'close']) assert.match(hints, new RegExp(label));
+});
+
+test('clicking a row opens it and Ctrl/⌘+click opens a new tab', () => {
+  open();
+  const rows = document.querySelectorAll('.gp-command__row');
+  rows[1].dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.deepEqual(seen, [['cmd:two', false]]);
+  assert.equal(shell.isCommandPaletteOpen(), false);
+
+  open();
+  const latest = [...document.querySelectorAll('.gp-command-overlay')].at(-1);
+  latest.querySelectorAll('.gp-command__row')[0]
+    .dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, ctrlKey: true }));
+  assert.deepEqual(seen.at(-1), ['cmd:one', true]);
+});
+
+test('reopening during the close animation removes the previous overlay', async () => {
+  open();
+  shell.closeCommandPalette();
+  open();
+  await new Promise((resolve) => setTimeout(resolve, 180));
+  assert.equal(document.querySelectorAll('.gp-command-overlay').length, 1);
+  assert.equal(document.querySelectorAll('.gp-command-overlay.is-closing').length, 0);
+});
+
 test('refresh keeps the selected key and Alt+P pins it', () => {
   const handle = open();
   const input = document.querySelector('.gp-command__input');

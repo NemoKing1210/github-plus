@@ -12,15 +12,16 @@ import { getCommandPaletteSettings } from '../../core/settings.js';
 import { showToast } from '../../ui/toast.js';
 import { closeCommandPalette, isCommandPaletteOpen, openCommandPalette } from '../../ui/commandPalette.js';
 import { watchNavigation } from '../../utils/navigation.js';
-import { shouldOpenPalette, shortcutMatches } from './hotkey.js';
+import { otherOverlayOpen, shouldOpenPalette, shortcutMatches } from './hotkey.js';
 import { searchPalette } from './search.js';
 import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
-import { ensureTree, fileCandidates, treeKey } from './files.js';
+import { ensureTree, fileCandidates, forgetTrees, treeKey } from './files.js';
 import { renderDetail } from './detail.js';
 import { navigate, runAction } from './actions.js';
 import {
-  isFresh, isRateBlocked, readPaletteState, readPins, readRecents, recordRecent, togglePin,
+  clearDataCache, isFresh, isRateBlocked, readPaletteState, readPins, readRecents, recordRecent,
+  togglePin,
 } from './store.js';
 import { togglePanel } from '../settings/panel.js';
 import { clearCache } from '../translate/cache.js';
@@ -178,7 +179,7 @@ function noteFor(state) {
   if (state.status === 'invalidToken') return t('palette.status.invalidToken');
   if (!state.identity && repositoriesEnabled(state.settings)) return t('palette.status.anonymous');
   const tree = currentTree(state);
-  if (tree?.incomplete) return t('palette.status.incomplete');
+  if (state.treeIncomplete || tree?.incomplete) return t('palette.status.incomplete');
   return '';
 }
 
@@ -186,6 +187,18 @@ function refreshView() {
   if (!paletteState) return;
   paletteState.candidates = buildCandidates(paletteState);
   handle?.refresh();
+}
+
+/**
+ * Loads write to storage (and the session tree map), not to the state object
+ * captured on open; take the cache again so the results reach the open palette.
+ */
+function syncCacheFromStore() {
+  if (!paletteState?.identity) return;
+  const fresh = readPaletteState();
+  if (fresh.identity !== paletteState.identity) return;
+  paletteState.cache = fresh.cache;
+  paletteState.record = fresh.record;
 }
 
 function settleLoad(result) {
@@ -198,6 +211,8 @@ function settleLoad(result) {
   } else {
     paletteState.status = 'ready';
   }
+  if (result?.truncated !== undefined) paletteState.treeIncomplete = Boolean(result.truncated);
+  syncCacheFromStore();
   refreshView();
 }
 
@@ -230,6 +245,15 @@ function actionOptions() {
     openSettings: () => {
       closeCommandPalette();
       togglePanel(true);
+    },
+    clearPaletteCache: () => {
+      clearDataCache();
+      forgetTrees();
+      sessionRefreshes.clear();
+      if (paletteState) {
+        paletteState.cache = null;
+        paletteState.treeIncomplete = false;
+      }
     },
     clearTranslationCache: () => clearCache(),
   };
@@ -285,7 +309,7 @@ function handleDetailAction(actionId, item) {
 /** Open the palette over the current page. */
 export function openPalette() {
   const settings = getCommandPaletteSettings();
-  if (!settings.enabled || isCommandPaletteOpen()) return;
+  if (!settings.enabled || isCommandPaletteOpen() || otherOverlayOpen()) return;
 
   const state = readPaletteState();
   state.pins = readPins(state.identity);
@@ -293,6 +317,7 @@ export function openPalette() {
   state.pinnedKeys = state.pins.map((entry) => entry.key);
   state.recentKeys = state.settings.sources.recent ? state.recents.map((entry) => entry.key) : [];
   state.status = isRateBlocked(state.cache) ? 'rateLimited' : 'ready';
+  state.treeIncomplete = false;
   state.candidates = buildCandidates(state);
   paletteState = state;
 

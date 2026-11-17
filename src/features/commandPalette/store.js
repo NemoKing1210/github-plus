@@ -165,5 +165,24 @@ export function rateLimitFromHeaders(headers) {
 export function isRateBlocked(cache, now = Date.now()) {
   const limit = cache?.rateLimit;
   if (!limit) return false;
-  return limit.remaining <= 1 && now < limit.resetAt + RATE_LIMIT_MARGIN_MS;
+  return limit.remaining < 5 && now < limit.resetAt + RATE_LIMIT_MARGIN_MS;
+}
+
+/**
+ * Keep a limit learned from a failed request, so the next session does not
+ * retry into an exhausted quota. Never writes over another account's record.
+ */
+export function persistRateLimit(state, rateLimit) {
+  if (!rateLimit || !state?.identity) return;
+  const latest = readCacheRecord();
+  if (latest?.login && latest.login !== state.identity) return;
+  writeCacheRecord({
+    version: 1,
+    login: state.identity,
+    tokenLogin: state.tokenLogin,
+    tokenFingerprint: state.fingerprint,
+    sources: latest?.sources || {},
+    trees: latest?.trees || {},
+    rateLimit,
+  });
 }

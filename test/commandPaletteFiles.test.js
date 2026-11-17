@@ -24,9 +24,11 @@ globalThis.document = {
 
 beforeEach(() => { disk = new Map(); });
 
+const files = await import('../src/features/commandPalette/files.js');
 const {
   treeKey, normalizeTree, fileCandidates, ensureTree,
-} = await import('../src/features/commandPalette/files.js');
+} = files;
+const { clearDataCache, readPaletteState } = await import('../src/features/commandPalette/store.js');
 
 test('normalizeTree drops commits and empty paths', () => {
   const { items, truncated } = normalizeTree({
@@ -71,6 +73,20 @@ test('fileCandidates honor the files switch and a missing tree', () => {
   assert.deepEqual(fileCandidates(state), []);
   state.settings.sources.files = true;
   assert.deepEqual(fileCandidates(state), []);
+});
+
+test('clearing the cache also drops the trees held for the session', async () => {
+  globalThis.GM_xmlhttpRequest = (options) => options.onload({
+    status: 200,
+    responseText: JSON.stringify({ truncated: false, tree: [{ path: 'a.js', type: 'blob', size: 10 }] }),
+    responseHeaders: '',
+  });
+  await ensureTree();
+  assert.equal(fileCandidates(readPaletteState()).length, 1);
+  clearDataCache();
+  files.forgetTrees();
+  assert.deepEqual(fileCandidates(readPaletteState()), []);
+  delete globalThis.GM_xmlhttpRequest;
 });
 
 test('ensureTree caches a successful load and reports truncation', async () => {

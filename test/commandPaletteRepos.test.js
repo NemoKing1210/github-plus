@@ -83,6 +83,50 @@ test('ensureRepositories caches a successful load and refetches on force', async
   delete globalThis.GM_xmlhttpRequest;
 });
 
+test('without a token the public endpoints of the signed-in account are used', async () => {
+  const urls = [];
+  globalThis.GM_xmlhttpRequest = (options) => {
+    urls.push(options.url);
+    const starred = options.url.includes('/starred');
+    options.onload({
+      status: 200,
+      responseText: starred
+        ? '[]'
+        : JSON.stringify([{ full_name: 'alice/repo', owner: { login: 'alice', type: 'User' }, name: 'repo' }]),
+      responseHeaders: '',
+    });
+  };
+  const result = await ensureRepositories({ force: true });
+  assert.equal(result.status, 'updated');
+  assert.ok(urls.some((url) => url.startsWith('https://api.github.com/users/alice/repos?')));
+  assert.ok(urls.some((url) => url.startsWith('https://api.github.com/users/alice/starred?')));
+  assert.ok(!urls.some((url) => url.includes('/user/repos')));
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+test('a failed load still records the rate limit and blocks the next refresh', async () => {
+  const { readCacheRecord } = await import('../src/features/commandPalette/store.js');
+  const resetSeconds = Math.floor((Date.now() + 60_000) / 1000);
+  const headers = [
+    'x-ratelimit-remaining: 0',
+    `x-ratelimit-reset: ${resetSeconds}`,
+    'x-ratelimit-limit: 60',
+    '',
+  ].join('\r\n');
+  let requests = 0;
+  globalThis.GM_xmlhttpRequest = (options) => {
+    requests += 1;
+    options.onload({ status: 403, responseText: '', responseHeaders: headers });
+  };
+  const first = await ensureRepositories({ force: true });
+  assert.equal(first.status, 'error');
+  assert.equal(readCacheRecord().rateLimit.remaining, 0);
+  const second = await ensureRepositories();
+  assert.equal(second.status, 'cached');
+  assert.equal(requests, 2);
+  delete globalThis.GM_xmlhttpRequest;
+});
+
 test('a repository refresh keeps a tree written while it was in flight', async () => {
   const { writeCacheRecord, readCacheRecord } = await import('../src/features/commandPalette/store.js');
   let requests = 0;

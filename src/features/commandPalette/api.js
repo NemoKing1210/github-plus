@@ -28,7 +28,7 @@ export function treeUrl({ owner, repo, ref }) {
 }
 
 function headersFor(token, accept, extra) {
-  const headers = { Accept: accept };
+  const headers = { Accept: accept, 'X-GitHub-Api-Version': '2022-11-28' };
   if (token) headers.Authorization = `Bearer ${token}`;
   return { ...headers, ...extra };
 }

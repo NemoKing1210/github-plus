@@ -55,6 +55,20 @@ test('304 reuses a cached page and pagination stops at a short page', async () =
   delete globalThis.GM_xmlhttpRequest;
 });
 
+test('requests carry the API version, the media type and the token', async () => {
+  const { fetchUser } = await import('../src/features/commandPalette/api.js');
+  let headers = null;
+  globalThis.GM_xmlhttpRequest = (options) => {
+    headers = options.headers;
+    options.onload({ status: 200, responseText: '{"login":"alice"}', responseHeaders: '' });
+  };
+  await fetchUser({ token: 't' });
+  assert.equal(headers.Accept, 'application/vnd.github+json');
+  assert.equal(headers['X-GitHub-Api-Version'], '2022-11-28');
+  assert.equal(headers.Authorization, 'Bearer t');
+  delete globalThis.GM_xmlhttpRequest;
+});
+
 test('a 403 carries the rate limit on the error', async () => {
   const { fetchRepoSource } = await import('../src/features/commandPalette/api.js');
   stubGm([{ status: 403, headers: 'X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: 2000\r\nX-RateLimit-Limit: 60\r\n' }]);

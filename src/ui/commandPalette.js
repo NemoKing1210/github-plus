@@ -60,7 +60,12 @@ function buildShell(labels) {
   main.append(list, detail);
 
   const foot = el('footer', 'gp-command__foot');
-  const hints = el('span', 'gp-command__hints');
+  const hints = el('span', 'gp-command__hints', [
+    `↑↓ ${labels.navigate || ''}`,
+    `↵ ${labels.open || ''}`,
+    `⌘↵ ${labels.newTab || ''}`,
+    `Esc ${labels.close || ''}`,
+  ].join(' · '));
   const note = el('span', 'gp-command__note');
   foot.append(hints, note);
 
@@ -297,6 +302,13 @@ function onPointerDown(event) {
   if (state && event.target === state.root) closeCommandPalette();
 }
 
+function onClick(event) {
+  if (!state) return;
+  const target = event.target instanceof Element ? event.target.closest('.gp-command__row') : null;
+  const item = target?.dataset.key ? state.itemsByKey.get(target.dataset.key) : null;
+  if (item) choose(item, event.ctrlKey || event.metaKey);
+}
+
 function onInput() {
   if (!state) return;
   clearTimeout(state.debounceTimer);
@@ -323,8 +335,9 @@ export function openCommandPalette({
   onClose,
   showDetails = true,
 }) {
+  // A previous palette may still be fading out; its own timer removes it, so
+  // clearing that timer here would strand a full-screen overlay over the page.
   if (state) closeCommandPalette();
-  clearTimeout(closeTimer);
   const node = buildShell(labels);
   document.body.appendChild(node.root);
 
@@ -346,6 +359,7 @@ export function openCommandPalette({
 
   node.input.addEventListener('input', onInput);
   node.list.addEventListener('pointermove', onPointerMove);
+  node.list.addEventListener('click', onClick);
   node.root.addEventListener('pointerdown', onPointerDown);
   node.dialog.addEventListener('keydown', onKeyDown);
   lockPageScroll();
@@ -372,6 +386,7 @@ export function closeCommandPalette() {
   clearTimeout(current.debounceTimer);
   current.input.removeEventListener('input', onInput);
   current.list.removeEventListener('pointermove', onPointerMove);
+  current.list.removeEventListener('click', onClick);
   current.root.removeEventListener('pointerdown', onPointerDown);
   current.dialog.removeEventListener('keydown', onKeyDown);
   current.root.classList.add('is-closing');

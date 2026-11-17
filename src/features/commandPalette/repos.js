@@ -8,7 +8,7 @@ import { t } from '../../i18n/index.js';
 import { Codes, createLogger } from '../../core/logger/index.js';
 import { fetchRepoSource } from './api.js';
 import {
-  isFresh, isRateBlocked, readCacheRecord, readPaletteState, writeCacheRecord,
+  isFresh, isRateBlocked, persistRateLimit, readCacheRecord, readPaletteState, writeCacheRecord,
 } from './store.js';
 
 const log = createLogger('command-palette');
@@ -213,9 +213,13 @@ async function load({ force, signal }) {
     if (isRateBlocked(state.cache, now)) return { status: 'cached' };
   }
 
+  // The `/user/*` routes need authentication: without a token the palette reads
+  // the signed-in account's public lists instead.
+  const login = settings.token ? '' : state.context.login || '';
   const results = await Promise.allSettled(enabled.map((source) => fetchRepoSource({
     source: source.id,
     token: settings.token,
+    login,
     cachedPages: cachedSources[source.id]?.pages || [],
     signal,
   })));
@@ -245,7 +249,10 @@ async function load({ force, signal }) {
     });
   });
 
-  if (!updated) return { status: 'error', error: firstError };
+  if (!updated) {
+    persistRateLimit(state, rateLimit);
+    return { status: 'error', error: firstError };
+  }
 
   // A tree load can finish while these requests are in flight; take the disk
   // record again so its trees survive this write.

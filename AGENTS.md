@@ -1325,7 +1325,7 @@ must not own feature state. Rules that keep it acyclic:
   the preview shell.
 - `features/commandPalette/index.js` is the only module that crosses into
   another feature, and only for things the palette cannot own: it imports
-  `openSettingsPanel` from `features/settings/panel.js` (via `actions.js`'s
+  `togglePanel` from `features/settings/panel.js` (via `actions.js`'s
   `openSettings` callback) and `clearCache` from
   `features/translate/cache.js` (via `clearTranslationCache`). No other
   commandPalette module imports a feature, and no feature imports

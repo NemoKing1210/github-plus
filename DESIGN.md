@@ -829,15 +829,16 @@ the middle: the scrim covers the page, and the card starts at `12vh` so the
 result list reads as an extension of the page rather than a dialog that stops
 the flow. It occupies the highest overlay band (`z-index: 1000005`) because it
 can open over a page while no other GitHub Plus surface is up, and nothing in
-the script may paint above it; the shared `--gp-scrim` and `blur(8px)
-saturate(120%)` are the same as every other overlay. Width is
+the script may paint above it; the shared `--gp-scrim` is the same as every
+other overlay, but the palette adds no backdrop blur, so the page behind it
+stays legible. Width is
 `min(760px, calc(100vw - 32px))` and height `max-height: 72vh`, so a long list
 scrolls inside the card while the footer stays put. Everything is
 `var(--gp-*)` — no raw hex, no page selectors.
 
 | Class | Rules |
 |---|---|
-| `.gp-command-overlay` | Fixed inset, `display: grid`, `place-items: start center`, `padding-top: 12vh`, `var(--gp-scrim)`, `blur(8px) saturate(120%)`, `z-index: 1000005`, `gp-command-fade` |
+| `.gp-command-overlay` | Fixed inset, `display: grid`, `place-items: start center`, `padding-top: 12vh`, `var(--gp-scrim)`, `z-index: 1000005`, `gp-command-fade` |
 | `.gp-command` | Column flex, `min(760px, calc(100vw - 32px))`, `max-height: 72vh`, `overflow: hidden`, `var(--gp-bg-1)`, 1px `var(--gp-border)`, `var(--gp-radius-lg)`, `var(--gp-shadow-float)`, `gp-command-in` |
 | `.gp-command--compact` | `min(560px, calc(100vw - 24px))` and a single-column body — used when the details pane is off at open time |
 | `.gp-command__field` | Input row: `12px 14px`, 8px gap, bottom border on `var(--gp-line)`; a 16px muted search glyph, the input and the shortcut chips |
@@ -862,7 +863,7 @@ scrolls inside the card while the footer stays put. Everything is
 | `.gp-detail__actions` / `__action` | Full-width text buttons, `13px`, transparent with a transparent 1px edge; hover fills `var(--gp-bg-2)` and shows the border, `:focus-visible` takes the `var(--gp-focus)` outline |
 | `.gp-command__foot` | Footer bar: `8px 14px`, top border on `var(--gp-line)`, `12px` muted text, hints at the ends |
 | `.gp-command__empty` | Centered empty state (`32px 16px`): muted glyph, a `14px`/600 `var(--gp-text)` title and a `13px` hint |
-| `.gp-command__announcer` | Visually hidden `role="status"` live region for the result count; never styled into the layout |
+| `.gp-command__announcer` | Visually hidden `aria-live="polite"` region for the result count; never styled into the layout |
 
 Motion is one 120 ms fade for the scrim and a 120 ms fade plus a `-2px` rise
 for the card; closing fades the overlay for 120 ms before it is removed. Under
@@ -901,7 +902,7 @@ regardless of the setting; below `520px` the card moves to `6vh` and keeps an
 | Palette loading | `.gp-command__bar.is-loading` | A 2px accent sweep under the input while a source refreshes; the bar is transparent at rest |
 | Palette active row | `.gp-command__row[aria-selected="true"]`, `.gp-command__row.is-active` | `var(--gp-accent-soft)` fill with an accent icon and title; the same row is mirrored to `aria-activedescendant` |
 | Palette empty | `.gp-command__empty:not([hidden])` | Centered glyph, `var(--gp-text)` title and muted hint; `[hidden]` is declared explicitly |
-| Palette closing | `.gp-command-overlay.is-closing` | The overlay fades for 120 ms, then the element is removed |
+| Palette closing | `.gp-command-overlay.is-closing` | The overlay fades for 120 ms with pointer events off, then the element is removed |
 | Hidden | `[hidden]` on `.gp-panel-overlay`, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__spinner`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter`, `.gp-viewer__size`, or on any descendant of `.gp-panel` / `.gp-viewer` | `display: none`, declared explicitly so GitHub's own resets cannot re-show our chrome. Elements outside those scopes (e.g. `.gp-toast__message`) rely on the user-agent `[hidden]` rule |
 
 State classes are the only state mechanism: never add inline styles for state
@@ -1028,7 +1029,7 @@ Everything else is fluid by construction and must stay that way:
   The palette is `role="dialog"` + `aria-modal="true"` with a combobox input
   (`aria-expanded`, `aria-controls`, `aria-autocomplete="list"`), one
   `role="listbox"` with `role="option"` rows and `aria-activedescendant`
-  pointing at the active row's id, and a visually hidden `role="status"`
+  pointing at the active row's id, and a visually hidden `aria-live="polite"`
   announcer for the result count.
 - **Names.** Icon-only controls carry both `title` and `aria-label`
   (`.gp-panel__close` = `common.close`, viewer tools/nav/open/download, the

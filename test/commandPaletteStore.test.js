@@ -10,10 +10,11 @@ globalThis.localStorage = {
 
 beforeEach(() => { disk = new Map(); });
 
+const store = await import('../src/features/commandPalette/store.js');
 const {
   readCacheRecord, writeCacheRecord, clearDataCache, readRecents, recordRecent,
   readPins, togglePin, isFresh, rateLimitFromHeaders, isRateBlocked,
-} = await import('../src/features/commandPalette/store.js');
+} = store;
 
 test('clearDataCache keeps the identity and drops data', () => {
   writeCacheRecord({
@@ -64,6 +65,40 @@ test('rate limits parse from headers and block at exhaustion', () => {
   assert.equal(parsed.limit, 60);
   assert.equal(isRateBlocked({ rateLimit: parsed }, parsed.checkedAt + 1000), true);
   assert.equal(isRateBlocked({ rateLimit: parsed }, parsed.resetAt + 31_000), false);
+});
+
+test('rate limiting starts below five remaining requests', () => {
+  const resetSeconds = Math.floor((Date.now() + 60_000) / 1000);
+  const at = (remaining) => ({
+    rateLimit: rateLimitFromHeaders({
+      'x-ratelimit-remaining': String(remaining),
+      'x-ratelimit-reset': String(resetSeconds),
+      'x-ratelimit-limit': '60',
+    }),
+  });
+  assert.equal(isRateBlocked(at(4)), true);
+  assert.equal(isRateBlocked(at(5)), false);
+});
+
+test('persistRateLimit records the limit for the current identity only', () => {
+  const { persistRateLimit } = store;
+  const resetSeconds = Math.floor((Date.now() + 60_000) / 1000);
+  const limit = rateLimitFromHeaders({
+    'x-ratelimit-remaining': '0',
+    'x-ratelimit-reset': String(resetSeconds),
+    'x-ratelimit-limit': '60',
+  });
+  persistRateLimit({ identity: 'alice', tokenLogin: null, fingerprint: '' }, limit);
+  assert.equal(readCacheRecord().login, 'alice');
+  assert.equal(readCacheRecord().rateLimit.remaining, 0);
+
+  writeCacheRecord({
+    version: 1, login: 'bob', tokenLogin: 'bob', tokenFingerprint: '',
+    sources: { repos: { pages: [], fetchedAt: 1 } }, trees: {}, rateLimit: null,
+  });
+  persistRateLimit({ identity: 'alice', tokenLogin: null, fingerprint: '' }, limit);
+  assert.equal(readCacheRecord().login, 'bob');
+  assert.equal(readCacheRecord().rateLimit, null);
 });
 
 test('storage failures return safe defaults', () => {

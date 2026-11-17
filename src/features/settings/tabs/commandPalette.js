@@ -4,6 +4,7 @@ import { showToast } from '../../../ui/toast.js';
 import { el } from '../../../utils/dom.js';
 import { fetchUser } from '../../commandPalette/api.js';
 import { readContext, tokenFingerprint } from '../../commandPalette/context.js';
+import { forgetTrees } from '../../commandPalette/files.js';
 import { relativeTime } from '../../commandPalette/format.js';
 import {
   clearDataCache, readCacheRecord, writeCacheRecord,
@@ -269,6 +270,7 @@ function cacheSection(draft) {
   let stats = createRow({ label: cacheStatsText() });
   const clear = createButton(t('palette.clearCache'), () => {
     clearDataCache();
+    forgetTrees();
     const fresh = createRow({ label: cacheStatsText() });
     stats.replaceWith(fresh);
     stats = fresh;

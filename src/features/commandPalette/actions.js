@@ -14,9 +14,13 @@ import { TOGGLE_LABEL_KEYS, searchUrl } from './commands.js';
 
 export { searchUrl };
 
-/** The one-key settings patch a toggle saves. */
+/**
+ * The settings patch a toggle saves. `saveSettings` merges at the top level
+ * only, so the section's live values must be carried along — otherwise a
+ * toggle would reset every other field (a provider API key included).
+ */
 export function togglePatch(section, enabled) {
-  return { [section]: { enabled } };
+  return { [section]: { ...getSettings()[section], enabled } };
 }
 
 export function navigate(url, newTab = false) {
@@ -72,6 +76,7 @@ export async function runAction(action, options = {}) {
     newTab = false,
     refresh: refreshState = () => {},
     openSettings = () => {},
+    clearPaletteCache = clearDataCache,
     clearTranslationCache = async () => {},
   } = options;
 
@@ -88,7 +93,7 @@ export async function runAction(action, options = {}) {
     case 'refreshTree':
       return refresh(action, refreshState);
     case 'clearCache':
-      clearDataCache();
+      clearPaletteCache();
       refreshState();
       showToast({ type: 'success', title: t('palette.cacheCleared') });
       return undefined;
