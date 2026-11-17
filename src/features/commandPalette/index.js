@@ -11,8 +11,10 @@ import { Codes, createLogger } from '../../core/logger/index.js';
 import { getCommandPaletteSettings } from '../../core/settings.js';
 import { showToast } from '../../ui/toast.js';
 import { closeCommandPalette, isCommandPaletteOpen, openCommandPalette } from '../../ui/commandPalette.js';
+import { PALETTE_ICONS } from '../../ui/icons.js';
+import { registerHeaderAction } from '../../ui/headerActions.js';
 import { watchNavigation } from '../../utils/navigation.js';
-import { otherOverlayOpen, shouldOpenPalette, shortcutMatches } from './hotkey.js';
+import { formatShortcut, otherOverlayOpen, shouldOpenPalette, shortcutMatches } from './hotkey.js';
 import { searchPalette } from './search.js';
 import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
@@ -30,6 +32,7 @@ const log = createLogger('command-palette');
 const IDLE_FALLBACK_MS = 2000;
 
 let hotkeyHandler = null;
+let headerAction = null;
 let handle = null;
 let paletteState = null;
 let idleScheduled = false;
@@ -374,6 +377,7 @@ export function applyCommandPaletteSettings() {
   if (hotkeyHandler) document.removeEventListener('keydown', hotkeyHandler);
   hotkeyHandler = null;
   const settings = getCommandPaletteSettings();
+  syncHeaderAction(settings);
   if (!settings.enabled || settings.shortcut === 'off') return;
 
   hotkeyHandler = (event) => {
@@ -392,6 +396,33 @@ export function applyCommandPaletteSettings() {
   scheduleIdleRefresh();
 }
 
+function headerLabel() {
+  const title = t('palette.title');
+  const shortcut = getCommandPaletteSettings().shortcut;
+  return shortcut === 'off' ? title : `${title} (${formatShortcut(shortcut)})`;
+}
+
+/** The header entry exists only while the feature is on, so `off` removes it. */
+function syncHeaderAction(settings) {
+  if (!settings.enabled) {
+    headerAction?.remove();
+    headerAction = null;
+    return;
+  }
+  if (!headerAction) {
+    headerAction = registerHeaderAction({
+      id: 'palette',
+      order: 10,
+      className: 'gp-palette-btn',
+      icon: PALETTE_ICONS.palette,
+      label: headerLabel(),
+      onClick: openPalette,
+    });
+    return;
+  }
+  headerAction.update({ label: headerLabel() });
+}
+
 /** Subscribe the palette to settings, language and navigation changes once. */
 export function initCommandPaletteFeature() {
   if (typeof GM_registerMenuCommand === 'function') {
@@ -406,6 +437,7 @@ export function initCommandPaletteFeature() {
   });
   on('settings:language', () => {
     closeCommandPalette();
+    headerAction?.update({ label: headerLabel() });
   });
   watchNavigation(() => {
     closeCommandPalette();
