@@ -32,9 +32,10 @@ function event(overrides = {}) {
   };
 }
 
-test('mod matches Ctrl and ⌘ but no extra modifier', () => {
+test('mod matches the platform modifier and no extra modifier', () => {
   assert.equal(hotkey.shortcutMatches(event({ ctrlKey: true }), 'mod+k'), true);
-  assert.equal(hotkey.shortcutMatches(event({ metaKey: true }), 'mod+k'), true);
+  assert.equal(hotkey.shortcutMatches(event({ metaKey: true }), 'mod+k'), false);
+  assert.equal(hotkey.shortcutMatches(event({ metaKey: true }), 'meta+k'), true);
   assert.equal(hotkey.shortcutMatches(event({ ctrlKey: true, shiftKey: true }), 'mod+k'), false);
   assert.equal(hotkey.shortcutMatches(event({ ctrlKey: true, shiftKey: true }), 'mod+shift+k'), true);
   assert.equal(hotkey.shortcutMatches(event({ altKey: true }), 'alt+k'), true);
@@ -69,4 +70,18 @@ test('another GitHub Plus overlay blocks the palette', () => {
   assert.equal(hotkey.shouldOpenPalette(event({ ctrlKey: true }), { shortcut: 'mod+k' }), false);
   overlay.remove();
   assert.equal(hotkey.shouldOpenPalette(event({ ctrlKey: true }), { shortcut: 'mod+k' }), true);
+});
+
+test('a recorded ctrl combo never fires on Meta and vice versa', () => {
+  const ctrl = { key: 'k', ctrlKey: true, metaKey: false, shiftKey: false, altKey: false };
+  const meta = { key: 'k', ctrlKey: false, metaKey: true, shiftKey: false, altKey: false };
+  assert.equal(hotkey.shortcutMatches(ctrl, 'ctrl+k'), true);
+  assert.equal(hotkey.shortcutMatches(meta, 'ctrl+k'), false);
+  assert.equal(hotkey.shortcutMatches(meta, 'meta+k'), true);
+  assert.equal(hotkey.shortcutMatches(ctrl, 'meta+k'), false);
+});
+
+test('space and plus match by their canonical names', () => {
+  assert.equal(hotkey.shortcutMatches({ key: ' ', ctrlKey: true }, 'mod+space'), true);
+  assert.equal(hotkey.shortcutMatches({ key: '+', ctrlKey: true }, 'mod+plus'), true);
 });

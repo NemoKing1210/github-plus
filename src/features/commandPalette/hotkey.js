@@ -4,6 +4,12 @@
  * handler already claimed.
  */
 
+import {
+  formatShortcut, isMacPlatform, isValidShortcut, keyNameFromEvent, normalizeShortcutValue, shortcutFromEvent,
+} from '../../utils/shortcut.js';
+
+export { formatShortcut, isValidShortcut, normalizeShortcutValue, shortcutFromEvent };
+
 const OVERLAY_SELECTOR = [
   '.gp-panel-overlay',
   '.gp-confirm-overlay',
@@ -21,16 +27,16 @@ export function shortcutMatches(event, shortcut) {
   if (!key || parts.some((part) => !MODIFIERS.has(part))) return false;
 
   const mods = new Set(parts);
-  const wantsMod = mods.has('mod');
-  const wantsCtrl = wantsMod || mods.has('ctrl');
-  const wantsMeta = wantsMod || mods.has('meta');
+  const mac = isMacPlatform();
+  const wantsCtrl = mods.has('ctrl') || (mods.has('mod') && !mac);
+  const wantsMeta = mods.has('meta') || (mods.has('mod') && mac);
 
+  if (Boolean(event.ctrlKey) !== wantsCtrl) return false;
+  if (Boolean(event.metaKey) !== wantsMeta) return false;
   if (mods.has('shift') !== Boolean(event.shiftKey)) return false;
   if (mods.has('alt') !== Boolean(event.altKey)) return false;
-  if (Boolean(event.ctrlKey || event.metaKey) !== (wantsCtrl || wantsMeta)) return false;
-  if (wantsMod && event.ctrlKey && event.metaKey) return false;
 
-  return String(event.key || '').toLowerCase() === key;
+  return keyNameFromEvent(event) === key;
 }
 
 /** A field, editor or contenteditable host must keep its own keys. */
