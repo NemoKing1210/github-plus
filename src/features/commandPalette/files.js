@@ -66,6 +66,7 @@ function buildFileCandidate(item, repo, ref) {
       ref,
       path: item.path,
       type: item.type,
+      size: item.size || 0,
       url: `https://github.com/${repo}/${isTree ? 'tree' : 'blob'}/${encodeURIComponent(ref)}/${encodePath(item.path)}`,
     },
   };

@@ -31,6 +31,7 @@ export function normalizeRepo(raw, starredAt = null) {
     fork: raw?.fork === true,
     archived: raw?.archived === true,
     stars: Number(raw?.stargazers_count) || 0,
+    forks: Number(raw?.forks_count) || 0,
     language: typeof raw?.language === 'string' ? raw.language : '',
     pushedAt: raw?.pushed_at || '',
     updatedAt: raw?.updated_at || '',
