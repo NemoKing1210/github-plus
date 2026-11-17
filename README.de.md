@@ -5,16 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
-eine Bildergalerie für gerendertes Markdown, farbige Dateisymbole überall dort,
-wo GitHub Dateien auflistet, Altersfarben im Blame-Stil für diese Dateien,
-Dateigrößen mit Ein-Klick-Downloads, ein Kontextmenü für Dateiaktionen, eine
-Schnellvorschau für jede Datei und die Übersetzung von Seiteninhalten.
+eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
+farbige Dateisymbole überall dort, wo GitHub Dateien auflistet, Altersfarben im
+Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
+Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
+Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.20.11`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateien · Übersetzung · Sicherung · Info), die Markdown-Bildergalerie, farbige
+> **Status:** früh (`0.21.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
+> Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
 > Download-Schaltflächen, ein Dateikontextmenü, eine Schnellvorschau für Dateien und die
 > Übersetzung von Seiteninhalten. Weitere GitHub-Verbesserungen sind geplant.
@@ -259,6 +261,42 @@ Commit-Nachrichten, einen Titel oder die Markdown-Datei in der Schnellvorschau:
   wiederverwendet (einstellbar; 0 schaltet den Cache aus) und lässt sich auf der
   Einstellungsseite leeren.
 
+### Befehlspalette
+
+Drücke auf jeder GitHub-Seite `Ctrl/⌘+K` für ein Suchfeld über alles, was du dort
+tust:
+
+- **Deine Repositories** — alle Repositories, die dir gehören, eigene zuerst, mit
+  Sternen, Sprache, letztem Push und Sichtbarkeit im Detailbereich. Tippe `@`,
+  um nur Repositories zu durchsuchen.
+- **Mit Stern markierte Repositories** — die Projekte, zu denen du immer wieder
+  zurückkehrst; sie folgen deinen eigenen und tragen einen Stern.
+- **Dateien im aktuellen Repository** — `#` zeigt jeden Pfad des aktuellen
+  Repositories (oder eine passende Abfrage); eine Datei öffnet sich auf GitHub
+  bei der Revision, die du gerade ansiehst.
+- **GitHub-Seiten und GitHub-Plus-Aktionen** — öffne deine Issues, Pull
+  Requests, Benachrichtigungen oder Einstellungen; öffne das GitHub-Plus-Panel;
+  schalte seine Funktionen um; aktualisiere den Cache. `>` beschränkt die Liste
+  auf Befehle, `?` schickt die Abfrage an GitHubs eigene Suche.
+- **Angeheftet und zuletzt verwendet** — hefte an, was du ständig brauchst
+  (`Alt+P`); zuletzt geöffnete Zeilen stehen beim nächsten Öffnen wieder oben,
+  getrennt pro GitHub-Konto.
+- **Schnell und unauffällig** — die Palette zeigt die zwischengespeicherte Liste
+  sofort, aktualisiert sie im Hintergrund und behält die Auswahl. Ergebnisse
+  werden mit ETags für die Sitzung und über Neuladen hinweg gespeichert, die
+  Palette verbraucht also kein API-Kontingent; ohne Token liest sie öffentliche
+  Daten, und alle Befehle funktionieren trotzdem.
+- **Optionales GitHub-Token** — füge es auf der Einstellungsseite der Palette
+  hinzu, um private Repositories und vollständige Listen zu sehen (5 000
+  Anfragen pro Stunde statt 60). Das Token wird vor der Nutzung geprüft, nur in
+  diesem Browser gespeichert, nie in eine Sicherung geschrieben und nur an
+  `api.github.com` gesendet; der Cache gehört zu je einem Konto, ein
+  Kontowechsel zeigt also nie fremde Repositories.
+- **Tastatur zuerst** — `↑`/`↓` bewegen die Auswahl, `Enter` öffnet,
+  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `Alt+P` heftet an, `Esc` leert die
+  Abfrage und schließt dann; in einem Kommentar- oder README-Editor bleibt die
+  Palette aus dem Weg und schließt sich bei Navigation selbst.
+
 ### Einstellungsfenster
 
 Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
@@ -311,6 +349,15 @@ Gespeichert unter `gp_settings_v1`.
 | `translate.linkLabels` | `true` | Auch Linktexte übersetzen |
 | `translate.surfaces.<id>` | `true` | Schalter je Ort: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Lebensdauer des Caches in Stunden (0 schaltet ihn aus) |
+| `commandPalette.enabled` | `true` | Hauptschalter für die Befehlspalette mit `Ctrl/⌘+K` |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k` oder `off` |
+| `commandPalette.token` | `''` | Optionales GitHub-Token für private Repositories und höhere Limits (nur an `api.github.com`, nie exportiert) |
+| `commandPalette.sources.<id>` | `true` | Quellen-Schalter: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.hideForks` | `false` | Forks von Repositories ausblenden |
+| `commandPalette.hideArchived` | `false` | Archivierte Repositories ausblenden |
+| `commandPalette.showDetails` | `true` | Detailbereich neben der Liste (unter 760 px ohnehin ausgeblendet) |
+| `commandPalette.cacheHours` | `6` | Lebensdauer des Repository- und Dateibaum-Caches in Stunden (0 schaltet ihn aus) |
+| `commandPalette.maxResults` | `30` | Maximale Zeilenzahl je Ergebnisgruppe (10–100) |
 
 ## Wie die Galerie aufgebaut ist
 

@@ -100,21 +100,35 @@ github-plus/
 │   │   │   ├── highlight.js# highlight.js core + registered languages
 │   │   │   ├── code.js     # Gutter + highlighted code block
 │   │   │   └── cards.js    # Binary / empty / too-large / failure cards
-│   │   └── translate/
-│   │       ├── index.js    # Lifecycle: observers, settle wait, auto queue, settings reaction
-│   │       ├── surfaces.js # Surface registry: containers, roots, headers, preview pane
-│   │       ├── state.js    # Per-container state, paint / reveal / restore / toggle
-│   │       ├── blocks.js   # Block collection and tokenized extraction (DOM)
-│   │       ├── tokens.js   # Private-use markers, escape/restore (pure)
-│   │       ├── languages.js# Target languages and locale → code mapping (pure)
-│   │       ├── api.js      # Batching, sentinel split, in-flight dedupe, fallback
-│   │       ├── cache.js    # Persistent GM cache (TTL, size budget, stats, clear)
-│   │       ├── inject.js   # Button, fallback bar, result box
-│   │       ├── previewAction.js # Translate action for the quick preview header
-│   │       └── providers/
-│   │           ├── registry.js # Provider ids, fields, hints, defaults
-│   │           ├── request.js  # GM_xmlhttpRequest / fetch transport
-│   │           └── google.js deepl.js microsoft.js yandex.js openai.js libretranslate.js
+│   │   ├── translate/
+│   │   │   ├── index.js    # Lifecycle: observers, settle wait, auto queue, settings reaction
+│   │   │   ├── surfaces.js # Surface registry: containers, roots, headers, preview pane
+│   │   │   ├── state.js    # Per-container state, paint / reveal / restore / toggle
+│   │   │   ├── blocks.js   # Block collection and tokenized extraction (DOM)
+│   │   │   ├── tokens.js   # Private-use markers, escape/restore (pure)
+│   │   │   ├── languages.js# Target languages and locale → code mapping (pure)
+│   │   │   ├── api.js      # Batching, sentinel split, in-flight dedupe, fallback
+│   │   │   ├── cache.js    # Persistent GM cache (TTL, size budget, stats, clear)
+│   │   │   ├── inject.js   # Button, fallback bar, result box
+│   │   │   ├── previewAction.js # Translate action for the quick preview header
+│   │   │   └── providers/
+│   │   │       ├── registry.js # Provider ids, fields, hints, defaults
+│   │   │       ├── request.js  # GM_xmlhttpRequest / fetch transport
+│   │   │       └── google.js deepl.js microsoft.js yandex.js openai.js libretranslate.js
+│   │   └── commandPalette/
+│   │       ├── index.js    # Lifecycle: hotkey, candidate assembly, loads, shell wiring
+│   │       ├── context.js  # Page login/repo/ref and the effective identity (pure/DOM)
+│   │       ├── rank.js     # parseQuery, scoreText, rankCandidates (pure)
+│   │       ├── search.js   # searchPalette: query → groups, the GitHub search fallback
+│   │       ├── commands.js # Navigation, toggle and maintenance commands
+│   │       ├── actions.js  # Action descriptors, runAction, navigate, searchUrl
+│   │       ├── repos.js    # Repo normalization/merge, repoCandidates, ensureRepositories
+│   │       ├── files.js    # Tree normalization, fileCandidates, ensureTree
+│   │       ├── api.js      # GitHub REST client (ETags, pagination, rate limits)
+│   │       ├── store.js    # Cache record, recents/pins, freshness, rate-limit state
+│   │       ├── hotkey.js   # shortcutMatches, isEditableTarget, shouldOpenPalette
+│   │       ├── detail.js   # Details pane content per row kind
+│   │       └── format.js   # formatCount, relativeTime
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
@@ -123,11 +137,13 @@ github-plus/
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)
 │   │   ├── filePreview.js  # Quick preview modal shell (header actions, footer, loading, keyboard)
+│   │   ├── commandPalette.js # Palette shell: combobox, grouped listbox, details pane
 │   │   └── viewer.js       # Fullscreen image viewer (zoom, pan, rotate, gallery)
 │   └── utils/
 │       ├── dom.js          # el, append, debounce, eachNode, toArray, escapeHtml, isOwnUi
 │       ├── download.js     # File download (fetch → blob → <a download>)
 │       ├── fileTarget.js   # rawUrlFor / fileTarget / resolveFileTarget (pure)
+│       ├── http.js         # request(): status + headers, GM/fetch transport
 │       ├── navigation.js   # watchNavigation (turbo/pjax/pushState URL watcher)
 │       ├── scrollLock.js   # counted page scroll lock for modal overlays
 │       └── size.js         # formatSize(bytes): pure size formatting
@@ -137,7 +153,7 @@ github-plus/
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
 ├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview,
-│                           #   translate*, logger*, locales, download)
+│                           #   translate*, logger*, commandPalette*, locales, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -157,7 +173,8 @@ github-plus/
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
 + `applyFileMenuSettings()` → `initFilePreviewFeature()` +
 `applyFilePreviewSettings()` → `initTranslateFeature()` +
-`applyTranslateSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
+`applyTranslateSettings()` → `initCommandPaletteFeature()` +
+`applyCommandPaletteSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
@@ -177,7 +194,10 @@ preview when the URL changes. GitHub replaces `<body>` on soft navigation while 
 lives on, so without this a "closed" viewer would keep reporting itself open
 (and swallow `Escape`) and a pinned page would stay pinned. The context menu
 is anchored to page coordinates, so `features/fileMenu` closes it through its
-own `watchNavigation` hook instead.
+own `watchNavigation` hook instead. The command palette does the same: its
+identity and repository list belong to the page that opened it, so
+`features/commandPalette` closes it on navigation rather than leaving a stale
+result set over the next page.
 
 ### `src/core/constants.js`
 
@@ -218,8 +238,14 @@ Single place for magic values.
   `TRANSLATE_MAX_BLOCKS` (300) / `_MAX_BLOCK_CHARS` (12000), and the surface
   observer timings `TRANSLATE_OBSERVE_DEBOUNCE_MS` (150), `TRANSLATE_SETTLE_MS`
   (250) × `TRANSLATE_SETTLE_TRIES` (20).
+- Command palette: `COMMAND_PALETTE_SHORTCUTS` (`mod+k`, `mod+shift+k`,
+  `alt+k`, `off`), the three storage keys `gp_palette_cache_v1` /
+  `gp_palette_recents_v1` / `gp_palette_pins_v1`,
+  `COMMAND_PALETTE_CACHE_HOURS_MAX` (168) and
+  `COMMAND_PALETTE_MAX_RESULTS_MIN` / `_MAX` (10…100).
 - `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
-  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `translate`) plus
+  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `translate`,
+  `commandPalette`) plus
   `getDefaults()`, which returns a deep clone — never mutate the shared
   constants. `DEFAULT_LOGGING` is `{ enabled: false }`; `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
@@ -227,7 +253,9 @@ Single place for magic values.
   `DEFAULT_FILE_MENU` is `{ enabled }`, `DEFAULT_FILE_PREVIEW` is
   `{ enabled, rowButton, longPress, longPressMs, longPressRing }` and
   `DEFAULT_TRANSLATE` is `{ enabled, provider, providerConfig, targetLang, mode,
-  display, reveal, linkLabels, surfaces, cacheHours }`.
+  display, reveal, linkLabels, surfaces, cacheHours }`;
+  `DEFAULT_COMMAND_PALETTE` is `{ enabled, shortcut, token, sources, hideForks,
+  hideArchived, showDetails, cacheHours, maxResults }`.
 
 ### `src/core/settings.js`
 
@@ -236,7 +264,8 @@ Module-level `settings` loaded once at import, normalizers per field,
 Public API: `loadSettings`, `getSettings`, `getLoggingSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
 `getFileMenuSettings`, `getFilePreviewSettings`, `getTranslateSettings`,
-`saveSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
+`getCommandPaletteSettings`, `saveSettings`, `toExportableSettings`,
+`normalizeImportedSettings`, `hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -257,6 +286,13 @@ Key facts that must survive refactors:
   surface switches keyed by the defaults, and `cacheHours` clamped to
   0…`TRANSLATE_CACHE_HOURS_MAX`. Unknown values fall back to defaults, never
   crash.
+- The `commandPalette` section normalizes the shortcut against
+  `COMMAND_PALETTE_SHORTCUTS`, the five source switches, the fork/archived/
+  details booleans, `cacheHours` (0…`COMMAND_PALETTE_CACHE_HOURS_MAX`) and
+  `maxResults` (10…100). The token is trimmed to 400 characters and **never
+  leaves the browser**: `toExportableSettings()` blanks it for a backup and
+  `normalizeImportedSettings()` blanks it on import, because a token pasted
+  into a backup file is a leak.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -294,6 +330,10 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   every container down (painted text and chrome), then scans and re-attaches
   its observers when the feature is on, so a provider, target-language or mode
   change never leaves stale output.
+- `settings:commandPalette` — emitted by the same Save and by a backup import;
+  the command palette closes, forgets its session attempts and reinstalls or
+  removes its document hotkey. The settings page also writes palette data (a verified token) on its
+  own, outside Save, because verification is an immediate network check.
 - The same Save also emits `settings:language`, which the preview feature
   listens to for repainting its header, footer and card labels, and the
   translate feature for its button labels.
@@ -339,7 +379,8 @@ listener, no `window.__GP_LOG__`.
   button, `GP-1201` UI mount, `GP-1301` file-icons surface, `GP-1302` file-ages
   surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
   file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
-  `GP-9001` uncaught error, `GP-9002` unhandled rejection. Rules: log once per
+  `GP-1701` palette load/action, `GP-1702` palette cache, `GP-9001` uncaught
+  error, `GP-9002` unhandled rejection. Rules: log once per
   user-visible failure at the outermost point; layers below only throw, they
   never log.
 
@@ -580,6 +621,13 @@ without a reload. Nothing else in the feature layer touches the logger.
   input and the progress-circle switch (`icons.*`, `ages.*`, `files.*`,
   `fileMenu.*`, `preview.*` keys). The features stay independent, so the page
   has no switch of its own.
+- `tabs/commandPalette.js`: activation (switch, shortcut select), GitHub
+  access (password token field, **Check token**, **Remove token**, an
+  identity-mismatch hint), the five source switches, fork/archived filters, the
+  details-pane switch, and cache lifetime with a stats line and **Clear
+  cache**. Verification is an immediate `GET /user`, so this page writes the
+  cache record outside the draft; the token itself is saved only by the footer
+  Save (`palette.*` keys).
 - `tabs/backup.js`: export to file (`Blob` + `<a download>`) or clipboard,
   import from a textarea through `normalizeImportedSettings` +
   `applyExternalSettings`, with an inline invalid-payload message.
@@ -1069,6 +1117,120 @@ result boxes are skipped. No rule in `app.css` selects GitHub's markup for the
 feature: the button, bar and result box are our own nodes with `gp-`
 classes.
 
+### `src/features/commandPalette/` — command palette
+
+A modal search surface on `Ctrl/⌘+K` (configurable, or off): the user's
+repositories, starred repositories, the current repository's files, GitHub
+pages, GitHub Plus controls and a GitHub search fallback, with pins and recents
+and an optional details pane. Without a token it reads public data and commands
+still work; with a verified token it also sees private repositories.
+
+- `index.js` — the only module that assembles display state: reads
+  `readPaletteState()`, builds candidates through `commandCandidates`,
+  `repoCandidates`, `fileCandidates` and `snapshotCandidates`, opens
+  `ui/commandPalette.js`, installs the document hotkey and owns the load
+  lifecycle. `kickLoads()` starts `ensureRepositories()` and `ensureTree()`
+  without awaiting them, flips `state.status` to `loading` and refreshes the
+  shell over the cached rows; each load settles into `refreshView()`. Every
+  source is attempted once per page session (`sessionRefreshes`, trees keyed by
+  `tree:<repo@ref>`), a manual refresh bypasses that, and an idle-time refresh
+  runs only when the cache is warm and stale. The palette rebuilds candidates
+  from storage on every open, so a settings change or a manual refresh never
+  needs a stale in-memory list.
+- `store.js` — all persistence. Cache record
+  `{ version, login, tokenLogin, tokenFingerprint, sources, trees, rateLimit }`
+  under `gp_palette_cache_v1`; `readPaletteState()` returns the page context,
+  settings, identity and the cache **only when the record belongs to that
+  identity**, so switching accounts can never render another account's data.
+  Recents (`gp_palette_recents_v1`, cap 20) and pins
+  (`gp_palette_pins_v1`, cap 50) are stored per identity; another identity's
+  non-command entries are hidden while commands survive. `isFresh()` honors
+  `cacheHours` (0 disables), `rateLimitFromHeaders()`/`isRateBlocked()` guard
+  exhausted limits, `clearDataCache()` keeps the identity fields. Every storage
+  call is try/catch and logs `GP-1702`.
+- `api.js` — GitHub REST with `utils/http.js`: `GET /user` for verification,
+  `/user/repos` or `/users/{login}/repos`, `/user/starred`, and the recursive
+  `git/trees/{ref}`. Sends `Accept`, `X-GitHub-Api-Version`, `Authorization:
+  Bearer` when a token exists and `If-None-Match` for every cached page; a
+  `304` reuses the cached page, a `200` replaces it with its new ETag.
+  Pagination stops at a page shorter than 100 items (10 pages with a token, 2
+  without); the starred source retries once without `star+json` after a 415/404
+  on its first page. Non-2xx responses throw an error carrying `status`,
+  `headers` and `rateLimit`; the API layer never logs.
+- `repos.js` — `normalizeRepo`, `mergeRepoSources` (owned repos first, starred
+  flag, starred-only second), `repoCandidates` (source toggles, fork/archived
+  filters, rank fields, sort key from push or star time) and
+  `ensureRepositories` (single-flight, both sources in `Promise.allSettled`,
+  each successful source committed on its own, records trimmed to 1000 items,
+  `GP-1701` once per failed source and never with a token). At write time it
+  re-reads the record so a tree written by a parallel load survives.
+- `files.js` — `treeKey`, `normalizeTree` (blobs and trees only),
+  `fileCandidates` (path-sorted rows with encoded GitHub URLs and
+  `formatSize`) and `ensureTree` (single-flight per tree + token fingerprint,
+  ETag revalidation, 20 000-item cap, disk records capped to the three newest
+  and 1.5 MB each, oversized records kept in a session map, `GP-1701` on a real
+  failure only).
+- `context.js` — `readContext()` for the login, repository and ref (embedded
+  React payload first, then URL, then the default-branch meta, then `HEAD`),
+  `tokenFingerprint()` (FNV-1a, never the token) and `resolveIdentity()`: a
+  token account wins, but only once verified; a page login carries the
+  anonymous path; an unverified token yields no identity, so no request is
+  sent with it and no page data is mixed in.
+- `rank.js` — pure: prefix modes (`>` commands, `@` repos, `#` files,
+  `?` GitHub search), exact-substring and subsequence scoring with highlight
+  ranges, pinned (+1000) and recent (+100) boosts, per-group caps
+  (command 8, file 12, repo 15) and the `maxResults` total cap. The empty query
+  builds pinned and recent groups, then the browse order
+  (`repository, github, plus, repos, starred, search`) and never lists files.
+- `search.js` — `searchPalette(state, query)`: the `?` mode and a query with no
+  match both become the GitHub search command.
+- `commands.js` — repository commands (only on a repository page; Settings only
+  when the repository appears in the cached owned list), user commands, and
+  GitHub Plus controls (open settings, seven feature toggles, refresh
+  repositories/tree, clear palette/translation cache). Every candidate carries
+  `data.run` and `detail { id, label, description, shortcut }`; `TOGGLE_LABEL_KEYS`
+  maps a section to the locale key that names it.
+- `actions.js` — the action descriptors and `runAction()`: navigate, settings,
+  toggle (`saveSettings` + the matching bus event + toast), refresh (the
+  `ensure*({ force: true })` call), clear caches, copy, search. Feature edges
+  arrive as callbacks (`openSettings`, `clearTranslationCache`) so this module
+  imports no other feature. `searchUrl` is defined in `commands.js` and
+  re-exported here to keep the two modules acyclic.
+- `hotkey.js` — `shortcutMatches` (mod = Ctrl or ⌘; every other modifier must
+  match exactly), `isEditableTarget` (input, textarea, select, contenteditable),
+  `otherOverlayOpen` (settings, confirm, viewer, preview — never the palette
+  itself) and `shouldOpenPalette` (also ignores handled, composing and repeated
+  keys).
+- `detail.js` — the aside for a repo (description, language, stars, forks,
+  updated, visibility badges, Open / New tab / Copy link / Pin), a file (path,
+  repository, ref, size, Open / Copy path) or a command (label, description,
+  shortcut, Run). Every string comes from the caller's `labels`.
+- `format.js` — `formatCount` (compact `k`/`M`) and `relativeTime`
+  (`Intl.RelativeTimeFormat`, so no new translation keys).
+
+`src/ui/commandPalette.js` is the generic shell: it imports only utils, the
+scroll lock and `ui/icons.js`, never a feature. `openCommandPalette({ labels,
+search, renderDetail, onSelect, onPin, onClose, showDetails })` mounts the
+overlay, locks the page, focuses the combobox and returns
+`{ refresh, close, setQuery }`. The list is a single `role="listbox"` with
+group titles and `role="option"` rows; the active row is tracked by key (so a
+refresh keeps the selection) and mirrored to `aria-activedescendant`. Keys:
+arrows with wrap, Home/End, Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin,
+Escape clears a non-empty query before it closes, the shortcut closes, Tab
+traps focus. An outside pointerdown closes; closing marks the palette closed
+synchronously, restores focus, unlocks the page and removes the overlay after
+120 ms. Items with `highlight` ranges render marks from text nodes, never
+`innerHTML`; `labels.badges` names the badge ids.
+
+The settings page (`features/settings/tabs/commandPalette.js`) edits the draft
+only: activation and shortcut, GitHub access (password field, **Check token**
+through `fetchUser`, **Remove token**, an identity-mismatch hint), the five
+source switches, fork/archived filters, the details-pane switch, and cache
+lifetime plus a stats line and **Clear cache**. Verifying a token writes
+`login`, `tokenLogin` and the fingerprint into the cache immediately and wipes
+data that belonged to another account; the token itself is persisted only by
+the panel footer Save.
+
 ### `src/i18n/`
 
 - `meta.js`: `SUPPORTED_LOCALES` (`en ru de es fr pt-BR zh-CN ja ko pl` —
@@ -1079,7 +1241,7 @@ classes.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 262
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 403
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1089,7 +1251,8 @@ classes.
   `toArray`, `escapeHtml(text)`, `isOwnUi(node)` (true inside
   `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-settings-btn`,
   `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
-  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`) and
+  `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`,
+  `.gp-command-overlay`) and
   `isOwnUiChrome(node)` (the same check minus the repository content inside
   `.gp-preview__content`, whose images and file links must behave like page
   content). `eachNode`/`toArray` exist because DOM collections
@@ -1107,6 +1270,13 @@ classes.
 - `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
   three significant digits (`2929` → `2.86 KB`). Unit-tested by
   `test/fileMeta.test.js`.
+- `http.js`: `request({ url, method, headers, body, timeout, signal })` and
+  `normalizeHeaders(raw)` — one transport over `GM_xmlhttpRequest` (when the
+  manager provides it) or `fetch`, resolving `{ status, text, headers }` for
+  any HTTP status and rejecting only on network failure, timeout or abort.
+  Shared by the translation providers and the palette's GitHub client, so a
+  manager without `GM_xmlhttpRequest` still works; unit-tested by
+  `test/http.test.js`.
 - `download.js`: `downloadFile(url, name?)` fetches the bytes and saves them
   through an object URL, so a cross-origin file keeps its filename; a camo URL
   is unwrapped to the proxied file's name, and a blocked fetch falls back to
@@ -1127,7 +1297,8 @@ classes.
 from DESIGN.md, expressed through GitHub's own Primer variables with literal
 fallbacks, so injected UI follows the visitor's theme (light, dark, dimmed).
 `app.css` is the injected stylesheet (settings entry, panel, controls, confirm,
-toasts, viewer, context menu), imported by `main.js` and applied as `GM_addStyle` by the
+toasts, viewer, context menu, the quick preview and the command palette),
+imported by `main.js` and applied as `GM_addStyle` by the
 build. Every injected class carries the `gp-` prefix — never add an unprefixed
 class to injected UI. Component styles consume tokens via `var(--gp-*)`; raw
 hexes belong in `tokens.css` only (the viewer is themed like every other
@@ -1152,6 +1323,17 @@ must not own feature state. Rules that keep it acyclic:
 - `features/filePreview` imports `features/translate/previewAction.js` (the
   preview header action); `features/translate` never imports `filePreview` or
   the preview shell.
+- `features/commandPalette/index.js` is the only module that crosses into
+  another feature, and only for things the palette cannot own: it imports
+  `openSettingsPanel` from `features/settings/panel.js` (via `actions.js`'s
+  `openSettings` callback) and `clearCache` from
+  `features/translate/cache.js` (via `clearTranslationCache`). No other
+  commandPalette module imports a feature, and no feature imports
+  `commandPalette` except `features/settings/index.js`, which registers the
+  settings page's `render` function.
+- `ui/commandPalette.js` is a generic shell like `ui/filePreview.js`: it
+  imports only `i18n`, `utils`, `core` and `ui/icons.js`. Search, details and
+  selection arrive as callbacks, so the shell never imports a feature.
 - Side-effect registrations (the markdown source, page registration in
   `features/settings/index.js`) run at import time — a module that must be
   registered is imported by the module that owns its lifecycle.
@@ -1173,10 +1355,11 @@ footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:logging' |
 'settings:language' | 'settings:fileIcons' | 'settings:fileAges' |
 'settings:fileMeta' | 'settings:fileMenu' | 'settings:filePreview' |
-'settings:translate')` → gallery repaints its stylesheet, the logger applies
-its switch, file and translate features rescan or tear down, settings entry
-relabels itself and updates its dot → success toast → panel closes and
-`unlockPageScroll()`.
+'settings:translate' | 'settings:commandPalette')` → gallery repaints its
+stylesheet, the logger applies
+its switch, file and translate features rescan or tear down, the palette closes
+and reinstalls its hotkey, settings entry relabels itself and updates its dot →
+success toast → panel closes and `unlockPageScroll()`.
 
 ## End-to-end data flow (preview)
 
@@ -1202,6 +1385,23 @@ painted block by block → button state and ring updated, results cached. Missin
 stops before any request with a localized hint; a total failure logs `GP-1601`
 and leaves the page untouched; **Show original** (or pointer leave after a
 hover reveal) restores the exact source.
+
+## End-to-end data flow (command palette)
+
+hotkey, menu command or header entry → `shouldOpenPalette` guards (feature on,
+shortcut match, not editable, no other overlay, not handled/repeated) →
+`openPalette` → `readPaletteState()` (page context, settings, identity, that
+identity's cache) → `buildCandidates` over cache-backed `commandCandidates`,
+`repoCandidates`, `fileCandidates` and the cold-source snapshots from recents
+and pins → `openCommandPalette({ search: searchPalette, ... })` renders the
+warm list immediately → `kickLoads()` starts `ensureRepositories()` /
+`ensureTree()` without awaiting → each settles and calls `refreshView()`,
+which reruns `buildCandidates` from storage and `palette.refresh()` keeps the
+active row by key → Enter (or click) records a recent, closes the palette and
+runs the action: `navigate` for a URL, `saveSettings` + the matching bus event
++ toast for a toggle, `ensure*({ force: true })` for a refresh. Settings Save
+emits `settings:commandPalette`, which closes an open palette and installs or
+removes the document hotkey.
 
 ## GitHub DOM notes
 
@@ -1282,6 +1482,15 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `translate.linkLabels` | `true` | Translate anchor labels as their own segments |
 | `translate.surfaces.<id>` | `true` | Per-surface switches (`markdown`, `plaintext`, `commits`, `titles`, `preview`) |
 | `translate.cacheHours` | `24` | Cache lifetime in hours (`0` disables it), clamped to 0…`TRANSLATE_CACHE_HOURS_MAX` |
+| `commandPalette.enabled` | `true` | Master switch; off removes the document hotkey and the menu command |
+| `commandPalette.shortcut` | `'mod+k'` | One of `COMMAND_PALETTE_SHORTCUTS` (`mod+k`, `mod+shift+k`, `alt+k`, `off`) |
+| `commandPalette.token` | `''` | Optional GitHub token: private repositories, complete lists, 5000 requests/h; sent only to `api.github.com` |
+| `commandPalette.sources.<id>` | `true` | Per-source switches (`commands`, `repositories`, `starred`, `files`, `recent`) |
+| `commandPalette.hideForks` | `false` | Hide forked repositories from the repository groups |
+| `commandPalette.hideArchived` | `false` | Hide archived repositories |
+| `commandPalette.showDetails` | `true` | Details pane beside the list (the shell hides it below 760px regardless) |
+| `commandPalette.cacheHours` | `6` | Repository/tree cache lifetime in hours (`0` disables it), clamped to 0…`COMMAND_PALETTE_CACHE_HOURS_MAX` |
+| `commandPalette.maxResults` | `30` | Row cap per result set, clamped to `COMMAND_PALETTE_MAX_RESULTS_MIN`…`_MAX` |
 
 ## Localization
 
@@ -1394,6 +1603,11 @@ Build facts agents need to know:
   `verify-artifacts.mjs` enforces byte identity (CI fails on drift).
 - `dist/` and `node_modules/` are gitignored; `package-lock.json` is
   committed.
+- `npm test` covers the pure modules and the DOM shells. The command palette
+  is spread over `test/commandPalette*.test.js` — store, api, repos, files,
+  commands, format, shell, hotkey and search — plus `test/http.test.js` for the
+  shared transport; a palette change that touches ranking or identity rules
+  belongs in one of them, not in a manual check.
 
 After every source, style, metadata, or version change, run `npm run build` so
 the root install artifacts stay synchronized. Before finishing, run `npm run ci`
@@ -1511,6 +1725,33 @@ and check diagnostics for edited files.
   `GP-1602` and never breaks the page. A second translation of the same text is
   instant while `translate.cacheHours` has not expired and until **Clear
   cache**; 0 hours disables the cache.
+- Palette does not open: check **Command palette** is on and the shortcut is
+  not `off`, that the focus is not in an input, textarea, select or
+  `contenteditable` (GitHub's editors keep `Ctrl/⌘+K` for links), that no other
+  GitHub Plus overlay is open (panel, confirm, viewer, preview), and that
+  GitHub itself did not call `preventDefault()` on the key. Settings Save
+  reinstalls the hotkey through `settings:commandPalette`, so a save that went
+  through is never the reason it stops firing; `GM_registerMenuCommand` opens
+  the same palette as a fallback.
+- Palette opens with no repositories: a token that has not been verified
+  yields no identity and reads public data only until **Check token**
+  succeeds; an identity-mismatch hint means the cache belongs to another
+  account and is ignored by design. Anonymous mode lists only public data and
+  hits 60 requests/h — an exhausted limit shows the rate-limit note and
+  cached rows. `GP-1701` marks a failed source; the API layer itself never
+  logs.
+- Files missing in the palette: the file group needs the current repository
+  and ref (`readContext()` — embedded payload, URL, default-branch meta, then
+  `HEAD`), the **Files** source switch on, and a tree under
+  `gp_palette_cache_v1.trees`; a tree over 20 000 entries is truncated and the
+  footer says so. Files never appear in the empty-query browse list — type
+  `#` or a query. A cache entry is dropped when its identity no longer matches
+  the current one.
+- Token rejected: **Check token** calls `GET /user`; a 401 means the token is
+  expired or lacks `repo`, and nothing is written. Verifying a token wipes
+  data that belonged to another account and stores `login`, `tokenLogin` and
+  the FNV-1a fingerprint — never the token in the log; the token itself is
+  persisted only by Save, and `normalizeImportedSettings` never imports it.
 - Locale sanity: diff the key lists of all ten locale files; `t()` falls back
   to `en`, which masks a missing key in one locale — verify, don't eyeball.
 

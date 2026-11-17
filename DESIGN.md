@@ -3,7 +3,8 @@
 This file is the single source of truth for how GitHub Plus looks and behaves.
 Follow it for every change that adds, moves or restyles an injected element:
 the settings entry button, the settings panel (sidebar, pages) and its controls, the confirm
-dialog, toasts, the context menu, and the image viewer. Every rule below is derived from the
+dialog, toasts, the context menu, the image viewer, the quick file preview and the command
+palette. Every rule below is derived from the
 shipped `src/styles/tokens.css`, `src/styles/app.css` and the components that
 build the markup, so the document and the stylesheet move together.
 
@@ -33,8 +34,9 @@ grouped sidebar, search field and results, pages, cards, rows, controls), the
 confirm dialog, toasts, the context menu, the image viewer, the `.gp-fi` file
 and folder glyphs, the `.gp-age-date` coloring of GitHub's last-commit
 timestamps and its settings-page legend, the `.gp-file-meta` size column added
-to file rows, the `.gp-translate-*` action, status bar and translated-result
-boxes, and the gallery's page-level cursor/hover affordances
+to file rows, the `.gp-preview` quick preview and its `.gp-hold-ring`, the
+`.gp-translate-*` action, status bar and translated-result boxes, the
+`.gp-command` palette, and the gallery's page-level cursor/hover affordances
 (§11). Anything GitHub already renders is out of scope except through those
 affordances: no other rule may target page markup.
 
@@ -47,8 +49,8 @@ Two invariants hold for every selector:
   `isOwnUi()` in `src/utils/dom.js`
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-settings-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
-  .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-translate-btn,
-  .gp-translate-bar, .gp-translate-result`).
+  .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-command-overlay,
+  .gp-translate-btn, .gp-translate-bar, .gp-translate-result`).
   Rename a root class and that list must change with it.
 
 ## 2. Token layer (`src/styles/tokens.css`)
@@ -820,6 +822,56 @@ In `reveal: hover` mode nothing extra is drawn: the source returns while the
 pointer or keyboard focus is inside the translated container, and the same
 accent-tinted button stays available as the explicit control.
 
+### Command palette (`.gp-command`)
+
+A search surface that hangs from the top of the viewport instead of sitting in
+the middle: the scrim covers the page, and the card starts at `12vh` so the
+result list reads as an extension of the page rather than a dialog that stops
+the flow. It occupies the highest overlay band (`z-index: 1000005`) because it
+can open over a page while no other GitHub Plus surface is up, and nothing in
+the script may paint above it; the shared `--gp-scrim` and `blur(8px)
+saturate(120%)` are the same as every other overlay. Width is
+`min(760px, calc(100vw - 32px))` and height `max-height: 72vh`, so a long list
+scrolls inside the card while the footer stays put. Everything is
+`var(--gp-*)` — no raw hex, no page selectors.
+
+| Class | Rules |
+|---|---|
+| `.gp-command-overlay` | Fixed inset, `display: grid`, `place-items: start center`, `padding-top: 12vh`, `var(--gp-scrim)`, `blur(8px) saturate(120%)`, `z-index: 1000005`, `gp-command-fade` |
+| `.gp-command` | Column flex, `min(760px, calc(100vw - 32px))`, `max-height: 72vh`, `overflow: hidden`, `var(--gp-bg-1)`, 1px `var(--gp-border)`, `var(--gp-radius-lg)`, `var(--gp-shadow-float)`, `gp-command-in` |
+| `.gp-command--compact` | `min(560px, calc(100vw - 24px))` and a single-column body — used when the details pane is off at open time |
+| `.gp-command__field` | Input row: `12px 14px`, 8px gap, bottom border on `var(--gp-line)`; a 16px muted search glyph, the input and the shortcut chips |
+| `.gp-command__input` | Borderless, transparent, `font-size: 16px` (so iOS does not zoom), accent-colored caret inherited from the page; its `:focus-visible` outline is suppressed because the whole row is the field |
+| `.gp-command__kbd` | Shortcut chip: `11px` mono `var(--gp-text-muted)` on `var(--gp-bg-2)` with a `var(--gp-border)` edge |
+| `.gp-command__bar` | A `2px` progress strip under the field, transparent when idle; `.is-loading` paints an accent gradient that sweeps (`gp-command-progress`), the only motion while a source refreshes |
+| `.gp-command__main` | The two-column body: `minmax(0, 1fr) 246px`; the list and the details pane scroll independently |
+| `.gp-command__list` | `overflow-y: auto`, `6px` padding |
+| `.gp-command__group-title` | Group heading: `11px`/600 uppercase, `0.04em` tracking, `var(--gp-text-muted)` |
+| `.gp-command__row` | One result: grid `20px auto minmax(0, 1fr) auto auto` (icon, muted prefix, title, badges, meta), 8px gaps, `8px 10px`, `var(--gp-radius)`, pointer cursor |
+| `.gp-command__row[aria-selected="true"]`, `.is-active` | The active row fills with `var(--gp-accent-soft)` and its icon and title take `var(--gp-accent)`; no border or outline is drawn, so a moving selection never shifts the list |
+| `.gp-command__muted` | The muted prefix (a starred marker, a command's scope) in `13px` `var(--gp-text-muted)`, never wrapping |
+| `.gp-command__title` | `14px`, one line, ellipsized |
+| `.gp-command__mark` | A matched range: `var(--gp-accent)` and 600 weight on a transparent background — a highlight, not a chip |
+| `.gp-command__badge` | Pill `11px` on `var(--gp-bg-2)`, `999px` radius; inside the active row it flips to `var(--gp-bg-1)` so it stays legible on the accent tint |
+| `.gp-command__meta` | Right-hand metadata (stars, size, shortcut) in `12px` tabular `var(--gp-text-muted)` |
+| `.gp-command__detail` | The details pane: `14px` padding, left border on `var(--gp-line)`, own scroll; `[hidden]` when the pane is off |
+| `.gp-detail__title` / `__desc` | `15px`/600 title with `overflow-wrap: anywhere`, then a `13px`/1.45 muted description |
+| `.gp-detail__facts` / `__fact` / `__dot` | Fact rows (`12px` muted with a 14px glyph); the language dot is an 8px `var(--gp-accent)` circle |
+| `.gp-detail__tags` / `__tag` | Visibility and state tags as `11px` pills on `var(--gp-bg-2)`, wrapping |
+| `.gp-detail__shortcut` / `__kbd` | A command's shortcut in the same mono chip as the field |
+| `.gp-detail__actions` / `__action` | Full-width text buttons, `13px`, transparent with a transparent 1px edge; hover fills `var(--gp-bg-2)` and shows the border, `:focus-visible` takes the `var(--gp-focus)` outline |
+| `.gp-command__foot` | Footer bar: `8px 14px`, top border on `var(--gp-line)`, `12px` muted text, hints at the ends |
+| `.gp-command__empty` | Centered empty state (`32px 16px`): muted glyph, a `14px`/600 `var(--gp-text)` title and a `13px` hint |
+| `.gp-command__announcer` | Visually hidden `role="status"` live region for the result count; never styled into the layout |
+
+Motion is one 120 ms fade for the scrim and a 120 ms fade plus a `-2px` rise
+for the card; closing fades the overlay for 120 ms before it is removed. Under
+`prefers-reduced-motion: reduce` the overlay, card and progress sweep drop
+their animations, so the palette still opens and closes, it just appears.
+Below `760px` the body collapses to one column and the details pane is hidden
+regardless of the setting; below `520px` the card moves to `6vh` and keeps an
+8px gutter (`calc(100vw - 16px)`).
+
 ## 7. States
 
 | State | Selector / form | Effect |
@@ -846,6 +898,10 @@ accent-tinted button stays available as the explicit control.
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
 | Custom settings | `.gp-header-btn--custom`, `.gp-user-menu-item--custom` | Dot in `var(--gp-accent)` (corner of the header button, trailing in the menu row) while settings differ from defaults; the menu dot is `display: none` until the modifier is set |
+| Palette loading | `.gp-command__bar.is-loading` | A 2px accent sweep under the input while a source refreshes; the bar is transparent at rest |
+| Palette active row | `.gp-command__row[aria-selected="true"]`, `.gp-command__row.is-active` | `var(--gp-accent-soft)` fill with an accent icon and title; the same row is mirrored to `aria-activedescendant` |
+| Palette empty | `.gp-command__empty:not([hidden])` | Centered glyph, `var(--gp-text)` title and muted hint; `[hidden]` is declared explicitly |
+| Palette closing | `.gp-command-overlay.is-closing` | The overlay fades for 120 ms, then the element is removed |
 | Hidden | `[hidden]` on `.gp-panel-overlay`, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__spinner`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter`, `.gp-viewer__size`, or on any descendant of `.gp-panel` / `.gp-viewer` | `display: none`, declared explicitly so GitHub's own resets cannot re-show our chrome. Elements outside those scopes (e.g. `.gp-toast__message`) rely on the user-agent `[hidden]` rule |
 
 State classes are the only state mechanism: never add inline styles for state
@@ -875,6 +931,8 @@ each is a per-instance value that CSS cannot know).
 | Controls | Border/fill changes on select, input, textarea, button, panel close, source tiles and the page download button take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
 | Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the hold time minus the appearance delay) |
+| Command palette | `gp-command-fade` on the scrim and `gp-command-in` (fade + `translateY(-2px)` → rest) on the card, both `0.12s ease-out`; closing fades the overlay `0.12s ease-in` before removal |
+| Palette progress | `gp-command-progress` — a 40%-wide accent gradient sweeping the 2px bar once per `1s`, linear, only while a source loads |
 
 - Hover on elements placed into GitHub's own chrome (the header button and the
   avatar-menu row) has no transition on purpose: they must feel native, and
@@ -888,8 +946,10 @@ each is a per-instance value that CSS cannot know).
   for the panel and confirm overlays and dialogs, the page head and page
   children, sidebar items and their pill, the dirty dot, `.gp-toast`,
   `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
-  `.gp-meter__fill`, `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image` and the search
-  result spotlight (which keeps a static accent ring instead). The viewer spinner,
+  `.gp-meter__fill`, `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image`,
+  `.gp-command-overlay`, `.gp-command` and `.gp-command__bar.is-loading` (the
+  loading bar keeps its static accent gradient instead of sweeping), and the
+  search result spotlight (which keeps a static accent ring instead). The viewer spinner,
   the toast progress bar and the hold-progress ring are outside that list (a
   spinner, a countdown and hold progress are information, not decoration), so
   do not "fix" them by adding them to the media block without deciding what
@@ -897,7 +957,7 @@ each is a per-instance value that CSS cannot know).
 
 ## 9. Responsive behaviour
 
-The stylesheet has one breakpoint, `@media (max-width: 640px)`:
+The panel and viewer share one breakpoint, `@media (max-width: 640px)`:
 
 | Selector | Change |
 |---|---|
@@ -922,6 +982,16 @@ The stylesheet has one breakpoint, `@media (max-width: 640px)`:
 | `.gp-viewer__nav` | `38px` circles, offset `8px` from the stage edge |
 | `.gp-viewer__thumbs` / `.gp-viewer__thumb` | `8px` rail padding and gap `6px`; `56×40` thumbs |
 | `.gp-viewer__help` | Spans the stage: `left: 10px; right: 10px; width: auto` |
+
+The command palette has its own two breakpoints, because it is a list surface
+rather than a dialog:
+
+| Selector | Change |
+|---|---|
+| `.gp-command__main` (≤760px) | One column — the details pane would leave the list too narrow to read |
+| `.gp-command__detail` (≤760px) | `display: none`, regardless of `commandPalette.showDetails` |
+| `.gp-command-overlay` (≤520px) | `padding-top: 6vh` — a short viewport cannot spare 12% above the card |
+| `.gp-command` (≤520px) | `calc(100vw - 16px)` — an 8px gutter instead of 16px |
 
 Everything else is fluid by construction and must stay that way:
 
@@ -955,6 +1025,11 @@ Everything else is fluid by construction and must stay that way:
   `role="menu"` with `button[role="menuitem"]` rows and an `aria-label` naming
   the file; the viewer's failure card and error toasts are `role="alert"`, all
   other toasts `role="status"`, and the toast container is `aria-live="polite"`.
+  The palette is `role="dialog"` + `aria-modal="true"` with a combobox input
+  (`aria-expanded`, `aria-controls`, `aria-autocomplete="list"`), one
+  `role="listbox"` with `role="option"` rows and `aria-activedescendant`
+  pointing at the active row's id, and a visually hidden `role="status"`
+  announcer for the result count.
 - **Names.** Icon-only controls carry both `title` and `aria-label`
   (`.gp-panel__close` = `common.close`, viewer tools/nav/open/download, the
   entry button = `settings.open`, the page download button = `viewer.download`,
@@ -989,6 +1064,10 @@ Everything else is fluid by construction and must stay that way:
   Context menu: `ArrowUp`/`ArrowDown` move with wrap-around, `Home`/`End` jump,
   `Enter`/`Space` run the row, `Escape` and `Tab` close it, and focus returns
   to the file link or breadcrumb after a keyboard open.
+  Command palette: the shortcut opens and closes it, `ArrowUp`/`ArrowDown` move
+  with wrap-around, `Home`/`End` jump, `Enter` runs the active row
+  (`Ctrl`/`Cmd`+`Enter` opens it in a new tab), `Alt+P` pins it, `Escape`
+  clears a non-empty query before it closes, and `Tab` stays inside the card.
 - **Scroll lock.** While a modal is open the page behind is pinned
   (`html.gp-modal-open`), so pointer and keyboard focus cannot drift under the
   overlay; the lock is counted and released on close.

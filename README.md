@@ -5,19 +5,20 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-A userscript that improves GitHub with a full settings panel, an image gallery
-for rendered markdown, colored file icons wherever GitHub lists files,
-blame-style age colors for those files, file sizes with one-click downloads,
-a context menu for file actions, a quick preview for any file, and on-page
-translation of markdown, comments, commits and titles.
+A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
+command palette, an image gallery for rendered markdown, colored file icons
+wherever GitHub lists files, blame-style age colors for those files, file sizes
+with one-click downloads, a context menu for file actions, a quick preview for
+any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.20.11`). Settings panel with instant search (General ·
-> Gallery · Files · Translation · Backup · About), the markdown image gallery,
-> colored file icons, blame-style file age colors, file sizes with download
-> buttons, a file context menu, a quick file preview, and on-page translation.
-> More GitHub improvements planned.
+> **Status:** early (`0.21.0`). Settings panel with instant search (General ·
+> Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
+> command palette, the markdown image gallery, colored file icons, blame-style
+> file age colors, file sizes with download buttons, a file context menu, a
+> quick file preview, and on-page translation. More GitHub improvements
+> planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
@@ -238,6 +239,41 @@ the markdown file open in the quick preview:
 - **Cached** — a translation is reused for 24 hours by default (configurable;
   0 disables it) and can be cleared from the settings page.
 
+### Command palette
+
+Press `Ctrl/⌘+K` anywhere on GitHub for one search field over everything you do
+there:
+
+- **Your repositories** — every repository you own, owned ones first, with
+  stars, language, last push and visibility in the details pane. Type `@` to
+  search repositories only.
+- **Starred repositories** — the projects you keep coming back to, merged after
+  your own and marked with a star.
+- **Files in this repository** — type `#` for every path in the current
+  repository (or a query that matches one); a file opens on GitHub at the ref
+  you are browsing.
+- **GitHub pages and GitHub Plus actions** — open your issues, pulls,
+  notifications or settings; open the GitHub Plus panel; toggle its features;
+  refresh the cache. Type `>` to limit the list to commands, or `?` to send the
+  query to GitHub's own search.
+- **Pins and recents** — pin what you use constantly (`Alt+P`) and recently
+  opened rows come back to the top on the next open, per GitHub account.
+- **Fast and quiet** — the palette renders the cached list instantly, refreshes
+  it in the background and keeps your selection in place. Results are cached
+  with ETags for the session and across reloads, so browsing the palette does
+  not burn API quota; without a token it reads public data and every command
+  still works.
+- **Optional GitHub token** — add one on the palette's settings page to see
+  private repositories and complete lists (5,000 requests per hour instead of
+  60). The token is verified before use, stored only in this browser, never
+  written to a backup export, sent only to `api.github.com`, and cached data is
+  kept per account, so switching accounts never shows another account's
+  repositories.
+- **Keyboard first** — `↑`/`↓` move, `Enter` opens, `Ctrl/⌘+Enter` opens in a
+  new tab, `Alt+P` pins, `Esc` clears the query and then closes; the palette
+  stays out of the way while you type in a comment or README editor, and closes
+  itself on navigation.
+
 ### Settings panel
 
 Open it from the gear button in the GitHub header, from the **GitHub Plus
@@ -289,6 +325,15 @@ Stored under `gp_settings_v1`.
 | `translate.linkLabels` | `true` | Translate the text of links too |
 | `translate.surfaces.<id>` | `true` | Per-place switches: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Cache lifetime in hours (0 disables the cache) |
+| `commandPalette.enabled` | `true` | Master switch for the `Ctrl/⌘+K` command palette |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k` or `off` |
+| `commandPalette.token` | `''` | Optional GitHub token for private repositories and higher limits (sent only to `api.github.com`, never exported) |
+| `commandPalette.sources.<id>` | `true` | Per-source switches: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.hideForks` | `false` | Hide forked repositories |
+| `commandPalette.hideArchived` | `false` | Hide archived repositories |
+| `commandPalette.showDetails` | `true` | Details pane beside the list (hidden below 760 px) |
+| `commandPalette.cacheHours` | `6` | Repository and file-tree cache lifetime in hours (0 disables the cache) |
+| `commandPalette.maxResults` | `30` | Maximum number of rows in a result set (10–100) |
 
 ## How the gallery is built
 

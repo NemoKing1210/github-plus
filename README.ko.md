@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.20.11-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.21.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
-GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, 렌더링된 Markdown용
-이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일 아이콘, 그 파일들의
-blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용 컨텍스트 메뉴,
-모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
+GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
+렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
+아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
+컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.20.11`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 · 백업 ·
-> 정보), Markdown 이미지 갤러리, 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드
-> 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴, 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub
-> 개선이 예정되어 있습니다.
+> **상태:** 초기(`0.21.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
+> 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
+> 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
+> 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
@@ -218,6 +218,34 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
 - **캐시** — 번역은 기본 24시간 동안 재사용되며(설정 가능, 0이면 캐시 끔) 설정
   페이지에서 지울 수 있습니다.
 
+### 명령 팔레트
+
+GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 모든 일을 검색하는 하나의
+필드가 열립니다:
+
+- **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 상세 패널에 스타, 언어, 최근
+  push, 공개 범위가 표시됩니다. `@`를 입력하면 저장소만 검색합니다.
+- **스타 표시한 저장소** — 자주 돌아오는 프로젝트로, 내 저장소 다음에 오며 별표로
+  표시됩니다.
+- **현재 저장소의 파일** — `#`는 현재 저장소의 모든 경로(또는 일치하는 검색어)를
+  보여 줍니다. 파일은 보고 있는 ref에서 GitHub로 열립니다.
+- **GitHub 페이지와 GitHub Plus 작업** — issue, pull request, 알림, 설정을 엽니다.
+  GitHub Plus 패널을 엽니다. 기능을 켜고 끕니다. 캐시를 새로 고칩니다. `>`는 목록을
+  명령으로 제한하고, `?`는 검색어를 GitHub 자체 검색으로 넘깁니다.
+- **고정 및 최근 항목** — 자주 쓰는 항목은 `Alt+P`로 고정하고, 최근에 연 행은 다음에
+  열 때 맨 위로 돌아옵니다(GitHub 계정별).
+- **빠르고 조용하게** — 팔레트는 캐시된 목록을 즉시 그리고, 백그라운드에서 갱신하며
+  선택한 행을 유지합니다. 결과는 세션 동안과 새로 고침 사이에 ETag와 함께 캐시되므로
+  API 할당량을 쓰지 않습니다. 토큰이 없어도 공개 데이터를 읽고 모든 명령이
+  동작합니다.
+- **선택적 GitHub 토큰** — 팔레트 설정 페이지에서 추가하면 비공개 저장소와 전체
+  목록을 볼 수 있습니다(시간당 60회 대신 5,000회). 토큰은 사용 전에 검증되고 이
+  브라우저에만 저장되며, 백업에 절대 기록되지 않고 `api.github.com`으로만 전송됩니다.
+  캐시는 계정별로 분리되므로 계정을 바꿔도 다른 사람의 저장소가 표시되지 않습니다.
+- **키보드 우선** — `↑`/`↓`로 이동, `Enter`로 열기, `Ctrl/⌘+Enter`로 새 탭에서 열기,
+  `Alt+P`로 고정, `Esc`로 검색어를 지운 뒤 닫습니다. 댓글이나 README 편집기에서
+  입력하는 동안에는 방해하지 않고, 탐색 시 스스로 닫힙니다.
+
 ### 설정 패널
 
 GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
@@ -268,6 +296,15 @@ GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정**
 | `translate.linkLabels` | `true` | 링크 텍스트도 번역 |
 | `translate.surfaces.<id>` | `true` | 위치별 스위치: `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | 캐시 유지 시간(시간, 0이면 끔) |
+| `commandPalette.enabled` | `true` | `Ctrl/⌘+K` 명령 팔레트 마스터 스위치 |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k`, `off` 중 하나 |
+| `commandPalette.token` | `''` | 비공개 저장소와 높은 한도를 위한 선택적 GitHub 토큰(`api.github.com`으로만 전송, 내보내지 않음) |
+| `commandPalette.sources.<id>` | `true` | 소스 스위치: `commands`, `repositories`, `starred`, `files`, `recent` |
+| `commandPalette.hideForks` | `false` | 저장소의 포크 숨기기 |
+| `commandPalette.hideArchived` | `false` | 보관된 저장소 숨기기 |
+| `commandPalette.showDetails` | `true` | 목록 옆 상세 패널(760 px 미만에서는 항상 숨김) |
+| `commandPalette.cacheHours` | `6` | 저장소 및 파일 트리 캐시 유지 시간(시간, 0이면 끔) |
+| `commandPalette.maxResults` | `30` | 결과 집합당 최대 행 수(10–100) |
 
 ## 갤러리 구조
 
