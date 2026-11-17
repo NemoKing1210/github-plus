@@ -9,7 +9,7 @@ test('command palette defaults', async () => {
     enabled: true,
     shortcut: 'mod+k',
     token: '',
-    sources: { commands: true, repositories: true, starred: true, files: true, recent: true },
+    sources: { commands: true, repositories: true, starred: true, files: true, issues: true, recent: true },
     hideForks: false,
     hideArchived: false,
     showDetails: true,

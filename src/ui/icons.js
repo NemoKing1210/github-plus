@@ -104,6 +104,17 @@ export const PALETTE_ICONS = {
     '<path d="m8 2.5 1.65 3.45 3.85.5-2.8 2.65.7 3.8L8 11l-3.4 1.9.7-3.8-2.8-2.65 3.85-.5Z"/>',
   ),
   folder: svg('<path d="M2.5 4.5h3.75l1.25 1.5h6v6.5h-11Z"/>'),
+  issueOpened: svg(
+    '<circle cx="8" cy="8" r="5.5"/>'
+    + '<circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/>',
+  ),
+  pullRequest: svg(
+    '<circle cx="4.5" cy="3.5" r="1.5"/>'
+    + '<circle cx="4.5" cy="12.5" r="1.5"/>'
+    + '<circle cx="11.5" cy="12.5" r="1.5"/>'
+    + '<path d="M4.5 5v6"/>'
+    + '<path d="M11.5 9.5V7a2 2 0 0 0-2-2H7"/>',
+  ),
   file: svg(
     '<path d="M9 2.5H4.5v11h7V6Z"/>'
     + '<path d="M9 2.5V6h2.5"/>',

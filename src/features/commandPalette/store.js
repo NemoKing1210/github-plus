@@ -44,6 +44,7 @@ function emptyRecord() {
     tokenFingerprint: '',
     sources: {},
     trees: {},
+    issues: {},
     rateLimit: null,
   };
 }
@@ -59,6 +60,7 @@ export function readCacheRecord() {
     tokenFingerprint: typeof record.tokenFingerprint === 'string' ? record.tokenFingerprint : '',
     sources: record.sources && typeof record.sources === 'object' ? record.sources : {},
     trees: record.trees && typeof record.trees === 'object' ? record.trees : {},
+    issues: record.issues && typeof record.issues === 'object' ? record.issues : {},
     rateLimit: record.rateLimit && typeof record.rateLimit === 'object' ? record.rateLimit : null,
   };
 }
@@ -72,6 +74,7 @@ export function clearDataCache() {
   const record = readCacheRecord() || emptyRecord();
   record.sources = {};
   record.trees = {};
+  record.issues = {};
   record.rateLimit = null;
   writeCacheRecord(record);
 }
@@ -183,6 +186,7 @@ export function persistRateLimit(state, rateLimit) {
     tokenFingerprint: state.fingerprint,
     sources: latest?.sources || {},
     trees: latest?.trees || {},
+    issues: latest?.issues || {},
     rateLimit,
   });
 }

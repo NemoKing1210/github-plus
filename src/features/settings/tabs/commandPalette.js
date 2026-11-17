@@ -30,7 +30,7 @@ const SHORTCUT_LABELS = {
   off: 'palette.shortcut.off',
 };
 
-const SOURCE_IDS = ['commands', 'repositories', 'starred', 'files', 'recent'];
+const SOURCE_IDS = ['commands', 'repositories', 'starred', 'files', 'issues', 'recent'];
 
 const EMPTY_RECORD = {
   version: 1,
@@ -39,6 +39,7 @@ const EMPTY_RECORD = {
   tokenFingerprint: '',
   sources: {},
   trees: {},
+  issues: {},
   rateLimit: null,
 };
 

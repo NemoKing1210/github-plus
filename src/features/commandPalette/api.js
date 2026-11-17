@@ -27,6 +27,11 @@ export function treeUrl({ owner, repo, ref }) {
   return `${API}/repos/${owner}/${repo}/git/trees/${encodeURIComponent(ref)}?recursive=1`;
 }
 
+export function issuesUrl({ owner, repo, page = 1 } = {}) {
+  return `${API}/repos/${owner}/${repo}/issues`
+    + `?state=open&sort=updated&direction=desc&per_page=${PER_PAGE}&page=${page}`;
+}
+
 function headersFor(token, accept, extra) {
   const headers = { Accept: accept, 'X-GitHub-Api-Version': '2022-11-28' };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -121,6 +126,31 @@ export async function fetchTreePage({ owner, repo, ref, token = '', cached = nul
   return {
     notModified: false,
     payload: JSON.parse(response.text || '{}'),
+    etag: response.headers.etag || null,
+    rateLimit: response.rateLimit,
+  };
+}
+
+/** One page of the repository's open issues; pull requests are included. */
+export async function fetchIssuesPage({ owner, repo, page = 1, token = '', cached = null, signal }) {
+  const response = await call(issuesUrl({ owner, repo, page }), {
+    token,
+    signal,
+    headers: conditionalHeaders(cached),
+  });
+  if (response.status === 304) {
+    if (!cached) throw httpError(response);
+    return {
+      notModified: true,
+      items: cached.items || [],
+      etag: cached.etag ?? null,
+      rateLimit: response.rateLimit,
+    };
+  }
+  if (!isOk(response.status)) throw httpError(response);
+  return {
+    notModified: false,
+    items: JSON.parse(response.text || '[]'),
     etag: response.headers.etag || null,
     rateLimit: response.rateLimit,
   };

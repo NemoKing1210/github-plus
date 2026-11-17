@@ -265,6 +265,7 @@ async function load({ force, signal }) {
     tokenFingerprint: state.fingerprint,
     sources,
     trees: latestSameIdentity ? latest.trees || {} : {},
+    issues: latestSameIdentity ? latest.issues || {} : {},
     rateLimit: rateLimit || (latestSameIdentity ? latest.rateLimit || null : null),
   });
   return { status: 'updated' };

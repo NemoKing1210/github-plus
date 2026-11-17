@@ -110,3 +110,16 @@ test('storage failures return safe defaults', () => {
   assert.deepEqual(readRecents('alice'), []);
   assert.equal(readCacheRecord(), null);
 });
+
+test('the issues cache survives a data clear only as an empty map', async () => {
+  globalThis.localStorage = {
+    getItem: (key) => (disk.has(key) ? disk.get(key) : null),
+    setItem: (key, value) => disk.set(key, value),
+    removeItem: (key) => disk.delete(key),
+  };
+  const store = await import('../src/features/commandPalette/store.js');
+  store.writeCacheRecord({ login: 'alice', issues: { 'o/r': { etag: '"i"', items: [{ number: 1 }], fetchedAt: 1 } } });
+  assert.equal(store.readCacheRecord().issues['o/r'].items[0].number, 1);
+  store.clearDataCache();
+  assert.deepEqual(store.readCacheRecord().issues, {});
+});

@@ -300,6 +300,7 @@ const DEFAULT_COMMAND_PALETTE = {
     repositories: true,
     starred: true,
     files: true,
+    issues: true,
     recent: true,
   },
   hideForks: false,

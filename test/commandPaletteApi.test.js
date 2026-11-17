@@ -79,3 +79,20 @@ test('a 403 carries the rate limit on the error', async () => {
   });
   delete globalThis.GM_xmlhttpRequest;
 });
+
+test('the issues URL is state=open and desc by update', async () => {
+  const { issuesUrl } = await import('../src/features/commandPalette/api.js');
+  assert.equal(
+    issuesUrl({ owner: 'o', repo: 'r', page: 2 }),
+    'https://api.github.com/repos/o/r/issues?state=open&sort=updated&direction=desc&per_page=100&page=2',
+  );
+});
+
+test('an unchanged issues page is reused, pull requests included', async () => {
+  const { fetchIssuesPage } = await import('../src/features/commandPalette/api.js');
+  stubGm([{ status: 304, headers: 'ETag: "i1"\r\n' }]);
+  const page = await fetchIssuesPage({ owner: 'o', repo: 'r', cached: { etag: '"i1"', items: [{ number: 1 }] } });
+  assert.equal(page.notModified, true);
+  assert.equal(page.items[0].number, 1);
+  delete globalThis.GM_xmlhttpRequest;
+});

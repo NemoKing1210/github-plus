@@ -121,6 +121,7 @@ function persistTree(state, key, record, rateLimit) {
     tokenFingerprint: state.fingerprint,
     sources: sameIdentity ? latest.sources || {} : {},
     trees: kept,
+    issues: sameIdentity ? latest.issues || {} : {},
     rateLimit: rateLimit || (sameIdentity ? latest.rateLimit || null : null),
   });
 }
