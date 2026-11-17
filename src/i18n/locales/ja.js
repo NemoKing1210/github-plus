@@ -293,6 +293,7 @@ export default {
   'palette.navigate': '移動',
   'palette.open': '開く',
   'palette.newTab': '新しいタブ',
+  'palette.rowMenu': '操作',
   'palette.close': '閉じる',
   'palette.pinHint': 'ピン留め',
   'palette.status.rateLimited': 'API のレート制限に達しました。{time} までキャッシュデータを表示します。',

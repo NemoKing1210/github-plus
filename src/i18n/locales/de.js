@@ -293,6 +293,7 @@ export default {
   'palette.navigate': 'navigieren',
   'palette.open': 'öffnen',
   'palette.newTab': 'neuer Tab',
+  'palette.rowMenu': 'Aktionen',
   'palette.close': 'schließen',
   'palette.pinHint': 'anheften',
   'palette.status.rateLimited': 'API-Limit erreicht. Bis {time} werden zwischengespeicherte Daten angezeigt.',

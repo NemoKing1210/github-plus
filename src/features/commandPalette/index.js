@@ -52,6 +52,7 @@ function paletteLabels() {
     newTab: t('palette.newTab'),
     close: t('palette.close'),
     noSelection: t('palette.noSelection'),
+    rowMenu: t('palette.rowMenu'),
     badges: {
       pinned: t('palette.badge.pinned'),
       recent: t('palette.badge.recent'),

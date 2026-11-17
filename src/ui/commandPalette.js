@@ -8,6 +8,7 @@
 import { el } from '../utils/dom.js';
 import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
 import { PALETTE_ICONS } from './icons.js';
+import { closeContextMenu } from './contextMenu.js';
 
 const CLOSE_MS = 120;
 const DEBOUNCE_MS = 80;
@@ -135,6 +136,21 @@ function buildRow(current, item) {
   const meta = el('span', 'gp-command__meta', item.meta || '');
 
   row.append(icon, muted, title, badges, meta);
+  if (current.onContextMenu) {
+    const more = el('button', 'gp-command__more');
+    more.type = 'button';
+    more.tabIndex = -1;
+    more.setAttribute('aria-haspopup', 'menu');
+    more.setAttribute('aria-label', current.labels.rowMenu || '');
+    more.innerHTML = PALETTE_ICONS.more;
+    more.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      current.onContextMenu(item, { anchor: more, keyboard: true });
+    });
+    row.classList.add('gp-command__row--menued');
+    row.appendChild(more);
+  }
   current.rowByKey.set(item.key, row);
   return row;
 }
@@ -268,6 +284,13 @@ function onKeyDown(event) {
     if (item) state.onPin?.(item);
     return;
   }
+  if (state.onContextMenu && (key === 'ContextMenu' || (key === 'F10' && event.shiftKey))) {
+    event.preventDefault();
+    const item = activeItem();
+    if (!item) return;
+    state.onContextMenu(item, { anchor: state.rowByKey.get(item.key) || null, keyboard: true });
+    return;
+  }
   if (key === 'ArrowDown' || key === 'ArrowUp') {
     event.preventDefault();
     move(key === 'ArrowDown' ? 1 : -1);
@@ -308,6 +331,21 @@ function onPointerDown(event) {
   if (state && event.target === state.root) closeCommandPalette();
 }
 
+function onRowContextMenu(event) {
+  if (!state?.onContextMenu) return;
+  const row = event.target instanceof Element ? event.target.closest('.gp-command__row') : null;
+  const item = row?.dataset.key ? state.itemsByKey.get(row.dataset.key) : null;
+  if (!item) return;
+  event.preventDefault();
+  selectKey(item.key);
+  state.onContextMenu(item, {
+    x: event.clientX,
+    y: event.clientY,
+    anchor: row,
+    keyboard: false,
+  });
+}
+
 function onClick(event) {
   if (!state) return;
   const target = event.target instanceof Element ? event.target.closest('.gp-command__row') : null;
@@ -329,6 +367,7 @@ function onInput() {
  *   renderDetail?: (item: object) => Node | null,
  *   onSelect?: (item: object, options: {newTab: boolean}) => void,
  *   onPin?: (item: object) => void, onClose?: () => void,
+ *   onContextMenu?: (item: object, position: {x?: number, y?: number, anchor: Element|null, keyboard: boolean}) => void,
  *   showDetails?: boolean}} options
  * @returns {{refresh: () => void, close: () => void, setQuery: (value: string) => void}}
  */
@@ -338,6 +377,7 @@ export function openCommandPalette({
   renderDetail,
   onSelect,
   onPin,
+  onContextMenu,
   onClose,
   showDetails = true,
 }) {
@@ -353,6 +393,7 @@ export function openCommandPalette({
     renderDetail,
     onSelect,
     onPin,
+    onContextMenu,
     onClose,
     showDetails,
     ...node,
@@ -366,6 +407,7 @@ export function openCommandPalette({
   node.input.addEventListener('input', onInput);
   node.list.addEventListener('pointermove', onPointerMove);
   node.list.addEventListener('click', onClick);
+  node.list.addEventListener('contextmenu', onRowContextMenu);
   node.root.addEventListener('pointerdown', onPointerDown);
   node.dialog.addEventListener('keydown', onKeyDown);
   lockPageScroll();
@@ -387,12 +429,14 @@ export function openCommandPalette({
 /** Close the palette, restore focus and release the page scroll lock. */
 export function closeCommandPalette() {
   if (!state) return;
+  closeContextMenu();
   const current = state;
   state = null;
   clearTimeout(current.debounceTimer);
   current.input.removeEventListener('input', onInput);
   current.list.removeEventListener('pointermove', onPointerMove);
   current.list.removeEventListener('click', onClick);
+  current.list.removeEventListener('contextmenu', onRowContextMenu);
   current.root.removeEventListener('pointerdown', onPointerDown);
   current.dialog.removeEventListener('keydown', onKeyDown);
   current.root.classList.add('is-closing');

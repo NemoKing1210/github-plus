@@ -293,6 +293,7 @@ export default {
   'palette.navigate': 'nawigacja',
   'palette.open': 'otwórz',
   'palette.newTab': 'nowa karta',
+  'palette.rowMenu': 'Akcje',
   'palette.close': 'zamknij',
   'palette.pinHint': 'przypnij',
   'palette.status.rateLimited': 'Osiągnięto limit API. Do {time} wyświetlane są dane z pamięci podręcznej.',

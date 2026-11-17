@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom';
 let dom;
 let shell;
 let seen;
+let contextMenu;
 
 function labels() {
   return {
@@ -19,6 +20,7 @@ function labels() {
     newTab: 'new tab',
     close: 'close',
     noSelection: 'Select a result',
+    rowMenu: 'Actions',
     badges: { pinned: 'pinned', recent: 'recent', private: 'private', fork: 'fork', archived: 'archived' },
   };
 }
@@ -46,6 +48,7 @@ beforeEach(async () => {
   dom.window.Element.prototype.scrollIntoView = () => {};
   dom.window.scrollTo = () => {};
   shell = await import('../src/ui/commandPalette.js');
+  contextMenu = await import('../src/ui/contextMenu.js');
   seen = [];
   document.getElementById('opener').focus();
 });
@@ -175,4 +178,31 @@ test('a pinned row shows a star before its title', () => {
     onPin: () => {},
   });
   assert.ok(document.querySelector('.gp-command__row .gp-command__pin'));
+});
+
+test('the row menu opens from the button, a right-click and the keyboard', () => {
+  const calls = [];
+  shell.openCommandPalette({
+    labels: labels(),
+    showDetails: false,
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
+    onContextMenu: (item, position) => calls.push([item.key, position.keyboard]),
+  });
+  document.querySelector('.gp-command__more').click();
+  document.querySelector('.gp-command__row').dispatchEvent(new dom.window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 60 }));
+  document.querySelector('.gp-command__input').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'F10', shiftKey: true, bubbles: true }));
+  assert.deepEqual(calls, [['repo:a', true], ['repo:a', false], ['repo:a', true]]);
+});
+
+test('a press inside an open row menu does not close the palette', () => {
+  shell.openCommandPalette({
+    labels: labels(),
+    showDetails: false,
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
+    onContextMenu: () => contextMenu.openContextMenu({ x: 20, y: 20, label: 'Actions', layer: 'palette', items: [{ label: 'Open', onSelect() {} }] }),
+  });
+  document.querySelector('.gp-command__more').click();
+  const menu = document.querySelector('.gp-context-menu');
+  menu.dispatchEvent(new dom.window.MouseEvent('pointerdown', { bubbles: true }));
+  assert.equal(shell.isCommandPaletteOpen(), true);
 });

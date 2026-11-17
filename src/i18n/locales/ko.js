@@ -293,6 +293,7 @@ export default {
   'palette.navigate': '이동',
   'palette.open': '열기',
   'palette.newTab': '새 탭',
+  'palette.rowMenu': '작업',
   'palette.close': '닫기',
   'palette.pinHint': '고정',
   'palette.status.rateLimited': 'API 속도 제한에 도달했습니다. {time}까지 캐시된 데이터를 표시합니다.',

@@ -293,6 +293,7 @@ export default {
   'palette.navigate': '导航',
   'palette.open': '打开',
   'palette.newTab': '新标签页',
+  'palette.rowMenu': '操作',
   'palette.close': '关闭',
   'palette.pinHint': '固定',
   'palette.status.rateLimited': '已达到 API 速率限制。在 {time} 前显示缓存数据。',

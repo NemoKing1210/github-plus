@@ -3251,6 +3251,43 @@ audio.gp-preview__media {
   white-space: nowrap;
 }
 
+.gp-command__row--menued {
+  grid-template-columns: 20px auto minmax(0, 1fr) auto auto 28px;
+}
+
+.gp-command__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--gp-radius);
+  background: transparent;
+  color: var(--gp-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gp-command__more svg {
+  width: 16px;
+  height: 16px;
+}
+
+.gp-command__row:hover .gp-command__more,
+.gp-command__row[aria-selected="true"] .gp-command__more,
+.gp-command__more:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gp-command__more:hover {
+  background: var(--gp-bg-1);
+  color: var(--gp-text);
+}
+
 .gp-command__detail {
   overflow-y: auto;
   padding: 14px;

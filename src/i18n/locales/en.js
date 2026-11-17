@@ -293,6 +293,7 @@ export default {
   'palette.navigate': 'navigate',
   'palette.open': 'open',
   'palette.newTab': 'new tab',
+  'palette.rowMenu': 'Actions',
   'palette.close': 'close',
   'palette.pinHint': 'pin',
   'palette.status.rateLimited': 'API rate limit reached. Showing cached data until {time}.',

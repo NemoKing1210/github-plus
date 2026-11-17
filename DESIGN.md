@@ -863,6 +863,8 @@ scrolls inside the card while the footer stays put. Everything is
 | `.gp-command__mark` | A matched range: `var(--gp-accent)` and 600 weight on a transparent background — a highlight, not a chip |
 | `.gp-command__badge` | Pill `11px` on `var(--gp-bg-2)`, `999px` radius; inside the active row it flips to `var(--gp-bg-1)` so it stays legible on the accent tint |
 | `.gp-command__meta` | Right-hand metadata (stars, size, shortcut) in `12px` tabular `var(--gp-text-muted)` |
+| `.gp-command__row--menued` | The row grid plus a `28px` trailing column for the row-menu button |
+| `.gp-command__more` | `24×24` icon-only `⋯` button in that column: transparent, `var(--gp-text-muted)`, `24px` radius `var(--gp-radius)`; invisible and untargetable until the row is hovered, active or the button is focus-visible, so it never changes the row's height and an untouched row cannot hit it by accident |
 | `.gp-command__detail` | The details pane: `14px` padding, left border on `var(--gp-line)`, own scroll; `[hidden]` when the pane is off |
 | `.gp-detail__title` / `__desc` | `15px`/600 title with `overflow-wrap: anywhere`, then a `13px`/1.45 muted description |
 | `.gp-detail__facts` / `__fact` / `__dot` | Fact rows (`12px` muted with a 14px glyph); the language dot is an 8px `var(--gp-accent)` circle |

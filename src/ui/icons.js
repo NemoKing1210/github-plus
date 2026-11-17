@@ -116,6 +116,11 @@ export const PALETTE_ICONS = {
     '<path d="M6 2.5h4l-.5 3 2 2v1H4.5v-1l2-2Z"/>'
     + '<path d="M8 9v4.5"/>',
   ),
+  more: svg(
+    '<circle cx="3.5" cy="8" r="0.9" fill="currentColor" stroke="none"/>'
+    + '<circle cx="8" cy="8" r="0.9" fill="currentColor" stroke="none"/>'
+    + '<circle cx="12.5" cy="8" r="0.9" fill="currentColor" stroke="none"/>',
+  ),
   copy: ACTION_ICONS.copy,
   external: VIEWER_ICONS.external,
   refresh: svg(

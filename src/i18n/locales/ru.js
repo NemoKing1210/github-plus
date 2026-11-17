@@ -293,6 +293,7 @@ export default {
   'palette.navigate': 'навигация',
   'palette.open': 'открыть',
   'palette.newTab': 'новая вкладка',
+  'palette.rowMenu': 'Действия',
   'palette.close': 'закрыть',
   'palette.pinHint': 'закрепить',
   'palette.status.rateLimited': 'Лимит API исчерпан. Показаны кэшированные данные до {time}.',
