@@ -87,6 +87,21 @@ function agesCard(draft) {
   return card;
 }
 
+function treeCard(draft) {
+  return createSection({
+    title: t('folderTree.title'),
+    hint: t('folderTree.enabledDesc'),
+    action: createSwitch({
+      checked: draft.folderTree.enabled,
+      label: t('folderTree.title'),
+      onChange: (value) => {
+        draft.folderTree.enabled = value;
+      },
+    }),
+    withBody: false,
+  });
+}
+
 function sizesCard(draft) {
   const card = createSection({
     title: t('files.enabled'),
@@ -203,6 +218,7 @@ export function renderFiles(container) {
   container.append(
     iconsCard(draft),
     agesCard(draft),
+    treeCard(draft),
     sizesCard(draft),
     menuCard(draft),
     previewCard(draft),

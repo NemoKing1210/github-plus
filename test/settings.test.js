@@ -16,6 +16,21 @@ test('file preview settings normalize the long-press toggle', async () => {
   assert.equal(settings.filePreview.longPressRing, true);
 });
 
+test('the folder tree is enabled by default and accepts an explicit false', async () => {
+  const { normalizeImportedSettings } = await import('../src/core/settings.js');
+  const empty = normalizeImportedSettings({});
+  assert.equal(empty.folderTree.enabled, true);
+
+  const off = normalizeImportedSettings({ folderTree: { enabled: false } });
+  assert.equal(off.folderTree.enabled, false);
+});
+
+test('the folder tree falls back to the default on junk', async () => {
+  const { normalizeImportedSettings } = await import('../src/core/settings.js');
+  const junk = normalizeImportedSettings({ folderTree: { enabled: 'yes' } });
+  assert.equal(junk.folderTree.enabled, true);
+});
+
 test('the long-press time is clamped to its bounds and falls back on junk', async () => {
   const { normalizeImportedSettings } = await import('../src/core/settings.js');
   const low = normalizeImportedSettings({ filePreview: { longPressMs: 10, longPressRing: false } });

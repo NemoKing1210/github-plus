@@ -257,6 +257,23 @@ const DEFAULT_FILE_PREVIEW = {
   longPressRing: true,
 };
 
+/** Most entries one expanded folder renders; larger folders show a note. */
+export const FOLDER_TREE_MAX_ENTRIES = 1000;
+
+/** How long a fetched folder listing and its commit info stay cached, ms. */
+export const FOLDER_TREE_CACHE_MS = 5 * 60 * 1000;
+
+/** A folder listing or commit-info request that takes longer is abandoned. */
+export const FOLDER_TREE_TIMEOUT_MS = 15000;
+
+/** Extra left padding per expansion depth, px. */
+export const FOLDER_TREE_INDENT_PX = 16;
+
+/** Folder tree: expand folders inline in the repository file listing. */
+const DEFAULT_FOLDER_TREE = {
+  enabled: true,
+};
+
 /** Commit badges: Conventional Commit types and scopes on commit subjects. */
 const DEFAULT_COMMIT_BADGES = {
   enabled: true,
@@ -326,6 +343,7 @@ export const DEFAULT_SETTINGS = {
   fileMeta: DEFAULT_FILE_META,
   fileMenu: DEFAULT_FILE_MENU,
   filePreview: DEFAULT_FILE_PREVIEW,
+  folderTree: DEFAULT_FOLDER_TREE,
   commitBadges: DEFAULT_COMMIT_BADGES,
   translate: DEFAULT_TRANSLATE,
   commandPalette: DEFAULT_COMMAND_PALETTE,

@@ -265,6 +265,7 @@ function persist() {
     emit('settings:fileMeta', saved.fileMeta);
     emit('settings:fileMenu', saved.fileMenu);
     emit('settings:filePreview', saved.filePreview);
+    emit('settings:folderTree', saved.folderTree);
     emit('settings:translate', saved.translate);
     emit('settings:commitBadges', saved.commitBadges);
     emit('settings:commandPalette', saved.commandPalette);
@@ -291,6 +292,7 @@ export function applyExternalSettings(next) {
   emit('settings:fileMeta', saved.fileMeta);
   emit('settings:fileMenu', saved.fileMenu);
   emit('settings:filePreview', saved.filePreview);
+  emit('settings:folderTree', saved.folderTree);
   emit('settings:translate', saved.translate);
   emit('settings:commitBadges', saved.commitBadges);
   emit('settings:commandPalette', saved.commandPalette);

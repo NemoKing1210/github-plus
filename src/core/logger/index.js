@@ -45,6 +45,8 @@ export const Codes = {
   PALETTE_CACHE: 'GP-1702',
   /** A commit-badge surface or its selectors failed. */
   COMMIT_BADGES: 'GP-1801',
+  /** A folder listing or its commit info could not be loaded. */
+  FOLDER_TREE: 'GP-1901',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
   /** An uncaught runtime error attributable to this script. */
