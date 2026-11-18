@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-11-18
+
+### Added
+
+- The palette's Issues and Pull requests rows are levels of their own: `Tab` on
+  either one opens that repository's open items right in the palette, with the
+  list's name in the path, so the list is readable without typing `#` or
+  leaving the page. `Backspace` or a path-segment click goes back to the
+  repository
+
+[0.28.0]: https://github.com/NemoKing1210/github-plus/compare/v0.27.3...v0.28.0
+
 ## [0.27.3] - 2026-11-18
 
 ### Changed

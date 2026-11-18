@@ -30,8 +30,8 @@ export const TOGGLE_LABEL_KEYS = {
 
 const REPO_COMMANDS = [
   { id: 'code', suffix: '', labelKey: 'palette.cmd.code', icon: 'repo' },
-  { id: 'issues', suffix: '/issues', labelKey: 'palette.cmd.issues', icon: 'issueOpened' },
-  { id: 'pulls', suffix: '/pulls', labelKey: 'palette.cmd.pulls', icon: 'pullRequest' },
+  { id: 'issues', suffix: '/issues', labelKey: 'palette.cmd.issues', icon: 'issueOpened', listing: 'issue' },
+  { id: 'pulls', suffix: '/pulls', labelKey: 'palette.cmd.pulls', icon: 'pullRequest', listing: 'pullRequest' },
   { id: 'newIssue', suffix: '/issues/new', labelKey: 'palette.cmd.newIssue', icon: 'issueOpened' },
   { id: 'compare', suffix: '/compare', labelKey: 'palette.cmd.compare', icon: 'pullRequest' },
   { id: 'actions', suffix: '/actions', labelKey: 'palette.cmd.actions', icon: 'terminal' },
@@ -54,7 +54,7 @@ const USER_COMMANDS = [
   { id: 'dashboard', url: 'https://github.com/dashboard', labelKey: 'palette.cmd.dashboard', icon: 'home' },
 ];
 
-function buildCandidate({ id, label, groupId, groupTitle, icon, run, sortKey, hint = '', description = '', shortcut = '' }) {
+function buildCandidate({ id, label, groupId, groupTitle, icon, run, sortKey, hint = '', description = '', shortcut = '', repo = '', listing = '' }) {
   return {
     key: `cmd:${id}`,
     kind: 'command',
@@ -69,8 +69,16 @@ function buildCandidate({ id, label, groupId, groupTitle, icon, run, sortKey, hi
       { text: description, weight: 1 },
     ],
     sortKey,
-    hint,
-    data: { run },
+    // A row with a listing is a level of its own: Tab opens that list instead
+    // of leaving the palette for GitHub.
+    scopeable: Boolean(listing),
+    listing,
+    hint: hint || (listing ? t('palette.hint.jump') : ''),
+    data: {
+      run,
+      ...(repo ? { repo } : {}),
+      ...(listing ? { listing } : {}),
+    },
     detail: { id, label, description, shortcut },
   };
 }
@@ -93,6 +101,7 @@ function repositoryCommands(state, startIndex) {
     label: t(command.labelKey),
     icon: command.icon,
     url: `https://github.com/${repo}${command.suffix}`,
+    listing: command.listing || '',
   }));
   if (ownsRepository(state, repo)) {
     commands.push({
@@ -100,6 +109,7 @@ function repositoryCommands(state, startIndex) {
       label: t('palette.cmd.repoSettings'),
       icon: 'gear',
       url: `https://github.com/${repo}/settings`,
+      listing: '',
     });
   }
   const rows = commands.map((command, offset) => buildCandidate({
@@ -110,6 +120,8 @@ function repositoryCommands(state, startIndex) {
     icon: command.icon,
     run: { type: 'navigate', url: command.url },
     sortKey: startIndex + offset + 1,
+    repo,
+    listing: command.listing,
   }));
   // GitHub's first row inside a repository is the repository page itself.
   rows.unshift(buildCandidate({
@@ -214,12 +226,13 @@ export function commandCandidates(state) {
 export function searchCommands(query, { scope, mode = 'all' } = {}) {
   if (mode === 'commands') return [];
   const repo = scope?.repo || '';
+  const listing = scope?.listing || '';
   // Repository search is account-wide by nature; the other modes narrow to the
   // repository when the palette is scoped to one.
   const scoped = Boolean(repo) && mode !== 'repos';
-  const type = mode === 'issues'
-    ? 'issues'
-    : mode === 'files' || (mode === 'all' && repo) ? 'code' : 'repositories';
+  let type = 'repositories';
+  if (listing || mode === 'issues') type = 'issues';
+  else if (mode === 'files' || (mode === 'all' && repo)) type = 'code';
   const url = scoped ? scopedSearchUrl(repo, query, type) : searchUrl(type, query);
   const label = scoped
     ? t('palette.fallback.scope', { query, repo })

@@ -29,6 +29,27 @@ test('repository pages replace the account pages inside a repository scope', () 
   assert.ok(root.some((item) => item.key === 'cmd:user.profile'));
 });
 
+test('the Issues and Pull requests page rows open a list level', () => {
+  const scoped = commandCandidates({
+    context: { repo: 'o/r', login: 'alice' }, scope: { repo: 'o/r' }, settings, cache: null,
+  });
+  const issues = scoped.find((item) => item.key === 'cmd:repo.issues');
+  const pulls = scoped.find((item) => item.key === 'cmd:repo.pulls');
+  assert.equal(issues.scopeable, true);
+  assert.equal(issues.listing, 'issue');
+  assert.equal(issues.data.repo, 'o/r');
+  assert.equal(issues.hint, 'Jump to');
+  assert.equal(pulls.scopeable, true);
+  assert.equal(pulls.listing, 'pullRequest');
+  assert.equal(scoped.find((item) => item.key === 'cmd:repo.code').scopeable, false);
+});
+
+test('a listing level searches its kind inside the repository', () => {
+  const [row] = searchCommands('bug', { scope: { repo: 'o/r', listing: 'issue' }, mode: 'all' });
+  assert.match(row.data.run.url, /type=issues/);
+  assert.match(row.data.run.url, /repo%3Ao%2Fr\+bug/);
+});
+
 test('repository commands follow the palette scope', () => {
   const state = {
     context: { repo: 'o/page', login: 'alice' },

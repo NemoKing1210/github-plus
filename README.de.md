@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.27.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -14,7 +14,7 @@ Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
 Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.27.3`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.28.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
@@ -287,7 +287,9 @@ tust:
   gerade ansiehst.
 - **Offene Issues und Pull Requests** — `#` zeigt die offenen Issues und Pull
   Requests des Repositories mit Issue- oder Pull-Request-Kennzeichnung, Autor und
-  Aktualisierungszeit; suche nach Titel, Nummer oder Autor.
+  Aktualisierungszeit; suche nach Titel, Nummer oder Autor. `Tab` auf der Zeile
+  Issues oder Pull Requests des Repositories öffnet diese Liste als eigene
+  Ebene, ohne `#`.
 - **Nachsichtige Suche** — Abfragen ignorieren Groß-/Kleinschreibung und
   lateinische Akzente (`cafe` findet `Café`), bevorzugen Wortanfänge und ganze
   Wörter und werden an Leerzeichen geteilt, wobei jeder Teil passen muss.
@@ -321,7 +323,8 @@ tust:
   `api.github.com` gesendet; der Cache gehört zu je einem Konto, ein Kontowechsel
   zeigt also nie fremde Repositories.
 - **Tastatur zuerst** — `↑`/`↓` bewegen die Auswahl, `Enter` öffnet,
-  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `Tab` geht in ein Repository oder
+  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `Tab` geht in ein Repository, einen
+  Ordner oder eine Issue-Liste,
   einen Ordner, `←`/`→` laufen den Pfad ab, `Backspace` verlässt eine Pfadebene, `Alt+P` heftet an,
   `Ctrl/⌘+C` kopiert die Zeile, `?` zeigt alle Tasten und Präfixe, und `Esc`
   schließt (zuerst die Hilfe); in einem Kommentar- oder README-Editor bleibt die

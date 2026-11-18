@@ -140,6 +140,26 @@ test('a scope keeps only the scoped rows and asks for files by prefix', () => {
   assert.deepEqual(keys('a'), ['repo:o/a']);
 });
 
+test('a listing scope keeps only that kind and leads with its rows', () => {
+  const items = [
+    { key: 'issue:o/a#1', kind: 'issue', groupId: 'issues', groupTitle: 'Issues',
+      title: '#1 Bug', data: { repo: 'o/a', kindLabel: 'issue' }, rankFields: [{ text: '#1 Bug', weight: 3 }] },
+    { key: 'issue:o/a#2', kind: 'issue', groupId: 'issues', groupTitle: 'Issues',
+      title: '#2 Fix', data: { repo: 'o/a', kindLabel: 'pullRequest' }, rankFields: [{ text: '#2 Fix', weight: 3 }] },
+    { key: 'cmd:repo.issues', kind: 'command', groupId: 'pages', groupTitle: 'Pages',
+      title: 'Issues', listing: 'issue', rankFields: [{ text: 'Issues', weight: 4 }] },
+    { key: 'file:o/a@HEAD:x.js', kind: 'file', groupId: 'files', groupTitle: 'Files',
+      title: 'x.js', data: { repo: 'o/a' }, rankFields: [{ text: 'x.js', weight: 3 }] },
+  ];
+  const keys = (query, listing) => rankCandidates(items, query, {
+    scope: { repo: 'o/a', listing }, titles: { top: 'Top result' },
+  }).groups.flatMap((group) => group.items.map((item) => item.key));
+  assert.deepEqual(keys('', 'issue'), ['issue:o/a#1']);
+  assert.deepEqual(keys('', 'pullRequest'), ['issue:o/a#2']);
+  // A typed query still reaches the repository's pages from a listing.
+  assert.deepEqual(keys('issu', 'issue'), ['cmd:repo.issues']);
+});
+
 test('the best match is promoted to a Top result group and not repeated', () => {
   const result = rankCandidates(scopedCandidates(), 'o/a', {
     titles: { top: 'Top result', pinned: 'Favorites', recent: 'Recent' },

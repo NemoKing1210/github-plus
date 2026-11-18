@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.27.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.27.3`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
+> **상태:** 초기(`0.28.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
 > 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
 > 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
 > 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
@@ -242,7 +242,8 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
   있는 ref에서 GitHub로 열립니다.
 - **열린 issue와 pull request** — `#`는 해당 저장소의 열린 issue와 pull request를
   보여 주며 issue 또는 pull request 배지, 작성자, 업데이트 시간이 붙습니다. 제목,
-  번호, 작성자로 검색합니다.
+  번호, 작성자로 검색합니다. 저장소의 Issues 또는 Pull requests 행에서 `Tab`을
+  누르면 `#` 없이 해당 목록을 별도 단계로 엽니다.
 - **관대한 검색** — 검색어는 대소문자와 라틴 악센트를 무시하고(`cafe`로 `Café`를
   찾습니다), 단어 시작과 전체 단어를 우선하며, 공백으로 나뉜 모든 부분이
   일치해야 합니다.
@@ -270,7 +271,7 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
   브라우저에만 저장되며, 백업에 절대 기록되지 않고 `api.github.com`으로만 전송됩니다.
   캐시는 계정별로 분리되므로 계정을 바꿔도 다른 사람의 저장소가 표시되지 않습니다.
 - **키보드 우선** — `↑`/`↓`로 이동, `Enter`로 열기, `Ctrl/⌘+Enter`로 새 탭에서 열기,
-  `Tab`으로 저장소나 폴더에 들어가기, `←`/`→`로 경로 오가기, `Backspace`로 경로 한 단계 나가기, `Alt+P`로
+  `Tab`으로 저장소, 폴더, issue 목록에 들어가기, `←`/`→`로 경로 오가기, `Backspace`로 경로 한 단계 나가기, `Alt+P`로
   고정,
   `Ctrl/⌘+C`로 행 복사, `?`로 모든 키와 접두사 보기, `Esc`로 닫기(도움말 먼저).
   댓글이나 README 편집기에서 입력하는 동안에는 방해하지 않고, 탐색 시 스스로

@@ -858,7 +858,8 @@ scrolls inside the card while the tip strip stays put. Everything is
 The card has three bands: the field (the scope path, the query, the `Esc`
 chip), the scrolling list, and the tip strip. There is no details aside, no
 footer and no row expansion: the path in the field is the drill-down, as in
-GitHub's own palette, so every level is a full list rather than a block nested
+GitHub's own palette, so every level — a repository, a folder, an issue or
+pull-request list — is a full list rather than a block nested
 under a row, and the tip strip is the only chrome below the list. A repository
 row leads with its owner's avatar in the icon slot; every other row keeps its
 glyph, and a failed avatar borrows the glyph back rather than leaving a gap.

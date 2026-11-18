@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.27.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
 文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的
 翻译。
 
-> **状态：** 早期（`0.27.3`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
+> **状态：** 早期（`0.28.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
 > 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件图标、
 > blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件预览，以及
 > 页面翻译。计划加入更多 GitHub 改进。
@@ -210,7 +210,8 @@ GitHub Plus 把两者直接加到文件行上：
   标记，可按 `Tab` 作为一层打开；文件会在你正在浏览的 ref 上于 GitHub 打开。
 - **打开的 issue 和 pull request** — 输入 `#` 查看该仓库打开的 issue 和 pull
   request，带 issue 或 pull request 标记，并显示作者和更新时间；可按标题、
-  编号或作者搜索。
+  编号或作者搜索。在仓库的 Issues 或 Pull requests 行上按 `Tab`，即可把该列表
+  作为单独一层打开，无需输入 `#`。
 - **宽容的匹配** — 查询忽略大小写和拉丁重音（`cafe` 能找到 `Café`），优先匹配
   词首和整词，并按空格拆分、每部分都必须匹配。
 - **页面即行** — 路径中仓库自己的页面（Code、Issues、Pull requests、新建议题、
@@ -233,7 +234,7 @@ GitHub Plus 把两者直接加到文件行上：
   绝不会写入备份导出，只发送到 `api.github.com`；缓存按账户分别保存，因此切换
   账户绝不会显示其他账户的仓库。
 - **键盘优先** — `↑`/`↓` 移动，`Enter` 打开，`Ctrl/⌘+Enter` 在新标签页打开，
-  `Tab` 进入仓库或文件夹，`←`/`→` 在路径中穿行，`Backspace` 离开一层路径，`Alt+P` 固定，
+  `Tab` 进入仓库、文件夹或 issue 列表，`←`/`→` 在路径中穿行，`Backspace` 离开一层路径，`Alt+P` 固定，
   `Ctrl/⌘+C` 复制该行，
   `?` 显示所有按键和前缀，`Esc` 关闭（先关闭帮助）；在评论或 README 编辑器中
   输入时面板不会打扰，导航时会自行关闭。快捷键是预设，或你在面板设置页录制的

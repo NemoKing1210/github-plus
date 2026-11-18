@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.27.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
@@ -14,7 +14,7 @@ antigüedad al estilo blame para esos archivos, tamaños de archivo con descarga
 en un clic, un menú contextual para acciones de archivo, una vista rápida de
 cualquier archivo y traducción del contenido de la página.
 
-> **Estado:** temprano (`0.27.3`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.28.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Traducción · Paleta · Copia de seguridad ·
 > Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de imágenes de
 > markdown, los iconos de archivo en color, los colores de antigüedad al estilo
@@ -290,7 +290,9 @@ búsqueda sobre todo lo que haces allí:
   viendo.
 - **Issues y pull requests abiertos** — `#` muestra los issues y pull requests
   abiertos del repositorio, con su distintivo de issue o pull request, autor y
-  fecha de actualización; búscalos por título, número o autor.
+  fecha de actualización; búscalos por título, número o autor. Pulsa `Tab` en la
+  fila Issues o Pull requests del repositorio para abrir esa lista como nivel
+  propio, sin escribir `#`.
 - **Búsqueda tolerante** — las consultas ignoran mayúsculas y acentos latinos
   (`cafe` encuentra `Café`), prefieren inicios y palabras completas y se dividen
   por espacios, con todas las partes obligatorias.
@@ -322,8 +324,8 @@ búsqueda sobre todo lo que haces allí:
   `api.github.com`; la caché pertenece a cada cuenta, así que cambiar de cuenta
   nunca muestra repositorios ajenos.
 - **Primero el teclado** — `↑`/`↓` mueven la selección, `Enter` abre,
-  `Ctrl/⌘+Enter` abre en una pestaña nueva, `Tab` entra en un repositorio o
-  carpeta, `←`/`→` recorren la ruta, `Backspace` sale de un nivel de la ruta, `Alt+P` fija, `Ctrl/⌘+C`
+  `Ctrl/⌘+Enter` abre en una pestaña nueva, `Tab` entra en un repositorio,
+  carpeta o lista de issues, `←`/`→` recorren la ruta, `Backspace` sale de un nivel de la ruta, `Alt+P` fija, `Ctrl/⌘+C`
   copia la fila,
   `?` muestra todas las teclas y prefijos, y `Esc` cierra (primero la ayuda); la
   paleta no estorba mientras escribes en un editor de comentarios o README y se

@@ -321,6 +321,48 @@ test('a folder row becomes the next path level and leaves it again', async () =>
   shell.closeCommandPalette();
 });
 
+test('Tab on the Issues row opens that list as a level and Backspace returns', async () => {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  writeCacheRecord({
+    version: 1,
+    login: 'alice',
+    tokenLogin: null,
+    tokenFingerprint: '',
+    sources: { repos: { pages: [{ items: repoPayload }], fetchedAt: Date.now() } },
+    trees: {},
+    rateLimit: null,
+    issues: {
+      'alice/repo': {
+        etag: '"i"',
+        fetchedAt: Date.now(),
+        items: [
+          { number: 3, title: 'Broken build', url: 'https://github.com/alice/repo/issues/3', author: 'ann', updatedAt: '2026-11-01T00:00:00Z', kindLabel: 'issue', repo: 'alice/repo' },
+          { number: 4, title: 'Faster build', url: 'https://github.com/alice/repo/pull/4', author: 'bob', updatedAt: '2026-11-02T00:00:00Z', kindLabel: 'pullRequest', repo: 'alice/repo' },
+        ],
+      },
+    },
+  });
+  palette.openPalette();
+  const overlay = latestPalette();
+  const input = overlay.querySelector('.gp-command__input');
+  const segments = () => [...overlay.querySelectorAll('.gp-command__seg')].map((node) => node.textContent);
+  const keys = () => [...overlay.querySelectorAll('.gp-command__row')].map((node) => node.dataset.key);
+
+  const row = overlay.querySelector('.gp-command__row[data-key="cmd:repo.issues"]');
+  assert.ok(row, 'the Issues page row is listed');
+  row.dispatchEvent(new dom.window.MouseEvent('pointermove', { bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+  assert.deepEqual(segments(), ['alice', 'repo', t('palette.cmd.issues')]);
+  // Only open issues: the repository row and its pull request stay out.
+  assert.deepEqual(keys(), ['issue:alice/repo#3']);
+  assert.equal(input.value, '');
+
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+  assert.deepEqual(segments(), ['alice', 'repo']);
+  assert.ok(keys().includes('cmd:repo.pulls'));
+  shell.closeCommandPalette();
+});
+
 test('a pinned repository snapshot keeps its scope action before repositories load', async () => {
   const { COMMAND_PALETTE_PINS_KEY } = await import('../src/core/constants.js');
   writeCacheRecord({

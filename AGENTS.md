@@ -1163,12 +1163,16 @@ A modal search surface on `Ctrl/⌘+K` (a preset or any recorded combination, or
 off), opened from that hotkey, the palette button in the GitHub header or the
 manager's menu. It follows GitHub's own palette model: the field carries an
 editable scope path, the palette opens at the page's repository, `Tab` on a
-repository row drills into it and `Tab` on a folder row drills into that
-folder, `Backspace` leaves one level and `Ctrl/⌘+Backspace` clears the path.
+repository row drills into it, `Tab` on a folder row drills into that
+folder, and `Tab` on the repository's Issues or Pull requests page row opens
+that list as a level, so its open items are readable without typing `#` or
+leaving the palette. `Backspace` leaves one level and `Ctrl/⌘+Backspace`
+clears the path.
 The root level lists the account's pages and the user's repositories; inside a
 repository the same list becomes that repository's pages, with its files (`/`),
-open issues and pull requests (`#`) one query away, and a folder level leads
-with its own files. GitHub Plus controls (`>`), favorites (pins), recents, a
+open issues and pull requests (`#`) one query away, a folder level leads
+with its own files, and an issue or pull-request level is that list and
+nothing else. GitHub Plus controls (`>`), favorites (pins), recents, a
 per-row context menu and a GitHub search fallback complete it. Without a token
 it reads public data and commands still work; with a verified token it also
 sees private repositories.
@@ -1179,23 +1183,30 @@ sees private repositories.
   `snapshotCandidates`, opens `ui/commandPalette.js`, installs the document
   hotkey, registers the header entry through `ui/headerActions.js` (`order: 10`,
   label `t('palette.title')` plus the current shortcut) and owns the load
-  lifecycle. `state.scope` is `{ repo, dir? }` or null and is the palette's one
-  path level: `openPalette` starts it at `state.context.repo`, so a repository
-  page opens already scoped, and `pathSegments()` turns it into the owner,
-  repository and folded folder segments the field renders. `handleScope(item)`
-  runs on `Tab` over a repository row (scope `{ repo }`) or a folder row
-  (scope `{ repo, dir }`): it sets the scope, swaps the path, clears the query,
-  clears the failure note, refreshes and kicks the scoped loads. `popPath()` runs
-  on `Backspace`: it leaves one folder, then the repository, then the root.
+  lifecycle. `state.scope` is `{ repo, dir?, listing? }` or null and is the
+  palette's one path level: `openPalette` starts it at `state.context.repo`, so
+  a repository page opens already scoped, and `pathSegments()` turns it into the
+  owner, repository, folded folder and (for a list level) Issues or Pull
+  requests segments the field renders — `dir` and `listing` never coexist.
+  `handleScope(item)`
+  runs on `Tab` over a repository row (scope `{ repo }`), a folder row
+  (scope `{ repo, dir }`) or the Issues / Pull requests page row
+  (scope `{ repo, listing }`): it sets the scope, swaps the path, clears the
+  query, clears the failure note, refreshes and kicks the scoped loads.
+  `popPath()` runs
+  on `Backspace`: it leaves one folder or list, then the repository, then the
+  root.
   `handlePathClick(index)` runs on a path-segment click and leaves every level
   below the clicked one (the owner segment has no level, so it clears the
   path); `clearPath()` drops the scope and refreshes to the root list.
   `buildCandidates` reads repository rows at the root and, when scoped, that
   repository's pages, its tree at the scope's ref and its issues, filtered to
-  the scope's folder. `scopeRef()` uses the page ref only when the scope is the
+  the scope's folder; a list level builds no file rows at all.
+  `scopeRef()` uses the page ref only when the scope is the
   page's own repository and the literal `HEAD` otherwise. `kickLoads()` starts
   `ensureRepositories()`, `ensureTree()` and `ensureIssues()` without awaiting
-  them (trees and issues only when scoped), flips `state.status` to `loading`
+  them (trees and issues only when scoped, the tree not at a list level), flips
+  `state.status` to `loading`
   and refreshes the shell over the cached rows; each load settles into
   `refreshView()`, and a failure is sticky for the cycle (`state.loadError`) so
   a parallel success cannot erase its note. A settled tree records its
@@ -1290,16 +1301,20 @@ sees private repositories.
   bonus, gaps cost; a second alignment pass prefers word starts so `gt` reads
   as the initials of `git-status`), pinned (+1000) and recent (+100) boosts,
   per-group caps (command 8, file 12, repo 15) and the `maxResults` total cap.
-  `options.scope` (`{ repo, dir? }` or null) keeps only that repository's repo,
-  file and issue rows — a folder scope keeps only its descendants — while
+  `options.scope` (`{ repo, dir?, listing? }` or null) keeps only that
+  repository's repo, file and issue rows — a folder scope keeps only its
+  descendants, a list scope only issue rows whose `data.kindLabel` matches the
+  listing — while
   commands stay global; favorites and recents stay global too. The
   best-scoring non-search row is promoted into a leading `top` group (title
   from `options.titles.top`), removed from its own group, and exempt from the
   total cap. The empty query builds the favorites and recent groups, then the
   browse order (`pages, repos, starred, plus, search`; scoped:
-  `pages, files, issues, plus, search`; folder: `files` first), lists files
+  `pages, files, issues, plus, search`; folder: `files` first; list: `issues`
+  and the search fallback), lists files
   only in a file query — except inside a folder level, whose whole point is
-  its files — and issues only in an issues query (GitHub's rule), and hides
+  its files — and issues only in an issues query (GitHub's rule) — except
+  inside a list level, which is that list — and hides
   the Plus group from a scoped empty list. On a typed query
   `markPinned`-flagged candidates form their own first `pinned` group (cap 8)
   and are removed from their kind's group; the synthetic group titles
@@ -1320,9 +1335,13 @@ sees private repositories.
   repositories/tree, clear palette/translation cache). Account pages use the
   effective identity (the verified token's login, else the page login), so a
   token-only session never links to `github.com/null`. `refreshTree` carries
-  the scoped repository and its ref. `searchCommands(query, { scope, mode })`
+  the scoped repository and its ref. The Issues and Pull requests rows carry
+  `listing` (`issue` / `pullRequest`), `scopeable` and `data.repo`, so `Tab`
+  opens that list as a level; every other page row stays non-scopeable.
+  `searchCommands(query, { scope, mode })`
   keeps the prefix's own result type (`#` issues, `/` code, `@` repositories),
-  narrows to the repository for everything but repository search, and returns
+  narrows to the repository for everything but repository search — inside a
+  list level it searches that repository's issues — and returns
   nothing for `>` (commands have no GitHub search equivalent). Every candidate
   carries `data.run` and `detail { id, label, description, shortcut }`;
   `TOGGLE_LABEL_KEYS` maps a section to the locale key that names it.
@@ -1365,7 +1384,8 @@ row (the pointer position) or `Shift+F10`/`ContextMenu` on the active row.
 Keys:
 arrows with wrap, Home/End, Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin,
 `Ctrl/⌘+C` copies the active row when no text is selected, `Tab` drills into a
-`scopeable` row — a repository row or a folder row — else traps focus, `→` on
+`scopeable` row — a repository row, a folder row or the Issues / Pull requests
+page row — else traps focus, `→` on
 an empty query does the same as `Tab` and `←` on an empty query leaves one
 path level (with text in the field both move the caret instead),
 `Backspace`/`Delete` on an empty query pops the path (`onPathPop`),
@@ -1589,9 +1609,11 @@ records a recent, closes the palette and runs the action: `navigate` for a URL,
 drill-down: `handleScope` sets the scope `{ repo }`, `setPath` swaps the field's
 segments, the query clears and `ensureTree({ repo, ref: 'HEAD' })` /
 `ensureIssues({ repo })` start; `Tab` on a folder row sets `{ repo, dir }`, and
-the list becomes that folder's files with their paths relative to it. `→` on an
+the list becomes that folder's files with their paths relative to it; `Tab` on
+the Issues or Pull requests page row sets `{ repo, listing }`, and the list
+becomes that repository's open items of that kind, with no file load. `→` on an
 empty query is the same drill-down and `←` on an empty query leaves one level.
-`Backspace` leaves one folder, then the repository; a path-segment click leaves
+`Backspace` leaves one folder or list, then the repository; a path-segment click leaves
 every level below it; `Ctrl/⌘+Backspace` clears the path to the root. Files and
 issues otherwise stay behind their `/` and `#` prefixes. A row's
 right-click or `Shift+F10` opens the palette-layer context menu, whose entries
@@ -1940,11 +1962,15 @@ and check diagnostics for edited files.
   through is never the reason it stops firing; the header button and
   `GM_registerMenuCommand` open the same palette as fallbacks.
 - Palette path does not change: `Tab` drills in from a repository row
-  (`kind: 'repo'`, the `repos` / `starred` groups) or from a folder row
-  (`kind: 'file'` with `data.type === 'tree'`, which carries `scopeable`);
-  `→` does the same while the field is empty. File rows always do, page rows
-  never do. Inside a repository the rows are its
-  pages and its folders, so only the folders are one `Tab` away. `Backspace`
+  (`kind: 'repo'`, the `repos` / `starred` groups), from a folder row
+  (`kind: 'file'` with `data.type === 'tree'`, which carries `scopeable`) or
+  from the Issues / Pull requests page row (`kind: 'command'` with `listing`
+  set, which carries `scopeable` too); `→` does the same while the field is
+  empty. File rows always do, other page rows never do. Inside a repository the
+  rows are its pages and its folders, so the folders and those two page rows
+  are the levels one `Tab` away; a list level holds no commands in its empty
+  browse list, so its pages stay one typed query or one `Backspace` away.
+  `Backspace`
   and `←` leave a level only while the query is empty — GitHub keeps them for
   editing text otherwise — and `Ctrl/⌘+Backspace` clears both. A path-segment
   click leaves every level below the segment (the owner segment clears the
@@ -1957,8 +1983,10 @@ and check diagnostics for edited files.
   palette, the layer was lost (it must not be `default`).
 - Issues missing from the palette: the **Issues** source switch must be on, the
   palette must be scoped to a repository (a repository page opens that way, or
-  `Tab` on a repository row), and the `#` prefix is what lists them — GitHub
-  keeps issues out of the empty browse list. The row appears only after
+  `Tab` on a repository row), and the list is reached either through the `#`
+  prefix — GitHub keeps issues out of the empty browse list — or by `Tab` on
+  the repository's Issues or Pull requests row, which opens that kind as its
+  own level. The row appears only after
   `ensureIssues()` has written a record; `GP-1701` in the console means the
   request failed. A pull request carries the pull-request badge because
   GitHub's issue endpoint returned its `pull_request` field; a row without a

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.27.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,7 +13,7 @@ wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
 any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.27.3`). Settings panel with instant search (General ·
+> **Status:** early (`0.28.0`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
@@ -264,7 +264,9 @@ there:
   with `Tab`, and a file opens on GitHub at the ref you are browsing.
 - **Open issues and pull requests** — type `#` for the repository's open issues
   and pull requests, marked with an issue or pull-request badge and carrying the
-  author and update time; search them by title, number or author.
+  author and update time; search them by title, number or author. Press `Tab` on
+  the repository's Issues or Pull requests row to read that list as its own
+  level, with no `#` needed.
 - **Forgiving matching** — queries ignore case and Latin accents (`cafe` finds
   `Café`), prefer word starts and whole words, and split on spaces with every
   term required, so a few letters in the right places are enough.
@@ -297,7 +299,7 @@ there:
   kept per account, so switching accounts never shows another account's
   repositories.
 - **Keyboard first** — `↑`/`↓` move, `Enter` opens, `Ctrl/⌘+Enter` opens in a
-  new tab, `Tab` drills into a repository or folder, `←`/`→` walk the path,
+  new tab, `Tab` drills into a repository, folder or issue list, `←`/`→` walk the path,
   `Backspace` leaves a path level,
   `Alt+P` pins, `Ctrl/⌘+C` copies the row, `?` shows every key and prefix, and
   `Esc` closes (help first); the palette stays out of the way while you type in

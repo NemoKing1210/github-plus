@@ -15,6 +15,8 @@ const BROWSE_ORDER = ['pages', 'repos', 'starred', 'plus', 'search'];
 const SCOPED_BROWSE_ORDER = ['pages', 'files', 'issues', 'plus', 'search'];
 // A folder level is about its files, so they lead the empty list there.
 const FOLDER_BROWSE_ORDER = ['files', 'pages', 'issues', 'plus', 'search'];
+// An issue or pull-request level is its list and nothing else.
+const LISTING_BROWSE_ORDER = ['issues', 'search'];
 const GROUP_LIMIT = 8;
 const BOUNDARY = /[\s/\-_.@:]/;
 const WORD_END = /[a-z0-9]/;
@@ -158,6 +160,7 @@ function inScope(candidate, scope) {
   if (!scope?.repo) return true;
   if (candidate.kind === 'command') return true;
   if (candidateRepo(candidate) !== scope.repo) return false;
+  if (scope.listing) return candidate.kind === 'issue' && candidate.data?.kindLabel === scope.listing;
   if (!scope.dir || candidate.kind !== 'file') return true;
   const path = candidate.data?.path || '';
   return path === scope.dir || path.startsWith(`${scope.dir}/`);
@@ -165,6 +168,7 @@ function inScope(candidate, scope) {
 
 function browseOrder(options) {
   if (options.browseOrder) return options.browseOrder;
+  if (options.scope?.listing) return LISTING_BROWSE_ORDER;
   if (options.scope?.dir) return FOLDER_BROWSE_ORDER;
   return options.scope?.repo ? SCOPED_BROWSE_ORDER : BROWSE_ORDER;
 }
@@ -258,12 +262,19 @@ function emptyQuery(candidates, options, titles, mode = 'all') {
 
   const structural = new Map();
   const inFolder = Boolean(options.scope?.dir);
+  const listing = options.scope?.listing || '';
   for (const candidate of candidates) {
     if (seen.has(candidate.key) || !allowed.has(candidate.key)) continue;
-    // GitHub lists no files or issues until a prefix or a query asks for them,
-    // except inside a folder level, whose whole point is its files.
-    if (!inFolder && mode !== 'files' && (candidate.kind === 'file' || candidate.groupId === 'files')) continue;
-    if (mode !== 'issues' && (candidate.kind === 'issue' || candidate.groupId === 'issues')) continue;
+    if (listing) {
+      // A listing level is its kind's list: the repository's pages and files
+      // are one Backspace away and stay reachable through a typed query.
+      if (candidate.kind !== 'issue' || candidate.groupId !== 'issues') continue;
+    } else {
+      // GitHub lists no files or issues until a prefix or a query asks for
+      // them, except inside a folder level, whose whole point is its files.
+      if (!inFolder && mode !== 'files' && (candidate.kind === 'file' || candidate.groupId === 'files')) continue;
+      if (mode !== 'issues' && (candidate.kind === 'issue' || candidate.groupId === 'issues')) continue;
+    }
     if (options.scope?.repo && mode === 'all' && candidate.groupId === 'plus') continue;
     if (!structural.has(candidate.groupId)) structural.set(candidate.groupId, []);
     structural.get(candidate.groupId).push(candidate);

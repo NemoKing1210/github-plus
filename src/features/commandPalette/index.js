@@ -131,6 +131,11 @@ function scopeDir(state) {
   return state.scope?.dir || '';
 }
 
+/** The kind a repository level lists: `issue`, `pullRequest` or nothing. */
+function scopeListing(state) {
+  return state.scope?.listing || '';
+}
+
 /**
  * The ref a scope browses: the page's own ref when the scope is its
  * repository, and HEAD for any other repository.
@@ -206,7 +211,7 @@ function buildCandidates(state) {
   return markPinned(dedupe([
     ...commandCandidates(state),
     ...(scoped ? [] : repoCandidates(state)),
-    ...(scoped
+    ...(scoped && !scopeListing(state)
       ? fileCandidates(state, { repo: scoped, ref: scopeRef(state), dir: scopeDir(state) })
       : []),
     ...(scoped ? issueCandidates(state, { repo: scoped }) : []),
@@ -214,13 +219,15 @@ function buildCandidates(state) {
   ]), state.pinnedKeys);
 }
 
-/** The scope path rendered in the field: owner, repository and folded folder names. */
+/** The scope path rendered in the field: owner, repository, folder or list. */
 function pathSegments(state) {
   const repo = scopeRepo(state);
   if (!repo) return [];
   const labels = repo.split('/');
   const dir = scopeDir(state);
   if (dir) labels.push(...dir.split('/'));
+  const listing = scopeListing(state);
+  if (listing) labels.push(t(listing === 'pullRequest' ? 'palette.cmd.pulls' : 'palette.cmd.issues'));
   return labels.map((label) => ({ label }));
 }
 
@@ -303,9 +310,10 @@ function kickLoads() {
     tasks.push({ promise: ensureRepositories() });
   }
   // Only a scoped repository has files and issues to list; the root level is
-  // the account's pages and repositories, as in GitHub's own palette.
+  // the account's pages and repositories, as in GitHub's own palette. A
+  // listing level shows no files, so it skips the tree load.
   const scoped = scopeRepo(state);
-  if (state.settings.sources.files !== false && scoped) {
+  if (state.settings.sources.files !== false && scoped && !scopeListing(state)) {
     const ref = scopeRef(state);
     const key = `tree:${treeKey(scoped, ref)}`;
     if (!sessionRefreshes.has(key)) {
@@ -411,8 +419,9 @@ function handleRowAction(actionId, item) {
 }
 
 /**
- * Tab on a repository row opens that repository as a level; Tab on a folder
- * row inside it opens that folder as the next level.
+ * Tab on a repository row opens that repository as a level, Tab on a folder
+ * row inside it opens that folder, and Tab on the Issues or Pull requests page
+ * row opens that list as the next level.
  */
 function handleScope(item) {
   if (!paletteState || !item) return false;
@@ -422,6 +431,8 @@ function handleScope(item) {
     paletteState.scope = { repo };
   } else if (item.kind === 'file' && item.data?.type === 'tree' && item.data.repo) {
     paletteState.scope = { repo: item.data.repo, dir: item.data.path };
+  } else if (item.kind === 'command' && item.listing && item.data?.repo) {
+    paletteState.scope = { repo: item.data.repo, listing: item.listing };
   } else {
     return false;
   }
@@ -434,11 +445,14 @@ function handleScope(item) {
   return true;
 }
 
-/** Backspace on an empty query: leave one folder, or the repository itself. */
+/** Backspace on an empty query: leave one folder, one list, or the repository. */
 function popPath() {
   const state = paletteState;
   if (!state?.scope) return;
-  if (state.scope.dir) {
+  if (state.scope.listing) {
+    state.scope = { repo: state.scope.repo };
+    state.loadError = null;
+  } else if (state.scope.dir) {
     const parts = state.scope.dir.split('/');
     parts.pop();
     state.scope = parts.length
@@ -469,6 +483,10 @@ function handlePathClick(index) {
   }
   if (index === 1) {
     state.scope = { repo: state.scope.repo };
+  } else if (state.scope.listing) {
+    // The list is the deepest level under the repository, so a click on its
+    // segment stays there.
+    state.scope = { repo: state.scope.repo, listing: state.scope.listing };
   } else {
     const dir = segments.slice(2, index + 1).map((segment) => segment.label).join('/');
     state.scope = { repo: state.scope.repo, dir };
