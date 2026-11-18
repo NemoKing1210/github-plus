@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 paleta de comandos com `Ctrl/⌘+K`, uma galeria de imagens para markdown
@@ -14,7 +14,7 @@ coloridas no estilo blame para esses arquivos, tamanhos de arquivo com downloads
 em um clique, um menu de contexto para ações de arquivo, uma pré-visualização
 rápida de qualquer arquivo e tradução do conteúdo da página.
 
-> **Status:** inicial (`0.22.2`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.22.3`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Tradução · Paleta · Backup · Sobre), uma paleta
 > de comandos com `Ctrl/⌘+K`, a galeria de imagens de markdown, ícones de
 > arquivo coloridos, idades coloridas no estilo blame, tamanhos de arquivo com
@@ -261,8 +261,9 @@ arquivo markdown aberto na pré-visualização rápida:
 Pressione `Ctrl/⌘+K` em qualquer página do GitHub para abrir um único campo de
 busca sobre tudo o que você faz ali:
 
-- **Pelo cabeçalho** — o botão da paleta ao lado das ações do próprio cabeçalho
-  do GitHub abre a paleta de qualquer página e mostra o atalho em vigor.
+- **Pelo cabeçalho** — o botão da paleta fica à frente das ações do próprio
+  cabeçalho do GitHub, abre a paleta de qualquer página e mostra o atalho em
+  vigor.
 - **Seus repositórios** — todos os que você possui, os seus primeiro, com
   estrelas, linguagem, último push e visibilidade no painel de detalhes. Digite
   `@` para buscar apenas repositórios.
@@ -305,9 +306,9 @@ busca sobre tudo o que você faz ali:
 
 ### Painel de configurações
 
-Abra-o pelo botão de engrenagem no cabeçalho do GitHub, pela linha
-**Configurações do GitHub Plus** no menu do avatar (logo abaixo do **Settings**
-do GitHub) ou pelo comando de menu do gerenciador de userscripts. As alterações
+Abra-o pela linha **Configurações do GitHub Plus** no menu do avatar (logo
+abaixo do **Settings** do GitHub), pelo comando de configurações da paleta ou
+pelo comando de menu do gerenciador de userscripts. As alterações
 são um rascunho: nada é salvo até você clicar em **Salvar**; **Cancelar**, o
 clique no fundo e `Escape` descartam o rascunho; **Restaurar padrões** pede
 confirmação antes.

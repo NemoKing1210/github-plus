@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
 文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的
 翻译。
 
-> **状态：** 早期（`0.22.2`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
+> **状态：** 早期（`0.22.3`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
 > 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件图标、
 > blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件预览，以及
 > 页面翻译。计划加入更多 GitHub 改进。
@@ -195,8 +195,8 @@ GitHub Plus 把两者直接加到文件行上：
 
 在任意 GitHub 页面按下 `Ctrl/⌘+K`，即可用一个搜索框覆盖你在 GitHub 上的一切操作：
 
-- **头部按钮** —— GitHub 头部操作区旁的命令面板按钮可从任意页面打开面板，并显示
-  当前快捷键。
+- **头部按钮** —— 命令面板按钮位于 GitHub 头部操作区的最前面，可从任意页面打开面板，
+  并显示当前快捷键。
 - **你的仓库** —— 你拥有的所有仓库，自己的排在前面，详情面板显示星标、语言、
   最近推送和可见性。输入 `@` 只搜索仓库。
 - **星标仓库** —— 你反复回访的项目，排在自有仓库之后并带有星标。
@@ -225,8 +225,8 @@ GitHub Plus 把两者直接加到文件行上：
 
 ### 设置面板
 
-可从 GitHub 头部的齿轮按钮、头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub
-自己的 **Settings** 下方），或用户脚本管理器的菜单命令打开。修改以草稿形式存在：
+可从头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub 自己的 **Settings**
+下方）、命令面板的设置命令，或用户脚本管理器的菜单命令打开。修改以草稿形式存在：
 按下**保存**前不会写入任何内容；**取消**、点击遮罩和 `Escape` 会丢弃草稿；
 **恢复默认设置**会先请求确认。
 

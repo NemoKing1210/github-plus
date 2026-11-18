@@ -1,4 +1,4 @@
-import { debounce, el } from '../utils/dom.js';
+import { debounce, el, toArray } from '../utils/dom.js';
 import { watchNavigation } from '../utils/navigation.js';
 
 /**
@@ -38,7 +38,6 @@ let headerPoll = null;
 let navigationWatched = false;
 let headerObserver = null;
 let observedHeaderTarget = null;
-let headerAnchor = null;
 
 function findAvatarAnchor(header) {
   for (const selector of AVATAR_HOOKS) {
@@ -56,25 +55,15 @@ function findAvatarAnchor(header) {
 function findHeaderTarget() {
   for (const selector of HEADER_TARGETS) {
     const node = document.querySelector(selector);
-    if (node) {
-      headerAnchor = null;
-      return node;
-    }
+    if (node) return node;
   }
   // GitHub renames its header containers from time to time. The avatar is the
-  // one element every signed-in header keeps, so the fallback mounts next to
-  // it instead of leaving the page with no entries at all.
+  // one element every signed-in header keeps, so the fallback mounts into the
+  // row around it instead of leaving the page with no entries at all.
   const header = document.querySelector('header:not([data-marketing-header])');
-  if (!header) {
-    headerAnchor = null;
-    return null;
-  }
+  if (!header) return null;
   const avatar = findAvatarAnchor(header);
-  if (avatar && avatar.parentElement) {
-    headerAnchor = avatar;
-    return avatar.parentElement;
-  }
-  headerAnchor = null;
+  if (avatar && avatar.parentElement) return avatar.parentElement;
   return header;
 }
 
@@ -167,10 +156,24 @@ function mountHost(target, record) {
 }
 
 /**
+ * The first element of the target that GitHub owns. Our entries always sit
+ * before it, so they lead the container rather than trailing GitHub's own
+ * buttons.
+ */
+function firstPageChild(target) {
+  const children = toArray(target.children);
+  for (const child of children) {
+    const own = child.classList.contains('gp-header-btn') || child.classList.contains('gp-header-item');
+    if (!own) return child;
+  }
+  return null;
+}
+
+/**
  * Mount, reorder or remove every registered action. Runs on boot, navigation,
  * an app-shell swap and every `update()`. DOM writes happen only when a host is
- * missing, detached, out of order or on the wrong side of the anchor, so the
- * header observer can call it after every mutation without churning.
+ * missing, detached, out of order or not leading the target, so the header
+ * observer can call it after every mutation without churning.
  */
 export function syncHeaderActions() {
   const target = findHeaderTarget();
@@ -194,11 +197,6 @@ export function syncHeaderActions() {
     record.host = null;
   }
 
-  const userMenu = target.querySelector('.AppHeader-user');
-  const anchor = headerAnchor && headerAnchor.parentElement === target
-    ? headerAnchor
-    : (userMenu && userMenu.parentElement === target ? userMenu : null);
-
   let placed = true;
   let previous = null;
   for (const record of ordered) {
@@ -211,22 +209,22 @@ export function syncHeaderActions() {
       placed = false;
       break;
     }
-    if (anchor && !(host.compareDocumentPosition(anchor) & 4)) {
-      placed = false;
-      break;
-    }
     previous = host;
+  }
+  const pageChild = firstPageChild(target);
+  if (placed && ordered.length && pageChild && !(ordered[ordered.length - 1].host.compareDocumentPosition(pageChild) & 4)) {
+    placed = false;
   }
   if (placed) return;
 
+  const ref = firstPageChild(target);
   for (const record of ordered) {
     record.host?.remove();
     record.host = null;
   }
   for (const record of ordered) {
     const host = mountHost(target, record);
-    if (anchor) target.insertBefore(host, anchor);
-    else target.appendChild(host);
+    target.insertBefore(host, ref);
     record.host = host;
   }
 }

@@ -62,6 +62,17 @@ test('a replaced body gets the actions again', async () => {
   action.remove();
 });
 
+test('actions mount at the start of the target, before GitHub\'s own buttons', () => {
+  document.body.innerHTML = '<header class="AppHeader"><div class="AppHeader-globalBar-end">'
+    + '<button class="native-bookmarks">b</button><button class="native-inbox">i</button>'
+    + '<a class="AppHeader-user">me</a></div></header>';
+  const action = registerHeaderAction({ id: 'palette', order: 10, label: 'Palette', onClick: click });
+  syncHeaderActions();
+  const end = document.querySelector('.AppHeader-globalBar-end');
+  assert.equal(end.firstElementChild, action.node);
+  action.remove();
+});
+
 test('an unrecognized header mounts next to the avatar', () => {
   document.body.innerHTML = '<header data-new-shell><div class="toolbar">'
     + '<button class="utility">x</button>'
@@ -70,10 +81,8 @@ test('an unrecognized header mounts next to the avatar', () => {
   const action = registerHeaderAction({ id: 'palette', order: 10, label: 'Palette', onClick: click });
   syncHeaderActions();
   const toolbar = document.querySelector('.toolbar');
-  const buttons = Array.from(toolbar.children);
-  const index = buttons.indexOf(action.node);
-  assert.notEqual(index, -1);
-  assert.ok(index < buttons.indexOf(document.querySelector('.avatar-btn')));
+  assert.equal(toolbar.firstElementChild, action.node);
+  assert.ok(toolbar.contains(document.querySelector('.avatar-btn')));
   action.remove();
 });
 

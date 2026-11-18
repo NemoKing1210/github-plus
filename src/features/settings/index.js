@@ -1,9 +1,6 @@
 import { on } from '../../core/bus.js';
-import { hasCustomSettings } from '../../core/settings.js';
 import { t } from '../../i18n/index.js';
-import { registerHeaderAction } from '../../ui/headerActions.js';
 import { watchNavigation } from '../../utils/navigation.js';
-import { getIconSvg } from './controls.js';
 import { registerPage, togglePanel } from './panel.js';
 import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
@@ -15,29 +12,12 @@ import { renderTranslate } from './tabs/translate.js';
 import { ensureUserMenuItem, installUserMenuEntry, refreshUserMenuItem } from './userMenu.js';
 
 /**
- * Settings entry points: the header button and the user-menu row (with a
- * menu-command fallback for userscript managers), the page registry and the
- * mount/remount logic for GitHub's client-side navigation.
- *
- * The button itself is placed by `ui/headerActions.js`, next to GitHub's own
- * header actions; this module only registers it and keeps its label and the
- * "settings differ from defaults" dot in step. The user-menu row is owned by
- * `userMenu.js`.
+ * Settings entry points: the user-menu row (with a menu-command fallback for
+ * userscript managers), the page registry and the mount/remount logic for
+ * GitHub's client-side navigation. The panel has no header button of its own;
+ * the command palette's header entry and its settings command are the other
+ * way in, so the header stays as sparse as GitHub's own.
  */
-let settingsAction = null;
-
-function refreshLabels() {
-  settingsAction?.update({ label: t('settings.open') });
-  refreshUserMenuItem();
-}
-
-function updateSettingsButtonState() {
-  const custom = hasCustomSettings();
-  settingsAction?.update({
-    className: custom ? 'gp-settings-btn gp-header-btn--custom' : 'gp-settings-btn',
-  });
-  refreshUserMenuItem();
-}
 
 function installMenuCommand() {
   if (typeof GM_registerMenuCommand !== 'function') return;
@@ -115,30 +95,18 @@ export function openSettingsPanel() {
 export function initSettingsFeature() {
   registerPages();
   installMenuCommand();
-  settingsAction = registerHeaderAction({
-    id: 'settings',
-    order: 20,
-    className: 'gp-settings-btn',
-    icon: getIconSvg('gear'),
-    label: t('settings.open'),
-    onClick: () => togglePanel(true),
-  });
-  updateSettingsButtonState();
   installUserMenuEntry();
   ensureUserMenuItem();
   watchNavigation(() => {
     installUserMenuEntry();
     ensureUserMenuItem();
   });
-  on('settings:gallery', updateSettingsButtonState);
-  on('settings:toasts', updateSettingsButtonState);
-  on('settings:fileIcons', updateSettingsButtonState);
-  on('settings:fileAges', updateSettingsButtonState);
-  on('settings:fileMeta', updateSettingsButtonState);
-  on('settings:fileMenu', updateSettingsButtonState);
-  on('settings:translate', updateSettingsButtonState);
-  on('settings:language', () => {
-    refreshLabels();
-    updateSettingsButtonState();
-  });
+  on('settings:gallery', refreshUserMenuItem);
+  on('settings:toasts', refreshUserMenuItem);
+  on('settings:fileIcons', refreshUserMenuItem);
+  on('settings:fileAges', refreshUserMenuItem);
+  on('settings:fileMeta', refreshUserMenuItem);
+  on('settings:fileMenu', refreshUserMenuItem);
+  on('settings:translate', refreshUserMenuItem);
+  on('settings:language', refreshUserMenuItem);
 }

@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.22.2`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
+> **상태:** 초기(`0.22.3`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
 > 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
 > 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
 > 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
@@ -223,8 +223,8 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
 GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 모든 일을 검색하는 하나의
 필드가 열립니다:
 
-- **헤더 버튼** — GitHub 헤더 작업 옆의 팔레트 버튼으로 어느 페이지에서든 팔레트를
-  열 수 있으며 현재 단축키가 표시됩니다.
+- **헤더 버튼** — 팔레트 버튼은 GitHub 헤더 작업의 맨 앞에 있으며 어느 페이지에서든
+  팔레트를 열 수 있고 현재 단축키가 표시됩니다.
 - **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 상세 패널에 스타, 언어, 최근
   push, 공개 범위가 표시됩니다. `@`를 입력하면 저장소만 검색합니다.
 - **스타 표시한 저장소** — 자주 돌아오는 프로젝트로, 내 저장소 다음에 오며 별표로
@@ -258,8 +258,8 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 
 ### 설정 패널
 
-GitHub 헤더의 톱니바퀴 버튼, 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체
-**Settings** 바로 아래), 또는 사용자 스크립트 관리자의 메뉴 명령으로 엽니다. 변경
+아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체 **Settings** 바로 아래), 팔레트의
+설정 명령, 또는 사용자 스크립트 관리자의 메뉴 명령으로 엽니다. 변경
 사항은 초안입니다: **저장**을 누르기 전에는 아무것도 기록되지 않습니다. **취소**,
 배경 클릭, `Escape`는 초안을 버리고, **기본값으로 재설정**은 먼저 확인을 요청합니다.
 

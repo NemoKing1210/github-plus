@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -14,7 +14,7 @@ Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
 Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.22.2`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.22.3`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
@@ -266,9 +266,9 @@ Commit-Nachrichten, einen Titel oder die Markdown-Datei in der Schnellvorschau:
 Drücke auf jeder GitHub-Seite `Ctrl/⌘+K` für ein Suchfeld über alles, was du dort
 tust:
 
-- **Aus der Kopfzeile** — die Paletten-Schaltfläche neben GitHubs eigenen
-  Kopfzeilen-Aktionen öffnet sie von jeder Seite und zeigt die aktuell gültige
-  Tastenkombination.
+- **Aus der Kopfzeile** — die Paletten-Schaltfläche steht am Anfang von GitHubs
+  eigenen Kopfzeilen-Aktionen, öffnet sie von jeder Seite und zeigt die aktuell
+  gültige Tastenkombination.
 - **Deine Repositories** — alle Repositories, die dir gehören, eigene zuerst, mit
   Sternen, Sprache, letztem Push und Sichtbarkeit im Detailbereich. Tippe `@`,
   um nur Repositories zu durchsuchen.
@@ -312,9 +312,9 @@ tust:
 
 ### Einstellungsfenster
 
-Öffne es über die Zahnrad-Schaltfläche in der GitHub-Kopfzeile, über die Zeile
-**GitHub Plus-Einstellungen** im Avatar-Menü (direkt unter GitHubs eigenem
-Eintrag **Settings**) oder über den Menübefehl des Userscript-Managers.
+Öffne es über die Zeile **GitHub Plus-Einstellungen** im Avatar-Menü (direkt
+unter GitHubs eigenem Eintrag **Settings**), über den Einstellungsbefehl der
+Palette oder über den Menübefehl des Userscript-Managers.
 Änderungen sind Entwürfe: Nichts wird gespeichert, bis du **Speichern** drückst;
 **Abbrechen**, der Klick auf den Hintergrund und `Escape` verwerfen den Entwurf;
 **Auf Standard zurücksetzen** fragt vorher nach.

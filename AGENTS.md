@@ -57,7 +57,7 @@ github-plus/
 │   │   ├── logging/
 │   │   │   └── index.js    # Applies logging.enabled to core/logger (boot + bus)
 │   │   ├── settings/
-│   │   │   ├── index.js    # Settings entry: header button, user-menu row, pages
+│   │   │   ├── index.js    # Settings entry: user-menu row, pages
 │   │   │   ├── userMenu.js # Settings row inside GitHub's user (avatar) menu
 │   │   │   ├── panel.js    # Panel shell: grouped nav, search, pages, draft, Save/Reset/Cancel
 │   │   │   ├── controls.js # Section / row / field / switch / select / input / button
@@ -188,11 +188,12 @@ that GitHub renders after load behaves like server-rendered content with no
 rescanning. The file-icons and translation features watch one observer per known
 container or surface root (never the document); a surface whose selector stops
 matching is a no-op, not a break. Only the header entries and the settings
-user-menu row re-mount themselves: `ui/headerActions.js` owns every header
-button (the settings entry and the palette entry register with it), mounting
-them next to GitHub's own actions and re-syncing the whole set when GitHub
-swaps the header — the body's own children, an `<html>` observer for a replaced
-body, a bounded poll and one `watchNavigation`; `userMenu.js` re-adds the
+user-menu row re-mount themselves: `ui/headerActions.js` owns the header
+buttons (the palette entry registers with it), mounting them at the start of
+GitHub's own action row and re-syncing the whole set when GitHub swaps the
+header — the body's own children, an `<html>` observer for a replaced
+body, a `childList` observer on the resolved header, a bounded poll and one
+`watchNavigation`; `userMenu.js` re-adds the
 avatar-menu row on every open through one observer on Primer's overlay portal
 root (`#__primerPortalRoot__`), a container that holds overlays and nothing
 else.
@@ -323,8 +324,9 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:toasts` — emitted by the same Save; reserved for toast listeners.
 - `settings:logging` — emitted by the same Save and by a backup import; the
   logging feature applies the switch to `core/logger` without a reload.
-- `settings:language` — emitted by the same Save; the settings entry listens to
-  relabel its header button, and the file-meta feature repaints its localized
+- `settings:language` — emitted by the same Save; the palette entry relabels
+  itself and the settings user-menu row follows the new language, and the
+  file-meta feature repaints its localized
   column label and download labels.
 - `settings:fileIcons` — emitted by the same Save; the file-icons feature listens
   to attach or tear down its surface observers.
@@ -528,22 +530,23 @@ one button into GitHub's header and returns `{ node, update(patch), remove() }`;
 `headerActionNode(id)` and `syncHeaderActions()` complete the API. `HEADER_TARGETS`
 is ordered most to least specific (`.AppHeader-globalBar-end`,
 `.AppHeader-globalBar`, `#user-links`). When none matches, the registry falls
-back to the page's `header:not([data-marketing-header])` and mounts next to the
-signed-in avatar (found through `img.avatar`, an avatar test id, the profile
-link or a profile-labelled control), so a renamed header degrades to a
-different position instead of no entries at all. Actions are kept in one
-registry Map
-keyed by `id`, sorted by `order` (the palette is 10, settings 20), and mounted
-as siblings of GitHub's own actions — before `.AppHeader-user` or the avatar
-anchor, inside an `li.gp-header-item` when the target is a `ul`.
-Every button carries `.gp-header-btn` plus its registered class, an icon
-`.gp-header-btn__icon` and the label as both `title` and `aria-label`, so
-`isOwnUi()` has one root class to scan. A sync applies labels and then writes
-DOM only when a host is missing, detached, out of order or on the wrong side of
-the anchor — it never re-creates placed buttons. The registry installs the
+back to the page's `header:not([data-marketing-header])` and uses the row
+around the signed-in avatar (found through `img.avatar`, an avatar test id, the
+profile link or a profile-labelled control), so a renamed header degrades to a
+different container instead of no entries at all. Actions are kept in one
+registry Map keyed by `id` and sorted by `order` (the palette is 10), and
+always lead the container — inserted before GitHub's own first button, inside
+an `li.gp-header-item` when the target is a `ul` — so our entry is the first
+control there. Every button carries `.gp-header-btn` plus its registered class,
+an icon `.gp-header-btn__icon` and the label as both `title` and `aria-label`,
+so `isOwnUi()` has one root class to scan. The button is styled like GitHub's
+own invisible header buttons: transparent fill and border, a muted 16px glyph,
+and the hover fill. A sync applies labels and then writes DOM only when a host
+is missing, detached, out of order or not leading the target — it never
+re-creates placed buttons. The registry installs the
 watchers once on the first registration — direct-children observers on `<html>`
 and `<body>` for an app-shell swap, a `childList` observer on the resolved
-header target so a React re-render that drops a button is repaired, a bounded
+header so a React re-render that drops a button is repaired, a bounded
 poll (12 × 500 ms) for a header rendered late, and one `watchNavigation` — never
 a document-wide observer. A page with no header target simply has no buttons
 until one appears.
@@ -579,16 +582,12 @@ without a reload. Nothing else in the feature layer touches the logger.
 
 ### `src/features/settings/` — panel
 
-- `index.js`: registers the pages and the settings header entry through
-  `ui/headerActions.js` (`{ id: 'settings', order: 20, className:
-  'gp-settings-btn' }`), so the entry is mounted next to GitHub's own actions
-  by the shared registry — inserted before `.AppHeader-user` when present,
-  wrapped in an `li.gp-header-item` when the target is a `ul`.
-  `updateSettingsButtonState()` lights the `gp-header-btn--custom` dot when
-  settings differ from defaults, and `GM_registerMenuCommand` opens the panel
-  from the manager's menu. Both `refreshLabels()` and
-  `updateSettingsButtonState()` also repaint the user-menu row, so the two
-  entries never drift apart.
+- `index.js`: registers the pages and the user-menu entry, and opens the panel
+  from `GM_registerMenuCommand`. The settings panel has no header button of its
+  own — the palette's header entry and its settings command are the other way
+  in — so nothing here touches `ui/headerActions.js`. Every settings event and
+  a language change repaint the user-menu row through `refreshUserMenuItem()`,
+  so its label and its "settings differ from defaults" dot never go stale.
 - `userMenu.js`: the second entry point, as a row in GitHub's user (avatar)
   menu next to GitHub's own "Settings" row. That menu is a Primer portal:
   React mounts it into `#__primerPortalRoot__` when it opens and unmounts it
@@ -607,8 +606,8 @@ without a reload. Nothing else in the feature layer touches the logger.
   dispatches the `Escape` keydown the menu already closes on *before* opening
   the panel, so the panel's own `Escape` listener still sees a closed panel and
   ignores it. The row carries its own `gp-` classes (GitHub's hashed
-  `ActionList` ones are never copied) and the same "settings differ from
-  defaults" dot as the header entry.
+  `ActionList` ones are never copied) and the "settings differ from
+  defaults" dot while any setting is customized.
 - `panel.js`: page registry (`registerPage`, each page carries a `group` of
   `preferences` or `more`), one modal overlay (`#gp-settings-panel`), rebuilt
   on every open (so labels follow the current language) and removed `CLOSE_MS`
@@ -1394,7 +1393,7 @@ select back to **Custom** on the next open.
 `tokens.css` defines the `:root` design tokens — the whole `--gp-*` palette
 from DESIGN.md, expressed through GitHub's own Primer variables with literal
 fallbacks, so injected UI follows the visitor's theme (light, dark, dimmed).
-`app.css` is the injected stylesheet (settings entry, panel, controls, confirm,
+`app.css` is the injected stylesheet (header entry, panel, controls, confirm,
 toasts, viewer, context menu, the quick preview and the command palette),
 imported by `main.js` and applied as `GM_addStyle` by the
 build. Every injected class carries the `gp-` prefix — never add an unprefixed
@@ -1454,7 +1453,8 @@ probes `fullSrc` and swaps it in when it loads.
 
 ## End-to-end data flow (settings)
 
-header button / menu command → `togglePanel(true)` → draft =
+user-menu row, manager menu command or the palette's settings command →
+`togglePanel(true)` → draft =
 deep clone of persisted settings → page `render(container)` mutates the draft →
 footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:logging' |
@@ -1463,7 +1463,8 @@ footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 'settings:translate' | 'settings:commandPalette')` → gallery repaints its
 stylesheet, the logger applies
 its switch, file and translate features rescan or tear down, the palette closes
-and reinstalls its hotkey, settings entry relabels itself and updates its dot →
+and reinstalls its hotkey, the palette entry relabels itself and the
+user-menu row updates its dot →
 success toast → panel closes and `unlockPageScroll()`.
 
 ## End-to-end data flow (preview)
@@ -1630,7 +1631,7 @@ with English fallback.
 
 ## Design
 
-All injected UI (settings entry, panel, controls, confirm dialog, toasts,
+All injected UI (the palette header entry, panel, controls, confirm dialog, toasts,
 context menu, viewer, file icons, file-age dates, the file size column and
 download buttons, the quick file preview, and the translation button, bar and
 result boxes)
@@ -1776,11 +1777,11 @@ and check diagnostics for edited files.
   `.react-directory-row` or drops the table header turns the surface into a
   no-op — extend the registry, never add a document-wide observer.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
-  that the registered button (`.gp-header-btn` with `.gp-settings-btn` /
-  `.gp-palette-btn`) is inside it or beside the avatar. A header rework on
-  GitHub's side is the
+  that the registered button (`.gp-header-btn` with `.gp-palette-btn`) leads
+  it, or leads the row around the avatar on a renamed header. A header rework
+  on GitHub's side is the
   usual cause — extend `HEADER_TARGETS` (the avatar fallback already mounts
-  next to `img.avatar` on a renamed header), never restyle GitHub's own
+  into the avatar's row on a renamed header), never restyle GitHub's own
   header. A page
   with no target at all has no buttons until one appears; the registry's
   bounded poll and shell observers are what catch it.

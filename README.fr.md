@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -14,7 +14,7 @@ couleurs d'âge façon blame pour ces fichiers, la taille des fichiers avec
 téléchargement en un clic, un menu contextuel pour les actions sur les fichiers,
 un aperçu rapide de tout fichier et la traduction du contenu des pages.
 
-> **Statut :** début (`0.22.2`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.22.3`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Traduction · Palette · Sauvegarde · À propos),
 > une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du markdown, des
 > icônes de fichiers colorées, des couleurs d'âge façon blame, la taille des
@@ -264,7 +264,7 @@ titre ou le fichier markdown ouvert dans l'aperçu rapide :
 Appuyez sur `Ctrl/⌘+K` sur n'importe quelle page GitHub pour ouvrir un unique
 champ de recherche sur tout ce que vous y faites :
 
-- **Depuis l'en-tête** — le bouton de la palette, à côté des actions de
+- **Depuis l'en-tête** — le bouton de la palette, en tête des actions de
   l'en-tête GitHub, l'ouvre depuis n'importe quelle page et affiche le raccourci
   en vigueur.
 - **Vos dépôts** — tous ceux que vous possédez, les vôtres d'abord, avec étoiles,
@@ -310,9 +310,9 @@ champ de recherche sur tout ce que vous y faites :
 
 ### Panneau de réglages
 
-Ouvrez-le depuis le bouton en forme d'engrenage de l'en-tête GitHub, la ligne
-**Paramètres GitHub Plus** du menu de l'avatar (juste sous **Settings** de
-GitHub) ou la commande de menu du gestionnaire de userscripts. Les modifications
+Ouvrez-le depuis la ligne **Paramètres GitHub Plus** du menu de l'avatar (juste
+sous **Settings** de GitHub), depuis la commande de paramètres de la palette ou
+depuis la commande de menu du gestionnaire de userscripts. Les modifications
 sont un brouillon : rien n'est enregistré tant que vous n'avez pas cliqué sur
 **Enregistrer** ; **Annuler**, le clic sur l'arrière-plan et `Échap` écartent le
 brouillon ; **Réinitialiser** demande d'abord confirmation.

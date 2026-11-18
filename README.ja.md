@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -14,7 +14,7 @@ blame 風の経過日数カラー、ファイルサイズとワンクリック �
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
 翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.22.2`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.22.3`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
@@ -239,7 +239,7 @@ GitHub Plus はその両方をファイルの行に追加します:
 どの GitHub ページでも `Ctrl/⌘+K` を押すと、そこで行うすべてを対象にした 1 つの
 検索フィールドが開きます:
 
-- **ヘッダーのボタン** — GitHub ヘッダーの操作の隣にあるパレットのボタンから、
+- **ヘッダーのボタン** — パレットのボタンは GitHub ヘッダーの操作の先頭にあり、
   どのページでもパレットを開けます。現在のショートカットも表示されます。
 - **自分のリポジトリ** — 所有するすべてのリポジトリ。自分のものが先頭で、スター、
   言語、最終 push、公開範囲が詳細ペインに表示されます。`@` を入力すると
@@ -277,8 +277,8 @@ GitHub Plus はその両方をファイルの行に追加します:
 
 ### 設定パネル
 
-GitHub ヘッダーの歯車ボタン、アバター メニューの **GitHub Plus の設定** 行
-（GitHub 自身の **Settings** のすぐ下）、またはユーザースクリプト マネージャーの
+アバター メニューの **GitHub Plus の設定** 行（GitHub 自身の **Settings** の
+すぐ下）、パレットの設定コマンド、またはユーザースクリプト マネージャーの
 メニュー コマンドから開けます。変更は下書きです: **保存** を押すまで何も保存
 されません。**キャンセル**、背景のクリック、`Escape` で下書きを破棄し、
 **デフォルトに戻す** は先に確認を求めます。

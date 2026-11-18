@@ -7,7 +7,7 @@
  * `.gp-fi` glyphs and the `.gp-age-date` class the file features own.
  */
 
-/* == Settings entry — header button ========================================= */
+/* == Header entry — palette button ========================================= */
 .gp-header-btn {
   display: inline-flex;
   align-items: center;
@@ -15,16 +15,15 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1px solid var(--gp-border);
+  border: 0;
   border-radius: var(--gp-radius);
-  background: var(--gp-bg-2);
-  color: var(--gp-text);
+  background: transparent;
+  color: var(--gp-text-muted);
   cursor: pointer;
   position: relative;
 }
 .gp-header-btn:hover {
   background: var(--gp-highlight);
-  border-color: var(--gp-text-muted);
   color: var(--gp-text);
 }
 .gp-header-btn:focus-visible {
@@ -35,16 +34,6 @@
   display: block;
   width: 16px;
   height: 16px;
-}
-.gp-header-btn--custom::after {
-  content: "";
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--gp-accent);
 }
 
 /* == Settings entry — user menu row ======================================== */

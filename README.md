@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,7 +13,7 @@ wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
 any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.22.2`). Settings panel with instant search (General ·
+> **Status:** early (`0.22.3`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
@@ -244,8 +244,8 @@ the markdown file open in the quick preview:
 Press `Ctrl/⌘+K` anywhere on GitHub for one search field over everything you do
 there:
 
-- **From the header** — the palette button next to GitHub's own header actions
-  opens it from any page and shows the shortcut currently in effect.
+- **From the header** — the palette button leads GitHub's own header actions
+  and opens it from any page while showing the shortcut currently in effect.
 - **Your repositories** — every repository you own, owned ones first, with
   stars, language, last push and visibility in the details pane. Type `@` to
   search repositories only.
@@ -288,9 +288,9 @@ there:
 
 ### Settings panel
 
-Open it from the gear button in the GitHub header, from the **GitHub Plus
-settings** row in your avatar menu (right under GitHub's own **Settings**), or
-from the userscript manager's menu command. Changes are draft-based: nothing is
+Open it from the **GitHub Plus settings** row in your avatar menu (right under
+GitHub's own **Settings**), from the palette's settings command, or from the
+userscript manager's menu command. Changes are draft-based: nothing is
 stored until you press **Save**; **Cancel**, the overlay click and `Escape`
 discard the draft; **Reset to defaults** asks for confirmation first.
 

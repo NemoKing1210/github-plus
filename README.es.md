@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.3-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
@@ -14,7 +14,7 @@ antigüedad al estilo blame para esos archivos, tamaños de archivo con descarga
 en un clic, un menú contextual para acciones de archivo, una vista rápida de
 cualquier archivo y traducción del contenido de la página.
 
-> **Estado:** temprano (`0.22.2`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.22.3`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Traducción · Paleta · Copia de seguridad ·
 > Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de imágenes de
 > markdown, los iconos de archivo en color, los colores de antigüedad al estilo
@@ -268,8 +268,8 @@ archivo markdown abierto en la vista rápida:
 Pulsa `Ctrl/⌘+K` en cualquier página de GitHub para abrir un único campo de
 búsqueda sobre todo lo que haces allí:
 
-- **Desde la cabecera** — el botón de la paleta junto a las acciones propias de
-  la cabecera de GitHub la abre desde cualquier página y muestra el atajo
+- **Desde la cabecera** — el botón de la paleta encabeza las acciones propias de
+  la cabecera de GitHub, la abre desde cualquier página y muestra el atajo
   vigente.
 - **Tus repositorios** — todos los que posees, los propios primero, con
   estrellas, lenguaje, último push y visibilidad en el panel de detalles. Escribe
@@ -314,9 +314,9 @@ búsqueda sobre todo lo que haces allí:
 
 ### Panel de ajustes
 
-Ábrelo con el botón de engranaje de la cabecera de GitHub, con la fila
-**Ajustes de GitHub Plus** del menú del avatar (justo debajo de **Settings** de
-GitHub) o con el comando de menú del gestor de userscripts. Los cambios son un
+Ábrelo con la fila **Ajustes de GitHub Plus** del menú del avatar (justo debajo
+de **Settings** de GitHub), con el comando de ajustes de la paleta o con el
+comando de menú del gestor de userscripts. Los cambios son un
 borrador: nada se guarda hasta que pulses **Guardar**; **Cancelar**, el clic en
 el fondo y `Escape` descartan el borrador; **Restablecer valores predeterminados**
 pide confirmación primero.

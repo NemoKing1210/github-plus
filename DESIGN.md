@@ -2,7 +2,7 @@
 
 This file is the single source of truth for how GitHub Plus looks and behaves.
 Follow it for every change that adds, moves or restyles an injected element:
-the settings entry button, the settings panel (sidebar, pages) and its controls, the confirm
+the palette header entry, the settings panel (sidebar, pages) and its controls, the confirm
 dialog, toasts, the context menu, the image viewer, the quick file preview and the command
 palette. Every rule below is derived from the
 shipped `src/styles/tokens.css`, `src/styles/app.css` and the components that
@@ -66,7 +66,7 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-accent` | `--fgColor-accent` | `#0969da` | Links, primary button fill, checked switch, active/dot accents, icon tints |
 | `--gp-accent-soft` | `--bgColor-accent-muted` | `#ddf4ff` | Tinted icon wells (about logo), checked source tiles |
 | `--gp-bg-1` | `--bgColor-default` | `#ffffff` | Default surface: panel, cards, inputs, toasts |
-| `--gp-bg-2` | `--bgColor-muted` | `#f6f8fa` | Subtle surface: header/footer bars, entry button, secondary button, grid cell, about hero |
+| `--gp-bg-2` | `--bgColor-muted` | `#f6f8fa` | Subtle surface: header/footer bars, secondary button, grid cell, about hero |
 | `--gp-text` | `--fgColor-default` | `#1f2328` | Body text, labels and titles (Primer exposes one emphasis level) |
 | `--gp-text-muted` | `--fgColor-muted` | `#59636e` | Hints, descriptions, counters, secondary icons |
 | `--gp-success` | `--fgColor-success` | `#1a7f37` | Success icon/progress tones |
@@ -151,14 +151,14 @@ Rules:
 | Property | Value | Applied to |
 |---|---|---|
 | Surface, default | `var(--gp-bg-1)` | `.gp-panel`, `.gp-card`, `.gp-confirm`, `.gp-toast`, `.gp-searchbar`, `.gp-search__group`, `.gp-search__item` (transparent, on its group), `.gp-select`, `.gp-input`, `.gp-textarea`, version/badge chip, `.gp-viewer-overlay`, `.gp-viewer__nav`, `.gp-viewer__status`, `.gp-viewer__thumb`, `.gp-viewer__help`, `.gp-viewer__counter`, `.gp-context-menu` |
-| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-card__head`, `.gp-search__group-head`, `.gp-searchbar__kbd`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-nav-item__count`, `.gp-header-btn`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__stage`, `.gp-viewer__thumbs`, `.gp-viewer__help-keys kbd` |
+| Surface, subtle | `var(--gp-bg-2)` | `.gp-panel__header`, `.gp-panel__nav`, `.gp-panel__footer`, `.gp-card__head`, `.gp-search__group-head`, `.gp-searchbar__kbd`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-nav-item__count`, `.gp-button`, `.gp-grid__cell`, `.gp-about__hero`, switch track, `.gp-viewer__bar`, `.gp-viewer__stage`, `.gp-viewer__thumbs`, `.gp-viewer__help-keys kbd` |
 | Surface, tinted | `var(--gp-accent-soft)` | `.gp-page__icon`, `.gp-about__logo`, checked `.gp-grid__cell`, search `<mark>` |
-| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-searchbar`, `.gp-search__group`, `.gp-header-btn`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter` |
+| Border, surface/control | `1px solid var(--gp-border)` | `.gp-panel`, `.gp-card`, `.gp-searchbar`, `.gp-search__group`, `.gp-button`, `.gp-select`, `.gp-input`, `.gp-textarea`, `.gp-switch__track`, `.gp-toast`, `.gp-confirm`, `.gp-viewer__bar`, `.gp-viewer__nav`, `.gp-viewer__thumbs`, `.gp-viewer__status`, `.gp-viewer__help`, `.gp-viewer__counter` |
 | Border, divider | `1px solid var(--gp-line)` | `.gp-card__head`, `.gp-row`, `.gp-field`, chip/badge outline (`.gp-panel__version`, `.gp-badge`, search counts), `.gp-grid__cell`, `.gp-search__group-head`, `.gp-search__item`, `.gp-searchbar__kbd`, `.gp-about__row`, progress track, `.gp-viewer__sep`, `.gp-viewer__thumb`, `.gp-viewer__help-head`, `.gp-viewer__help-keys kbd` |
 | Radius, default | `var(--gp-radius)` (6px) | Control boxes (button, select, input, search field, toast action), cards, sidebar items, search groups, toasts, grid cells, viewer tools, viewer zoom pill, viewer help, header button, panel close, viewer status, viewer thumb, user-menu row (`.gp-user-menu-item__btn`), context menu |
 | Radius, large | `var(--gp-radius-lg)` (12px) | `.gp-panel`, `.gp-confirm` |
 | Radius, pill | `999px` | `.gp-switch__track`, `.gp-panel__version`, `.gp-badge`, `.gp-nav-item__count`, `.gp-search__summary-count`, `.gp-search__group-count`, `.gp-viewer__counter` |
-| Radius, circle | `50%` | `.gp-header-btn--custom::after` and `.gp-user-menu-item__dot` dots, `.gp-viewer__nav`, viewer spinner |
+| Radius, circle | `50%` | `.gp-user-menu-item__dot`, `.gp-viewer__nav`, viewer spinner |
 | Radius, inner | `4px` | `.gp-context-menu__item` — one step below its container so a hovered row never pokes out of the menu's `6px` corners |
 | Shadow, elevation | `var(--gp-shadow)` | `.gp-confirm`, `.gp-toast`, `.gp-viewer__help`, `.gp-viewer__status` (the panel has none — its frosted scrim does the lifting) |
 | Shadow, floating | `var(--gp-shadow-float)` | `.gp-context-menu` — Primer's floating-overlay shadow, whose 1px ring is the only edge the menu draws |
@@ -249,22 +249,23 @@ text (version/badge chips, `.gp-input--wide`, `.gp-textarea`).
 Class names below are the ones actually built by the components; a class that
 exists in `app.css` without a rule is listed as "structural".
 
-### Header actions
+### Header entry
 
 | Class | Purpose |
 |---|---|
-| `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, `1px var(--gp-border)`, `var(--gp-radius)`, `var(--gp-bg-2)`; every header entry carries it, and it is the root scanned in `isOwnUi()` |
-| `.gp-settings-btn` | Second class on the settings entry (registered by `src/features/settings/index.js`) |
+| `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, transparent fill and border, `var(--gp-radius)`; the glyph is `var(--gp-text-muted)` and takes the `var(--gp-highlight)` fill and `var(--gp-text)` glyph on hover, so it reads like GitHub's own invisible header buttons. It is the root scanned in `isOwnUi()` |
 | `.gp-palette-btn` | Second class on the command palette entry (registered by `src/features/commandPalette/index.js`) |
 | `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the feature glyph, filled with `currentColor`, styled by `.gp-header-btn svg`, `16×16`) |
 | `.gp-header-item` | `<li>` host when the header target is a `<ul>`; structural, no rules |
-| `.gp-header-btn--custom` | Modifier added while any setting differs from defaults; draws a `6×6` `var(--gp-accent)` dot at top-right 4px |
 
-Both entries are built by `src/ui/headerActions.js`, which mounts registered
-actions into `.AppHeader-globalBar-end`, then `.AppHeader-globalBar`, then
-`#user-links`, and on a renamed header next to the avatar, sorts them by
-`order` and re-mounts them when GitHub swaps the header or a re-render drops
-one. Each button carries `title` and `aria-label` from its registered label.
+The command palette entry is the only header entry; the settings panel opens
+from its user-menu row, its manager menu command and the palette's own
+settings command. Entries are built by `src/ui/headerActions.js`, which mounts
+them into `.AppHeader-globalBar-end`, then `.AppHeader-globalBar`, then
+`#user-links`, and on a renamed header into the row around the avatar; they
+lead the container, before GitHub's own buttons, sorted by `order`, and are
+re-mounted when GitHub swaps the header or a re-render drops one. Each button
+carries `title` and `aria-label` from its registered label.
 
 ### Settings entry — user menu row
 
@@ -910,7 +911,7 @@ regardless of the setting; below `520px` the card moves to `6vh` and keeps an
 | Rotated | `.gp-viewer.is-rotated` | Toggled by `paint()`; the stage keeps its `grab` cursor because the image is draggable at every zoom |
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
-| Custom settings | `.gp-header-btn--custom`, `.gp-user-menu-item--custom` | Dot in `var(--gp-accent)` (corner of the header button, trailing in the menu row) while settings differ from defaults; the menu dot is `display: none` until the modifier is set |
+| Custom settings | `.gp-user-menu-item--custom` | Dot in `var(--gp-accent)` at the trailing edge of the user-menu row while settings differ from defaults; `display: none` until the modifier is set |
 | Palette loading | `.gp-command__bar.is-loading` | A 2px accent sweep under the input while a source refreshes; the bar is transparent at rest |
 | Palette active row | `.gp-command__row[aria-selected="true"]`, `.gp-command__row.is-active` | `var(--gp-accent-soft)` fill with an accent icon and title; the same row is mirrored to `aria-activedescendant` |
 | Palette empty | `.gp-command__empty:not([hidden])` | Centered glyph, `var(--gp-text)` title and muted hint; `[hidden]` is declared explicitly |

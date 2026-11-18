@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.3] - 2026-11-18
+
+### Changed
+
+- The command palette button now leads GitHub's header action row, ahead of
+  GitHub's own buttons, and is drawn like GitHub's invisible header buttons —
+  transparent at rest, with the neutral hover fill
+
+### Removed
+
+- The settings gear button in the GitHub header; the panel still opens from the
+  **GitHub Plus settings** row in the avatar menu, the manager's menu command
+  and the palette's settings command
+
+[0.22.3]: https://github.com/NemoKing1210/github-plus/compare/v0.22.2...v0.22.3
+
 ## [0.22.2] - 2026-11-18
 
 ### Fixed
