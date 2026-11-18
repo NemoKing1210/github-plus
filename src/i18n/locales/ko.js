@@ -384,6 +384,7 @@ export default {
   'palette.shortcut.invalid': '수정자 키와 키가 각각 하나 이상 필요합니다.',
   'palette.shortcut.modK': 'Ctrl/⌘ + K',
   'palette.shortcut.modShiftK': 'Ctrl/⌘ + Shift + K',
+  'palette.shortcut.modSpace': 'Ctrl/⌘ + 스페이스',
   'palette.shortcut.altK': 'Alt + K',
   'palette.shortcut.off': '사용 안 함',
   'palette.access': 'GitHub 액세스',

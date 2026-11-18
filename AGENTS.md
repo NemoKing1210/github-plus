@@ -248,9 +248,9 @@ Single place for magic values.
   observer timings `TRANSLATE_OBSERVE_DEBOUNCE_MS` (150), `TRANSLATE_SETTLE_MS`
   (250) × `TRANSLATE_SETTLE_TRIES` (20).
 - Command palette: `COMMAND_PALETTE_SHORTCUTS` (`mod+k`, `mod+shift+k`,
-  `alt+k`, `off` — the presets; a stored value may also be any combination
-  recorded on the settings page, parsed by `utils/shortcut.js`), the three
-  storage keys `gp_palette_cache_v1` /
+  `mod+space`, `alt+k`, `off` — the presets; a stored value may also be any
+  combination recorded on the settings page, parsed by `utils/shortcut.js`), the
+  three storage keys `gp_palette_cache_v1` /
   `gp_palette_recents_v1` / `gp_palette_pins_v1`,
   `COMMAND_PALETTE_CACHE_HOURS_MAX` (168) and
   `COMMAND_PALETTE_MAX_RESULTS_MIN` / `_MAX` (10…100). The issues source's
@@ -1330,7 +1330,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 417
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 418
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 

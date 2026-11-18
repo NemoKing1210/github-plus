@@ -282,7 +282,7 @@ const DEFAULT_TRANSLATE = {
   cacheHours: 24,
 };
 
-export const COMMAND_PALETTE_SHORTCUTS = ['mod+k', 'mod+shift+k', 'alt+k', 'off'];
+export const COMMAND_PALETTE_SHORTCUTS = ['mod+k', 'mod+shift+k', 'mod+space', 'alt+k', 'off'];
 export const COMMAND_PALETTE_CACHE_KEY = 'gp_palette_cache_v1';
 export const COMMAND_PALETTE_RECENTS_KEY = 'gp_palette_recents_v1';
 export const COMMAND_PALETTE_PINS_KEY = 'gp_palette_pins_v1';

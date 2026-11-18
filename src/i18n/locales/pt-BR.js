@@ -384,6 +384,7 @@ export default {
   'palette.shortcut.invalid': 'Use pelo menos um modificador e uma tecla.',
   'palette.shortcut.modK': 'Ctrl/⌘ + K',
   'palette.shortcut.modShiftK': 'Ctrl/⌘ + Shift + K',
+  'palette.shortcut.modSpace': 'Ctrl/⌘ + Espaço',
   'palette.shortcut.altK': 'Alt + K',
   'palette.shortcut.off': 'Desativado',
   'palette.access': 'Acesso ao GitHub',

@@ -384,6 +384,7 @@ export default {
   'palette.shortcut.invalid': '修飾キーとキーを少なくとも1つずつ使います。',
   'palette.shortcut.modK': 'Ctrl/⌘ + K',
   'palette.shortcut.modShiftK': 'Ctrl/⌘ + Shift + K',
+  'palette.shortcut.modSpace': 'Ctrl/⌘ + スペース',
   'palette.shortcut.altK': 'Alt + K',
   'palette.shortcut.off': '無効',
   'palette.access': 'GitHub アクセス',

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-11-18
+
+### Added
+
+- `Ctrl/⌘ + Space` as a one-click shortcut preset for the command palette
+  (recordable before, now selectable from the activation dropdown)
+
+[0.23.0]: https://github.com/NemoKing1210/github-plus/compare/v0.22.5...v0.23.0
+
 ## [0.22.5] - 2026-11-18
 
 ### Changed

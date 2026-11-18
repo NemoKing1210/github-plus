@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.5-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.23.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -14,7 +14,7 @@ couleurs d'âge façon blame pour ces fichiers, la taille des fichiers avec
 téléchargement en un clic, un menu contextuel pour les actions sur les fichiers,
 un aperçu rapide de tout fichier et la traduction du contenu des pages.
 
-> **Statut :** début (`0.22.5`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.23.0`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Traduction · Palette · Sauvegarde · À propos),
 > une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du markdown, des
 > icônes de fichiers colorées, des couleurs d'âge façon blame, la taille des
@@ -361,7 +361,7 @@ Stockés sous `gp_settings_v1`.
 | `translate.surfaces.<id>` | `true` | Interrupteurs par emplacement : `markdown`, `plaintext`, `commits`, `titles`, `preview` |
 | `translate.cacheHours` | `24` | Durée du cache en heures (0 le désactive) |
 | `commandPalette.enabled` | `true` | Interrupteur principal de la palette de commandes `Ctrl/⌘+K` |
-| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `alt+k`, `off` ou une combinaison enregistrée sur la page de réglages |
+| `commandPalette.shortcut` | `'mod+k'` | `mod+k`, `mod+shift+k`, `mod+space`, `alt+k`, `off` ou une combinaison enregistrée sur la page de réglages |
 | `commandPalette.token` | `''` | Jeton GitHub facultatif pour les dépôts privés et des limites plus élevées (uniquement vers `api.github.com`, jamais exporté) |
 | `commandPalette.sources.<id>` | `true` | Interrupteurs de source : `commands`, `repositories`, `starred`, `files`, `issues`, `recent` |
 | `commandPalette.sources.issues` | `true` | Issues et pull requests ouvertes du dépôt courant |

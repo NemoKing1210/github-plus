@@ -26,6 +26,7 @@ import { getDraft } from '../panel.js';
 const SHORTCUT_LABELS = {
   'mod+k': 'palette.shortcut.modK',
   'mod+shift+k': 'palette.shortcut.modShiftK',
+  'mod+space': 'palette.shortcut.modSpace',
   'alt+k': 'palette.shortcut.altK',
   off: 'palette.shortcut.off',
 };
