@@ -33,7 +33,8 @@ list host, the row inside GitHub's user menu, the panel (overlay, shell,
 grouped sidebar, search field and results, pages, cards, rows, controls), the
 confirm dialog, toasts, the context menu, the image viewer, the `.gp-fi` file
 and folder glyphs, the `.gp-age-date` coloring of GitHub's last-commit
-timestamps and its settings-page legend, the `.gp-file-meta` size column added
+timestamps and its settings-page legend, the `.gp-commit-*` type/scope token on
+GitHub's commit subjects, the `.gp-file-meta` size column added
 to file rows, the `.gp-preview` quick preview and its `.gp-hold-ring`, the
 `.gp-translate-*` action, status bar and translated-result boxes, the
 `.gp-command` palette, and the gallery's page-level cursor/hover affordances
@@ -52,6 +53,12 @@ Two invariants hold for every selector:
   .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-command-overlay,
   .gp-translate-btn, .gp-translate-bar, .gp-translate-result`).
   Rename a root class and that list must change with it.
+
+The `.gp-commit-*` token is deliberately **not** in `isOwnUi()`: it lives
+inside GitHub's own commit subject, so it is page content — the gallery,
+translation and file-target checks must keep treating those titles as page
+markup. The settings-page legend uses the same classes inside the panel, whose
+root is already listed.
 
 ## 2. Token layer (`src/styles/tokens.css`)
 
@@ -91,6 +98,19 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-age-8` | — | `#7e6746` | Age scale 8 |
 | `--gp-age-9` | — | `#876739` | Age scale 9 |
 | `--gp-age-10` | — | `#9a6700` | Age scale 10: newest commit, GitHub's attention gold |
+| `--gp-commit-ink` | `--fgColor-onEmphasis` | `#ffffff` | Ink on a commit-type fill; Primer's own on-emphasis ink |
+| `--gp-commit-feat` | `--bgColor-success-emphasis` | `#1f883d` | `feat` type fill |
+| `--gp-commit-fix` | `--bgColor-danger-emphasis` | `#cf222e` | `fix` type fill |
+| `--gp-commit-revert` | `--bgColor-danger-emphasis` | `#cf222e` | `revert` type fill |
+| `--gp-commit-docs` | `--bgColor-accent-emphasis` | `#0969da` | `docs` type fill |
+| `--gp-commit-style` | `--bgColor-done-emphasis` | `#8250df` | `style` type fill |
+| `--gp-commit-refactor` | `--bgColor-attention-emphasis` | `#bf8700` | `refactor` type fill |
+| `--gp-commit-perf` | `--bgColor-severe-emphasis` | `#bc4c00` | `perf` type fill |
+| `--gp-commit-test` | `--bgColor-sponsors-emphasis` | `#bf3989` | `test` type fill |
+| `--gp-commit-build` | `--bgColor-neutral-emphasis` | `#6e7781` | `build` type fill |
+| `--gp-commit-ci` | `--bgColor-neutral-emphasis` | `#6e7781` | `ci` type fill |
+| `--gp-commit-chore` | `--bgColor-neutral-emphasis` | `#6e7781` | `chore` type fill |
+| `--gp-commit-unknown` | `--bgColor-neutral-emphasis` | `#6e7781` | Fill for a custom type, and the fallback of every type |
 | `--gp-code-keyword` … `--gp-code-meta` | — | GitHub's own syntax palette (light) | Syntax highlighting in the quick preview: keyword, string, comment, number, function, variable, type, attr, tag, meta |
 
 The age scale has a second ramp (`#9198a1` … `#ffd78d`, oldest to newest)
@@ -149,6 +169,12 @@ Rules:
   the query GitHub itself uses to resolve `auto`; the selected light and dark
   themes still come from GitHub's `data-color-mode` attribute, not from an
   invented theme of our own.
+- The `--gp-commit-*` fills are Primer emphasis surfaces paired with
+  `--fgColor-onEmphasis`, so the type chip follows the page theme without a
+  dark block of its own. The type is data — a commit's declared kind — so each
+  type keeps a fixed hue (feat green, fix red, docs blue, …), but the hue is a
+  Primer semantic colour, never a raw literal in a component rule. A custom
+  type uses the neutral emphasis fill.
 
 ## 4. Surfaces, rounding, borders, shadows
 
@@ -669,6 +695,36 @@ no `aria-*` attribute is added. Turning **File ages** off removes both classes
 from every timestamp, restoring GitHub's own color, and `app.css` never selects
 a GitHub-owned class: the two exception classes are ours and exist only while
 the feature is on.
+
+### Commit badges (`.gp-commit-*`)
+
+A Conventional Commit subject (`type(scope)!: description`) gets its prefix
+rendered as one token: the type in a colored segment and the scope in a muted
+one, joined inside a single rounded outline, the `!` outside as a red marker
+and the colon in muted text. The decoration splits GitHub's own leading text
+node and wraps the prefix in our spans, so the subject's characters, its copy
+result and the translate feature's blocks are unchanged; the wrapper's own text
+is the original prefix, so turning the feature off replaces it with plain text
+and the title is byte-identical to what GitHub rendered. Only a prefix that sits
+entirely inside that one text node is decorated — a subject GitHub split across
+elements stays plain rather than risking a corrupted title.
+
+| Class | Rules |
+|---|---|
+| `.gp-commit-prefix` | `inline-flex`, centered, `gap: 4px`, `vertical-align: middle`, `var(--gp-font)`, `11px`/`20px`, `margin-right: 4px`, `nowrap`, no underline |
+| `.gp-commit-chip` | The shared outline: `inline-flex`, `height: 20px`, `border-radius: 999px`, `overflow: hidden`, `1px solid var(--gp-border)` |
+| `.gp-commit-type` | The colored segment: `inline-flex`, `height: 100%`, `0 8px` padding, `font-weight: 600`, `color: var(--gp-commit-ink)`, `background: var(--gp-commit-fill, var(--gp-commit-unknown))` |
+| `.gp-commit-type--<type>` | Sets `--gp-commit-fill` to that type's token (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`); `--unknown` is the custom-type fill |
+| `.gp-commit-scope` | The muted segment: `inline-flex`, `height: 100%`, `0 8px` padding, `font-weight: 500`, `var(--gp-text-muted)` on `var(--gp-bg-2)` |
+| `.gp-commit-paren` | `opacity: .45` — the parentheses stay in the DOM, so copy keeps `style(palette): …` |
+| `.gp-commit-bang` | The breaking marker: a `16×16` circle, centered `10px/1` bold `!`, `var(--gp-on-danger)` on `var(--gp-danger)` |
+| `.gp-commit-bang--plain` | The same `!` while the breaking marker is off: `var(--gp-text-muted)`, no fill, `font-weight: 600` |
+| `.gp-commit-colon` | `var(--gp-text-muted)`, no underline |
+| `.gp-commit-legend`, `.gp-commit-legend__item` | Settings preview: wrapping flex with `6px` gap and `12px 16px` padding; each item centers one chip |
+
+The fills come from the `--gp-commit-*` tokens (§2, §3). The settings legend
+reuses these classes, so its preview cannot drift from the page. The token is
+page content rather than a UI root, so it is not listed in `isOwnUi()` (§1).
 
 ### File sizes and downloads (`.gp-file-meta`)
 

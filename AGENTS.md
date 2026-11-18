@@ -66,6 +66,7 @@ github-plus/
 │   │   │       ├── general.js   # Interface language, notifications, diagnostics
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
 │   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu, preview
+│   │   │       ├── commits.js   # Commit badges: master switch, refinements, type legend
 │   │   │       ├── translate.js # Translation trigger, places, provider, cache
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
@@ -100,6 +101,11 @@ github-plus/
 │   │   │   ├── highlight.js# highlight.js core + registered languages
 │   │   │   ├── code.js     # Gutter + highlighted code block
 │   │   │   └── cards.js    # Binary / empty / too-large / failure cards
+│   │   ├── commitBadges/
+│   │   │   ├── index.js    # Surface observers, signature check, settings reaction
+│   │   │   ├── parse.js    # parseCommitSubject(text): type, scope, breaking (pure)
+│   │   │   ├── surfaces.js # Commit subjects GitHub renders + their title hooks
+│   │   │   └── inject.js   # decorateTitle / clearCommitBadges / hasCommitBadge
 │   │   ├── translate/
 │   │   │   ├── index.js    # Lifecycle: observers, settle wait, auto queue, settings reaction
 │   │   │   ├── surfaces.js # Surface registry: containers, roots, headers, preview pane
@@ -177,7 +183,8 @@ github-plus/
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
 + `applyFileMenuSettings()` → `initFilePreviewFeature()` +
 `applyFilePreviewSettings()` → `initTranslateFeature()` +
-`applyTranslateSettings()` → `initCommandPaletteFeature()` +
+`applyTranslateSettings()` → `initCommitBadgesFeature()` +
+`applyCommitBadgesSettings()` → `initCommandPaletteFeature()` +
 `applyCommandPaletteSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
@@ -256,14 +263,15 @@ Single place for magic values.
   pagination caps (`PER_PAGE` 100, 3 pages with a token, 1 without, 5
   repositories and 300 KB per record) live in `features/commandPalette/issues.js`.
 - `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
-  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `translate`,
+  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `commitBadges`, `translate`,
   `commandPalette`) plus
   `getDefaults()`, which returns a deep clone — never mutate the shared
   constants. `DEFAULT_LOGGING` is `{ enabled: false }`; `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
   `DEFAULT_FILE_MENU` is `{ enabled }`, `DEFAULT_FILE_PREVIEW` is
-  `{ enabled, rowButton, longPress, longPressMs, longPressRing }` and
+  `{ enabled, rowButton, longPress, longPressMs, longPressRing }`,
+  `DEFAULT_COMMIT_BADGES` is `{ enabled, unknownTypes, breaking }` and
   `DEFAULT_TRANSLATE` is `{ enabled, provider, providerConfig, targetLang, mode,
   display, reveal, linkLabels, surfaces, cacheHours }`;
   `DEFAULT_COMMAND_PALETTE` is `{ enabled, shortcut, token, sources, hideForks,
@@ -275,7 +283,8 @@ Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getLoggingSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
-`getFileMenuSettings`, `getFilePreviewSettings`, `getTranslateSettings`,
+`getFileMenuSettings`, `getFilePreviewSettings`, `getCommitBadgesSettings`,
+`getTranslateSettings`,
 `getCommandPaletteSettings`, `saveSettings`, `toExportableSettings`,
 `normalizeImportedSettings`, `hasCustomSettings`.
 
@@ -290,7 +299,8 @@ Key facts that must survive refactors:
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
   from the registry leaves no stale key), the `fileIcons` / `fileAges` /
-  `fileMeta` / `fileMenu` / `filePreview` booleans, and the long-press time
+  `fileMeta` / `fileMenu` / `filePreview` booleans, the three `commitBadges`
+  booleans, and the long-press time
   clamped to `PREVIEW_LONG_PRESS_MIN_MS`…`PREVIEW_LONG_PRESS_MAX_MS`. The
   `translate` section normalizes its enums (`mode`, `display`, `reveal`), the
   target-language whitelist, the provider id whitelist, the per-provider config
@@ -345,6 +355,14 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   every container down (painted text and chrome), then scans and re-attaches
   its observers when the feature is on, so a provider, target-language or mode
   change never leaves stale output.
+- `settings:commitBadges` — emitted by the same Save (and by a backup import,
+  through `applyExternalSettings`); the commit-badges feature tears every
+  decoration and observer down and, when enabled, rescans the surfaces. It is
+  emitted after `settings:translate`, so a translation restore that runs during
+  teardown cannot put a badge back on a disabled feature.
+- `translate:restored` — emitted by the translate feature whenever it restores
+  a container's original markup; the commit-badges feature listens only while it
+  is disabled, and unwraps any badge the restored markup reintroduced.
 - `settings:commandPalette` — emitted by the same Save and by a backup import;
   the command palette closes, forgets its session attempts, relabels or removes
   its header entry and reinstalls or
@@ -395,7 +413,8 @@ listener, no `window.__GP_LOG__`.
   button, `GP-1201` UI mount, `GP-1301` file-icons surface, `GP-1302` file-ages
   surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
   file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
-  `GP-1701` palette load/action, `GP-1702` palette cache, `GP-9001` uncaught
+  `GP-1701` palette load/action, `GP-1702` palette cache, `GP-1801` commit-badges
+  surface, `GP-9001` uncaught
   error, `GP-9002` unhandled rejection. Rules: log once per
   user-visible failure at the outermost point; layers below only throw, they
   never log.
@@ -661,6 +680,10 @@ without a reload. Nothing else in the feature layer touches the logger.
   input and the progress-circle switch (`icons.*`, `ages.*`, `files.*`,
   `fileMenu.*`, `preview.*` keys). The features stay independent, so the page
   has no switch of its own.
+- `tabs/commits.js`: the commit-badges card — the master switch in the card
+  header, the unknown-types and breaking-marker switches in the body, and an
+  11-chip legend built from `TYPE_ORDER` with the same `.gp-commit-*` classes
+  the page renders, so the preview cannot drift (`commitBadges.*` keys).
 - `tabs/commandPalette.js`: activation (switch, preset select plus a
   `createShortcutRecorder` field revealed for **Custom**), GitHub
   access (password token field, **Check token**, **Remove token**, an
@@ -975,6 +998,63 @@ keys move between siblings.
   closes with a 160 ms exit animation. The
   shell never imports a feature; `features/filePreview/index.js` passes the
   translate action in when that surface is on.
+
+### `src/features/commitBadges/` — Conventional Commit badges
+
+Styles the type and scope of a Conventional Commit subject (`type(scope)!:
+description`) as one two-tone token at the start of the title, on every surface
+GitHub renders a commit subject on: the commit history list, the PR
+**Commits** tab, the single-commit page, the repository home's latest-commit
+block and the classic commit views. The decoration is inline inside GitHub's
+own title element and preserves its text exactly, so copy, search and the
+translate feature keep working; disabling the feature restores the plain
+subject byte for byte.
+
+- `parse.js`: `parseCommitSubject(text)` (pure) — anchored on the first line,
+  a type of up to 32 letters/digits/hyphens, an optional `(scope)`, an optional
+  `!` before the colon, one or more spaces, then a non-empty description.
+  Returns `{ type, typeKey, scope, breaking, known, prefixEnd }` or `null`. The
+  eleven known types (`TYPE_ORDER`, `KNOWN_TYPES`) match case-insensitively;
+  an unknown type is accepted only when it is entirely lowercase, so prose such
+  as `Note: …` stays plain. An untrimmed or empty scope, a missing space after
+  the colon, a newline before the description and an empty description all
+  return `null`. `prefixEnd` is the index where the description's whitespace
+  begins, computed from the raw match, so the decorator splits the page text
+  without changing a character.
+- `inject.js`: `decorateTitle(title, parsed, { breaking })` splits the title's
+  leading text node at `prefixEnd` and inserts `.gp-commit-prefix` — a
+  `.gp-commit-chip` holding `.gp-commit-type.gp-commit-type--<type>` (or
+  `--unknown` for a custom type) and, when a scope exists, `.gp-commit-scope`
+  with dimmed `.gp-commit-paren` marks — then `.gp-commit-bang` (or a plain
+  marker when `breaking: false`), then `.gp-commit-colon`. It decorates only
+  when the whole prefix lies inside that one text node, so a subject GitHub
+  split across elements is left plain instead of being corrupted; the
+  concatenated `textContent` equals the original exactly.
+  `clearCommitBadges(root)` replaces every prefix with its own text and
+  normalizes the parent; `hasCommitBadge(title)` is the cheap check the
+  lifecycle uses before unwrapping.
+- `surfaces.js`: the registry. `commit-list`
+  (`[data-listview-component="items-list"]`, rows
+  `[data-testid="commit-row-item"]`, title = the span inside the row's
+  `a[href*="/commit/"]`), `commit-page`
+  (`[class*="commitMessageContainer"]`), `classic-commit`
+  (`[data-testid="commit-message"]`, `.commit-title`) and `latest-commit`
+  (`[data-testid="latest-commit-details"]`, the nearest commit link found while
+  walking up a few ancestors). Each surface declares `containers`, `rows` and
+  `titleFor(row)`; a selector that stops matching turns its surface into a
+  no-op and never affects the others.
+- `index.js`: one observer per surface container (`childList`, `subtree`,
+  `characterData` — GitHub recycles commit rows in place), the same shell
+  watchers (`<html>`/`<body>` direct children) and bounded settle wait as the
+  other page features, with a single info line when a page has no surface.
+  Titles are tracked in a `WeakMap<title, textContent at decoration>`: an
+  unchanged title is skipped, a changed one is unwrapped and re-parsed, so a
+  recycled row never keeps a stale type or scope. An invalid selector logs
+  `GP-1801` once per surface. `applyCommitBadgesSettings()` is the single entry
+  point (teardown first, then sync and settle when enabled);
+  `initCommitBadgesFeature()` subscribes to `settings:commitBadges` and
+  `translate:restored`, applies on `watchNavigation` and boots. The settings
+  page imports `TYPE_ORDER` from `parse.js` for its legend.
 
 ### `src/features/translate/` — on-page translation
 
@@ -1331,7 +1411,7 @@ sees private repositories.
   the repository appears in the cached owned list — Settings), otherwise the
   account's pages (profile, repositories, stars, new repository,
   notifications, gists, GitHub settings, dashboard); plus the GitHub Plus
-  controls (open settings, seven feature toggles, refresh
+  controls (open settings, eight feature toggles, refresh
   repositories/tree, clear palette/translation cache). Account pages use the
   effective identity (the verified token's login, else the page login), so a
   token-only session never links to `github.com/null`. `refreshTree` carries
@@ -1508,7 +1588,8 @@ must not own feature state. Rules that keep it acyclic:
   touching the header itself; the registry knows no feature and features only
   pass `{ icon, label, onClick }`.
 - `gallery` never imports from `features`; `features/settings` imports the
-  gallery registry (`listSources`) but not the gallery wiring.
+  gallery registry (`listSources`) and the commit-badges type list
+  (`TYPE_ORDER`), but not the features' wiring.
 - `ui/viewer.js`, `ui/toast.js`, `ui/contextMenu.js`, `ui/headerActions.js` and
   `ui/filePreview.js`
   import only `i18n`, `utils`, `core` and sibling `ui` helpers — they are
@@ -1555,7 +1636,7 @@ footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:logging' |
 'settings:language' | 'settings:fileIcons' | 'settings:fileAges' |
 'settings:fileMeta' | 'settings:fileMenu' | 'settings:filePreview' |
-'settings:translate' | 'settings:commandPalette')` → gallery repaints its
+'settings:translate' | 'settings:commitBadges' | 'settings:commandPalette')` → gallery repaints its
 stylesheet, the logger applies
 its switch, file and translate features rescan or tear down, the palette closes
 and reinstalls its hotkey, the palette entry relabels itself and the
@@ -1691,6 +1772,9 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
 | `filePreview.longPressMs` | `450` | Hold time in ms, clamped to 200…2000 |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
+| `commitBadges.enabled` | `true` | Master switch; disabling restores every commit subject and removes all observers |
+| `commitBadges.unknownTypes` | `true` | Style types outside the conventional set too |
+| `commitBadges.breaking` | `true` | Show a red marker when the prefix ends with `!` |
 | `translate.enabled` | `true` | Master switch; disabling restores every translated block and removes all chrome and observers |
 | `translate.provider` | `'google'` | Provider id; the free, keyless Google endpoint is the default |
 | `translate.providerConfig.<id>` | per provider | Credentials and endpoint fields, normalized to known keys and strings |
@@ -1737,7 +1821,8 @@ with English fallback.
 
 All injected UI (the palette header entry, panel, controls, confirm dialog, toasts,
 context menu, viewer, file icons, file-age dates, the file size column and
-download buttons, the quick file preview, and the translation button, bar and
+download buttons, the quick file preview, the commit type/scope token, and the
+translation button, bar and
 result boxes)
 follows [DESIGN.md](DESIGN.md) — GitHub's
 own visual language through Primer tokens, `gp-`-prefixed classes, colors from
@@ -1931,6 +2016,13 @@ and check diagnostics for edited files.
   show the too-large card, so a real hang means the request never settled. A
   preview left open after a soft navigation means `watchNavigation` stopped
   firing.
+- Commit badges missing: check **Commit badges** on the **Commits** page is on
+  and the title is one of the surfaces in `features/commitBadges/surfaces.js`.
+  The prefix must sit on the first line and entirely inside the title's first
+  text node; a split prefix or an uppercase unknown type is intentionally left
+  plain, and an unknown but lowercase type needs **Unknown types**. A badge
+  that survives after the feature is turned off means the teardown or the
+  `translate:restored` unwrap broke.
 - No **Translate** button: check **Translation** is on and the matching switch
   on its **Places** card; the container must be one of the surfaces in
   `features/translate/surfaces.js` and carry text blocks (an image-only README
