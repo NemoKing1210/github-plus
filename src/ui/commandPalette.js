@@ -138,6 +138,22 @@ function buildRow(current, item) {
   const hint = el('span', 'gp-command__hint', hintText(item, current.labels));
 
   row.append(icon, muted, title, badges, meta, hint);
+  if (current.renderExpansion && EXPANDABLE_KINDS.has(item.kind)) {
+    row.setAttribute('aria-expanded', 'false');
+    const chev = el('button', 'gp-command__chev');
+    chev.type = 'button';
+    chev.tabIndex = -1;
+    chev.setAttribute('aria-label', current.labels.hintExpand || '');
+    chev.setAttribute('aria-expanded', 'false');
+    chev.innerHTML = PALETTE_ICONS.chevronRight;
+    chev.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleExpansion(item);
+    });
+    row.classList.add('gp-command__row--expandable');
+    row.appendChild(chev);
+  }
   current.rowByKey.set(item.key, row);
   return row;
 }
@@ -154,6 +170,48 @@ function renderGroups(current, groups) {
     for (const item of items) current.list.appendChild(buildRow(current, item));
   }
   current.empty.hidden = current.list.childElementCount > 0;
+}
+
+function clearExpansion(current) {
+  const block = current.expansion;
+  if (block) block.remove();
+  current.expansion = null;
+  const row = current.expandedKey ? current.rowByKey.get(current.expandedKey) : null;
+  if (row) {
+    row.setAttribute('aria-expanded', 'false');
+    row.querySelector('.gp-command__chev')?.setAttribute('aria-expanded', 'false');
+  }
+  current.expandedKey = null;
+}
+
+function expand(current) {
+  const item = activeItem();
+  if (!item || !current.renderExpansion || !EXPANDABLE_KINDS.has(item.kind)) return;
+  clearExpansion(current);
+  const row = current.rowByKey.get(item.key);
+  if (!row) return;
+  const content = current.renderExpansion(item);
+  if (!content) return;
+  const block = el('div', 'gp-command__expansion');
+  block.appendChild(content);
+  row.parentNode.insertBefore(block, row.nextSibling);
+  row.setAttribute('aria-expanded', 'true');
+  row.querySelector('.gp-command__chev')?.setAttribute('aria-expanded', 'true');
+  current.expansion = block;
+  current.expandedKey = item.key;
+}
+
+function toggleExpansion(item) {
+  if (!state) return;
+  if (state.expandedKey === item.key) {
+    clearExpansion(state);
+    return;
+  }
+  if (item.key !== state.activeKey) {
+    state.activeKey = item.key;
+    applyActive(state, item);
+  }
+  expand(state);
 }
 
 function applyActive(current, item) {
@@ -187,14 +245,19 @@ function refresh() {
   current.itemsByKey = new Map(items.map((item) => [item.key, item]));
   const active = (previousKey && current.itemsByKey.get(previousKey)) || items[0] || null;
   current.activeKey = active ? active.key : null;
+  const previousExpanded = current.expandedKey;
+  current.expansion = null;
+  current.expandedKey = null;
   renderGroups(current, groups);
   applyActive(current, active);
+  if (previousExpanded && previousExpanded === current.activeKey) expand(current);
   renderStatus(current, result, items.length);
 }
 
 function selectKey(key) {
   const item = state?.itemsByKey.get(key);
   if (!item || item.key === state.activeKey) return;
+  if (state.expandedKey) clearExpansion(state);
   state.activeKey = item.key;
   applyActive(state, item);
 }
@@ -265,6 +328,18 @@ function onKeyDown(event) {
     state.onContextMenu(item, { anchor: state.rowByKey.get(item.key) || null, keyboard: true });
     return;
   }
+  if (key === 'ArrowRight') {
+    event.preventDefault();
+    const item = activeItem();
+    if (item) toggleExpansion(item);
+    return;
+  }
+  if (key === 'ArrowLeft') {
+    if (!state.expandedKey) return;
+    event.preventDefault();
+    clearExpansion(state);
+    return;
+  }
   if (key === 'ArrowDown' || key === 'ArrowUp') {
     event.preventDefault();
     move(key === 'ArrowDown' ? 1 : -1);
@@ -283,6 +358,10 @@ function onKeyDown(event) {
   }
   if (key === 'Escape') {
     event.preventDefault();
+    if (state.expandedKey) {
+      clearExpansion(state);
+      return;
+    }
     if (state.input.value) {
       state.input.value = '';
       refresh();
@@ -291,7 +370,23 @@ function onKeyDown(event) {
     closeCommandPalette();
     return;
   }
-  if (key === 'Tab') trapFocus(event);
+  if (key === 'Tab') {
+    const block = state.expansion;
+    if (block && event.shiftKey && block.contains(document.activeElement)) {
+      event.preventDefault();
+      state.input.focus();
+      return;
+    }
+    if (block && !event.shiftKey && !block.contains(document.activeElement)) {
+      const target = block.querySelector('button, a[href], [tabindex]:not([tabindex="-1"])');
+      if (target) {
+        event.preventDefault();
+        target.focus();
+        return;
+      }
+    }
+    trapFocus(event);
+  }
 }
 
 function onPointerMove(event) {
@@ -383,6 +478,8 @@ export function openCommandPalette({
     itemsByKey: new Map(),
     rowByKey: new Map(),
     activeKey: null,
+    expandedKey: null,
+    expansion: null,
     focusReturn: document.activeElement instanceof HTMLElement ? document.activeElement : null,
     debounceTimer: null,
   };

@@ -68,11 +68,58 @@ function open() {
   return shell.openCommandPalette({
     labels: labels(),
     search: () => ({ groups: makeGroups(), status: 'ready' }),
+    renderExpansion: (item) => {
+      const node = document.createElement('div');
+      node.textContent = `details:${item.title}`;
+      node.appendChild(Object.assign(document.createElement('button'), { textContent: 'Open' }));
+      return node;
+    },
     onSelect: (item, options) => seen.push([item.key, options.newTab]),
     onPin: (item) => seen.push(['pin', item.key]),
     onClose: () => {},
   });
 }
+
+test('ArrowRight expands the active row and ArrowLeft collapses it', () => {
+  open();
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  const row = document.querySelector('.gp-command__row[aria-selected="true"]');
+  assert.equal(row.getAttribute('aria-expanded'), 'true');
+  assert.match(document.querySelector('.gp-command__expansion').textContent, /details:Open issues/);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__expansion'), null);
+  assert.equal(
+    document.querySelector('.gp-command__row[aria-selected="true"]').getAttribute('aria-expanded'),
+    'false',
+  );
+});
+
+test('moving the selection collapses the expansion', () => {
+  open();
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__expansion'), null);
+});
+
+test('Tab moves focus into the expanded actions and Shift+Tab returns', () => {
+  open();
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  assert.equal(document.activeElement, document.querySelector('.gp-command__expansion button'));
+  document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true }));
+  assert.equal(document.activeElement, input);
+});
+
+test('the chevron toggles the expansion without selecting the row', () => {
+  open();
+  const chev = document.querySelector('.gp-command__chev');
+  chev.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__expansion') !== null, true);
+  assert.deepEqual(seen, []);
+});
 
 test('opening mounts the dialog, focuses the input and marks the first result', () => {
   open();
