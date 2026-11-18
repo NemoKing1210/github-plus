@@ -135,7 +135,7 @@ github-plus/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
 │   ├── ui/
-│   │   ├── icons.js        # 16×16 stroke SVG set (viewer toolbar, context-menu actions)
+│   │   ├── icons.js        # 16×16 glyphs: stroked set + the filled palette Octicon
 │   │   ├── headerActions.js# One registry for GitHub header entries (mount/sync/remove)
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)

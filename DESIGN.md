@@ -253,9 +253,9 @@ exists in `app.css` without a rule is listed as "structural".
 
 | Class | Purpose |
 |---|---|
-| `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, transparent fill and border, `var(--gp-radius)`; the glyph is `var(--gp-text-muted)` and takes the `var(--gp-highlight)` fill and `var(--gp-text)` glyph on hover, so it reads like GitHub's own invisible header buttons. It is the root scanned in `isOwnUi()` |
+| `.gp-header-btn` | The button itself: `32×32`, inline-flex centered, transparent fill and border, `var(--gp-radius)`, the default text color at rest and the `var(--gp-highlight)` fill on hover — the same shape and states as GitHub's own invisible icon buttons. It is the root scanned in `isOwnUi()` |
 | `.gp-palette-btn` | Second class on the command palette entry (registered by `src/features/commandPalette/index.js`) |
-| `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the feature glyph, filled with `currentColor`, styled by `.gp-header-btn svg`, `16×16`) |
+| `.gp-header-btn__icon` | Icon wrapper `<span>`; **structural** (the feature glyph, filled with `currentColor`, styled by `.gp-header-btn svg`, `16×16`; the palette entry uses GitHub's own filled command-palette Octicon, so it sits among GitHub's icons without standing out) |
 | `.gp-header-item` | `<li>` host when the header target is a `<ul>`; structural, no rules |
 
 The command palette entry is the only header entry; the settings panel opens

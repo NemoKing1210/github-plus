@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.5] - 2026-11-18
+
+### Changed
+
+- The palette header button now carries GitHub's own filled command-palette
+  Octicon in the default text color, so it matches the invisible icon buttons
+  around it instead of reading as stroked third-party chrome
+
+[0.22.5]: https://github.com/NemoKing1210/github-plus/compare/v0.22.4...v0.22.5
+
 ## [0.22.4] - 2026-11-18
 
 ### Changed

@@ -88,10 +88,11 @@ export const ACTION_ICONS = {
 
 /** Command palette glyphs, reusing the shared ones where the shape is identical. */
 export const PALETTE_ICONS = {
-  palette: svg(
-    '<rect x="2.25" y="2.75" width="11.5" height="10.5" rx="2.25"/>'
-    + '<path d="M5.25 6h5.5M5.25 9h3.25"/>',
-  ),
+  // GitHub's own command-palette Octicon: the header entry sits among GitHub's
+  // filled icons, so a stroked glyph would read as foreign chrome.
+  palette: '<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">'
+    + '<path d="m6.354 8.04-4.773 4.773a.75.75 0 1 0 1.061 1.06L7.945 8.57a.75.75 0 0 0 0-1.06L2.642 2.206a.75.75 0 0 0-1.06 1.061L6.353 8.04ZM8.75 11.5a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5Z"/>'
+    + '</svg>',
   search: svg(
     '<circle cx="7" cy="7" r="4.25"/>'
     + '<path d="m10.3 10.3 3.2 3.2"/>',

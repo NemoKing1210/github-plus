@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.4-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.5-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Юзерскрипт, который улучшает GitHub: полная панель настроек, командная палитра
 по `Ctrl/⌘+K`, галерея изображений для отрендеренного markdown, цветные иконки
@@ -13,7 +13,7 @@
 размеры файлов и скачивание в один клик, контекстное меню для действий с
 файлами, быстрый просмотр любого файла и перевод текста прямо на странице.
 
-> **Статус:** ранняя стадия (`0.22.4`). Панель настроек с мгновенным поиском
+> **Статус:** ранняя стадия (`0.22.5`). Панель настроек с мгновенным поиском
 > (Общие · Галерея · Файлы · Перевод · Палитра · Резервная копия · О программе),
 > командная палитра по `Ctrl/⌘+K`, галерея изображений markdown, цветные иконки
 > файлов, раскраска возраста в стиле blame, размеры файлов и кнопки скачивания,

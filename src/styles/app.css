@@ -18,7 +18,7 @@
   border: 0;
   border-radius: var(--gp-radius);
   background: transparent;
-  color: var(--gp-text-muted);
+  color: var(--gp-text);
   cursor: pointer;
   position: relative;
 }
