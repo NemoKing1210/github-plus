@@ -172,6 +172,7 @@ function accessSection(draft) {
       if (next.login !== user.login) {
         next.sources = {};
         next.trees = {};
+        next.issues = {};
         next.rateLimit = null;
       }
       next.login = user.login;

@@ -373,6 +373,9 @@ export function openPalette() {
       ...position,
       label: item.title || '',
       layer: 'palette',
+      // A menu action can rebuild the row that anchored the menu; without this
+      // the palette would stay open but stop receiving keys.
+      onClose: () => handle?.focus(),
       items: rowMenuItems(item, {
         labels: detailLabels(),
         pinned: Boolean(paletteState?.pinnedKeys.includes(item.key)),

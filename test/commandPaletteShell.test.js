@@ -206,3 +206,42 @@ test('a press inside an open row menu does not close the palette', () => {
   menu.dispatchEvent(new dom.window.MouseEvent('pointerdown', { bubbles: true }));
   assert.equal(shell.isCommandPaletteOpen(), true);
 });
+
+test('focus stays inside the palette after a keyboard-opened row menu closes', () => {
+  shell.openCommandPalette({
+    labels: labels(),
+    showDetails: false,
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
+    onContextMenu: (item) => {
+      contextMenu.openContextMenu({
+        anchor: document.querySelector('.gp-command__row'),
+        keyboard: true,
+        label: 'Actions',
+        layer: 'palette',
+        items: [{ label: 'Open', onSelect() {} }],
+      });
+    },
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'F10', shiftKey: true, bubbles: true }));
+  assert.ok(document.querySelector('.gp-context-menu'));
+  document.querySelector('.gp-context-menu').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(shell.isCommandPaletteOpen(), true);
+  assert.notEqual(document.activeElement, document.body);
+  assert.ok(document.querySelector('.gp-command').contains(document.activeElement));
+});
+
+test('the palette can take focus back after its row menu closes', () => {
+  const handle = shell.openCommandPalette({
+    labels: labels(),
+    showDetails: false,
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
+    onContextMenu: () => {},
+  });
+  const outside = document.createElement('button');
+  document.body.appendChild(outside);
+  outside.focus();
+  handle.focus();
+  assert.equal(document.activeElement, document.querySelector('.gp-command__input'));
+  outside.remove();
+});

@@ -116,6 +116,9 @@ function buildRow(current, item) {
   row.dataset.key = item.key;
   row.setAttribute('role', 'option');
   row.setAttribute('aria-selected', 'false');
+  // Focusable only programmatically, so a keyboard-opened row menu can restore
+  // focus to its row and the dialog keeps receiving the palette's keys.
+  row.tabIndex = -1;
 
   const icon = el('span', 'gp-command__icon');
   icon.innerHTML = PALETTE_ICONS[item.icon] || '';
@@ -417,6 +420,9 @@ export function openCommandPalette({
   return {
     refresh,
     close: closeCommandPalette,
+    focus() {
+      if (state) state.input.focus();
+    },
     setQuery(value) {
       if (!state) return;
       node.input.value = String(value ?? '');

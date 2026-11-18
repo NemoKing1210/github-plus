@@ -24,6 +24,7 @@ let menu = null;
 let openedWith = null;
 let anchorNode = null;
 let teardown = null;
+let closeHook = null;
 
 function itemsOf(root) {
   const buttons = root.querySelectorAll('.gp-context-menu__item');
@@ -67,16 +68,22 @@ function place(root, x, y) {
 
 /** Close the open menu, if any. Restores focus only for keyboard opens. */
 export function closeContextMenu() {
-  if (!menu) return;
+  if (!menu) {
+    closeHook = null;
+    return;
+  }
   const root = menu;
   const restore = openedWith === 'keyboard' ? anchorNode : null;
+  const hook = closeHook;
   menu = null;
   openedWith = null;
   anchorNode = null;
+  closeHook = null;
   if (teardown) teardown();
   teardown = null;
   root.remove();
   if (restore && restore.isConnected) restore.focus({ preventScroll: true });
+  hook?.();
 }
 
 export function isContextMenuOpen() {
@@ -87,7 +94,9 @@ export function isContextMenuOpen() {
  * Open the menu at a point, or next to `anchor` for keyboard opens.
  * `layer: 'preview'` floats above the quick preview and `'palette'` above the
  * command palette; `elevated` is the older name for the preview layer.
- * @param {{x?: number, y?: number, anchor?: Element|null, keyboard?: boolean, label: string, items: ContextMenuItem[], layer?: 'default'|'preview'|'palette', elevated?: boolean}} options
+ * `onClose` runs once the menu is gone and focus is restored, so a caller can
+ * take focus back when its anchor was rebuilt (the palette's rows are).
+ * @param {{x?: number, y?: number, anchor?: Element|null, keyboard?: boolean, label: string, items: ContextMenuItem[], layer?: 'default'|'preview'|'palette', elevated?: boolean, onClose?: () => void}} options
  */
 export function openContextMenu({
   x = 0,
@@ -98,6 +107,7 @@ export function openContextMenu({
   items = [],
   layer = 'default',
   elevated = false,
+  onClose = null,
 }) {
   closeContextMenu();
   if (!items.length) return;
@@ -121,6 +131,7 @@ export function openContextMenu({
   document.body.appendChild(root);
   menu = root;
   openedWith = keyboard ? 'keyboard' : 'pointer';
+  closeHook = onClose;
 
   if (keyboard && anchor) {
     const rect = anchor.getBoundingClientRect();
