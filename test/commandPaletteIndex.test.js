@@ -70,7 +70,7 @@ test('a cold open shows the loaded repositories, files and the truncated-tree no
   assert.equal(document.querySelector('.gp-command__note').textContent, t('palette.status.incomplete'));
 
   const input = document.querySelector('.gp-command__input');
-  input.value = '#a';
+  input.value = '/a';
   input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
   await new Promise((resolve) => setTimeout(resolve, 120));
   assert.ok(document.querySelector('.gp-command__row[data-key="file:alice/repo@main:a.js"]'));

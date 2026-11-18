@@ -12,6 +12,11 @@ export function searchUrl(scope, query) {
   return `https://github.com/search?q=${encodeURIComponent(query)}&type=${scope}`;
 }
 
+/** GitHub code search limited to one repository. */
+export function searchUrlInRepo(repo, query) {
+  return `https://github.com/search?q=${encodeURIComponent(`repo:${repo} ${query}`).replace(/%20/g, '+')}&type=code`;
+}
+
 /** Settings sections the palette can switch, with the label each one shows. */
 export const TOGGLE_LABEL_KEYS = {
   gallery: 'gallery.enabled',
@@ -78,7 +83,7 @@ function ownsRepository(state, fullName) {
 }
 
 function repositoryCommands(state, startIndex) {
-  const repo = state.context.repo;
+  const repo = state.scope?.repo || state.context.repo;
   const commands = REPO_COMMANDS.map((command) => ({
     id: `repo.${command.id}`,
     label: t(command.labelKey),
@@ -165,31 +170,35 @@ function plusCommands(state, startIndex) {
 export function commandCandidates(state) {
   if (state?.settings?.sources?.commands === false) return [];
   const commands = [];
-  if (state.context.repo) commands.push(...repositoryCommands(state, commands.length + 100));
+  if (state.context.repo || state.scope?.repo) commands.push(...repositoryCommands(state, commands.length + 100));
   if (state.context.login) commands.push(...userCommands(state, commands.length + 200));
   commands.push(...plusCommands(state, commands.length + 300));
   return commands;
 }
 
-/** The GitHub search command for a free-text query. */
-export function searchCommands(query) {
-  const run = { type: 'navigate', url: searchUrl('repositories', query) };
+/** The GitHub search command for a free-text query, scoped when asked. */
+export function searchCommands(query, { scope } = {}) {
+  const repo = scope?.repo || '';
+  const url = repo ? searchUrlInRepo(repo, query) : searchUrl('repositories', query);
+  const label = repo
+    ? t('palette.fallback.scope', { query, repo })
+    : t('palette.fallback.global', { query });
   return [{
     key: 'cmd:search',
     kind: 'command',
     groupId: 'search',
     groupTitle: t('palette.group.search'),
     icon: 'search',
-    title: t('palette.cmd.search', { query }),
+    title: label,
     titleMuted: '',
     meta: '',
-    rankFields: [{ text: t('palette.cmd.search', { query }), weight: 4 }],
+    rankFields: [{ text: label, weight: 4 }],
     sortKey: 0,
     data: {
-      run,
+      run: { type: 'navigate', url },
       searchScopes: ['repositories', 'code', 'issues', 'users'],
       query,
     },
-    detail: { id: 'search', label: t('palette.cmd.search', { query }), description: '', shortcut: '' },
+    detail: { id: 'search', label, description: '', shortcut: '' },
   }];
 }

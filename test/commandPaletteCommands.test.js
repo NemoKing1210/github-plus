@@ -26,6 +26,20 @@ test('repository commands appear only on a repository page', () => {
   assert.ok(withoutRepo.some((item) => item.key === 'cmd:user.profile'));
 });
 
+test('repository commands follow the palette scope', () => {
+  const state = {
+    context: { repo: 'o/page', login: 'alice' },
+    scope: { repo: 'vuejs/core' },
+    settings,
+    cache: null,
+  };
+  const urls = commandCandidates(state)
+    .filter((item) => item.groupId === 'repository')
+    .map((item) => item.data.run.url);
+  assert.ok(urls.length > 0);
+  assert.ok(urls.every((url) => url.startsWith('https://github.com/vuejs/core')));
+});
+
 test('every command carries a run descriptor and a stable icon', () => {
   const commands = commandCandidates({ context: { repo: 'o/r', login: 'alice' }, settings, cache: null });
   for (const item of commands) {

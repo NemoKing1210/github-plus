@@ -1,27 +1,32 @@
+import { t } from '../../i18n/index.js';
 import { parseQuery, rankCandidates } from './rank.js';
 import { searchCommands } from './commands.js';
 
 /**
- * Resolve one query against the palette's candidates. A query that matches
- * nothing becomes a GitHub search for the same text instead of a dead end.
+ * Resolve one query against the palette's candidates and keep the GitHub
+ * search handoff as the last row of every typed query, so a search is never a
+ * dead end even when other results match.
  */
 export function searchPalette(state, query, titles) {
   const parsed = parseQuery(query);
-
-  if (parsed.mode === 'search') {
-    const items = parsed.text ? searchCommands(parsed.text) : [];
-    return { groups: items.length ? [{ id: 'search', title: items[0].groupTitle, items }] : [], total: items.length };
-  }
-
   const result = rankCandidates(state.candidates, query, {
     pinnedKeys: state.pinnedKeys,
     recentKeys: state.recentKeys,
     maxResults: state.settings.maxResults,
     titles,
+    scope: state.scope || null,
   });
-  if (result.total === 0 && parsed.text) {
-    const items = searchCommands(parsed.text);
-    return { groups: [{ id: 'search', title: items[0].groupTitle, items }], total: 1 };
-  }
-  return result;
+  if (!parsed.text) return result;
+
+  return {
+    groups: [
+      ...result.groups,
+      {
+        id: 'search',
+        title: t('palette.group.search'),
+        items: searchCommands(parsed.text, { scope: state.scope || null }),
+      },
+    ],
+    total: result.total + 1,
+  };
 }

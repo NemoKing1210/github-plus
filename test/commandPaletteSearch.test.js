@@ -46,12 +46,12 @@ test('the empty query follows the browse order and hides files', () => {
 
 test('prefixes restrict the result kinds', () => {
   assert.deepEqual(
-    searchPalette(makeState(), '#alpha').groups.flatMap((group) => group.items.map((item) => item.key)),
-    ['file:o/r@main:a.js'],
+    searchPalette(makeState(), '/alpha').groups.flatMap((group) => group.items.map((item) => item.key)),
+    ['file:o/r@main:a.js', 'cmd:search'],
   );
   assert.deepEqual(
     searchPalette(makeState(), '@alpha').groups.flatMap((group) => group.items.map((item) => item.key)),
-    ['repo:o/a'],
+    ['repo:o/a', 'cmd:search'],
   );
   assert.equal(
     searchPalette(makeState(), '> code').groups.flatMap((group) => group.items.map((item) => item.key)).includes('cmd:repo.code'),
@@ -59,15 +59,28 @@ test('prefixes restrict the result kinds', () => {
   );
 });
 
-test('a query with no match falls back to the GitHub search command', () => {
-  const { groups } = searchPalette(makeState(), 'zzz');
-  assert.equal(groups.length, 1);
-  assert.equal(groups[0].id, 'search');
-  assert.equal(groups[0].items[0].key, 'cmd:search');
-  assert.equal(groups[0].items[0].data.run.url, 'https://github.com/search?q=zzz&type=repositories');
+test('a typed query always ends with the search fallback row', () => {
+  const { groups } = searchPalette(makeState(), 'code');
+  const last = groups.at(-1);
+  assert.equal(last.id, 'search');
+  assert.equal(last.items[0].key, 'cmd:search');
+  assert.equal(last.items[0].data.run.url, 'https://github.com/search?q=code&type=repositories');
 });
 
-test('a matching query does not add the search command', () => {
-  const { groups } = searchPalette(makeState(), 'code');
-  assert.equal(groups.flatMap((group) => group.items).some((item) => item.key === 'cmd:search'), false);
+test('no match still returns only the fallback row', () => {
+  const { groups } = searchPalette(makeState(), 'zzz');
+  assert.deepEqual(groups.map((group) => group.id), ['search']);
+});
+
+test('an empty query has no fallback row', () => {
+  assert.equal(searchPalette(makeState(), '').groups.some((group) => group.id === 'search'), false);
+});
+
+test('a scoped query labels and addresses the in-repository search', () => {
+  const state = { ...makeState(), scope: { repo: 'vuejs/core' } };
+  const { groups } = searchPalette(state, 'pin');
+  const row = groups.at(-1).items[0];
+  assert.match(row.title, /vuejs\/core/);
+  assert.equal(row.data.run.url,
+    'https://github.com/search?q=repo%3Avuejs%2Fcore+pin&type=code');
 });
