@@ -9,6 +9,7 @@ import { watchNavigation } from '../utils/navigation.js';
 
 /** Header containers that host actions, most specific first. */
 export const HEADER_TARGETS = [
+  '[data-testid="top-nav-center"]',
   '.AppHeader-globalBar-end',
   '.AppHeader-globalBar',
   '#user-links',

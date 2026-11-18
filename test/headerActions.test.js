@@ -73,6 +73,19 @@ test('actions mount at the start of the target, before GitHub\'s own buttons', (
   action.remove();
 });
 
+test('the top-nav-center container wins over the global bar', () => {
+  document.body.innerHTML = '<header class="AppHeader">'
+    + '<div class="AppHeader-globalBar-end"><a class="AppHeader-user">me</a></div>'
+    + '<div data-testid="top-nav-center"><nav class="crumbs">repo</nav>'
+    + '<div class="search-group"><button>search</button></div></div></header>';
+  const action = registerHeaderAction({ id: 'palette', order: 10, label: 'Palette', onClick: click });
+  syncHeaderActions();
+  const center = document.querySelector('[data-testid="top-nav-center"]');
+  assert.equal(center.firstElementChild, action.node);
+  assert.equal(document.querySelector('.AppHeader-globalBar-end .gp-header-btn'), null);
+  action.remove();
+});
+
 test('an unrecognized header mounts next to the avatar', () => {
   document.body.innerHTML = '<header data-new-shell><div class="toolbar">'
     + '<button class="utility">x</button>'

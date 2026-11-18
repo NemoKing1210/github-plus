@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.4] - 2026-11-18
+
+### Changed
+
+- The command palette button now mounts into GitHub's breadcrumb/search
+  container (`top-nav-center`), at its start, when that container exists; the
+  global-bar targets remain as the fallback
+
+[0.22.4]: https://github.com/NemoKing1210/github-plus/compare/v0.22.3...v0.22.4
+
 ## [0.22.3] - 2026-11-18
 
 ### Changed

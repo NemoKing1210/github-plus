@@ -261,7 +261,8 @@ exists in `app.css` without a rule is listed as "structural".
 The command palette entry is the only header entry; the settings panel opens
 from its user-menu row, its manager menu command and the palette's own
 settings command. Entries are built by `src/ui/headerActions.js`, which mounts
-them into `.AppHeader-globalBar-end`, then `.AppHeader-globalBar`, then
+them into `[data-testid="top-nav-center"]` (GitHub's breadcrumb/search
+container), then `.AppHeader-globalBar-end`, `.AppHeader-globalBar`, then
 `#user-links`, and on a renamed header into the row around the avatar; they
 lead the container, before GitHub's own buttons, sorted by `order`, and are
 re-mounted when GitHub swaps the header or a re-render drops one. Each button

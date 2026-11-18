@@ -528,7 +528,8 @@ report through it.
 `registerHeaderAction({ id, order, className, icon, label, onClick })` mounts
 one button into GitHub's header and returns `{ node, update(patch), remove() }`;
 `headerActionNode(id)` and `syncHeaderActions()` complete the API. `HEADER_TARGETS`
-is ordered most to least specific (`.AppHeader-globalBar-end`,
+is ordered most to least specific (`[data-testid="top-nav-center"]`, the
+header's breadcrumb/search container, then `.AppHeader-globalBar-end`,
 `.AppHeader-globalBar`, `#user-links`). When none matches, the registry falls
 back to the page's `header:not([data-marketing-header])` and uses the row
 around the signed-in avatar (found through `img.avatar`, an avatar test id, the
