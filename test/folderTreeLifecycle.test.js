@@ -206,6 +206,49 @@ test('an empty folder renders a note row', async () => {
   assert.equal(note.textContent, 'This folder is empty');
 });
 
+test('a failed commit-info request still expands the folder without dates', async () => {
+  installDom();
+  const { clearFolderCache } = await import('../src/features/folderTree/api.js');
+  clearFolderCache();
+  const { applyFolderTreeSettings } = await import('../src/features/folderTree/index.js');
+  installFetch((url) => {
+    if (url.includes('tree-commit-info')) return jsonResponse({}, 500);
+    return tree(childItems);
+  });
+  applyFolderTreeSettings();
+
+  click(folderToggle());
+  assert.ok(await waitFor(() => document.querySelectorAll('.gp-tree-row').length === 2));
+
+  const rows = document.querySelectorAll('.gp-tree-row');
+  assert.equal(rows[0].querySelector('a').getAttribute('href'), '/o/r/tree/main/src/utils');
+  assert.equal(rows[1].querySelector('a').getAttribute('href'), '/o/r/blob/main/src/index.js');
+  assert.equal(document.querySelector('.gp-tree-commit-link'), null);
+  assert.equal(document.querySelector('relative-time'), null);
+  assert.equal(folderToggle().getAttribute('aria-expanded'), 'true');
+  assert.equal(document.querySelector('.gp-toasts'), null);
+});
+
+test('a folder over the entry cap expands with a truncation note', async () => {
+  installDom();
+  const { clearFolderCache } = await import('../src/features/folderTree/api.js');
+  clearFolderCache();
+  const { applyFolderTreeSettings } = await import('../src/features/folderTree/index.js');
+  const items = Array.from({ length: 1000 }, (unused, index) => ({
+    name: `f${index}.js`,
+    path: `src/f${index}.js`,
+    contentType: 'file',
+  }));
+  installFetch(() => tree(items, 1200));
+  applyFolderTreeSettings();
+
+  click(folderToggle());
+  assert.ok(await waitFor(() => document.querySelectorAll('.gp-tree-row').length === 1000, 4000));
+  const note = document.querySelector('.gp-tree-note--truncated');
+  assert.ok(note);
+  assert.equal(note.textContent, 'Showing the first 1000 entries');
+});
+
 test('a failed folder request leaves the row collapsed', async () => {
   installDom();
   const { clearFolderCache } = await import('../src/features/folderTree/api.js');
