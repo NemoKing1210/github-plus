@@ -5,6 +5,7 @@ import { registerPage, togglePanel } from './panel.js';
 import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
 import { renderCommandPalette } from './tabs/commandPalette.js';
+import { renderCommits } from './tabs/commits.js';
 import { renderFiles } from './tabs/files.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
@@ -52,6 +53,14 @@ function registerPages() {
     labelKey: 'tab.files',
     descKey: 'tab.files.desc',
     render: renderFiles,
+  });
+  registerPage({
+    id: 'commits',
+    group: 'preferences',
+    icon: 'commit',
+    labelKey: 'tab.commits',
+    descKey: 'tab.commits.desc',
+    render: renderCommits,
   });
   registerPage({
     id: 'translate',
@@ -107,6 +116,7 @@ export function initSettingsFeature() {
   on('settings:fileAges', refreshUserMenuItem);
   on('settings:fileMeta', refreshUserMenuItem);
   on('settings:fileMenu', refreshUserMenuItem);
+  on('settings:commitBadges', refreshUserMenuItem);
   on('settings:translate', refreshUserMenuItem);
   on('settings:language', refreshUserMenuItem);
 }
