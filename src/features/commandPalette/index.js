@@ -23,7 +23,7 @@ import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
 import { ensureTree, fileCandidates, forgetTrees, treeKey } from './files.js';
 import { ensureIssues, forgetIssues, issueCandidates } from './issues.js';
-import { renderDetail } from './detail.js';
+import { renderExpansion } from './detail.js';
 import { navigate, runAction } from './actions.js';
 import {
   clearDataCache, isFresh, isRateBlocked, readPaletteState, readPins, readRecents, recordRecent,
@@ -54,7 +54,13 @@ function paletteLabels() {
     open: t('palette.open'),
     newTab: t('palette.newTab'),
     close: t('palette.close'),
-    noSelection: t('palette.noSelection'),
+    tip: t('palette.tip'),
+    tipScoped: t('palette.tipScoped'),
+    tipHelp: t('palette.tipHelp'),
+    hintOpen: t('palette.hint.open'),
+    hintScope: t('palette.hint.scope'),
+    hintExpand: t('palette.hint.expand'),
+    scopeRemove: t('palette.scope.remove'),
     rowMenu: t('palette.rowMenu'),
     badges: {
       pinned: t('palette.badge.pinned'),
@@ -66,6 +72,20 @@ function paletteLabels() {
       issue: t('palette.badge.issue'),
       pullRequest: t('palette.badge.pullRequest'),
     },
+  };
+}
+
+function paletteHelpLabels() {
+  return {
+    title: t('palette.help.title'),
+    prefixes: [
+      { key: '>', label: t('palette.help.prefix.commands') },
+      { key: '#', label: t('palette.help.prefix.issues') },
+      { key: '/', label: t('palette.help.prefix.files') },
+      { key: '@', label: t('palette.help.prefix.repos') },
+    ],
+    keys: t('palette.help.keys'),
+    close: t('palette.help.close'),
   };
 }
 
@@ -128,7 +148,8 @@ function hasPages(source) {
  */
 function snapshotCandidates(state) {
   const reposCold = !hasPages(state.cache?.sources?.repos) && !hasPages(state.cache?.sources?.starred);
-  const filesCold = fileCandidates(state).length === 0;
+  const scoped = state.scope?.repo;
+  const filesCold = fileCandidates(state, scoped ? { repo: scoped, ref: 'HEAD' } : {}).length === 0;
   const entries = [
     ...state.pins.map((entry) => ({ entry, badge: 'pinned' })),
     ...state.recents.map((entry) => ({ entry, badge: 'recent' })),
@@ -165,11 +186,12 @@ function dedupe(candidates) {
 }
 
 function buildCandidates(state) {
+  const scoped = state.scope?.repo;
   return markPinned(dedupe([
     ...commandCandidates(state),
     ...repoCandidates(state),
-    ...fileCandidates(state),
-    ...issueCandidates(state),
+    ...fileCandidates(state, scoped ? { repo: scoped, ref: 'HEAD' } : {}),
+    ...issueCandidates(state, scoped ? { repo: scoped } : {}),
     ...snapshotCandidates(state),
   ]), state.pinnedKeys);
 }
@@ -221,10 +243,11 @@ function settleLoad(result) {
   if (!paletteState) return;
   if (result?.status === 'error') {
     const status = result.error?.status;
-    paletteState.status = status === 401 || status === 403
+    paletteState.loadError = status === 401 || status === 403
       ? (result.error?.rateLimit ? 'rateLimited' : 'invalidToken')
       : 'offline';
-  } else {
+    paletteState.status = paletteState.loadError;
+  } else if (!paletteState.loadError) {
     paletteState.status = 'ready';
   }
   if (result?.truncated !== undefined) paletteState.treeIncomplete = Boolean(result.truncated);
@@ -240,21 +263,25 @@ function kickLoads() {
     sessionRefreshes.add('repos');
     tasks.push(ensureRepositories());
   }
-  if (state.settings.sources.files !== false && state.context.repo && state.context.ref) {
-    const key = `tree:${treeKey(state.context.repo, state.context.ref)}`;
+  const scoped = state.scope?.repo;
+  const treeRepo = scoped || state.context.repo;
+  const treeRef = scoped ? 'HEAD' : state.context.ref;
+  if (state.settings.sources.files !== false && treeRepo && treeRef) {
+    const key = `tree:${treeKey(treeRepo, treeRef)}`;
     if (!sessionRefreshes.has(key)) {
       sessionRefreshes.add(key);
-      tasks.push(ensureTree());
+      tasks.push(ensureTree({ repo: treeRepo, ref: treeRef }));
     }
   }
-  if (state.settings.sources.issues !== false && state.context.repo) {
-    const key = `issues:${state.context.repo}`;
+  if (state.settings.sources.issues !== false && treeRepo) {
+    const key = `issues:${treeRepo}`;
     if (!sessionRefreshes.has(key)) {
       sessionRefreshes.add(key);
-      tasks.push(ensureIssues());
+      tasks.push(ensureIssues({ repo: treeRepo }));
     }
   }
   if (!tasks.length) return;
+  state.loadError = null;
   state.status = 'loading';
   handle?.refresh();
   for (const task of tasks) {
@@ -336,6 +363,35 @@ function handleRowAction(actionId, item) {
   return undefined;
 }
 
+function handleScope(item) {
+  if (!paletteState || item?.kind !== 'repo') return false;
+  const repo = item.data?.fullName || item.title || '';
+  if (!repo) return false;
+  const [owner, name] = repo.split('/');
+  const label = name ? `${owner} / ${name}` : repo;
+  paletteState.scope = { repo };
+  handle?.setScope({ label, tip: t('palette.tipScoped', { repo }) });
+  handle?.setQuery('');
+  refreshView();
+  kickLoads();
+  return true;
+}
+
+function clearScope() {
+  if (!paletteState?.scope) return;
+  paletteState.scope = null;
+  handle?.setScope(null);
+  refreshView();
+}
+
+function copyActive(item) {
+  const text = copyTextFor(item);
+  if (!text) return;
+  runAction({ type: 'copy', text }, actionOptions()).catch((error) => {
+    log.error(Codes.PALETTE_LOAD, 'palette copy failed', { error });
+  });
+}
+
 /** Open the palette over the current page. */
 export function openPalette() {
   const settings = getCommandPaletteSettings();
@@ -348,27 +404,34 @@ export function openPalette() {
   state.recentKeys = state.settings.sources.recent ? state.recents.map((entry) => entry.key) : [];
   state.status = isRateBlocked(state.cache) ? 'rateLimited' : 'ready';
   state.treeIncomplete = false;
+  state.loadError = null;
+  state.scope = null;
   state.candidates = buildCandidates(state);
   paletteState = state;
 
   handle = openCommandPalette({
     labels: paletteLabels(),
-    showDetails: state.settings.showDetails,
+    scope: null,
+    help: paletteHelpLabels(),
     search: (query) => ({
       ...searchPalette(state, query, {
         pinned: t('palette.group.pinned'),
         recent: t('palette.group.recent'),
+        top: t('palette.group.top'),
       }),
       status: state.status === 'loading' ? 'loading' : 'ready',
       note: noteFor(state),
     }),
-    renderDetail: (item) => renderDetail(item, {
+    renderExpansion: (item) => renderExpansion(item, {
       labels: detailLabels(),
       pinned: Boolean(paletteState?.pinnedKeys.includes(item.key)),
       onAction: handleRowAction,
     }),
     onSelect,
     onPin,
+    onScope: handleScope,
+    onClearScope: clearScope,
+    onCopy: copyActive,
     onContextMenu: (item, position) => openContextMenu({
       ...position,
       label: item.title || '',

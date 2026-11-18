@@ -1,6 +1,6 @@
 /**
- * Details pane content for one palette row. The shell supplies every visible
- * string through `labels`; this module only arranges it.
+ * Inline expansion content for one palette row. The shell supplies every
+ * visible string through `labels`; this module only arranges it.
  */
 
 import { el } from '../../utils/dom.js';
@@ -147,8 +147,8 @@ function renderIssue(item, labels, onAction) {
   return root;
 }
 
-/** Render the aside for a repo, file, issue or command row; null for anything else. */
-export function renderDetail(item, { labels = {}, onAction, pinned } = {}) {
+/** Render the expansion block for a repo, file, issue or command row; null otherwise. */
+export function renderExpansion(item, { labels = {}, onAction, pinned } = {}) {
   if (!item) return null;
   const isPinned = pinned ?? Boolean(item.snapshot?.pinned);
   if (item.kind === 'repo') return renderRepo(item, labels, onAction, isPinned);

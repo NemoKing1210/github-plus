@@ -56,9 +56,12 @@ function buildShell(labels) {
 
   const tip = el('div', 'gp-command__tip');
   const tipText = el('span', 'gp-command__tip-text', labels.tip || '');
+  const tipHelp = el('button', 'gp-command__tip-help', labels.tipHelp || '');
+  tipHelp.type = 'button';
+  tipHelp.hidden = !labels.tipHelp;
   const note = el('span', 'gp-command__tip-note');
   const bar = el('div', 'gp-command__bar');
-  tip.append(tipText, note, bar);
+  tip.append(tipText, tipHelp, note, bar);
 
   const empty = el('div', 'gp-command__empty');
   empty.hidden = true;
@@ -75,7 +78,7 @@ function buildShell(labels) {
 
   dialog.append(top, main, tip, empty);
   root.append(dialog, announcer);
-  return { root, dialog, field, input, list, tip, tipText, note, empty, announcer, bar };
+  return { root, dialog, field, input, list, tip, tipText, tipHelp, note, empty, announcer, bar };
 }
 
 function renderScope(current) {
@@ -85,7 +88,8 @@ function renderScope(current) {
   if (!current.scope) return;
   const chip = el('button', 'gp-command__scope');
   chip.type = 'button';
-  chip.setAttribute('aria-label', current.labels.scopeRemove || String(current.scope.label || ''));
+  chip.setAttribute('aria-label', String(current.labels.scopeRemove || '')
+    .replace('{repo}', String(current.scope.label || '')));
   chip.append(el('span', 'gp-command__scope-label', current.scope.label || ''));
   const clear = el('span', 'gp-command__scope-close');
   clear.innerHTML = PALETTE_ICONS.close;
@@ -114,9 +118,15 @@ function toggleHelp(current) {
     row.append(el('kbd', 'gp-command__help-key', key), el('span', 'gp-command__help-label', label));
     help.appendChild(row);
   };
-  for (const prefix of current.help.prefixes || []) addRow(prefix.key, prefix.label);
+  for (const prefix of current.help.prefixes || []) {
+    help.appendChild(el('div', 'gp-command__help-prefix', prefix.label));
+  }
   if (current.help.close) addRow('Esc', current.help.close);
-  for (const entry of current.help.keys || []) addRow(entry.key, entry.label);
+  if (Array.isArray(current.help.keys)) {
+    for (const entry of current.help.keys) addRow(entry.key, entry.label);
+  } else if (current.help.keys) {
+    help.appendChild(el('div', 'gp-command__help-keys', current.help.keys));
+  }
   current.dialog.appendChild(help);
   current.helpNode = help;
 }
@@ -567,6 +577,9 @@ export function openCommandPalette({
     debounceTimer: null,
   };
 
+  node.tipHelp.addEventListener('click', () => {
+    if (state) toggleHelp(state);
+  });
   node.input.addEventListener('input', onInput);
   node.list.addEventListener('pointermove', onPointerMove);
   node.list.addEventListener('click', onClick);
