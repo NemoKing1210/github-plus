@@ -261,22 +261,6 @@ function filtersSection(draft) {
   return section;
 }
 
-function appearanceSection(draft) {
-  const section = createSection({
-    title: t('palette.appearance'),
-    hint: t('palette.appearanceDesc'),
-  });
-  section.body.appendChild(createSwitchRow({
-    checked: draft.commandPalette.showDetails,
-    label: t('palette.showDetails'),
-    hint: t('palette.showDetailsDesc'),
-    onChange: (value) => {
-      draft.commandPalette.showDetails = value;
-    },
-  }));
-  return section;
-}
-
 function cacheSection(draft) {
   const section = createSection({
     title: t('palette.cache'),
@@ -313,14 +297,13 @@ function cacheSection(draft) {
   return section;
 }
 
-/** Command palette page: activation, access, sources, filters, appearance, cache. */
+/** Command palette page: activation, access, sources, filters, cache. */
 export function renderCommandPalette(container, draft = getDraft()) {
   container.append(
     activationSection(draft),
     accessSection(draft),
     sourcesSection(draft),
     filtersSection(draft),
-    appearanceSection(draft),
     cacheSection(draft),
   );
 }

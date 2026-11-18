@@ -12,7 +12,6 @@ test('command palette defaults', async () => {
     sources: { commands: true, repositories: true, starred: true, files: true, issues: true, recent: true },
     hideForks: false,
     hideArchived: false,
-    showDetails: true,
     cacheHours: 6,
     maxResults: 30,
   });
@@ -62,4 +61,13 @@ test('a custom shortcut is accepted and nonsense falls back', async () => {
   assert.equal(normalizeCommandPalette({ shortcut: ' Mod+Shift+K ' }, defaults).shortcut, 'mod+shift+k');
   assert.equal(normalizeCommandPalette({ shortcut: 'k' }, defaults).shortcut, 'mod+k');
   assert.equal(normalizeCommandPalette({ shortcut: 'hyper+k' }, defaults).shortcut, 'mod+k');
+});
+
+test('showDetails is gone from defaults and dropped from stored settings', async () => {
+  const { getDefaults } = await import('../src/core/constants.js');
+  const { normalizeImportedSettings } = await import('../src/core/settings.js');
+  const defaults = getDefaults().commandPalette;
+  assert.equal('showDetails' in defaults, false);
+  const normalized = normalizeImportedSettings({ commandPalette: { showDetails: false } });
+  assert.equal('showDetails' in normalized.commandPalette, false);
 });

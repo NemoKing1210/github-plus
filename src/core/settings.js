@@ -256,7 +256,6 @@ export function normalizeCommandPalette(raw, fallback) {
     sources: normalizeSources(source.sources, fallback.sources),
     hideForks: normalizeBoolean(source.hideForks, fallback.hideForks),
     hideArchived: normalizeBoolean(source.hideArchived, fallback.hideArchived),
-    showDetails: normalizeBoolean(source.showDetails, fallback.showDetails),
     cacheHours: normalizeClamp(source.cacheHours, 0, COMMAND_PALETTE_CACHE_HOURS_MAX, fallback.cacheHours),
     maxResults: normalizeClamp(
       source.maxResults,

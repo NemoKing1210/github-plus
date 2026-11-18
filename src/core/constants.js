@@ -305,7 +305,6 @@ const DEFAULT_COMMAND_PALETTE = {
   },
   hideForks: false,
   hideArchived: false,
-  showDetails: true,
   cacheHours: 6,
   maxResults: 30,
 };
