@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -14,7 +14,7 @@ with one-click downloads, a context menu for file actions, a quick preview for
 any file, Conventional Commit badges on commit subjects, and on-page
 translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.29.1`). Settings panel with instant search (General ·
+> **Status:** early (`0.29.2`). Settings panel with instant search (General ·
 > Gallery · Files · Commits · Translation · Palette · Backup · About), a
 > `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style

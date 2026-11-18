@@ -6,12 +6,43 @@
 
 import { isOwnUi } from '../../utils/dom.js';
 
-function closestCommitAnchors(container) {
+/** A subject is never a bare hex hash; the short-SHA links are. */
+function isShaText(text) {
+  return /^[0-9a-f]{7,40}$/i.test(text.trim());
+}
+
+function subjectAnchor(scope) {
+  const anchors = scope.querySelectorAll('a[href*="/commit/"]');
+  for (let i = 0; i < anchors.length; i += 1) {
+    if (!isShaText(anchors[i].textContent)) return anchors[i];
+  }
+  return null;
+}
+
+/**
+ * The commit list row also carries its short SHA as a commit link inside a
+ * button control, so the subject is resolved from the heading first and from
+ * any non-button anchor only as a fallback.
+ */
+function listTitle(row) {
+  const heading = row.querySelector('h4 a[href*="/commit/"]');
+  if (heading) return heading;
+  const anchors = row.querySelectorAll('a[href*="/commit/"]');
+  for (let i = 0; i < anchors.length; i += 1) {
+    const anchor = anchors[i];
+    if (!anchor.closest('[data-component="Button"], button')) return anchor;
+  }
+  return null;
+}
+
+/**
+ * Older repository-home markup exposes only the details block, which holds the
+ * short SHA; a subject link in a nearby ancestor is the reliable hook.
+ */
+function nearestSubjectAnchor(container) {
   let scope = container;
   for (let depth = 0; depth < 5 && scope; depth += 1) {
-    const anchor =
-      scope.querySelector('a[href*="/commit/"].Link--secondary') ||
-      scope.querySelector('a[href*="/commit/"]');
+    const anchor = subjectAnchor(scope);
     if (anchor) return anchor;
     scope = scope.parentElement;
   }
@@ -23,7 +54,7 @@ export const SURFACES = [
     id: 'commit-list',
     containers: ['[data-listview-component="items-list"]'],
     rows: '[data-testid="commit-row-item"]',
-    titleFor: (row) => row.querySelector('a[href*="/commit/"] > span'),
+    titleFor: (row) => listTitle(row),
     skip: (node) => isOwnUi(node),
   },
   {
@@ -44,10 +75,11 @@ export const SURFACES = [
   },
   {
     id: 'latest-commit',
-    containers: ['[data-testid="latest-commit-details"]'],
-    // The block is rendered from a React endpoint after the page shell; the
-    // nearest ancestor that also holds a commit link is the reliable hook.
-    titleFor: (container) => closestCommitAnchors(container),
+    containers: ['[data-testid="latest-commit-html"]', '[data-testid="latest-commit-details"]'],
+    titleFor: (container) =>
+      container.matches('[data-testid="latest-commit-html"]')
+        ? container.querySelector('a[href*="/commit/"]') || container
+        : nearestSubjectAnchor(container),
     skip: (node) => isOwnUi(node),
   },
 ];

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.2] - 2026-11-18
+
+### Fixed
+
+- Commit badges appear on the commit history and the repository home again:
+  GitHub's current markup keeps the subject link in the latest-commit block's
+  own element and the short SHA in a button control, so the selectors now
+  resolve the subject and leave every short-SHA link plain
+
+[0.29.2]: https://github.com/NemoKing1210/github-plus/compare/v0.29.1...v0.29.2
+
 ## [0.29.1] - 2026-11-18
 
 ### Fixed

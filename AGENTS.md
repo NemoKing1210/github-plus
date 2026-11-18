@@ -1035,14 +1035,16 @@ subject byte for byte.
   lifecycle uses before unwrapping.
 - `surfaces.js`: the registry. `commit-list`
   (`[data-listview-component="items-list"]`, rows
-  `[data-testid="commit-row-item"]`, title = the span inside the row's
-  `a[href*="/commit/"]`), `commit-page`
-  (`[class*="commitMessageContainer"]`), `classic-commit`
-  (`[data-testid="commit-message"]`, `.commit-title`) and `latest-commit`
-  (`[data-testid="latest-commit-details"]`, the nearest commit link found while
-  walking up a few ancestors). Each surface declares `containers`, `rows` and
-  `titleFor(row)`; a selector that stops matching turns its surface into a
-  no-op and never affects the others.
+  `[data-testid="commit-row-item"]`, title = the `h4` commit anchor; the row's
+  short SHA is a commit link inside a `[data-component="Button"]` control and
+  is skipped), `commit-page` (`[class*="commitMessageContainer"]`),
+  `classic-commit` (`[data-testid="commit-message"]`, `.commit-title`) and
+  `latest-commit` (`[data-testid="latest-commit-html"]`, with
+  `[data-testid="latest-commit-details"]` as the older fallback: its own
+  commit link is the short SHA, so the title is the nearest non-hash commit
+  anchor while walking up a few ancestors). Each surface declares
+  `containers`, `rows` and `titleFor(row)`; a selector that stops matching
+  turns its surface into a no-op and never affects the others.
 - `index.js`: one observer per surface container (`childList`, `subtree`,
   `characterData` — GitHub recycles commit rows in place), the same shell
   watchers (`<html>`/`<body>` direct children) and bounded settle wait as the
@@ -1504,7 +1506,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 408
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 417
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 

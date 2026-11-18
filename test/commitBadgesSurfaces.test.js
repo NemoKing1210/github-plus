@@ -3,13 +3,20 @@ import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 
 const list = `<ul data-listview-component="items-list"><li data-testid="commit-row-item">
-  <h4><a href="/o/r/commit/abc"><span id="list-title">style(palette): x</span></a></h4></li></ul>`;
+  <h4><span class="prc-Text-Text-9mHv3"><a id="list-title" data-pjax href="/o/r/commit/abc">style(palette): x</a></span></h4>
+  <a data-component="Button" href="/o/r/commit/abc"><span data-component="buttonContent"><span
+    class="prc-Button-Label" id="list-sha">abc1234</span></span></a></li></ul>`;
 
 const classic = `<div data-testid="commit-message"><span class="commit-title" id="classic-title">fix: x</span>
   <div class="commit-desc">body</div></div>`;
 
-const latest = `<div><div data-testid="latest-commit-details"></div>
-  <div><a class="Link--secondary" href="/o/r/commit/abc" id="latest-title">chore(deps): x</a></div>
+const latest = `<div class="d-flex">
+  <div class="Truncate flex-items-center f5"><span class="Truncate-text prc-Text-Text-9mHv3"
+    data-testid="latest-commit-html"><a id="latest-title" data-pjax class="Link--secondary"
+    href="/o/r/commit/abc">chore(deps): x</a></span></div>
+  <div data-testid="latest-commit-details" class="d-none d-sm-flex"><span class="d-flex flex-nowrap fgColor-muted f6"><a
+    class="Link--secondary prc-Link-Link-9ZwDx" data-component="Link" aria-label="Commit abc1234"
+    href="/o/r/commit/abc">abc1234</a>&nbsp;·</span></div>
   <a href="/o/r/commits/main/">History</a></div>`;
 
 const dom = new JSDOM(`<!doctype html><html><body>${list}${classic}${latest}</body></html>`, {
@@ -47,7 +54,7 @@ function commitPageFixture() {
   return container;
 }
 
-test('the commit list resolves the subject span in a row', () => {
+test('the commit list resolves the subject link, never the short-SHA button', () => {
   const found = surface('commit-list');
   assert.deepEqual(found.containers, ['[data-listview-component="items-list"]']);
   assert.equal(found.rows, '[data-testid="commit-row-item"]');
@@ -70,8 +77,14 @@ test('the classic view resolves its title element', () => {
   assert.equal(found.titleFor(container).id, 'classic-title');
 });
 
-test('the latest commit block resolves the subject link, not the history link', () => {
+test('the latest commit block resolves its subject, not the short SHA', () => {
   const found = surface('latest-commit');
+  assert.ok(found.containers.includes('[data-testid="latest-commit-html"]'));
+  const subject = document.querySelector('[data-testid="latest-commit-html"]');
+  assert.equal(found.titleFor(subject).id, 'latest-title');
+
+  // Older markup offers only the details block, whose own commit link is the
+  // short SHA; the walk must skip it and find the subject.
   const details = document.querySelector('[data-testid="latest-commit-details"]');
   assert.equal(found.titleFor(details).id, 'latest-title');
 });

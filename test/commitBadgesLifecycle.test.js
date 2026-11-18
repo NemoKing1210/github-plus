@@ -3,13 +3,20 @@ import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 
 const list = `<ul data-listview-component="items-list"><li data-testid="commit-row-item">
-  <h4><a href="/o/r/commit/abc"><span id="list-title">style(palette): x</span></a></h4></li></ul>`;
+  <h4><span class="prc-Text-Text-9mHv3"><a id="list-title" data-pjax href="/o/r/commit/abc">style(palette): x</a></span></h4>
+  <a data-component="Button" href="/o/r/commit/abc"><span data-component="buttonContent"><span
+    class="prc-Button-Label" id="list-sha">abc1234</span></span></a></li></ul>`;
 
 const classic = `<div data-testid="commit-message"><span class="commit-title" id="classic-title">fix: x</span>
   <div class="commit-desc">body</div></div>`;
 
-const latest = `<div><div data-testid="latest-commit-details"></div>
-  <div><a class="Link--secondary" href="/o/r/commit/abc" id="latest-title">chore(deps): x</a></div>
+const latest = `<div class="d-flex">
+  <div class="Truncate flex-items-center f5"><span class="Truncate-text prc-Text-Text-9mHv3"
+    data-testid="latest-commit-html"><a id="latest-title" data-pjax class="Link--secondary"
+    href="/o/r/commit/abc">chore(deps): x</a></span></div>
+  <div data-testid="latest-commit-details" class="d-none d-sm-flex"><span class="d-flex flex-nowrap fgColor-muted f6"><a
+    class="Link--secondary prc-Link-Link-9ZwDx" data-component="Link" aria-label="Commit abc1234"
+    href="/o/r/commit/abc" id="latest-sha">abc1234</a>&nbsp;·</span></div>
   <a href="/o/r/commits/main/">History</a></div>`;
 
 const dom = new JSDOM(`<!doctype html><html><body>${list}${classic}${latest}</body></html>`, {
@@ -58,6 +65,10 @@ test('every surface is decorated on apply', () => {
   assert.ok(document.querySelector('#page-title .gp-commit-type--feat'));
   assert.ok(document.querySelector('#classic-title .gp-commit-type--fix'));
   assert.ok(document.querySelector('#latest-title .gp-commit-type--chore'));
+  assert.equal(document.querySelectorAll('#latest-title .gp-commit-prefix').length, 1);
+  // The rows' short-SHA links are commit links too and must stay plain.
+  assert.equal(document.querySelector('#list-sha .gp-commit-prefix'), null);
+  assert.equal(document.querySelector('#latest-sha .gp-commit-prefix'), null);
 });
 
 test('disabling removes every badge and restores the text', () => {
