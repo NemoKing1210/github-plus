@@ -5,17 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
-컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
+컨텍스트 메뉴, 모든 파일의 빠른 미리보기, Conventional Commits 커밋 배지, 페이지
+번역을 제공합니다.
 
-> **상태:** 초기(`0.28.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
-> 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
-> 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
-> 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
+> **상태:** 초기(`0.29.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
+> 번역 · 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
+> 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일
+> 컨텍스트 메뉴, 파일 빠른 미리보기, 커밋 배지, 페이지 번역. 더 많은 GitHub 개선이
+> 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
@@ -195,6 +197,23 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
   강조에도 상한이 있어 거대한 파일이 탭을 멈추지 않습니다. 한도를 넘으면 카드에서
   GitHub와 원본 파일로 이동할 수 있습니다.
 
+### 커밋 배지
+
+Conventional Commits 형식의 커밋 제목은 `type(scope):` 접두사를 페이지에서 하나의
+라벨로 보여 줍니다.
+
+- **하나의 두 색 라벨** — 유형은 색상 세그먼트에, 범위는 차분한 세그먼트에 담겨
+  하나의 둥근 윤곽을 이루고 뒤에 차분한 콜론이 붙습니다. `fix(parser): handle
+  empty input` 을 한눈에 읽을 수 있으며 제목 텍스트는 한 글자도 바뀌지 않습니다.
+- **종류별 색상, 나머지는 정직하게** — `feat`, `fix`, `docs`, `style`,
+  `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert` 는 각자의 색을
+  가지며, 그 밖의 소문자 유형은 중립 색을 받습니다(꾸미지 않게 할 수도 있음).
+  `!` 접두사에는 호환되지 않는 변경을 뜻하는 빨간 표시가 붙습니다.
+- **GitHub가 제목을 보여 주는 모든 곳** — 커밋 기록, 풀 리퀘스트의 **Commits**
+  탭, 단일 커밋 페이지, 리포지토리 홈의 최신 커밋 블록, 클래식 커밋 보기.
+  텍스트가 그대로이므로 복사, 검색, 번역이 이전과 똑같이 동작하고, 기능을 끄면
+  GitHub의 원래 표시로 돌아갑니다.
+
 ### 번역
 
 마크업을 망가뜨리지 않고 페이지 텍스트를 번역합니다 — README, 이슈나 토론,
@@ -317,6 +336,9 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 | `filePreview.longPress` | `true` | 파일 이름이나 Markdown 파일 링크를 마우스 왼쪽 버튼으로 길게 눌러 미리보기 열기 |
 | `filePreview.longPressMs` | `450` | 미리보기가 열릴 때까지 길게 누르는 시간(밀리초, 200–2000) |
 | `filePreview.longPressRing` | `true` | 누르는 동안 포인터 위치에 표시되는 진행 원 |
+| `commitBadges.enabled` | `true` | Conventional Commits 배지의 기본 스위치 |
+| `commitBadges.unknownTypes` | `true` | 관례적인 집합 밖의 소문자 유형도 꾸미기 |
+| `commitBadges.breaking` | `true` | `!` 가 붙은 호환되지 않는 변경 접두사에 빨간 표시 |
 | `translate.enabled` | `true` | 페이지 번역 마스터 스위치 |
 | `translate.provider` | `'google'` | `google`(무료), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | 제공업체별 | 제공업체별 자격 증명과 엔드포인트(API 키, 지역, 폴더, 모델, URL) |

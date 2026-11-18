@@ -5,21 +5,22 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
 wszędzie tam, gdzie GitHub wyświetla pliki, kolory wieku tych plików w stylu
 blame, rozmiary plików i pobieranie jednym kliknięciem, menu kontekstowe
-operacji na plikach, szybki podgląd dowolnego pliku i tłumaczenie treści na
-stronie.
+operacji na plikach, szybki podgląd dowolnego pliku, odznaki Conventional Commits
+i tłumaczenie treści na stronie.
 
-> **Status:** wczesny etap (`0.28.0`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Paleta · Kopia
+> **Status:** wczesny etap (`0.29.0`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Pliki · Commity · Tłumaczenie · Paleta · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary plików
-> z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików
-> i tłumaczenie treści strony. W planach kolejne ulepszenia GitHuba.
+> z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików,
+> odznaki commitów i tłumaczenie treści strony. W planach kolejne ulepszenia
+> GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
@@ -220,6 +221,26 @@ kontekstowym pliku:
   ma limit, aby ogromny plik nie zawiesił karty; powyżej limitu karta prowadzi do
   GitHuba i surowego pliku.
 
+### Odznaki commitów
+
+Tytuły w stylu Conventional Commits pokazują prefiks `type(scope):` jako jedną
+etykietę na stronie:
+
+- **Jedna dwukolorowa etykieta** — typ w kolorowym segmencie, a zakres w
+  stonowanym, razem w jednym zaokrąglonym obrysie, po którym następuje stonowany
+  dwukropek: `fix(parser): handle empty input` czyta się na pierwszy rzut oka,
+  a tekst tytułu nie zmienia się ani o znak.
+- **Kolor według rodzaju, uczciwie wobec reszty** — `feat`, `fix`, `docs`,
+  `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore` i `revert` mają
+  własne kolory; pozostałe małe litery typów dostają neutralny (można je też
+  zostawić bez ozdób), a prefiks z `!` pokazuje czerwony znacznik zmiany
+  niekompatybilnej.
+- **Wszędzie, gdzie GitHub pokazuje tytuł** — historia commitów, karta
+  **Commits** pull requesta, strona pojedynczego commita, blok ostatniego
+  commita na stronie głównej repozytorium i klasyczne widoki commitów. Tekst
+  pozostaje bez zmian, więc kopiowanie, wyszukiwanie i tłumaczenie działają jak
+  dotąd, a wyłączenie funkcji przywraca wygląd GitHuba.
+
 ### Tłumaczenie
 
 Tłumacz tekst strony bez utraty znaczników — README, zgłoszenie lub dyskusję,
@@ -358,6 +379,9 @@ Przechowywane pod `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Otwieraj podgląd po przytrzymaniu lewego przycisku myszy na nazwie pliku lub linku Markdown |
 | `filePreview.longPressMs` | `450` | Czas przytrzymania w ms do otwarcia podglądu (200–2000) |
 | `filePreview.longPressRing` | `true` | Okrąg postępu przy wskaźniku podczas przytrzymania |
+| `commitBadges.enabled` | `true` | Główny przełącznik odznak Conventional Commits |
+| `commitBadges.unknownTypes` | `true` | Stylizuj także małe litery typów spoza konwencjonalnego zestawu |
+| `commitBadges.breaking` | `true` | Czerwony znacznik dla prefiksu `!` (zmiana niekompatybilna) |
 | `translate.enabled` | `true` | Główny przełącznik tłumaczenia strony |
 | `translate.provider` | `'google'` | `google` (darmowy), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | zależnie od usługi | Dane dostępowe i punkt końcowy usługi (klucz API, region, folder, model, URL) |

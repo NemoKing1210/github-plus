@@ -5,21 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
 ファイルを一覧するあらゆる場所でのカラー ファイル アイコン、それらのファイルの
 blame 風の経過日数カラー、ファイルサイズとワンクリック ダウンロード、ファイル操作
-用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
-翻訳を提供します。
+用のコンテキスト メニュー、任意のファイルのクイックプレビュー、Conventional
+Commits のコミット バッジ、ページ内テキストの翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.28.0`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
+> **ステータス:** 初期段階（`0.29.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル · コミット · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
-> コンテキスト メニュー、ファイルのクイックプレビュー、ページ内翻訳。今後さらに
-> GitHub の改善を追加予定です。
+> コンテキスト メニュー、ファイルのクイックプレビュー、コミット バッジ、ページ内
+> 翻訳。今後さらに GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -209,6 +209,25 @@ GitHub Plus はその両方をファイルの行に追加します:
   ハイライトにも上限があり、巨大なファイルでタブが固まりません。上限を超えると、
   カードから GitHub と生ファイルへ移動できます。
 
+### コミット バッジ
+
+Conventional Commits 形式のコミット件名では、`type(scope):` プレフィックスが
+1 つのラベルとしてページに表示されます。
+
+- **2 トーンの 1 つのラベル** — 型は色付きのセグメント、スコープは控えめな
+  セグメントで、1 つの角丸の輪郭に収まり、その後に控えめなコロンが続きます。
+  `fix(parser): handle empty input` がひと目で読め、件名の文字は 1 文字も
+  変わりません。
+- **種類ごとの色、それ以外には誠実に** — `feat`、`fix`、`docs`、`style`、
+  `refactor`、`perf`、`test`、`build`、`ci`、`chore`、`revert` にはそれぞれ
+  専用の色があり、それ以外の小文字の型は中立色になります (装飾しないことも
+  できます)。`!` 付きのプレフィックスには破壊的変更の赤いマーカーが付きます。
+- **GitHub が件名を表示するすべての場所** — コミット履歴、プルリクエストの
+  **Commits** タブ、単一コミットのページ、リポジトリ ホームの最新コミット
+  ブロック、クラシックなコミット ビュー。テキストは変わらないため、コピー、
+  検索、翻訳はこれまでどおりに機能し、機能をオフにすると GitHub 本来の表示に
+  戻ります。
+
 ### 翻訳
 
 ページのテキストをマークアップを壊さずに翻訳します — README、Issue や
@@ -337,6 +356,9 @@ GitHub Plus はその両方をファイルの行に追加します:
 | `filePreview.longPress` | `true` | ファイル名または Markdown のファイル リンクをマウスの左ボタンで長押ししてプレビューを開く |
 | `filePreview.longPressMs` | `450` | プレビューが開くまでの長押し時間（ミリ秒、200–2000） |
 | `filePreview.longPressRing` | `true` | 長押し中にポインター位置へ表示する進行サークル |
+| `commitBadges.enabled` | `true` | Conventional Commits バッジのメイン スイッチ |
+| `commitBadges.unknownTypes` | `true` | 慣例的なセット以外の小文字の型にもスタイルを適用 |
+| `commitBadges.breaking` | `true` | `!` 付きの破壊的変更プレフィックスに赤いマーカーを表示 |
 | `translate.enabled` | `true` | ページ翻訳のマスター スイッチ |
 | `translate.provider` | `'google'` | `google`（無料）、`deepl`、`microsoft`、`yandex`、`openai`、`libretranslate` |
 | `translate.providerConfig.<id>` | プロバイダーごと | プロバイダー別の認証情報とエンドポイント（API キー、リージョン、フォルダー、モデル、URL） |

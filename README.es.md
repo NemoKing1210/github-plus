@@ -5,22 +5,23 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
 iconos de archivo en color allí donde GitHub lista archivos, colores de
 antigüedad al estilo blame para esos archivos, tamaños de archivo con descargas
 en un clic, un menú contextual para acciones de archivo, una vista rápida de
-cualquier archivo y traducción del contenido de la página.
+cualquier archivo, insignias de Conventional Commits y traducción del contenido
+de la página.
 
-> **Estado:** temprano (`0.28.0`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Archivos · Traducción · Paleta · Copia de seguridad ·
-> Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de imágenes de
-> markdown, los iconos de archivo en color, los colores de antigüedad al estilo
-> blame, los tamaños de archivo con botones de descarga, un menú contextual de
-> archivos, una vista rápida de archivos y traducción de la página. Hay más
-> mejoras de GitHub planificadas.
+> **Estado:** temprano (`0.29.0`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Archivos · Commits · Traducción · Paleta · Copia de
+> seguridad · Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de
+> imágenes de markdown, los iconos de archivo en color, los colores de
+> antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
+> menú contextual de archivos, una vista rápida de archivos, insignias de commit
+> y traducción de la página. Hay más mejoras de GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -234,6 +235,26 @@ previa** en el menú contextual del archivo:
   resaltado tiene un tope para que un archivo enorme no congele la pestaña; por
   encima del límite, la tarjeta lleva a GitHub y al archivo sin formato.
 
+### Insignias de commit
+
+Los asuntos de Conventional Commits muestran su prefijo `type(scope):` como una
+sola etiqueta en la página:
+
+- **Una etiqueta de dos tonos** — el tipo en un segmento de color y el ámbito en
+  uno atenuado dentro de un mismo contorno redondeado, con los dos puntos
+  atenuados después, así que `fix(parser): handle empty input` se lee de un
+  vistazo sin cambiar ni un carácter del asunto.
+- **Color por tipo, honestidad con el resto** — `feat`, `fix`, `docs`, `style`,
+  `refactor`, `perf`, `test`, `build`, `ci`, `chore` y `revert` tienen cada uno
+  su color; los demás tipos en minúsculas reciben uno neutro (y pueden quedarse
+  sin decorar), y un prefijo con `!` muestra un marcador rojo de cambio
+  incompatible.
+- **Dondequiera que GitHub muestre un asunto** — el historial de commits, la
+  pestaña **Commits** de una pull request, la página de un commit suelto, el
+  bloque del último commit en la portada del repositorio y las vistas clásicas
+  de commits. El texto no cambia, así que copiar, buscar y traducir funcionan
+  igual que antes, y desactivar la función restaura el aspecto propio de GitHub.
+
 ### Traducción
 
 Traduce el texto de una página sin perder su marcado — un README, un issue o
@@ -374,6 +395,9 @@ Se guardan en `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Mantener el botón izquierdo sobre un nombre de archivo o un enlace de markdown para abrir la vista previa |
 | `filePreview.longPressMs` | `450` | Tiempo de pulsación en ms antes de abrir la vista previa (200–2000) |
 | `filePreview.longPressRing` | `true` | Círculo de progreso junto al puntero mientras se mantiene |
+| `commitBadges.enabled` | `true` | Interruptor principal de las insignias de Conventional Commits |
+| `commitBadges.unknownTypes` | `true` | Dar estilo también a los tipos en minúsculas fuera del conjunto convencional |
+| `commitBadges.breaking` | `true` | Marcador rojo para un prefijo `!` de cambio incompatible |
 | `translate.enabled` | `true` | Interruptor principal de la traducción en la página |
 | `translate.provider` | `'google'` | `google` (gratuito), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | según el proveedor | Credenciales y endpoint por proveedor (clave API, región, carpeta, modelo, URL) |

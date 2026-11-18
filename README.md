@@ -5,19 +5,22 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
 wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
-any file, and on-page translation of markdown, comments, commits and titles.
+any file, Conventional Commit badges on commit subjects, and on-page
+translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.28.0`). Settings panel with instant search (General ·
-> Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
+> **Status:** early (`0.29.0`). Settings panel with instant search (General ·
+> Gallery · Files · Commits · Translation · Palette · Backup · About), a
+> `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
-> quick file preview, and on-page translation. More GitHub improvements
+> quick file preview, Conventional Commit badges, and on-page translation. More
+> GitHub improvements
 > planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
@@ -211,6 +214,25 @@ context menu:
   highlighting capped so a huge file cannot freeze the tab; over the limit the
   card points at GitHub and the raw file.
 
+### Commit badges
+
+Conventional Commit subjects get their `type(scope):` prefix rendered as a
+single token on the page:
+
+- **One two-tone token** — the type sits in a colored segment and the scope in
+  a muted one inside one rounded outline, with a muted colon after it, so
+  `fix(parser): handle empty input` reads at a glance without changing a
+  character of the subject.
+- **Colored by kind, honest about the rest** — `feat`, `fix`, `docs`, `style`,
+  `refactor`, `perf`, `test`, `build`, `ci`, `chore` and `revert` each get their
+  own color; other lowercase types get a neutral one (and can be left plain),
+  and a `!` prefix shows a red breaking-change marker.
+- **Everywhere GitHub shows a subject** — the commit history, a pull request's
+  **Commits** tab, the single-commit page, the repository home's latest-commit
+  block and the classic commit views. The text is unchanged, so copy, search
+  and translation behave exactly as before, and turning the feature off
+  restores GitHub's own rendering.
+
 ### Translation
 
 Translate the text a page shows without losing its markup — a README, an
@@ -347,6 +369,9 @@ Stored under `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
 | `filePreview.longPressMs` | `450` | Hold time in ms before the preview opens (200–2000) |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
+| `commitBadges.enabled` | `true` | Master switch for Conventional Commit badges |
+| `commitBadges.unknownTypes` | `true` | Style lowercase types outside the conventional set too |
+| `commitBadges.breaking` | `true` | Red marker for a `!` breaking-change prefix |
 | `translate.enabled` | `true` | Master switch for on-page translation |
 | `translate.provider` | `'google'` | `google` (free), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | per provider | Credentials and endpoint per provider (API key, region, folder, model, URL) |

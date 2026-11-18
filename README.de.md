@@ -5,21 +5,22 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
 farbige Dateisymbole überall dort, wo GitHub Dateien auflistet, Altersfarben im
 Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
-Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
-Übersetzung von Seiteninhalten.
+Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei,
+Commit-Badges nach Conventional Commits und die Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.28.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
+> **Status:** früh (`0.29.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateien · Commits · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
-> Download-Schaltflächen, ein Dateikontextmenü, eine Schnellvorschau für Dateien und die
-> Übersetzung von Seiteninhalten. Weitere GitHub-Verbesserungen sind geplant.
+> Download-Schaltflächen, ein Dateikontextmenü, eine Schnellvorschau für Dateien,
+> Commit-Badges und die Übersetzung von Seiteninhalten. Weitere
+> GitHub-Verbesserungen sind geplant.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
@@ -230,6 +231,27 @@ Markdown oder über **Vorschau** im Dateikontextmenü:
   Hervorhebung ist begrenzt, damit eine riesige Datei den Tab nicht einfriert;
   über dem Limit verweist die Karte auf GitHub und die Rohdatei.
 
+### Commit-Badges
+
+Betreffzeilen nach Conventional Commits zeigen ihr Präfix `type(scope):` als
+eine Markierung direkt auf der Seite:
+
+- **Eine zweifarbige Markierung** — der Typ in einem farbigen Segment und der
+  Bereich in einem gedämpften, gemeinsam in einer abgerundeten Kontur, gefolgt
+  von einem gedämpften Doppelpunkt: `fix(parser): handle empty input` liest sich
+  auf einen Blick, ohne ein Zeichen des Betreffs zu ändern.
+- **Farbe nach Art, ehrlich zum Rest** — `feat`, `fix`, `docs`, `style`,
+  `refactor`, `perf`, `test`, `build`, `ci`, `chore` und `revert` bekommen je
+  eine eigene Farbe; andere kleingeschriebene Typen eine neutrale (und lassen
+  sich schlicht halten), und ein `!`-Präfix zeigt eine rote Markierung für eine
+  Breaking Change.
+- **Überall, wo GitHub einen Betreff zeigt** — die Commit-Historie, der
+  **Commits**-Tab eines Pull Requests, die Seite eines einzelnen Commits, der
+  Block des letzten Commits auf der Repository-Startseite und die klassischen
+  Commit-Ansichten. Der Text bleibt unverändert, also verhalten sich Kopieren,
+  Suche und Übersetzung wie zuvor, und das Ausschalten der Funktion stellt
+  GitHubs eigene Darstellung wieder her.
+
 ### Übersetzung
 
 Übersetze den Text einer Seite, ohne ihr Markup zu verlieren — eine README,
@@ -374,6 +396,9 @@ Gespeichert unter `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Vorschau öffnen, indem die linke Maustaste auf einem Dateinamen oder einem Markdown-Dateilink gehalten wird |
 | `filePreview.longPressMs` | `450` | Haltezeit in ms, bis die Vorschau öffnet (200–2000) |
 | `filePreview.longPressRing` | `true` | Fortschrittskreis am Zeiger während des Haltens |
+| `commitBadges.enabled` | `true` | Hauptschalter für Conventional-Commit-Badges |
+| `commitBadges.unknownTypes` | `true` | Auch kleingeschriebene Typen außerhalb des konventionellen Satzes gestalten |
+| `commitBadges.breaking` | `true` | Rote Markierung für ein `!`-Präfix (Breaking Change) |
 | `translate.enabled` | `true` | Hauptschalter für die Übersetzung auf der Seite |
 | `translate.provider` | `'google'` | `google` (kostenlos), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | je Anbieter | Zugangsdaten und Endpunkt je Anbieter (API-Schlüssel, Region, Ordner, Modell, URL) |

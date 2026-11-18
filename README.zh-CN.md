@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.28.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.29.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
-文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的
-翻译。
+文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览、Conventional
+Commits 提交徽章，以及页面内容的翻译。
 
-> **状态：** 早期（`0.28.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
-> 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件图标、
-> blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件预览，以及
-> 页面翻译。计划加入更多 GitHub 改进。
+> **状态：** 早期（`0.29.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
+> 翻译 · 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
+> 图标、blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件
+> 预览、提交徽章，以及页面翻译。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -172,6 +172,20 @@ GitHub Plus 把两者直接加到文件行上：
 - **诚实的限制** — 文本和 Markdown 最大 2 MiB，PDF 最大 25 MiB，高亮也有上限，
   避免超大文件卡住标签页；超出限制时，卡片会指向 GitHub 和原始文件。
 
+### 提交徽章
+
+Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为一枚标签：
+
+- **一枚双色标签** —— 类型在彩色段、范围在柔和段中，共用一个圆角轮廓，后面是
+  柔和的冒号，因此 `fix(parser): handle empty input` 一眼可读，而标题文字一个
+  字符都不会改变。
+- **按类型着色，其余保持克制** —— `feat`、`fix`、`docs`、`style`、`refactor`、
+  `perf`、`test`、`build`、`ci`、`chore` 和 `revert` 各有自己的颜色；其他小写
+  类型使用中性色（也可以不装饰），带 `!` 的前缀会显示红色破坏性变更标记。
+- **GitHub 显示标题的所有位置** —— 提交历史、拉取请求的 **Commits** 标签页、
+  单个提交页、仓库首页的最新提交块以及经典提交视图。文字保持不变，因此复制、
+  搜索和翻译都与以前一样，关闭功能后恢复 GitHub 自己的显示。
+
 ### 翻译
 
 在不破坏标记的前提下翻译页面文本——README、议题或讨论、拉取请求、评论、
@@ -280,6 +294,9 @@ GitHub Plus 把两者直接加到文件行上：
 | `filePreview.longPress` | `true` | 在文件名或 Markdown 文件链接上按住鼠标左键以打开预览 |
 | `filePreview.longPressMs` | `450` | 打开预览前的按住时长（毫秒，200–2000） |
 | `filePreview.longPressRing` | `true` | 按住时在指针处显示进度圆圈 |
+| `commitBadges.enabled` | `true` | Conventional Commits 徽章的总开关 |
+| `commitBadges.unknownTypes` | `true` | 也为常规集合之外的小写类型添加样式 |
+| `commitBadges.breaking` | `true` | 为带 `!` 的破坏性变更前缀显示红色标记 |
 | `translate.enabled` | `true` | 页面翻译的总开关 |
 | `translate.provider` | `'google'` | `google`（免费）、`deepl`、`microsoft`、`yandex`、`openai`、`libretranslate` |
 | `translate.providerConfig.<id>` | 依服务而定 | 各服务的凭据与端点（API 密钥、区域、文件夹、模型、URL） |
