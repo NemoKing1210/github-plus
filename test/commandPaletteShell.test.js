@@ -393,3 +393,73 @@ test('the palette can take focus back after its row menu closes', () => {
   assert.equal(document.activeElement, document.querySelector('.gp-command__input'));
   outside.remove();
 });
+
+test('Enter inside an expansion activates the focused action, not the row', () => {
+  open();
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  const action = document.querySelector('.gp-command__expansion button');
+  assert.equal(document.activeElement, action);
+  action.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  assert.deepEqual(seen, []);
+  assert.equal(shell.isCommandPaletteOpen(), true);
+});
+
+test('collapsing an expansion that holds focus returns focus to the field', () => {
+  open();
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__expansion'), null);
+  assert.equal(document.activeElement, input);
+});
+
+test('a background refresh rebuilds the expansion and keeps focus in the palette', () => {
+  const handle = open();
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  assert.notEqual(document.activeElement, input);
+  handle.refresh();
+  assert.equal(document.querySelector('.gp-command__expansion') !== null, true);
+  assert.equal(document.activeElement, input);
+});
+
+test('Tab inside a repository expansion never scopes the repository', () => {
+  const scopes = [];
+  shell.openCommandPalette({
+    labels: labels(),
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:o/a', kind: 'repo', title: 'o/a' }] }] }),
+    renderExpansion: () => {
+      const node = document.createElement('div');
+      node.innerHTML = '<button type="button">One</button><button type="button">Two</button>';
+      return node;
+    },
+    onScope: (item) => { scopes.push(item.key); return true; },
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  assert.deepEqual(scopes, []);
+});
+
+test('Escape closes help before the expansion', () => {
+  shell.openCommandPalette({
+    labels: labels(),
+    search: () => ({ groups: makeGroups() }),
+    renderExpansion: () => { const node = document.createElement('div'); node.appendChild(document.createElement('button')); return node; },
+    help: { title: 'Keys', prefixes: [{ key: '>', label: 'commands' }], keys: [{ key: 'Tab', label: 'inside' }], close: 'Esc' },
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: '?', bubbles: true }));
+  assert.ok(document.querySelector('.gp-command__help'));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__help'), null);
+  assert.ok(document.querySelector('.gp-command__expansion'));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__expansion'), null);
+});

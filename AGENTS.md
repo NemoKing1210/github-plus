@@ -1309,8 +1309,11 @@ tracked by key (so a refresh keeps the selection) and mirrored to
 `.gp-command__title`, an expandable row carries a trailing chevron and its key
 hints (`.gp-command__hint`, shown only on the active row), and the open row
 gets a sibling `.gp-command__expansion` block from `renderExpansion` —
-`aria-expanded` on the row, a `Tab` that moves focus into the block, and a
-`Shift+Tab` that returns. `scope` is `{ label, tip? }`: the field renders a
+`aria-expanded` on the row, a `Tab` that moves focus into the block, a further
+`Tab` that cycles its controls, and a `Shift+Tab` that returns; collapsing a
+block that holds focus (arrows, `Escape` or a refresh) puts focus back in the
+field, and `Enter` inside the block activates the focused action instead of the
+row. `scope` is `{ label, tip? }`: the field renders a
 removable chip, the tip strip shows `scope.tip` in place of `labels.tip`, and
 `setScope` swaps it without reopening. `help` is `{ title, prefixes, keys,
 close }` behind `?` (empty query) and the tip strip's help pill.
@@ -1319,12 +1322,13 @@ row (the pointer position) or `Shift+F10`/`ContextMenu` on the active row.
 Keys:
 arrows with wrap, `→` expands the active row and `←` collapses it, Home/End,
 Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin, `Ctrl/⌘+C` copies the active
-row when no text is selected, `Tab` scopes a repository row (else enters an
-open expansion, else traps focus), `Backspace` pops an empty-input scope,
-`?` toggles help, and `Escape` walks back help → expansion → query → scope
-before it closes; the shortcut closes. An outside pointerdown closes; closing
-marks the palette closed synchronously, restores focus, unlocks the page,
-closes any open row menu and removes the overlay after 120 ms. Items with
+row when no text is selected, `Tab` scopes a collapsed repository row (else
+enters an open expansion, cycles inside it, or traps focus), `Backspace` pops
+an empty-input scope, `?` toggles help, and `Escape` walks back help →
+expansion → query → scope before it closes; the shortcut closes. An outside
+pointerdown closes; closing marks the palette closed synchronously, restores
+focus, unlocks the page, closes any open row menu and removes the overlay
+after 120 ms. Items with
 `highlight` ranges render marks from text nodes, never `innerHTML`;
 `labels.badges` names the badge ids (including `issue` and `pullRequest`).
 
@@ -1881,8 +1885,7 @@ and check diagnostics for edited files.
   reinstalls the hotkey through `settings:commandPalette`, so a save that went
   through is never the reason it stops firing; the header button and
   `GM_registerMenuCommand` open the same palette as fallbacks.
-- Palette row menu not opening: the `⋯` button appears only on hover, on the
-  active row or when focused; right-click must land on a row, and
+- Palette row menu not opening: right-click must land on a row, and
   `Shift+F10`/the menu key needs an active row. The menu is the shared
   `#gp-context-menu` with `layer: 'palette'` — if it renders behind the
   palette, the layer was lost (it must not be `default`).

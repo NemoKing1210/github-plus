@@ -159,3 +159,18 @@ test('an empty query has no Top result group', () => {
   const result = rankCandidates(scopedCandidates(), '', { titles: { top: 'Top result' } });
   assert.equal(result.groups.some((group) => group.id === 'top'), false);
 });
+
+test('favorites and recents stay global inside a scope', () => {
+  const result = rankCandidates(scopedCandidates(), '', {
+    scope: { repo: 'o/a' },
+    pinnedKeys: ['repo:o/b'],
+    recentKeys: ['issue:o/b#2'],
+    titles: { pinned: 'Favorites', recent: 'Recent' },
+  });
+  const ids = result.groups.map((group) => group.id);
+  assert.ok(ids.includes('pinned'));
+  assert.ok(ids.includes('recent'));
+  const keys = result.groups.flatMap((group) => group.items.map((item) => item.key));
+  assert.ok(keys.includes('repo:o/b'));
+  assert.ok(keys.includes('issue:o/b#2'));
+});

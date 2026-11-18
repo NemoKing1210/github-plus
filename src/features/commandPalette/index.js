@@ -380,6 +380,8 @@ function handleScope(item) {
 function clearScope() {
   if (!paletteState?.scope) return;
   paletteState.scope = null;
+  paletteState.loadError = null;
+  paletteState.status = isRateBlocked(paletteState.cache) ? 'rateLimited' : 'ready';
   handle?.setScope(null);
   refreshView();
 }

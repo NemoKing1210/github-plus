@@ -184,3 +184,34 @@ test('a failed scoped tree keeps the palette open with a note', async () => {
     shell.closeCommandPalette();
   }
 });
+
+test('leaving a failed scope clears its note', async () => {
+  cacheRepos([{ full_name: 'alice/repo', owner: { login: 'alice', type: 'User' }, name: 'broken' }]);
+  const original = globalThis.GM_xmlhttpRequest;
+  globalThis.GM_xmlhttpRequest = (options) => {
+    if (options.url.includes('/git/trees/')) {
+      options.onload({ status: 500, responseText: '{}', responseHeaders: '' });
+      return;
+    }
+    original(options);
+  };
+  try {
+    palette.openPalette();
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    const overlay = latestPalette();
+    const input = overlay.querySelector('.gp-command__input');
+    const row = overlay.querySelector('.gp-command__row[data-key="repo:alice/repo"]');
+    assert.ok(row, 'repository row is listed');
+    row.dispatchEvent(new dom.window.MouseEvent('pointermove', { bubbles: true }));
+    input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    assert.notEqual(overlay.querySelector('.gp-command__tip-note').textContent, '');
+    input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.equal(overlay.querySelector('.gp-command__scope'), null);
+    assert.equal(overlay.querySelector('.gp-command__tip-note').textContent, '');
+  } finally {
+    globalThis.GM_xmlhttpRequest = original;
+    shell.closeCommandPalette();
+  }
+});

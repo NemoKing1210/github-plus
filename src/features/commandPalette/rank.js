@@ -213,8 +213,9 @@ export function markPinned(candidates, pinnedKeys) {
  */
 export function rankCandidates(candidates, rawQuery, options = {}) {
   const parsed = parseQuery(rawQuery);
+  const favorites = new Set([...(options.pinnedKeys || []), ...(options.recentKeys || [])]);
   const all = (Array.isArray(candidates) ? candidates : [])
-    .filter((candidate) => inScope(candidate, options.scope));
+    .filter((candidate) => favorites.has(candidate.key) || inScope(candidate, options.scope));
   const titles = options.titles || { pinned: 'Pinned', recent: 'Recent' };
 
   if (!parsed.text) return emptyQuery(all, options, titles);

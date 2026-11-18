@@ -233,6 +233,7 @@ function renderGroups(current, groups) {
 
 function clearExpansion(current) {
   const block = current.expansion;
+  const hadFocus = Boolean(block) && block.contains(document.activeElement);
   if (block) block.remove();
   current.expansion = null;
   const row = current.expandedKey ? current.rowByKey.get(current.expandedKey) : null;
@@ -241,6 +242,7 @@ function clearExpansion(current) {
     row.querySelector('.gp-command__chev')?.setAttribute('aria-expanded', 'false');
   }
   current.expandedKey = null;
+  if (hadFocus) current.input.focus();
 }
 
 function expand(current) {
@@ -305,11 +307,13 @@ function refresh() {
   const active = (previousKey && current.itemsByKey.get(previousKey)) || items[0] || null;
   current.activeKey = active ? active.key : null;
   const previousExpanded = current.expandedKey;
+  const focusInside = Boolean(current.expansion) && current.expansion.contains(document.activeElement);
   current.expansion = null;
   current.expandedKey = null;
   renderGroups(current, groups);
   applyActive(current, active);
   if (previousExpanded && previousExpanded === current.activeKey) expand(current);
+  if (focusInside) current.input.focus();
   renderStatus(current, result, items.length);
 }
 
@@ -423,6 +427,7 @@ function onKeyDown(event) {
     return;
   }
   if (key === 'Enter') {
+    if (state.expansion?.contains(document.activeElement)) return;
     event.preventDefault();
     const item = activeItem();
     if (item) choose(item, ctrlKey || metaKey);
@@ -458,12 +463,16 @@ function onKeyDown(event) {
   }
   if (key === 'Tab') {
     const block = state.expansion;
-    if (block && event.shiftKey && block.contains(document.activeElement)) {
-      event.preventDefault();
-      state.input.focus();
+    if (block && block.contains(document.activeElement)) {
+      if (event.shiftKey) {
+        event.preventDefault();
+        state.input.focus();
+      } else {
+        trapFocus(event);
+      }
       return;
     }
-    if (block && !event.shiftKey && !block.contains(document.activeElement)) {
+    if (block && !event.shiftKey) {
       const target = block.querySelector('button, a[href], [tabindex]:not([tabindex="-1"])');
       if (target) {
         event.preventDefault();
@@ -472,7 +481,7 @@ function onKeyDown(event) {
       }
     }
     const scopeItem = activeItem();
-    if (scopeItem?.kind === 'repo' && state.onScope?.(scopeItem)) {
+    if (!state.expandedKey && scopeItem?.kind === 'repo' && state.onScope?.(scopeItem)) {
       event.preventDefault();
       return;
     }
