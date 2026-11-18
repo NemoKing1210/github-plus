@@ -67,6 +67,17 @@ test('repoCandidates honor source toggles and fork filters', () => {
   assert.deepEqual(repoCandidates(state).map((item) => item.data.fullName), ['o/main']);
 });
 
+test('a repo row carries the GitHub URL its selection navigates to', () => {
+  const state = {
+    settings: { sources: { repositories: true, starred: true }, hideForks: false, hideArchived: false },
+    cache: { sources: { repos: { pages: [{ items: [
+      { fullName: 'o/main', owner: 'o', name: 'main' },
+    ] }] }, starred: { pages: [{ items: [] }] } } },
+  };
+  const [candidate] = repoCandidates(state);
+  assert.equal(candidate.data.url, 'https://github.com/o/main');
+});
+
 test('ensureRepositories caches a successful load and refetches on force', async () => {
   const responses = [
     { status: 200, text: JSON.stringify([{ full_name: 'o/r', owner: { login: 'o', type: 'User' }, name: 'r' }]), headers: 'ETag: "a"\r\n' },

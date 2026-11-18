@@ -130,7 +130,14 @@ function buildRepoCandidate(repo, groupId, groupTitle) {
     ],
     sortKey: sortKeyFor(repo, groupId),
     badges: badgesFor(repo),
-    data: repo,
+    // The normalized repo has no address of its own; selection navigates by
+    // `data.url`, so a row without one closes the palette and goes nowhere.
+    data: {
+      ...repo,
+      url: repo.fullName
+        ? `https://github.com/${repo.fullName.split('/').map(encodeURIComponent).join('/')}`
+        : '',
+    },
   };
 }
 

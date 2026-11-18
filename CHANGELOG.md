@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] - 2026-11-18
+
+### Fixed
+
+- Clicking a repository row in the palette (including a pinned favorite) now
+  opens the repository instead of only closing the palette: the normalized
+  repository data carried no address for the selection to navigate to
+
+[0.23.2]: https://github.com/NemoKing1210/github-plus/compare/v0.23.1...v0.23.2
+
 ## [0.23.1] - 2026-11-18
 
 ### Changed
