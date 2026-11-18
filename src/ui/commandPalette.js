@@ -75,7 +75,56 @@ function buildShell(labels) {
 
   dialog.append(top, main, tip, empty);
   root.append(dialog, announcer);
-  return { root, dialog, input, list, tip, note, empty, announcer, bar };
+  return { root, dialog, field, input, list, tip, tipText, note, empty, announcer, bar };
+}
+
+function renderScope(current) {
+  const existing = current.field.querySelector('.gp-command__scope');
+  if (existing) existing.remove();
+  current.tipText.textContent = current.scope?.tip || current.labels.tip || '';
+  if (!current.scope) return;
+  const chip = el('button', 'gp-command__scope');
+  chip.type = 'button';
+  chip.setAttribute('aria-label', current.labels.scopeRemove || String(current.scope.label || ''));
+  chip.append(el('span', 'gp-command__scope-label', current.scope.label || ''));
+  const clear = el('span', 'gp-command__scope-close');
+  clear.innerHTML = PALETTE_ICONS.close;
+  clear.setAttribute('aria-hidden', 'true');
+  chip.appendChild(clear);
+  chip.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    current.onClearScope?.();
+  });
+  current.field.insertBefore(chip, current.input);
+}
+
+function toggleHelp(current) {
+  if (current.helpNode) {
+    current.helpNode.remove();
+    current.helpNode = null;
+    return;
+  }
+  if (!current.help) return;
+  const help = el('div', 'gp-command__help');
+  help.setAttribute('role', 'group');
+  if (current.help.title) help.appendChild(el('div', 'gp-command__help-title', current.help.title));
+  const addRow = (key, label) => {
+    const row = el('div', 'gp-command__help-row');
+    row.append(el('kbd', 'gp-command__help-key', key), el('span', 'gp-command__help-label', label));
+    help.appendChild(row);
+  };
+  for (const prefix of current.help.prefixes || []) addRow(prefix.key, prefix.label);
+  if (current.help.close) addRow('Esc', current.help.close);
+  for (const entry of current.help.keys || []) addRow(entry.key, entry.label);
+  current.dialog.appendChild(help);
+  current.helpNode = help;
+}
+
+function setScope(scope) {
+  if (!state) return;
+  state.scope = scope || null;
+  renderScope(state);
 }
 
 function activeItem() {
@@ -321,6 +370,19 @@ function onKeyDown(event) {
     if (item) state.onPin?.(item);
     return;
   }
+  if ((ctrlKey || metaKey) && (key === 'c' || key === 'C')) {
+    const item = activeItem();
+    if (item && state.onCopy && state.input.selectionStart === state.input.selectionEnd) {
+      event.preventDefault();
+      state.onCopy(item);
+    }
+    return;
+  }
+  if (!ctrlKey && !metaKey && !altKey && key === '?' && !state.input.value) {
+    event.preventDefault();
+    toggleHelp(state);
+    return;
+  }
   if (state.onContextMenu && (key === 'ContextMenu' || (key === 'F10' && event.shiftKey))) {
     event.preventDefault();
     const item = activeItem();
@@ -356,8 +418,18 @@ function onKeyDown(event) {
     if (item) choose(item, ctrlKey || metaKey);
     return;
   }
+  if (key === 'Backspace' && state.scope
+    && (state.input.value === '' || state.input.selectionStart === 0)) {
+    event.preventDefault();
+    state.onClearScope?.();
+    return;
+  }
   if (key === 'Escape') {
     event.preventDefault();
+    if (state.helpNode) {
+      toggleHelp(state);
+      return;
+    }
     if (state.expandedKey) {
       clearExpansion(state);
       return;
@@ -365,6 +437,10 @@ function onKeyDown(event) {
     if (state.input.value) {
       state.input.value = '';
       refresh();
+      return;
+    }
+    if (state.scope) {
+      state.onClearScope?.();
       return;
     }
     closeCommandPalette();
@@ -384,6 +460,11 @@ function onKeyDown(event) {
         target.focus();
         return;
       }
+    }
+    const scopeItem = activeItem();
+    if (scopeItem?.kind === 'repo' && state.onScope?.(scopeItem)) {
+      event.preventDefault();
+      return;
     }
     trapFocus(event);
   }
@@ -439,7 +520,8 @@ function onInput() {
  *   onScope?: (item: object) => void, onClearScope?: () => void,
  *   onCopy?: (item: object) => void,
  *   onContextMenu?: (item: object, position: {x?: number, y?: number, anchor: Element|null, keyboard: boolean}) => void}} options
- * @returns {{refresh: () => void, close: () => void, setQuery: (value: string) => void}}
+ * @returns {{refresh: () => void, close: () => void, focus: () => void,
+ *   setQuery: (value: string) => void, setScope: (scope: object|null) => void}}
  */
 export function openCommandPalette({
   labels = {},
@@ -480,6 +562,7 @@ export function openCommandPalette({
     activeKey: null,
     expandedKey: null,
     expansion: null,
+    helpNode: null,
     focusReturn: document.activeElement instanceof HTMLElement ? document.activeElement : null,
     debounceTimer: null,
   };
@@ -491,6 +574,7 @@ export function openCommandPalette({
   node.root.addEventListener('pointerdown', onPointerDown);
   node.dialog.addEventListener('keydown', onKeyDown);
   lockPageScroll();
+  renderScope(state);
   refresh();
   node.input.focus();
 
@@ -505,6 +589,9 @@ export function openCommandPalette({
       node.input.value = String(value ?? '');
       refresh();
       node.input.focus();
+    },
+    setScope(scope) {
+      setScope(scope);
     },
   };
 }

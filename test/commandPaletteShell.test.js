@@ -113,6 +113,97 @@ test('Tab moves focus into the expanded actions and Shift+Tab returns', () => {
   assert.equal(document.activeElement, input);
 });
 
+test('Tab scopes a repository row and the chip clears it', () => {
+  const scopes = [];
+  shell.openCommandPalette({
+    labels: labels(),
+    scope: null,
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [
+      { key: 'repo:o/a', kind: 'repo', title: 'o/a' },
+      { key: 'cmd:x', kind: 'command', title: 'Run' },
+    ] }] }),
+    onScope: (item) => { scopes.push(item.key); return item.kind === 'repo'; },
+    onClearScope: () => scopes.push('clear'),
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  assert.deepEqual(scopes, ['repo:o/a']);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+  assert.deepEqual(scopes, ['repo:o/a']);
+});
+
+test('the scope chip renders and clears the scope', () => {
+  let handle;
+  handle = shell.openCommandPalette({
+    labels: labels(), scope: { label: 'vuejs / core' }, search: () => ({ groups: [] }),
+    onClearScope: () => handle.setScope(null),
+  });
+  const chip = document.querySelector('.gp-command__scope');
+  assert.match(chip.textContent, /vuejs \/ core/);
+  chip.click();
+  assert.equal(document.querySelector('.gp-command__scope'), null);
+});
+
+test('Backspace pops the scope before it edits text', () => {
+  let cleared = 0;
+  shell.openCommandPalette({
+    labels: labels(), scope: { label: 'o/a' }, search: () => ({ groups: [] }),
+    onClearScope: () => { cleared += 1; },
+  });
+  document.querySelector('.gp-command__input')
+    .dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+  assert.equal(cleared, 1);
+});
+
+test('Escape walks back help, expansion, query, scope, then closes', () => {
+  let cleared = 0;
+  let handle;
+  handle = shell.openCommandPalette({
+    labels: labels(), scope: { label: 'o/a' }, search: () => ({ groups: makeGroups() }),
+    renderExpansion: () => { const n = document.createElement('div'); n.appendChild(document.createElement('button')); return n; },
+    onClearScope: () => { cleared += 1; handle.setScope(null); },
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.value = 'x'; handle.refresh();
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__expansion'), null);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(input.value, '');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(cleared, 1);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(shell.isCommandPaletteOpen(), false);
+});
+
+test('Ctrl+C copies the active row only when no text is selected', () => {
+  const copied = [];
+  shell.openCommandPalette({
+    labels: labels(), search: () => ({ groups: makeGroups() }),
+    onCopy: (item) => copied.push(item.key),
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true }));
+  assert.deepEqual(copied, ['cmd:one']);
+  input.value = 'abc';
+  input.setSelectionRange(0, 3);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true }));
+  assert.deepEqual(copied, ['cmd:one']);
+});
+
+test('? opens the help popover when the query is empty', () => {
+  shell.openCommandPalette({
+    labels: labels(), search: () => ({ groups: [] }),
+    help: { title: 'Keys', prefixes: [{ key: '>', label: 'commands' }], keys: [{ key: 'Tab', label: 'inside' }], close: 'Esc' },
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: '?', bubbles: true }));
+  assert.match(document.querySelector('.gp-command__help').textContent, /commands/);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__help'), null);
+});
+
 test('the chevron toggles the expansion without selecting the row', () => {
   open();
   const chev = document.querySelector('.gp-command__chev');
