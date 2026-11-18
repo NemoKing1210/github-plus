@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.27.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -14,7 +14,7 @@ Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
 Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.25.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.27.1`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
@@ -268,10 +268,12 @@ tust:
 
 - **Startet am aktuellen Ort** — auf einer Repository-Seite öffnet sich die
   Palette mit diesem Repository im Pfad, die erste Liste sind also seine Seiten.
-- **Mit `Tab` tiefer gehen** — das Feld ist ein Pfad (`owner / repo / Abfrage`).
-  `Tab` auf einer Repository-Zeile fügt es hinzu: die Liste wird zu den Seiten
-  dieses Repositories, `/` zeigt seine Dateien, `#` seine offenen Issues und Pull
-  Requests, und die Suchzeile sucht darin. `Backspace` entfernt die letzte Ebene,
+- **Mit `Tab` tiefer gehen** — das Feld ist ein Pfad (`owner / repo / Ordner /
+  Abfrage`). `Tab` auf einer Repository-Zeile fügt es hinzu, und `Tab` auf einer
+  Ordner-Zeile steigt in ihn hinein: die Liste wird zu den Dateien dieses Ordners
+  mit Pfaden relativ zum aktuellen Ort, und `Tab` geht so tief weiter, wie es der
+  Baum erlaubt. `→` und `←` tun dasselbe bei leerem Feld, du kannst den Pfad
+  also ohne Tastenwechsel ablaufen. `Backspace` entfernt die letzte Ebene,
   `Ctrl/⌘+Backspace` leert Pfad und Abfrage, und ein Klick auf ein Pfadsegment
   verwirft alles darunter.
 - **Deine Repositories** — alle Repositories, die dir gehören, eigene zuerst, mit
@@ -280,18 +282,24 @@ tust:
 - **Mit Stern markierte Repositories** — die Projekte, zu denen du immer wieder
   zurückkehrst; sie folgen deinen eigenen und tragen einen Stern.
 - **Dateien des Repositories im Pfad** — `/` zeigt jeden Pfad darin oder eine
-  passende Abfrage; eine Datei öffnet sich auf GitHub bei der Revision, die du
+  passende Abfrage; Ordner-Zeilen sind markiert und lassen sich mit `Tab` als
+  Ebene öffnen, und eine Datei öffnet sich auf GitHub bei der Revision, die du
   gerade ansiehst.
 - **Offene Issues und Pull Requests** — `#` zeigt die offenen Issues und Pull
   Requests des Repositories mit Issue- oder Pull-Request-Kennzeichnung, Autor und
   Aktualisierungszeit; suche nach Titel, Nummer oder Autor.
+- **Nachsichtige Suche** — Abfragen ignorieren Groß-/Kleinschreibung und
+  lateinische Akzente (`cafe` findet `Café`), bevorzugen Wortanfänge und ganze
+  Wörter und werden an Leerzeichen geteilt, wobei jeder Teil passen muss.
 - **Seiten als Zeilen** — die eigenen Seiten des Repositories im Pfad (Code,
-  Issues, Pull requests, Actions, Projects, Discussions, Releases, Wiki, Security,
-  Insights und Settings, wenn es dir gehört) oder auf oberster Ebene die Seiten
-  deines Kontos (Profil, Repositories, Sterne, Benachrichtigungen, Gists,
-  GitHub-Einstellungen, Dashboard), jeweils eine Zeile entfernt; eine
-  Repository-Zeile ist mit `Springen zu` beschriftet, und eine GitHub-Suchzeile
-  schließt jede Abfrage ab und sucht im Pfad, wenn einer gesetzt ist.
+  Issues, Pull requests, neues Issue, Änderungen vergleichen, Actions, Projects,
+  Discussions, Releases, Wiki, Security, Insights und Settings, wenn es dir
+  gehört) oder auf oberster Ebene die Seiten deines Kontos (Profil, Repositories,
+  Sterne, neues Repository, Benachrichtigungen, Gists, GitHub-Einstellungen,
+  Dashboard), jeweils eine Zeile entfernt; eine Repository-Zeile ist mit
+  `Springen zu` beschriftet, und eine GitHub-Suchzeile schließt jede Abfrage ab:
+  Code im Pfad, Issues für `#`, Repositories für `@` und für eine freie Abfrage
+  außerhalb eines Pfades.
 - **GitHub-Plus-Aktionen** — öffne das Panel, schalte seine Funktionen um oder
   aktualisiere den Cache; `>` für Befehle.
 - **Favoriten und Zuletzt verwendet** — hefte an, was du ständig brauchst
@@ -313,13 +321,13 @@ tust:
   `api.github.com` gesendet; der Cache gehört zu je einem Konto, ein Kontowechsel
   zeigt also nie fremde Repositories.
 - **Tastatur zuerst** — `↑`/`↓` bewegen die Auswahl, `Enter` öffnet,
-  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `Tab` geht in ein Repository,
-  `Backspace` verlässt eine Pfadebene, `Alt+P` heftet an, `Ctrl/⌘+C` kopiert die
-  Zeile, `?` zeigt alle Tasten und Präfixe, und `Esc` schließt (zuerst die
-  Hilfe); in einem Kommentar- oder README-Editor bleibt die Palette aus dem Weg
-  und schließt sich bei Navigation selbst. Die Tastenkombination ist eine
-  Voreinstellung oder eine beliebige Kombination, die du auf der
-  Einstellungsseite der Palette aufzeichnest.
+  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `Tab` geht in ein Repository oder
+  einen Ordner, `←`/`→` laufen den Pfad ab, `Backspace` verlässt eine Pfadebene, `Alt+P` heftet an,
+  `Ctrl/⌘+C` kopiert die Zeile, `?` zeigt alle Tasten und Präfixe, und `Esc`
+  schließt (zuerst die Hilfe); in einem Kommentar- oder README-Editor bleibt die
+  Palette aus dem Weg und schließt sich bei Navigation selbst. Die
+  Tastenkombination ist eine Voreinstellung oder eine beliebige Kombination, die
+  du auf der Einstellungsseite der Palette aufzeichnest.
 
 ### Einstellungsfenster
 

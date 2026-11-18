@@ -65,8 +65,8 @@ export function createHint(text) {
 
 /**
  * Progress meter: a track with an accent fill. The fill is a per-instance
- * value, so the caller writes it to the `--gp-meter-fill` custom property.
- * It is decorative: the caller shows the measured numbers as text.
+ * value, so the caller writes a 0…1 ratio to the `--gp-meter-ratio` custom
+ * property. It is decorative: the caller shows the measured numbers as text.
  */
 export function createMeter() {
   const meter = el('div', 'gp-meter');

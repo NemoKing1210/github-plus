@@ -20,8 +20,8 @@ import { markPinned } from './rank.js';
 import { cloneAddress, rowMenuItems } from './rowMenu.js';
 import { searchPalette } from './search.js';
 import { commandCandidates } from './commands.js';
-import { ensureRepositories, repoCandidates } from './repos.js';
-import { ensureTree, fileCandidates, forgetTrees, treeKey } from './files.js';
+import { ensureRepositories, forgetRepositories, repoCandidates } from './repos.js';
+import { ensureTree, fileCandidates, forgetTrees, hasFileItems, treeKey } from './files.js';
 import { ensureIssues, forgetIssues, issueCandidates } from './issues.js';
 import { navigate, runAction } from './actions.js';
 import {
@@ -36,6 +36,7 @@ const IDLE_FALLBACK_MS = 2000;
 
 let hotkeyHandler = null;
 let headerAction = null;
+let menuCommandId = null;
 let handle = null;
 let paletteState = null;
 let idleScheduled = false;
@@ -49,16 +50,11 @@ function paletteLabels() {
     emptyHint: t('palette.emptyHint'),
     loading: t('palette.loading'),
     results: t('palette.results'),
-    navigate: t('palette.navigate'),
-    open: t('palette.open'),
-    newTab: t('palette.newTab'),
-    close: t('palette.close'),
     tip: t('palette.tip'),
     tipScoped: t('palette.tipScoped'),
     tipHelp: t('palette.tipHelp'),
     hintOpen: t('palette.hint.open'),
     hintScope: t('palette.hint.scope'),
-    rowMenu: t('palette.rowMenu'),
     badges: {
       pinned: t('palette.badge.pinned'),
       recent: t('palette.badge.recent'),
@@ -112,6 +108,7 @@ function snapshotFor(item) {
       titleMuted: item.titleMuted,
       meta: item.meta,
       icon: item.icon,
+      avatar: item.avatar,
       groupId: item.groupId,
       groupTitle: item.groupTitle,
       rankFields: item.rankFields,
@@ -126,6 +123,30 @@ function hasPages(source) {
   return Array.isArray(source?.pages);
 }
 
+function scopeRepo(state) {
+  return state.scope?.repo || '';
+}
+
+function scopeDir(state) {
+  return state.scope?.dir || '';
+}
+
+/**
+ * The ref a scope browses: the page's own ref when the scope is its
+ * repository, and HEAD for any other repository.
+ */
+function scopeRef(state) {
+  const repo = scopeRepo(state);
+  if (!repo) return state.context.ref || 'HEAD';
+  return repo === state.context.repo ? state.context.ref || 'HEAD' : 'HEAD';
+}
+
+function scopeLabel(state) {
+  const repo = scopeRepo(state);
+  const dir = scopeDir(state);
+  return dir ? `${repo}/${dir}` : repo;
+}
+
 /**
  * Pins and recents whose source has not loaded yet. Once a source is loaded
  * its own builder wins, so a removed repository does not come back from a
@@ -133,8 +154,12 @@ function hasPages(source) {
  */
 function snapshotCandidates(state) {
   const reposCold = !hasPages(state.cache?.sources?.repos) && !hasPages(state.cache?.sources?.starred);
-  const scoped = state.scope?.repo;
-  const filesCold = fileCandidates(state, scoped ? { repo: scoped, ref: 'HEAD' } : {}).length === 0;
+  const scoped = scopeRepo(state);
+  const fileRepo = scoped || state.context.repo;
+  const filesCold = !hasFileItems(state, {
+    repo: fileRepo,
+    ref: scoped ? scopeRef(state) : state.context.ref,
+  });
   const entries = [
     ...state.pins.map((entry) => ({ entry, badge: 'pinned' })),
     ...state.recents.map((entry) => ({ entry, badge: 'recent' })),
@@ -146,10 +171,16 @@ function snapshotCandidates(state) {
     if (entry.kind === 'file' && !filesCold) continue;
     const snapshot = entry.snapshot;
     const badges = [...new Set([...(snapshot.badges || []), badge])];
+    // A snapshot keeps only what a row renders, so the scope target is derived
+    // from the kind and the stored data instead of the original candidate.
+    const scopeable = entry.kind === 'repo'
+      || (entry.kind === 'file' && snapshot.data?.type === 'tree' && Boolean(snapshot.data?.repo));
     candidates.push({
       ...snapshot,
       key: entry.key,
       kind: entry.kind,
+      scopeable,
+      hint: snapshot.hint || (entry.kind === 'repo' ? t('palette.hint.jump') : ''),
       title: snapshot.title || entry.key,
       rankFields: snapshot.rankFields || [{ text: snapshot.title || '', weight: 3 }],
       badges,
@@ -171,40 +202,39 @@ function dedupe(candidates) {
 }
 
 function buildCandidates(state) {
-  const scoped = state.scope?.repo;
+  const scoped = scopeRepo(state);
   return markPinned(dedupe([
     ...commandCandidates(state),
     ...(scoped ? [] : repoCandidates(state)),
-    ...(scoped ? fileCandidates(state, { repo: scoped, ref: 'HEAD' }) : []),
+    ...(scoped
+      ? fileCandidates(state, { repo: scoped, ref: scopeRef(state), dir: scopeDir(state) })
+      : []),
     ...(scoped ? issueCandidates(state, { repo: scoped }) : []),
     ...snapshotCandidates(state),
   ]), state.pinnedKeys);
 }
 
-/** The scope path rendered in the field: owner and repository as two segments. */
+/** The scope path rendered in the field: owner, repository and folded folder names. */
 function pathSegments(state) {
-  const repo = state.scope?.repo;
+  const repo = scopeRepo(state);
   if (!repo) return [];
-  const [owner, name] = repo.split('/');
-  return name ? [{ label: owner }, { label: name }] : [{ label: repo }];
+  const labels = repo.split('/');
+  const dir = scopeDir(state);
+  if (dir) labels.push(...dir.split('/'));
+  return labels.map((label) => ({ label }));
 }
 
-function scopedTip(repo) {
-  return repo ? t('palette.tipScoped', { repo }) : t('palette.tip');
+function scopedTip(path) {
+  return path ? t('palette.tipScoped', { repo: path }) : t('palette.tip');
 }
 
 function syncPath() {
   if (!paletteState) return;
-  handle?.setPath(pathSegments(paletteState), scopedTip(paletteState.scope?.repo));
+  handle?.setPath(pathSegments(paletteState), scopedTip(scopeLabel(paletteState)));
 }
 
 function repositoriesEnabled(settings) {
   return settings.sources.repositories !== false || settings.sources.starred !== false;
-}
-
-function currentTree(state) {
-  if (!state.context.repo || !state.context.ref) return null;
-  return state.cache?.trees?.[treeKey(state.context.repo, state.context.ref)] || null;
 }
 
 function noteFor(state) {
@@ -218,8 +248,13 @@ function noteFor(state) {
   if (state.status === 'offline') return t('palette.status.offline');
   if (state.status === 'invalidToken') return t('palette.status.invalidToken');
   if (!state.identity && repositoriesEnabled(state.settings)) return t('palette.status.anonymous');
-  const tree = currentTree(state);
-  if (state.treeIncomplete || tree?.incomplete) return t('palette.status.incomplete');
+  const repo = scopeRepo(state) || state.context.repo;
+  const ref = scopeRepo(state) ? scopeRef(state) : state.context.ref;
+  if (repo && ref) {
+    const key = treeKey(repo, ref);
+    const incomplete = state.treeInfo?.[key] ?? state.cache?.trees?.[key]?.incomplete;
+    if (incomplete) return t('palette.status.incomplete');
+  }
   return '';
 }
 
@@ -243,6 +278,9 @@ function syncCacheFromStore() {
 
 function settleLoad(result) {
   if (!paletteState) return;
+  if (result?.treeKey && result.truncated !== undefined) {
+    paletteState.treeInfo[result.treeKey] = Boolean(result.truncated);
+  }
   if (result?.status === 'error') {
     const status = result.error?.status;
     paletteState.loadError = status === 401 || status === 403
@@ -252,7 +290,6 @@ function settleLoad(result) {
   } else if (!paletteState.loadError) {
     paletteState.status = 'ready';
   }
-  if (result?.truncated !== undefined) paletteState.treeIncomplete = Boolean(result.truncated);
   syncCacheFromStore();
   refreshView();
 }
@@ -263,23 +300,27 @@ function kickLoads() {
   const tasks = [];
   if (repositoriesEnabled(state.settings) && !sessionRefreshes.has('repos')) {
     sessionRefreshes.add('repos');
-    tasks.push(ensureRepositories());
+    tasks.push({ promise: ensureRepositories() });
   }
   // Only a scoped repository has files and issues to list; the root level is
   // the account's pages and repositories, as in GitHub's own palette.
-  const scoped = state.scope?.repo;
+  const scoped = scopeRepo(state);
   if (state.settings.sources.files !== false && scoped) {
-    const key = `tree:${treeKey(scoped, 'HEAD')}`;
+    const ref = scopeRef(state);
+    const key = `tree:${treeKey(scoped, ref)}`;
     if (!sessionRefreshes.has(key)) {
       sessionRefreshes.add(key);
-      tasks.push(ensureTree({ repo: scoped, ref: 'HEAD' }));
+      tasks.push({
+        promise: ensureTree({ repo: scoped, ref }),
+        treeKey: treeKey(scoped, ref),
+      });
     }
   }
   if (state.settings.sources.issues !== false && scoped) {
     const key = `issues:${scoped}`;
     if (!sessionRefreshes.has(key)) {
       sessionRefreshes.add(key);
-      tasks.push(ensureIssues({ repo: scoped }));
+      tasks.push({ promise: ensureIssues({ repo: scoped }) });
     }
   }
   if (!tasks.length) return;
@@ -287,7 +328,10 @@ function kickLoads() {
   state.status = 'loading';
   handle?.refresh();
   for (const task of tasks) {
-    task.then(settleLoad, (error) => settleLoad({ status: 'error', error }));
+    task.promise.then(
+      (result) => settleLoad({ ...result, treeKey: task.treeKey }),
+      (error) => settleLoad({ status: 'error', error }),
+    );
   }
 }
 
@@ -300,12 +344,13 @@ function actionOptions() {
     },
     clearPaletteCache: () => {
       clearDataCache();
+      forgetRepositories();
       forgetTrees();
       forgetIssues();
       sessionRefreshes.clear();
       if (paletteState) {
         paletteState.cache = null;
-        paletteState.treeIncomplete = false;
+        paletteState.treeInfo = {};
       }
     },
     clearTranslationCache: () => clearCache(),
@@ -365,16 +410,72 @@ function handleRowAction(actionId, item) {
   return undefined;
 }
 
+/**
+ * Tab on a repository row opens that repository as a level; Tab on a folder
+ * row inside it opens that folder as the next level.
+ */
 function handleScope(item) {
-  if (!paletteState || item?.kind !== 'repo') return false;
-  const repo = item.data?.fullName || item.title || '';
-  if (!repo) return false;
-  paletteState.scope = { repo };
+  if (!paletteState || !item) return false;
+  if (item.kind === 'repo') {
+    const repo = item.data?.fullName || item.title || '';
+    if (!repo) return false;
+    paletteState.scope = { repo };
+  } else if (item.kind === 'file' && item.data?.type === 'tree' && item.data.repo) {
+    paletteState.scope = { repo: item.data.repo, dir: item.data.path };
+  } else {
+    return false;
+  }
+  paletteState.loadError = null;
+  paletteState.status = isRateBlocked(paletteState.cache) ? 'rateLimited' : 'ready';
   syncPath();
   handle?.setQuery('');
   refreshView();
   kickLoads();
   return true;
+}
+
+/** Backspace on an empty query: leave one folder, or the repository itself. */
+function popPath() {
+  const state = paletteState;
+  if (!state?.scope) return;
+  if (state.scope.dir) {
+    const parts = state.scope.dir.split('/');
+    parts.pop();
+    state.scope = parts.length
+      ? { repo: state.scope.repo, dir: parts.join('/') }
+      : { repo: state.scope.repo };
+    state.loadError = null;
+  } else {
+    state.scope = null;
+    state.loadError = null;
+    state.status = isRateBlocked(state.cache) ? 'rateLimited' : 'ready';
+  }
+  syncPath();
+  refreshView();
+  kickLoads();
+}
+
+/** Clicking a path segment leaves every level below it. */
+function handlePathClick(index) {
+  const state = paletteState;
+  if (!state?.scope) return;
+  const segments = pathSegments(state);
+  handle?.setQuery('');
+  // The owner segment has no level of its own: the root list is where another
+  // repository is chosen.
+  if (index <= 0) {
+    clearPath();
+    return;
+  }
+  if (index === 1) {
+    state.scope = { repo: state.scope.repo };
+  } else {
+    const dir = segments.slice(2, index + 1).map((segment) => segment.label).join('/');
+    state.scope = { repo: state.scope.repo, dir };
+  }
+  state.loadError = null;
+  syncPath();
+  refreshView();
 }
 
 function clearPath() {
@@ -405,7 +506,7 @@ export function openPalette() {
   state.pinnedKeys = state.pins.map((entry) => entry.key);
   state.recentKeys = state.settings.sources.recent ? state.recents.map((entry) => entry.key) : [];
   state.status = isRateBlocked(state.cache) ? 'rateLimited' : 'ready';
-  state.treeIncomplete = false;
+  state.treeInfo = {};
   state.loadError = null;
   // GitHub opens the palette at the visitor's current location, so a
   // repository page starts with that repository already in the path.
@@ -416,7 +517,7 @@ export function openPalette() {
   handle = openCommandPalette({
     labels: paletteLabels(),
     path: pathSegments(state),
-    tip: scopedTip(state.scope?.repo),
+    tip: scopedTip(scopeLabel(state)),
     help: paletteHelpLabels(),
     search: (query) => ({
       ...searchPalette(state, query, {
@@ -430,8 +531,8 @@ export function openPalette() {
     onSelect,
     onPin,
     onScope: handleScope,
-    onPathPop: clearPath,
-    onPathClick: clearPath,
+    onPathPop: popPath,
+    onPathClick: handlePathClick,
     onClearPath: clearPath,
     onCopy: copyActive,
     onContextMenu: (item, position) => openContextMenu({
@@ -534,11 +635,25 @@ function syncHeaderAction(settings) {
   headerAction.update({ label: headerLabel() });
 }
 
+/** Register the manager menu entry, replacing it after a language change. */
+function registerMenuCommand(replace = false) {
+  if (typeof GM_registerMenuCommand !== 'function') return;
+  if (replace) {
+    // Without an id to unregister, adding the entry again would leave two menu
+    // commands; keeping the old label is the lesser evil.
+    if (typeof menuCommandId !== 'number' || typeof GM_unregisterMenuCommand !== 'function') return;
+    try {
+      GM_unregisterMenuCommand(menuCommandId);
+    } catch {
+      return;
+    }
+  }
+  menuCommandId = GM_registerMenuCommand(t('menu.palette'), openPalette);
+}
+
 /** Subscribe the palette to settings, language and navigation changes once. */
 export function initCommandPaletteFeature() {
-  if (typeof GM_registerMenuCommand === 'function') {
-    GM_registerMenuCommand(t('menu.palette'), openPalette);
-  }
+  registerMenuCommand();
   on('settings:commandPalette', () => {
     closeCommandPalette();
     paletteState = null;
@@ -549,6 +664,7 @@ export function initCommandPaletteFeature() {
   on('settings:language', () => {
     closeCommandPalette();
     headerAction?.update({ label: headerLabel() });
+    if (menuCommandId !== null) registerMenuCommand(true);
   });
   watchNavigation(() => {
     closeCommandPalette();

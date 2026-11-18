@@ -282,6 +282,23 @@ test('refresh keeps the selected key and Alt+P pins it', () => {
   assert.deepEqual(seen, [['pin', 'cmd:two']]);
 });
 
+test('a repository row shows its owner avatar and falls back to the glyph', () => {
+  open({
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [
+      { key: 'repo:a', kind: 'repo', icon: 'repo', title: 'alpha', avatar: 'https://github.com/o.png?size=32' },
+    ] }] }),
+  });
+  const row = document.querySelector('.gp-command__row');
+  const img = row.querySelector('.gp-command__avatar');
+  assert.ok(img);
+  assert.equal(img.getAttribute('alt'), '');
+  assert.equal(img.getAttribute('aria-hidden'), 'true');
+  assert.equal(row.querySelector('.gp-command__icon svg'), null);
+  img.dispatchEvent(new dom.window.Event('error'));
+  assert.equal(row.querySelector('.gp-command__avatar'), null);
+  assert.ok(row.querySelector('.gp-command__icon svg'));
+});
+
 test('a pinned row shows a star before its title', () => {
   open({
     search: () => ({
@@ -346,4 +363,80 @@ test('the palette can take focus back after its row menu closes', () => {
   handle.focus();
   assert.equal(document.activeElement, document.querySelector('.gp-command__input'));
   outside.remove();
+});
+
+test('Tab drills into any scopeable row, not only a repository', () => {
+  const scopes = [];
+  open({
+    search: () => ({ groups: [{ id: 'files', title: 'Files', items: [
+      { key: 'file:folder', kind: 'file', title: 'src/', scopeable: true },
+    ] }] }),
+    onScope: (item) => { scopes.push(item.key); return true; },
+  });
+  const input = document.querySelector('.gp-command__input');
+  const event = new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+  input.dispatchEvent(event);
+  assert.deepEqual(scopes, ['file:folder']);
+  assert.equal(event.defaultPrevented, true);
+});
+
+test('right arrow drills into the active scopeable row while the field is empty', () => {
+  const scopes = [];
+  open({
+    search: () => ({ groups: [{ id: 'files', title: 'Files', items: [
+      { key: 'file:folder', kind: 'file', title: 'src/', scopeable: true },
+    ] }] }),
+    onScope: (item) => { scopes.push(item.key); return true; },
+  });
+  const input = document.querySelector('.gp-command__input');
+  const event = new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true });
+  input.dispatchEvent(event);
+  assert.deepEqual(scopes, ['file:folder']);
+  assert.equal(event.defaultPrevented, true);
+});
+
+test('left arrow leaves one path level while the field is empty', () => {
+  const pops = [];
+  open({
+    path: [{ label: 'alice' }, { label: 'repo' }, { label: 'src' }],
+    onPathPop: () => pops.push('pop'),
+  });
+  const input = document.querySelector('.gp-command__input');
+  const event = new dom.window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true });
+  input.dispatchEvent(event);
+  assert.deepEqual(pops, ['pop']);
+  assert.equal(event.defaultPrevented, true);
+});
+
+test('arrows move the caret, not the path, while a query is typed', () => {
+  const scopes = [];
+  const pops = [];
+  open({
+    path: [{ label: 'alice' }, { label: 'repo' }],
+    search: () => ({ groups: [{ id: 'files', title: 'Files', items: [
+      { key: 'file:folder', kind: 'file', title: 'src/', scopeable: true },
+    ] }] }),
+    onScope: (item) => { scopes.push(item.key); return true; },
+    onPathPop: () => pops.push('pop'),
+  });
+  const input = document.querySelector('.gp-command__input');
+  input.value = 'src';
+  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+  const right = new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true });
+  const left = new dom.window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true });
+  input.dispatchEvent(right);
+  input.dispatchEvent(left);
+  assert.deepEqual(scopes, []);
+  assert.deepEqual(pops, []);
+  assert.equal(right.defaultPrevented, false);
+  assert.equal(left.defaultPrevented, false);
+});
+
+test('closing, reopening and closing again removes every overlay', async () => {
+  open();
+  shell.closeCommandPalette();
+  open();
+  shell.closeCommandPalette();
+  await new Promise((resolve) => setTimeout(resolve, 180));
+  assert.equal(document.querySelectorAll('.gp-command-overlay').length, 0);
 });

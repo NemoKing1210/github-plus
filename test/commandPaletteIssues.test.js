@@ -11,7 +11,8 @@ globalThis.document = {
   ),
 };
 
-const { issueCandidates, normalizeIssue, ensureIssues } = await import('../src/features/commandPalette/issues.js');
+const { issueCandidates, normalizeIssue, ensureIssues, forgetIssues } = await import('../src/features/commandPalette/issues.js');
+const { readCacheRecord } = await import('../src/features/commandPalette/store.js');
 
 test('pull requests and issues share a shape and a badge', () => {
   const pr = normalizeIssue({ number: 7, title: 'Fix it', html_url: 'https://github.com/o/r/pull/7', user: { login: 'ann' }, updated_at: '2026-11-01T00:00:00Z', pull_request: {} }, 'o/r');
@@ -59,5 +60,38 @@ test('ensureIssues loads an explicit repository', async () => {
   const result = await ensureIssues({ repo: 'o/other' });
   assert.equal(result.status, 'updated');
   assert.ok(urls.some((url) => url.includes('/repos/o/other/issues')));
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+
+test('a forced ensureIssues does not join an in-flight list', async () => {
+  const pending = [];
+  globalThis.GM_xmlhttpRequest = (options) => pending.push(options);
+  const first = ensureIssues({ repo: 'o/force' });
+  const second = ensureIssues({ repo: 'o/force', force: true });
+  await Promise.resolve();
+  assert.equal(pending.length, 2);
+  for (const request of pending) {
+    request.onload({ status: 200, responseText: '[]', responseHeaders: '' });
+  }
+  const [one, two] = await Promise.all([first, second]);
+  assert.equal(one.status, 'updated');
+  assert.equal(two.status, 'updated');
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+test('a cleared issue cache discards an in-flight list', async () => {
+  const pending = [];
+  globalThis.GM_xmlhttpRequest = (options) => pending.push(options);
+  const loading = ensureIssues({ repo: 'o/discard' });
+  forgetIssues();
+  pending[0].onload({
+    status: 200,
+    responseText: JSON.stringify([{ number: 1, title: 'Bug' }]),
+    responseHeaders: '',
+  });
+  const result = await loading;
+  assert.equal(result.status, 'discarded');
+  assert.deepEqual(readCacheRecord()?.issues || {}, {});
   delete globalThis.GM_xmlhttpRequest;
 });

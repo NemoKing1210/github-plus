@@ -135,3 +135,75 @@ test('ensureTree caches a successful load and reports truncation', async () => {
   assert.equal(second.status, 'cached');
   delete globalThis.GM_xmlhttpRequest;
 });
+
+test('fileCandidates narrow to a directory and keep the path relative to it', () => {
+  const state = {
+    context: { repo: 'o/r', ref: 'main' },
+    settings: { sources: { files: true } },
+    cache: { trees: { [treeKey('o/r', 'main')]: { items: [
+      { path: 'src', type: 'tree' },
+      { path: 'src/x.js', type: 'blob', size: 12 },
+      { path: 'src/deep', type: 'tree' },
+      { path: 'src/deep/y.js', type: 'blob', size: 24 },
+      { path: 'test/z.js', type: 'blob', size: 36 },
+    ] } } },
+  };
+  const rows = fileCandidates(state, { repo: 'o/r', ref: 'main', dir: 'src' });
+  assert.deepEqual(rows.map((row) => row.data.path), ['src/deep', 'src/deep/y.js', 'src/x.js']);
+  const x = rows.find((row) => row.data.path === 'src/x.js');
+  const y = rows.find((row) => row.data.path === 'src/deep/y.js');
+  const folder = rows.find((row) => row.data.path === 'src/deep');
+  assert.equal(x.titleMuted, '');
+  assert.equal(y.titleMuted, 'deep /');
+  assert.equal(folder.scopeable, true);
+  assert.equal(folder.title, 'deep/');
+  assert.equal(rows.some((row) => row.data.path === 'test/z.js'), false);
+});
+
+test('hasFileItems reports a loaded tree without building rows', () => {
+  const state = {
+    context: { repo: 'o/r', ref: 'main' },
+    settings: { sources: { files: true } },
+    cache: { trees: { [treeKey('o/r', 'main')]: { items: [{ path: 'a.js', type: 'blob', size: 1 }] } } },
+  };
+  assert.equal(files.hasFileItems(state), true);
+  state.cache.trees[treeKey('o/r', 'main')].items = [];
+  assert.equal(files.hasFileItems(state), false);
+});
+
+test('a forced ensureTree does not join an in-flight non-forced load', async () => {
+  const pending = [];
+  globalThis.GM_xmlhttpRequest = (options) => pending.push(options);
+  const first = ensureTree({ repo: 'o/force', ref: 'HEAD' });
+  const second = ensureTree({ repo: 'o/force', ref: 'HEAD', force: true });
+  await Promise.resolve();
+  assert.equal(pending.length, 2);
+  for (const request of pending) {
+    request.onload({
+      status: 200,
+      responseText: JSON.stringify({ truncated: false, tree: [{ path: 'a.js', type: 'blob', size: 10 }] }),
+      responseHeaders: '',
+    });
+  }
+  const [one, two] = await Promise.all([first, second]);
+  assert.equal(one.status, 'updated');
+  assert.equal(two.status, 'updated');
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+test('a cleared cache discards an in-flight tree instead of writing it back', async () => {
+  const pending = [];
+  globalThis.GM_xmlhttpRequest = (options) => pending.push(options);
+  const loading = ensureTree({ repo: 'o/discard', ref: 'HEAD' });
+  files.forgetTrees();
+  pending[0].onload({
+    status: 200,
+    responseText: JSON.stringify({ truncated: false, tree: [{ path: 'a.js', type: 'blob', size: 10 }] }),
+    responseHeaders: '',
+  });
+  const result = await loading;
+  assert.equal(result.status, 'discarded');
+  const record = readPaletteState().record;
+  assert.deepEqual(record?.trees || {}, {});
+  delete globalThis.GM_xmlhttpRequest;
+});

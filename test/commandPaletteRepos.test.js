@@ -20,8 +20,9 @@ globalThis.document = {
 beforeEach(() => { disk = new Map(); });
 
 const {
-  normalizeRepo, mergeRepoSources, repoCandidates, ensureRepositories,
+  normalizeRepo, mergeRepoSources, repoCandidates, ensureRepositories, forgetRepositories,
 } = await import('../src/features/commandPalette/repos.js');
+const { readCacheRecord } = await import('../src/features/commandPalette/store.js');
 
 test('normalizeRepo keeps known fields and defaults', () => {
   const repo = normalizeRepo({ full_name: 'o/r', owner: { login: 'o', type: 'User' }, name: 'r', stargazers_count: 3 });
@@ -29,6 +30,30 @@ test('normalizeRepo keeps known fields and defaults', () => {
   assert.equal(repo.stars, 3);
   assert.equal(repo.private, false);
   assert.equal(repo.archived, false);
+});
+
+test('normalizeRepo keeps the owner avatar and derives one from the login', () => {
+  const withApi = normalizeRepo({
+    full_name: 'o/r',
+    owner: { login: 'o', avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4' },
+  });
+  assert.equal(withApi.avatar, 'https://avatars.githubusercontent.com/u/1?v=4&s=32');
+  const loginOnly = normalizeRepo({ full_name: 'o/r', owner: { login: 'o' } });
+  assert.equal(loginOnly.avatar, 'https://github.com/o.png?size=32');
+  assert.equal(normalizeRepo({ full_name: 'o/r' }).avatar, '');
+});
+
+test('a repo row carries its avatar for the icon slot', () => {
+  const state = {
+    settings: { sources: { repositories: true, starred: true }, hideForks: false, hideArchived: false },
+    cache: { sources: { repos: { pages: [{ items: [
+      { fullName: 'o/main', owner: 'o', name: 'main', avatar: 'https://github.com/o.png?size=32' },
+      { fullName: 'o/old', owner: 'o', name: 'old' },
+    ] }] }, starred: { pages: [{ items: [] }] } } },
+  };
+  const [withAvatar, cachedBeforeField] = repoCandidates(state);
+  assert.equal(withAvatar.avatar, 'https://github.com/o.png?size=32');
+  assert.equal(cachedBeforeField.avatar, 'https://github.com/o.png?size=32');
 });
 
 test('mergeRepoSources dedupes and marks the starred copy', () => {
@@ -156,5 +181,36 @@ test('a repository refresh keeps a tree written while it was in flight', async (
   };
   await ensureRepositories({ force: true });
   assert.deepEqual(readCacheRecord().trees, { 'o/r@main': { items: [], fetchedAt: 7 } });
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+
+test('a forced repository refresh starts its own load', async () => {
+  const pending = [];
+  globalThis.GM_xmlhttpRequest = (options) => pending.push(options);
+  const first = ensureRepositories();
+  const second = ensureRepositories({ force: true });
+  await Promise.resolve();
+  assert.equal(pending.length, 4);
+  for (const request of pending) {
+    request.onload({ status: 200, responseText: '[]', responseHeaders: '' });
+  }
+  const [one, two] = await Promise.all([first, second]);
+  assert.equal(one.status, 'updated');
+  assert.equal(two.status, 'updated');
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+test('a cleared cache discards an in-flight repository load', async () => {
+  const pending = [];
+  globalThis.GM_xmlhttpRequest = (options) => pending.push(options);
+  const loading = ensureRepositories({ force: true });
+  forgetRepositories();
+  for (const request of pending) {
+    request.onload({ status: 200, responseText: '[]', responseHeaders: '' });
+  }
+  const result = await loading;
+  assert.equal(result.status, 'discarded');
+  assert.deepEqual(readCacheRecord()?.sources || {}, {});
   delete globalThis.GM_xmlhttpRequest;
 });

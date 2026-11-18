@@ -1163,11 +1163,12 @@ A modal search surface on `Ctrl/⌘+K` (a preset or any recorded combination, or
 off), opened from that hotkey, the palette button in the GitHub header or the
 manager's menu. It follows GitHub's own palette model: the field carries an
 editable scope path, the palette opens at the page's repository, `Tab` on a
-repository row drills into it, `Backspace` leaves one level and
-`Ctrl/⌘+Backspace` clears the path. The root level lists the account's pages
-and the user's repositories; inside a repository the same list becomes that
-repository's pages, with its files (`/`), open issues and pull requests (`#`)
-one query away. GitHub Plus controls (`>`), favorites (pins), recents, a
+repository row drills into it and `Tab` on a folder row drills into that
+folder, `Backspace` leaves one level and `Ctrl/⌘+Backspace` clears the path.
+The root level lists the account's pages and the user's repositories; inside a
+repository the same list becomes that repository's pages, with its files (`/`),
+open issues and pull requests (`#`) one query away, and a folder level leads
+with its own files. GitHub Plus controls (`>`), favorites (pins), recents, a
 per-row context menu and a GitHub search fallback complete it. Without a token
 it reads public data and commands still work; with a verified token it also
 sees private repositories.
@@ -1178,29 +1179,39 @@ sees private repositories.
   `snapshotCandidates`, opens `ui/commandPalette.js`, installs the document
   hotkey, registers the header entry through `ui/headerActions.js` (`order: 10`,
   label `t('palette.title')` plus the current shortcut) and owns the load
-  lifecycle. `state.scope` is `{ repo }` or null and is the palette's one path
-  level: `openPalette` starts it at `state.context.repo`, so a repository page
-  opens already scoped, and `pathSegments()` turns it into the owner and
-  repository segments the field renders. `handleScope(item)` runs on `Tab` over
-  a repository row: it sets the scope, swaps the path, clears the query,
-  refreshes and kicks the scoped loads. `clearPath()` runs on `Backspace`,
-  `Ctrl/⌘+Backspace` and a path-segment click: it drops the scope, clears the
-  sticky failure note and refreshes to the root list. `buildCandidates` reads
-  repository rows at the root and, when scoped, that repository's pages, its
-  tree at the literal `HEAD` and its issues. `kickLoads()` starts
+  lifecycle. `state.scope` is `{ repo, dir? }` or null and is the palette's one
+  path level: `openPalette` starts it at `state.context.repo`, so a repository
+  page opens already scoped, and `pathSegments()` turns it into the owner,
+  repository and folded folder segments the field renders. `handleScope(item)`
+  runs on `Tab` over a repository row (scope `{ repo }`) or a folder row
+  (scope `{ repo, dir }`): it sets the scope, swaps the path, clears the query,
+  clears the failure note, refreshes and kicks the scoped loads. `popPath()` runs
+  on `Backspace`: it leaves one folder, then the repository, then the root.
+  `handlePathClick(index)` runs on a path-segment click and leaves every level
+  below the clicked one (the owner segment has no level, so it clears the
+  path); `clearPath()` drops the scope and refreshes to the root list.
+  `buildCandidates` reads repository rows at the root and, when scoped, that
+  repository's pages, its tree at the scope's ref and its issues, filtered to
+  the scope's folder. `scopeRef()` uses the page ref only when the scope is the
+  page's own repository and the literal `HEAD` otherwise. `kickLoads()` starts
   `ensureRepositories()`, `ensureTree()` and `ensureIssues()` without awaiting
   them (trees and issues only when scoped), flips `state.status` to `loading`
   and refreshes the shell over the cached rows; each load settles into
   `refreshView()`, and a failure is sticky for the cycle (`state.loadError`) so
-  a parallel success cannot erase its note. Every source is attempted once per
-  page session (`sessionRefreshes`, trees keyed by `tree:<repo@ref>`, issues by
+  a parallel success cannot erase its note. A settled tree records its
+  truncation flag in `state.treeInfo[treeKey]`, which the note reads before the
+  cached record. Every source is attempted once per page session
+  (`sessionRefreshes`, trees keyed by `tree:<repo@ref>`, issues by
   `issues:<repo>`), a manual refresh bypasses that, and an idle-time refresh
   runs only when the cache is warm and stale. `openPalette` wires `onPin`,
   `onContextMenu` (a `layer: 'palette'` menu built by `rowMenu.js`), `onScope`,
   `onPathPop`, `onPathClick`, `onClearPath`, `onCopy` and the help map;
   `handleRowAction` maps every row action to `onSelect`, `onPin` or a copy
-  `runAction`. The palette rebuilds candidates from storage on every open, so a
-  settings change or a manual refresh never needs a stale in-memory list.
+  `runAction`. The manager menu entry is registered on init and re-registered
+  after a language change (unregister first; a manager that cannot unregister
+  keeps the old label instead of gaining a duplicate). The palette rebuilds
+  candidates from storage on every open, so a settings change or a manual
+  refresh never needs a stale in-memory list.
 - `store.js` — all persistence. Cache record
   `{ version, login, tokenLogin, tokenFingerprint, sources, trees, issues,
   rateLimit }` under `gp_palette_cache_v1`; `readPaletteState()` returns the page
@@ -1219,24 +1230,36 @@ sees private repositories.
   recursive `git/trees/{ref}`. Sends `Accept`, `X-GitHub-Api-Version`,
   `Authorization: Bearer` when a token exists and `If-None-Match` for every
   cached page; a `304` reuses the cached page, a `200` replaces it with its new
-  ETag.
+  ETag, and a revalidated page that was already short ends the list instead of
+  revalidating every cached page up to the cap.
   Pagination stops at a page shorter than 100 items (10 pages with a token, 2
   without); the starred source retries once without `star+json` after a 415/404
   on its first page. Non-2xx responses throw an error carrying `status`,
   `headers` and `rateLimit`; the API layer never logs.
-- `repos.js` — `normalizeRepo`, `mergeRepoSources` (owned repos first, starred
+- `repos.js` — `normalizeRepo` (including the owner `avatar`, from the API's
+  `avatar_url` or GitHub's `<login>.png` route), `mergeRepoSources` (owned repos first, starred
   flag, starred-only second), `repoCandidates` (source toggles, fork/archived
-  filters, rank fields, sort key from push or star time) and
-  `ensureRepositories` (single-flight, both sources in `Promise.allSettled`,
-  each successful source committed on its own, records trimmed to 1000 items,
-  `GP-1701` once per failed source and never with a token). At write time it
-  re-reads the record so a tree written by a parallel load survives.
+  filters, rank fields with a compact star count, sort key from push or star
+  time, and the avatar derived from the owner login for a record cached before
+  the field existed) and `ensureRepositories` (single-flight, both sources in
+  `Promise.allSettled`, each successful source committed on its own, records
+  trimmed to 1000 items, `GP-1701` once per failed source and never with a
+  token). A forced refresh starts its own load instead of joining the running
+  one; `forgetRepositories()` bumps a generation and drops the in-flight load,
+  so a load that already reached GitHub discards its result instead of
+  refilling a cache the user just cleared. At write time it re-reads the record
+  so a tree written by a parallel load survives.
 - `files.js` — `treeKey`, `normalizeTree` (blobs and trees only),
   `fileCandidates` (path-sorted rows with encoded GitHub URLs and
-  `formatSize`) and `ensureTree` (single-flight per tree + token fingerprint,
+  `formatSize`; `dir` keeps only that folder's descendants, mutes a path
+  relative to it, and marks folder rows `scopeable` so `Tab` can narrow into
+  them), `hasFileItems` (whether a loaded tree has any row, without building
+  candidates) and `ensureTree` (single-flight per tree + token fingerprint,
   ETag revalidation, 20 000-item cap, disk records capped to the three newest
   and 1.5 MB each, oversized records kept in a session map, `GP-1701` on a real
-  failure only).
+  failure only). The sorted list is cached per tree array in a `WeakMap`, a
+  forced call starts its own load, and `forgetTrees()` bumps a generation so an
+  in-flight load discards its result.
 - `issues.js` — `normalizeIssue` (the cached shape: number, title, url, author,
   updatedAt, kindLabel `issue`/`pullRequest` from GitHub's `pull_request` field,
   comments, repo), `issueCandidates` (source toggle, the page's repository,
@@ -1244,7 +1267,9 @@ sees private repositories.
   fields for title, `#N` and author, data with the URL, author, update time,
   comments and `state: 'open'`), `ensureIssues` (identity guard, single-flight
   per repo + token fingerprint, ETag revalidation, 3 pages with a token and 1
-  without, `GP-1701` on a real failure) and `forgetIssues`. The record is capped
+  without, `GP-1701` on a real failure) and `forgetIssues`. A forced call
+  starts its own load, and `forgetIssues()` bumps a generation so a load that
+  already reached GitHub discards its result. The record is capped
   at 5 repositories and 300 KB and its write re-reads the disk record so
   repository and tree loads survive.
 - `rowMenu.js` — pure: `rowMenuItems(item, { labels, onAction, pinned })` and
@@ -1259,34 +1284,47 @@ sees private repositories.
   anonymous path; an unverified token yields no identity, so no request is
   sent with it and no page data is mixed in.
 - `rank.js` — pure: prefix modes (`>` commands, `#` issues and pull requests,
-  `/` files, `@` repositories), exact-substring and subsequence scoring with
-  highlight ranges, pinned (+1000) and recent (+100) boosts, per-group caps
-  (command 8, file 12, repo 15) and the `maxResults` total cap. `options.scope`
-  (`{ repo }` or null) keeps only that repository's repo, file and issue rows
-  while commands stay global; favorites and recents stay global too. The
+  `/` files, `@` repositories), Latin diacritics folded on both sides with an
+  index map so highlight ranges still land on the original title,
+  exact-substring and subsequence scoring (word starts and whole-word hits
+  bonus, gaps cost; a second alignment pass prefers word starts so `gt` reads
+  as the initials of `git-status`), pinned (+1000) and recent (+100) boosts,
+  per-group caps (command 8, file 12, repo 15) and the `maxResults` total cap.
+  `options.scope` (`{ repo, dir? }` or null) keeps only that repository's repo,
+  file and issue rows — a folder scope keeps only its descendants — while
+  commands stay global; favorites and recents stay global too. The
   best-scoring non-search row is promoted into a leading `top` group (title
   from `options.titles.top`), removed from its own group, and exempt from the
   total cap. The empty query builds the favorites and recent groups, then the
   browse order (`pages, repos, starred, plus, search`; scoped:
-  `pages, files, issues, plus, search`), lists files only in a file query and
-  issues only in an issues query (GitHub's rule), and hides the Plus group from
-  a scoped empty list. On a typed query `markPinned`-flagged candidates form
-  their own first `pinned` group (cap 8) and are removed from their kind's
-  group; the synthetic group titles (`palette.group.pinned` / `.recent` /
-  `.top`) arrive through `options.titles`, so `rank.js` stays free of i18n.
-- `search.js` — `searchPalette(state, query)`: passes the scope to the ranker
-  and appends the GitHub search handoff as the last group of every query with
-  text, scoped to the repository (`repo:<name>` code search) or global — a
-  search is never a dead end even when other results match.
+  `pages, files, issues, plus, search`; folder: `files` first), lists files
+  only in a file query — except inside a folder level, whose whole point is
+  its files — and issues only in an issues query (GitHub's rule), and hides
+  the Plus group from a scoped empty list. On a typed query
+  `markPinned`-flagged candidates form their own first `pinned` group (cap 8)
+  and are removed from their kind's group; the synthetic group titles
+  (`palette.group.pinned` / `.recent` / `.top`) arrive through
+  `options.titles`, so `rank.js` stays free of i18n.
+- `search.js` — `searchPalette(state, query)`: passes the scope and the parsed
+  prefix mode to the ranker and appends the GitHub search handoff as the last
+  group of every query with text — a search is never a dead end even when
+  other results match.
 - `commands.js` — the `pages` group: inside a scope the repository's own pages
   (a leading `repo.home` row labeled with the repository path and hinted
-  `Jump to`, then Code, Issues, Pull requests, Actions, Projects, Discussions,
-  Releases, Wiki, Security, Insights and — when the repository appears in the
-  cached owned list — Settings), otherwise the account's pages (profile,
-  repositories, stars, notifications, gists, GitHub settings, dashboard); plus
-  the GitHub Plus controls (open settings, seven feature toggles, refresh
-  repositories/tree, clear palette/translation cache). Every candidate carries
-  `data.run` and `detail { id, label, description, shortcut }`;
+  `Jump to`, then Code, Issues, Pull requests, New issue, Compare changes,
+  Actions, Projects, Discussions, Releases, Wiki, Security, Insights and — when
+  the repository appears in the cached owned list — Settings), otherwise the
+  account's pages (profile, repositories, stars, new repository,
+  notifications, gists, GitHub settings, dashboard); plus the GitHub Plus
+  controls (open settings, seven feature toggles, refresh
+  repositories/tree, clear palette/translation cache). Account pages use the
+  effective identity (the verified token's login, else the page login), so a
+  token-only session never links to `github.com/null`. `refreshTree` carries
+  the scoped repository and its ref. `searchCommands(query, { scope, mode })`
+  keeps the prefix's own result type (`#` issues, `/` code, `@` repositories),
+  narrows to the repository for everything but repository search, and returns
+  nothing for `>` (commands have no GitHub search equivalent). Every candidate
+  carries `data.run` and `detail { id, label, description, shortcut }`;
   `TOGGLE_LABEL_KEYS` maps a section to the locale key that names it.
 - `actions.js` — the action descriptors and `runAction()`: navigate, settings,
   toggle (`saveSettings` + the matching bus event + toast), refresh (the
@@ -1308,10 +1346,13 @@ scroll lock, `ui/contextMenu.js` and `ui/icons.js`, never a feature.
 onContextMenu, onClose, onScope, onPathPop, onPathClick, onClearPath, onCopy })`
 mounts the overlay, locks the page, focuses the combobox and returns
 `{ refresh, close, focus, setQuery, setPath }`. The list is a single
-`role="listbox"` with group titles and `role="option"` rows; the active row is
+`role="listbox"` labeled with the palette title, with group titles and
+`role="option"` rows; the active row is
 tracked by key (so a refresh keeps the selection) and mirrored to
 `aria-activedescendant`. A favorite's row draws a star inside
-`.gp-command__title`, and the active row shows its key hints
+`.gp-command__title`; a repository row puts its owner's avatar
+(`.gp-command__avatar`, from `item.avatar`) in the icon slot and falls back to
+the row's glyph when the image fails. The active row shows its key hints
 (`.gp-command__hint`): `Tab <hintScope> · ↵ <item.hint || hintOpen>`.
 `path` is an array of `{ label }` segments rendered ahead of the input as
 `.gp-command__seg` buttons separated by `/`; each is focus-safe (a pointerdown
@@ -1324,12 +1365,17 @@ row (the pointer position) or `Shift+F10`/`ContextMenu` on the active row.
 Keys:
 arrows with wrap, Home/End, Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin,
 `Ctrl/⌘+C` copies the active row when no text is selected, `Tab` drills into a
-repository row (else traps focus), `Backspace`/`Delete` on an empty query pops
-the path (`onPathPop`), `Ctrl/⌘+Backspace`/`Delete` clears the query and the
+`scopeable` row — a repository row or a folder row — else traps focus, `→` on
+an empty query does the same as `Tab` and `←` on an empty query leaves one
+path level (with text in the field both move the caret instead),
+`Backspace`/`Delete` on an empty query pops the path (`onPathPop`),
+`Ctrl/⌘+Backspace`/`Delete` clears the query and the
 path (`onClearPath`), `?` toggles help, `Escape` closes help first and then
 the palette, and the shortcut closes. An outside pointerdown closes; closing
 marks the palette closed synchronously, restores focus, unlocks the page,
-closes any open row menu and removes the overlay after 120 ms. Items with
+closes any open row menu and removes that overlay after 120 ms (each closing
+root owns its removal, so a rapid close-then-reopen never strands one on the
+page). Items with
 `highlight` ranges render marks from text nodes, never `innerHTML`;
 `labels.badges` names the badge ids (including `issue` and `pullRequest`).
 
@@ -1339,7 +1385,9 @@ that appears when **Custom** is chosen), GitHub access (password field, **Check
 token**
 through `fetchUser`, **Remove token**, an identity-mismatch hint), the six
 source switches, fork/archived filters, and cache lifetime plus a stats line
-and **Clear cache**. Verifying a token writes
+and **Clear cache** (which clears the stored record and forgets the session's
+in-memory trees, issues and in-flight loads, so nothing refills what was just
+cleared). Verifying a token writes
 `login`, `tokenLogin` and the fingerprint into the cache immediately and wipes
 data that belonged to another account; the token itself is persisted only by
 the panel footer Save. Selecting a preset hides the recorder and stores the
@@ -1356,7 +1404,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 417
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 408
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1538,10 +1586,14 @@ storage and `palette.refresh()` keeps the active row by key → Enter (or click)
 records a recent, closes the palette and runs the action: `navigate` for a URL,
 `saveSettings` + the matching bus event + toast for a toggle,
 `ensure*({ force: true })` for a refresh. `Tab` on a repository row is the
-drill-down: `handleScope` sets the scope, `setPath` swaps the field's segments,
-the query clears and `ensureTree({ repo, ref: 'HEAD' })` / `ensureIssues({ repo })`
-start; `Backspace`, a path-segment click or `Ctrl/⌘+Backspace` runs `clearPath`
-to the root. Files and issues stay behind their `/` and `#` prefixes. A row's
+drill-down: `handleScope` sets the scope `{ repo }`, `setPath` swaps the field's
+segments, the query clears and `ensureTree({ repo, ref: 'HEAD' })` /
+`ensureIssues({ repo })` start; `Tab` on a folder row sets `{ repo, dir }`, and
+the list becomes that folder's files with their paths relative to it. `→` on an
+empty query is the same drill-down and `←` on an empty query leaves one level.
+`Backspace` leaves one folder, then the repository; a path-segment click leaves
+every level below it; `Ctrl/⌘+Backspace` clears the path to the root. Files and
+issues otherwise stay behind their `/` and `#` prefixes. A row's
 right-click or `Shift+F10` opens the palette-layer context menu, whose entries
 run the same select path, toggle the pin or copy a link, path, clone address or
 issue number. Settings Save emits `settings:commandPalette`, which closes an
@@ -1887,13 +1939,18 @@ and check diagnostics for edited files.
   reinstalls the hotkey through `settings:commandPalette`, so a save that went
   through is never the reason it stops firing; the header button and
   `GM_registerMenuCommand` open the same palette as fallbacks.
-- Palette path does not change: `Tab` drills in only from a repository row
-  (`kind: 'repo'`, the `repos` / `starred` groups); inside a scope the rows are
-  the repository's pages, so there is nothing left to drill into. `Backspace`
-  leaves a level only while the query is empty — GitHub keeps it for editing
-  text otherwise — and `Ctrl/⌘+Backspace` clears both. A palette opened on a
-  page without a repository (dashboard, notifications, search) starts at the
-  root, and `clearPath()` is a no-op there.
+- Palette path does not change: `Tab` drills in from a repository row
+  (`kind: 'repo'`, the `repos` / `starred` groups) or from a folder row
+  (`kind: 'file'` with `data.type === 'tree'`, which carries `scopeable`);
+  `→` does the same while the field is empty. File rows always do, page rows
+  never do. Inside a repository the rows are its
+  pages and its folders, so only the folders are one `Tab` away. `Backspace`
+  and `←` leave a level only while the query is empty — GitHub keeps them for
+  editing text otherwise — and `Ctrl/⌘+Backspace` clears both. A path-segment
+  click leaves every level below the segment (the owner segment clears the
+  path). A palette opened on a page without a repository (dashboard,
+  notifications, search) starts at the root, and `clearPath()` is a no-op
+  there.
 - Palette row menu not opening: right-click must land on a row, and
   `Shift+F10`/the menu key needs an active row. The menu is the shared
   `#gp-context-menu` with `layer: 'palette'` — if it renders behind the
@@ -1916,10 +1973,13 @@ and check diagnostics for edited files.
   logs.
 - Files missing in the palette: the file group needs a scoped repository (a
   repository page opens that way, or `Tab` on a repository row), the **Files**
-  source switch on, and a tree at `HEAD` under `gp_palette_cache_v1.trees`; a
-  tree over 20 000 entries is truncated and the footer says so. Files never
-  appear in the empty-query browse list — type `/` or a query. A cache entry is
-  dropped when its identity no longer matches the current one.
+  source switch on, and a tree at the scope's ref (the page ref for the page's
+  own repository, `HEAD` for any other) under `gp_palette_cache_v1.trees`; a
+  tree over 20 000 entries is truncated and the footer says so. At the root or a
+  repository level files never appear in the empty-query browse list — type `/`
+  or a query — but inside a folder level that folder's files are the leading
+  group. A cache entry is dropped when its identity no longer matches the
+  current one.
 - Token rejected: **Check token** calls `GET /user`; a 401 means the token is
   expired or lacks `repo`, and nothing is written. Verifying a token wipes
   data that belonged to another account and stores `login`, `tokenLogin` and

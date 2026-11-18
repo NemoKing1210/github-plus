@@ -15,7 +15,6 @@ const CLOSE_MS = 120;
 const DEBOUNCE_MS = 80;
 
 let state = null;
-let closeTimer = null;
 let optionSeq = 0;
 
 function buildShell(labels) {
@@ -52,6 +51,7 @@ function buildShell(labels) {
   const list = el('div', 'gp-command__list');
   list.id = 'gp-command-list';
   list.setAttribute('role', 'listbox');
+  list.setAttribute('aria-label', labels.title || '');
   main.append(list);
 
   const tip = el('div', 'gp-command__tip');
@@ -165,6 +165,26 @@ function hintText(item, labels) {
   return parts.join(' · ');
 }
 
+/**
+ * A row's avatar for the icon slot. A failed load (a renamed account, a blocked
+ * request) swaps back to the row's glyph instead of leaving a hole in the
+ * column.
+ */
+function avatarNode(item, icon) {
+  const img = el('img', 'gp-command__avatar');
+  img.src = item.avatar;
+  img.alt = '';
+  img.setAttribute('aria-hidden', 'true');
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.referrerPolicy = 'no-referrer';
+  img.addEventListener('error', () => {
+    img.remove();
+    icon.innerHTML = PALETTE_ICONS[item.icon] || '';
+  }, { once: true });
+  return img;
+}
+
 function buildRow(current, item) {
   const row = el('div', 'gp-command__row');
   row.id = `gp-command-option-${optionSeq}`;
@@ -177,7 +197,8 @@ function buildRow(current, item) {
   row.tabIndex = -1;
 
   const icon = el('span', 'gp-command__icon');
-  icon.innerHTML = PALETTE_ICONS[item.icon] || '';
+  if (item.avatar) icon.appendChild(avatarNode(item, icon));
+  else icon.innerHTML = PALETTE_ICONS[item.icon] || '';
   const muted = el('span', 'gp-command__muted', item.titleMuted || '');
   const title = el('span', 'gp-command__title');
   if (item.pinned) {
@@ -346,6 +367,24 @@ function onKeyDown(event) {
     jump(key === 'Home' ? 0 : state.itemsByKey.size - 1);
     return;
   }
+  // Left and right walk the path, but only while the field is empty: with text
+  // in it they belong to the caret.
+  if (!ctrlKey && !metaKey && !altKey && state.input.value === ''
+    && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+    if (key === 'ArrowRight') {
+      const item = activeItem();
+      if (item?.scopeable && state.onScope?.(item)) {
+        event.preventDefault();
+        return;
+      }
+      return;
+    }
+    if (state.pathSegments.length) {
+      event.preventDefault();
+      state.onPathPop?.();
+    }
+    return;
+  }
   if (key === 'Enter') {
     event.preventDefault();
     const item = activeItem();
@@ -375,7 +414,7 @@ function onKeyDown(event) {
   }
   if (key === 'Tab') {
     const item = activeItem();
-    if (item?.kind === 'repo' && state.onScope?.(item)) {
+    if (item?.scopeable && state.onScope?.(item)) {
       event.preventDefault();
       return;
     }
@@ -530,8 +569,9 @@ export function closeCommandPalette() {
   current.dialog.removeEventListener('keydown', onKeyDown);
   current.root.classList.add('is-closing');
   unlockPageScroll();
-  clearTimeout(closeTimer);
-  closeTimer = setTimeout(() => current.root.remove(), CLOSE_MS);
+  // Each closing overlay owns its removal: a shared timer would be cleared by
+  // the next close and leave this root behind.
+  setTimeout(() => current.root.remove(), CLOSE_MS);
   if (current.focusReturn && current.focusReturn.isConnected) {
     current.focusReturn.focus({ preventScroll: true });
   }

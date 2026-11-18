@@ -40,6 +40,7 @@ function stubGm(responses) {
 
 test('304 reuses a cached page and pagination stops at a short page', async () => {
   const { fetchRepoSource } = await import('../src/features/commandPalette/api.js');
+  const fullPage = Array.from({ length: 100 }, (_, index) => ({ full_name: `cached/r${index}` }));
   stubGm([
     { status: 304, headers: 'ETag: "one"\r\n' },
     { status: 200, text: JSON.stringify([{ full_name: 'o/r' }]), headers: 'ETag: "two"\r\n' },
@@ -47,11 +48,31 @@ test('304 reuses a cached page and pagination stops at a short page', async () =
   const result = await fetchRepoSource({
     source: 'repos',
     token: 't',
-    cachedPages: [{ etag: '"one"', items: [{ full_name: 'cached/r' }] }],
+    cachedPages: [{ etag: '"one"', items: fullPage }],
   });
-  assert.equal(result.pages[0].items[0].full_name, 'cached/r');
+  assert.equal(result.pages[0].items[0].full_name, 'cached/r0');
   assert.equal(result.pages[1].items[0].full_name, 'o/r');
   assert.equal(result.complete, true);
+  delete globalThis.GM_xmlhttpRequest;
+});
+
+test('a revalidated short page ends pagination without further requests', async () => {
+  const { fetchRepoSource } = await import('../src/features/commandPalette/api.js');
+  let requests = 0;
+  stubGm([{ status: 304, headers: 'ETag: "one"\r\n' }]);
+  const original = globalThis.GM_xmlhttpRequest;
+  globalThis.GM_xmlhttpRequest = (options) => {
+    requests += 1;
+    original(options);
+  };
+  const result = await fetchRepoSource({
+    source: 'repos',
+    token: 't',
+    cachedPages: [{ etag: '"one"', items: [{ full_name: 'cached/r' }] }],
+  });
+  assert.equal(requests, 1);
+  assert.equal(result.complete, true);
+  assert.equal(result.pages.length, 1);
   delete globalThis.GM_xmlhttpRequest;
 });
 

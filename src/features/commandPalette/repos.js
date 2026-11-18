@@ -6,6 +6,7 @@
 
 import { t } from '../../i18n/index.js';
 import { Codes, createLogger } from '../../core/logger/index.js';
+import { formatCount } from './format.js';
 import { fetchRepoSource } from './api.js';
 import {
   isFresh, isRateBlocked, persistRateLimit, readCacheRecord, readPaletteState, writeCacheRecord,
@@ -13,6 +14,20 @@ import {
 
 const log = createLogger('command-palette');
 const MAX_ITEMS = 1000;
+// Repository rows take the owner's avatar in the icon slot; 32px covers the
+// 16px slot on a 2x display.
+const AVATAR_PX = 32;
+
+/**
+ * Owner avatar for a repository row: the API's canonical URL when the payload
+ * carries one, else GitHub's own `<login>.png` route.
+ */
+function avatarFor(owner, apiUrl) {
+  if (typeof apiUrl === 'string' && apiUrl.startsWith('https://avatars.githubusercontent.com/')) {
+    return `${apiUrl}${apiUrl.includes('?') ? '&' : '?'}s=${AVATAR_PX}`;
+  }
+  return owner ? `https://github.com/${encodeURIComponent(owner)}.png?size=${AVATAR_PX}` : '';
+}
 
 const SOURCES = [
   { id: 'repos', setting: 'repositories' },
@@ -25,6 +40,7 @@ export function normalizeRepo(raw, starredAt = null) {
     fullName: raw?.full_name || '',
     owner: raw?.owner?.login || '',
     ownerType: raw?.owner?.type || '',
+    avatar: avatarFor(raw?.owner?.login || '', raw?.owner?.avatar_url || ''),
     name: raw?.name || '',
     description: typeof raw?.description === 'string' ? raw.description : '',
     private: raw?.private === true,
@@ -92,7 +108,7 @@ export function mergeRepoSources(myItems, starredItems) {
 function metaFor(repo) {
   const parts = [];
   if (repo.language) parts.push(repo.language);
-  if (repo.stars) parts.push(`★ ${repo.stars}`);
+  if (repo.stars) parts.push(`★ ${formatCount(repo.stars)}`);
   if (!parts.length && repo.private) parts.push(t('palette.badge.private'));
   return parts.join(' · ');
 }
@@ -125,6 +141,9 @@ function buildRepoCandidate(repo, groupId, groupTitle) {
     groupTitle,
     title: repo.name || repo.fullName,
     titleMuted: repo.owner ? `${repo.owner} /` : '',
+    // A record cached before the avatar field existed still gets one from its
+    // owner login, so an update does not leave half the rows with a glyph.
+    avatar: repo.avatar || avatarFor(repo.owner, ''),
     meta: metaFor(repo),
     rankFields: [
       { text: repo.name, weight: 3 },
@@ -206,6 +225,7 @@ function enabledSources(settings) {
 }
 
 async function load({ force, signal }) {
+  const stamp = generation;
   const state = readPaletteState();
   const settings = state.settings;
   if (!state.identity) return { status: 'anonymous' };
@@ -234,6 +254,7 @@ async function load({ force, signal }) {
     cachedPages: cachedSources[source.id]?.pages || [],
     signal,
   })));
+  if (stamp !== generation) return { status: 'discarded' };
 
   const sources = { ...cachedSources };
   let rateLimit = sameIdentity ? record.rateLimit || null : null;
@@ -283,15 +304,23 @@ async function load({ force, signal }) {
 }
 
 let inflight = null;
+let generation = 0;
 
 /**
  * Load both repository sources once per call, revalidating cached pages.
- * Concurrent callers share the in-flight load.
+ * Concurrent callers share the in-flight load; a forced refresh starts its own.
  */
 export function ensureRepositories({ force = false, signal } = {}) {
-  if (inflight) return inflight;
-  inflight = load({ force, signal }).finally(() => {
-    inflight = null;
+  if (inflight && !force) return inflight;
+  const promise = load({ force, signal }).finally(() => {
+    if (inflight === promise) inflight = null;
   });
-  return inflight;
+  inflight = promise;
+  return promise;
+}
+
+/** Drop an in-flight load so a cleared cache is not refilled by it. */
+export function forgetRepositories() {
+  generation += 1;
+  inflight = null;
 }

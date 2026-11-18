@@ -18,13 +18,19 @@ export function searchPalette(state, query, titles) {
   });
   if (!parsed.text) return result;
 
+  const fallback = searchCommands(parsed.text, {
+    scope: state.scope || null,
+    mode: parsed.mode,
+  });
+  if (!fallback.length) return result;
+
   return {
     groups: [
       ...result.groups,
       {
         id: 'search',
         title: t('palette.group.search'),
-        items: searchCommands(parsed.text, { scope: state.scope || null }),
+        items: fallback,
       },
     ],
     total: result.total + 1,

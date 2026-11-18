@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.27.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -14,7 +14,7 @@ couleurs d'âge façon blame pour ces fichiers, la taille des fichiers avec
 téléchargement en un clic, un menu contextuel pour les actions sur les fichiers,
 un aperçu rapide de tout fichier et la traduction du contenu des pages.
 
-> **Statut :** début (`0.25.0`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.27.1`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Traduction · Palette · Sauvegarde · À propos),
 > une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du markdown, des
 > icônes de fichiers colorées, des couleurs d'âge façon blame, la taille des
@@ -266,30 +266,38 @@ champ de recherche sur tout ce que vous y faites :
 
 - **Commence là où vous êtes** — sur une page de dépôt, la palette s'ouvre avec
   ce dépôt déjà dans son chemin : la première liste est donc ses pages.
-- **Descendez avec `Tab`** — le champ est un chemin (`owner / repo / requête`).
-  Appuyez sur `Tab` sur une ligne de dépôt pour l'ajouter : la liste devient les
-  pages de ce dépôt, `/` affiche ses fichiers, `#` ses issues et pull requests
-  ouvertes, et la ligne de recherche cherche à l'intérieur. `Retour arrière`
-  retire le dernier niveau, `Ctrl/⌘+Retour arrière` vide le chemin et la requête,
-  et un clic sur un segment du chemin abandonne tout ce qui se trouve en dessous.
+- **Descendez avec `Tab`** — le champ est un chemin (`owner / repo / dossier /
+  requête`). Appuyez sur `Tab` sur une ligne de dépôt pour l'ajouter, puis à
+  nouveau sur une ligne de dossier pour y entrer : la liste devient les fichiers
+  de ce dossier, avec des chemins relatifs à l'endroit où vous êtes, et `Tab`
+  continue aussi profond que l'arbre le permet. `→` et `←` font la même chose
+  quand le champ est vide : vous parcourez le chemin sans quitter les flèches.
+  `Retour arrière` retire le
+  dernier niveau, `Ctrl/⌘+Retour arrière` vide le chemin et la requête, et un
+  clic sur un segment du chemin abandonne tout ce qui se trouve en dessous.
 - **Vos dépôts** — tous ceux que vous possédez, les vôtres d'abord, avec étoiles,
   langage, dernier push et visibilité sur la ligne. Tapez `@` pour ne chercher
   que des dépôts.
 - **Dépôts mis en favori** — les projets auxquels vous revenez sans cesse ; ils
   suivent les vôtres et portent une étoile.
 - **Fichiers du dépôt du chemin** — `/` affiche tous ses chemins ou une requête
-  qui y correspond ; un fichier s'ouvre sur GitHub à la révision que vous
+  qui y correspond ; les lignes de dossier sont marquées et s'ouvrent comme
+  niveau avec `Tab`, et un fichier s'ouvre sur GitHub à la révision que vous
   consultez.
 - **Issues et pull requests ouvertes** — `#` affiche les issues et pull requests
   ouvertes du dépôt, marquées d'un badge issue ou pull request, avec l'auteur et
   la date de mise à jour ; cherchez par titre, numéro ou auteur.
+- **Recherche indulgente** — les requêtes ignorent la casse et les accents
+  latins (`cafe` trouve `Café`), préfèrent les débuts et les mots entiers et se
+  découpent aux espaces, chaque partie étant obligatoire.
 - **Des pages comme lignes** — les pages du dépôt du chemin (Code, Issues, Pull
-  requests, Actions, Projects, Discussions, Releases, Wiki, Security, Insights et
-  Settings si vous le possédez) ou, à la racine, les pages de votre compte
-  (profil, dépôts, étoiles, notifications, gists, réglages GitHub, tableau de
-  bord), chacune à une ligne ; une ligne de dépôt est annotée `Aller à`, et une
-  ligne de recherche GitHub termine chaque requête et cherche dans le chemin
-  lorsqu'il y en a un.
+  requests, nouvelle issue, comparer les modifications, Actions, Projects,
+  Discussions, Releases, Wiki, Security, Insights et Settings si vous le
+  possédez) ou, à la racine, les pages de votre compte (profil, dépôts, étoiles,
+  nouveau dépôt, notifications, gists, réglages GitHub, tableau de bord), chacune
+  à une ligne ; une ligne de dépôt est annotée `Aller à`, et une ligne de
+  recherche GitHub termine chaque requête : code dans le chemin, issues pour
+  `#`, dépôts pour `@` et pour une requête libre hors d'un chemin.
 - **Actions GitHub Plus** — ouvrez le panneau, activez ou désactivez ses fonctions
   ou rafraîchissez le cache ; `>` pour les commandes.
 - **Favoris et récents** — épinglez ce que vous utilisez constamment (`Alt+P`) ;
@@ -311,8 +319,8 @@ champ de recherche sur tout ce que vous y faites :
   `api.github.com` ; le cache appartient à chaque compte, changer de compte
   n'affiche donc jamais les dépôts d'un autre.
 - **Le clavier d'abord** — `↑`/`↓` déplacent la sélection, `Enter` ouvre,
-  `Ctrl/⌘+Enter` ouvre dans un nouvel onglet, `Tab` entre dans un dépôt,
-  `Retour arrière` quitte un niveau du chemin, `Alt+P` épingle, `Ctrl/⌘+C` copie
+  `Ctrl/⌘+Enter` ouvre dans un nouvel onglet, `Tab` entre dans un dépôt ou un
+  dossier, `←`/`→` parcourent le chemin, `Retour arrière` quitte un niveau du chemin, `Alt+P` épingle, `Ctrl/⌘+C` copie
   la ligne, `?` affiche toutes les touches et préfixes, et `Échap` ferme (l'aide
   d'abord) ; la palette reste discrète pendant la saisie dans un éditeur de
   commentaire ou de README et se ferme d'elle-même à la navigation. Le raccourci

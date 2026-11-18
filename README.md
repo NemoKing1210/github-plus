@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.27.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,7 +13,7 @@ wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
 any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.25.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.27.1`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
@@ -246,10 +246,12 @@ there:
 
 - **Starts where you are** — on a repository page the palette opens with that
   repository already in its path, so the first list is that repository's pages.
-- **Drill down with `Tab`** — the field is a path (`owner / repo / query`).
-  Press `Tab` on a repository row to add it: the list becomes that repository's
-  pages, `/` lists its files and `#` its open issues and pull requests, and the
-  search row searches inside it. `Backspace` removes the last level,
+- **Drill down with `Tab`** — the field is a path (`owner / repo / folder /
+  query`). Press `Tab` on a repository row to add it, and `Tab` again on a
+  folder row to step inside it: the list becomes that folder's files, with
+  paths relative to where you are, and `Tab` keeps going as deep as the tree
+  allows. `→` and `←` do the same on an empty field, so you can walk the path
+  without leaving the arrow keys. `Backspace` removes the last level,
   `Ctrl/⌘+Backspace` clears the path and the query, and clicking a path segment
   leaves everything below it.
 - **Your repositories** — every repository you own, owned ones first, with
@@ -258,16 +260,22 @@ there:
 - **Starred repositories** — the projects you keep coming back to, merged after
   your own and marked with a star.
 - **Files in the repository in the path** — type `/` for every path there, or a
-  query that matches one; a file opens on GitHub at the ref you are browsing.
+  query that matches one; folder rows are marked and can be opened as a level
+  with `Tab`, and a file opens on GitHub at the ref you are browsing.
 - **Open issues and pull requests** — type `#` for the repository's open issues
   and pull requests, marked with an issue or pull-request badge and carrying the
   author and update time; search them by title, number or author.
+- **Forgiving matching** — queries ignore case and Latin accents (`cafe` finds
+  `Café`), prefer word starts and whole words, and split on spaces with every
+  term required, so a few letters in the right places are enough.
 - **Pages as rows** — the scoped repository's own pages (Code, Issues, Pull
-  requests, Actions, Projects, Discussions, Releases, Wiki, Security, Insights
-  and Settings when you own it) or, at the root, your account's pages (profile,
-  repositories, stars, notifications, gists, GitHub settings, dashboard), each
-  one row away; a repository row is hinted `Jump to`, and a GitHub search row
-  closes every query, searching inside the path when one is set.
+  requests, New issue, Compare changes, Actions, Projects, Discussions,
+  Releases, Wiki, Security, Insights and Settings when you own it) or, at the
+  root, your account's pages (profile, repositories, stars, new repository,
+  notifications, gists, GitHub settings, dashboard), each one row away; a
+  repository row is hinted `Jump to`, and a GitHub search row closes every
+  query — code inside a repository path, issues for `#`, repositories for `@`
+  and for a free query outside a path.
 - **GitHub Plus actions** — open the panel, toggle its features or refresh the
   cache; type `>` for commands.
 - **Favorites and recents** — pin what you use constantly (`Alt+P`); pinned
@@ -289,7 +297,8 @@ there:
   kept per account, so switching accounts never shows another account's
   repositories.
 - **Keyboard first** — `↑`/`↓` move, `Enter` opens, `Ctrl/⌘+Enter` opens in a
-  new tab, `Tab` drills into a repository, `Backspace` leaves a path level,
+  new tab, `Tab` drills into a repository or folder, `←`/`→` walk the path,
+  `Backspace` leaves a path level,
   `Alt+P` pins, `Ctrl/⌘+C` copies the row, `?` shows every key and prefix, and
   `Esc` closes (help first); the palette stays out of the way while you type in
   a comment or README editor, and closes itself on navigation. The shortcut is

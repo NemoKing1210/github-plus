@@ -14,6 +14,11 @@
 
   --gp-accent: var(--fgColor-accent, #0969da);
   --gp-accent-soft: var(--bgColor-accent-muted, #ddf4ff);
+  /* Ink for text on an accent or danger fill. The dark ramps use a dark ink:
+   * Primers dark accent and danger are light colours, so white would drop
+   * below 4.5:1 on them. */
+  --gp-on-accent: #ffffff;
+  --gp-on-danger: #ffffff;
 
   --gp-bg-1: var(--bgColor-default, #ffffff);
   --gp-bg-2: var(--bgColor-muted, #f6f8fa);
@@ -74,6 +79,8 @@
 :root[data-color-mode="dark"] {
   --gp-shadow: var(--shadow-floating-medium, 0 8px 16px -4px rgba(1, 4, 9, 0.4), 0 4px 32px -4px rgba(1, 4, 9, 0.4), 0 24px 48px -12px rgba(1, 4, 9, 0.4));
   --gp-shadow-float: var(--shadow-floating-small, 0 0 0 1px var(--gp-border), 0 6px 12px -3px rgba(1, 4, 9, 0.4), 0 6px 18px 0 rgba(1, 4, 9, 0.4));
+  --gp-on-accent: #0d1117;
+  --gp-on-danger: #0d1117;
 
   --gp-age-1: #9198a1;
   --gp-age-2: #989ca0;
@@ -101,6 +108,8 @@
   :root[data-color-mode="auto"] {
     --gp-shadow: var(--shadow-floating-medium, 0 8px 16px -4px rgba(1, 4, 9, 0.4), 0 4px 32px -4px rgba(1, 4, 9, 0.4), 0 24px 48px -12px rgba(1, 4, 9, 0.4));
     --gp-shadow-float: var(--shadow-floating-small, 0 0 0 1px var(--gp-border), 0 6px 12px -3px rgba(1, 4, 9, 0.4), 0 6px 18px 0 rgba(1, 4, 9, 0.4));
+    --gp-on-accent: #0d1117;
+    --gp-on-danger: #0d1117;
 
     --gp-age-1: #9198a1;
     --gp-age-2: #989ca0;

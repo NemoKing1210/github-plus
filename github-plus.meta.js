@@ -10,7 +10,7 @@
 // @name:ko            GitHub Plus
 // @name:pl            GitHub Plus
 // @namespace          https://github.com/NemoKing1210/github-plus
-// @version            0.25.0
+// @version            0.27.1
 // @author             NemoKing1210
 // @description        Improves GitHub functionality
 // @description:ru     Улучшает функционал GitHub
@@ -41,6 +41,7 @@
 // @grant              GM_info
 // @grant              GM_registerMenuCommand
 // @grant              GM_setValue
+// @grant              GM_unregisterMenuCommand
 // @grant              GM_xmlhttpRequest
 // @run-at             document-idle
 // @noframes

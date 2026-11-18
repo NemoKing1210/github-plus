@@ -99,6 +99,12 @@ export async function fetchRepoSource({ source, token = '', login = '', cachedPa
     if (response.status === 304) {
       if (!cached) throw httpError(response);
       pages.push({ ...cached, notModified: true });
+      // A revalidated page that was already short ends the list; without this
+      // every cached source would be revalidated page by page up to the cap.
+      if ((cached.items || []).length < PER_PAGE) {
+        complete = true;
+        break;
+      }
       continue;
     }
     if (!isOk(response.status)) throw httpError(response);

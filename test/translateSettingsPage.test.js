@@ -56,7 +56,7 @@ test('cache usage is drawn as a meter inside padded card content', () => {
   assert.ok(meter.querySelector('.gp-meter__fill'));
   assert.equal(meter.getAttribute('aria-hidden'), 'true');
   assert.equal(meter.parentElement.classList.contains('gp-field'), true);
-  assert.equal(meter.style.getPropertyValue('--gp-meter-fill'), '0%');
+  assert.equal(meter.style.getPropertyValue('--gp-meter-ratio'), '0');
   const clear = [...document.querySelectorAll('.gp-button')]
     .find((node) => node.textContent === 'Clear cache');
   assert.ok(clear);

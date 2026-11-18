@@ -12,9 +12,9 @@ export function searchUrl(scope, query) {
   return `https://github.com/search?q=${encodeURIComponent(query)}&type=${scope}`;
 }
 
-/** GitHub code search limited to one repository. */
-export function searchUrlInRepo(repo, query) {
-  return `https://github.com/search?q=${encodeURIComponent(`repo:${repo} ${query}`).replace(/%20/g, '+')}&type=code`;
+/** A GitHub search limited to one repository, with the requested result type. */
+export function scopedSearchUrl(repo, query, type) {
+  return `https://github.com/search?q=${encodeURIComponent(`repo:${repo} ${query}`).replace(/%20/g, '+')}&type=${type}`;
 }
 
 /** Settings sections the palette can switch, with the label each one shows. */
@@ -32,6 +32,8 @@ const REPO_COMMANDS = [
   { id: 'code', suffix: '', labelKey: 'palette.cmd.code', icon: 'repo' },
   { id: 'issues', suffix: '/issues', labelKey: 'palette.cmd.issues', icon: 'issueOpened' },
   { id: 'pulls', suffix: '/pulls', labelKey: 'palette.cmd.pulls', icon: 'pullRequest' },
+  { id: 'newIssue', suffix: '/issues/new', labelKey: 'palette.cmd.newIssue', icon: 'issueOpened' },
+  { id: 'compare', suffix: '/compare', labelKey: 'palette.cmd.compare', icon: 'pullRequest' },
   { id: 'actions', suffix: '/actions', labelKey: 'palette.cmd.actions', icon: 'terminal' },
   { id: 'projects', suffix: '/projects', labelKey: 'palette.cmd.projects', icon: 'folder' },
   { id: 'discussions', suffix: '/discussions', labelKey: 'palette.cmd.discussions', icon: 'comment' },
@@ -45,6 +47,7 @@ const USER_COMMANDS = [
   { id: 'profile', path: '', labelKey: 'palette.cmd.profile', icon: 'repo' },
   { id: 'repos', path: '?tab=repositories', labelKey: 'palette.cmd.repos', icon: 'repo' },
   { id: 'stars', path: '?tab=stars', labelKey: 'palette.cmd.stars', icon: 'star' },
+  { id: 'newRepo', url: 'https://github.com/new', labelKey: 'palette.cmd.newRepo', icon: 'repo' },
   { id: 'notifications', url: 'https://github.com/notifications', labelKey: 'palette.cmd.notifications', icon: 'bell' },
   { id: 'gists', url: 'https://gist.github.com/', labelKey: 'palette.cmd.gists', icon: 'file' },
   { id: 'githubSettings', url: 'https://github.com/settings/profile', labelKey: 'palette.cmd.githubSettings', icon: 'gear' },
@@ -123,7 +126,11 @@ function repositoryCommands(state, startIndex) {
 }
 
 function userCommands(state, startIndex) {
-  const login = state.context.login;
+  // The identity is the account the cached data belongs to: the token's login
+  // once one is verified, else the page login. Reading the page login first
+  // would point a token-only session at the wrong account.
+  const login = state.identity || state.context.login;
+  if (!login) return [];
   return USER_COMMANDS.map((command, offset) => {
     const base = command.url || `https://github.com/${login}`;
     return buildCandidate({
@@ -162,8 +169,15 @@ function plusCommands(state, startIndex) {
   commands.push(
     { id: 'refreshRepos', label: t('palette.cmd.refreshRepos'), icon: 'refresh', run: { type: 'refreshRepos' } },
   );
-  if (state.context.repo) {
-    commands.push({ id: 'refreshTree', label: t('palette.cmd.refreshTree'), icon: 'refresh', run: { type: 'refreshTree' } });
+  if (state.context.repo || state.scope?.repo) {
+    const repo = state.scope?.repo || state.context.repo;
+    const ref = repo === state.context.repo ? state.context.ref || 'HEAD' : 'HEAD';
+    commands.push({
+      id: 'refreshTree',
+      label: t('palette.cmd.refreshTree'),
+      icon: 'refresh',
+      run: { type: 'refreshTree', repo, ref },
+    });
   }
   commands.push(
     { id: 'clearCache', label: t('palette.cmd.clearCache'), icon: 'trash', run: { type: 'clearCache' } },
@@ -186,16 +200,28 @@ export function commandCandidates(state) {
   if (state?.settings?.sources?.commands === false) return [];
   const commands = [];
   if (state.scope?.repo) commands.push(...repositoryCommands(state, commands.length + 100));
-  else if (state.context.login) commands.push(...userCommands(state, commands.length + 200));
+  else if (state.context.login || state.identity) commands.push(...userCommands(state, commands.length + 200));
   commands.push(...plusCommands(state, commands.length + 300));
   return commands;
 }
 
-/** The GitHub search command for a free-text query, scoped when asked. */
-export function searchCommands(query, { scope } = {}) {
+/**
+ * The GitHub search handoff for one query. A prefix keeps its own result type
+ * (`#` issues, `/` code, `@` repositories); a free query searches code inside a
+ * scope and repositories outside one. A command query has no GitHub equivalent,
+ * so it gets no fallback row.
+ */
+export function searchCommands(query, { scope, mode = 'all' } = {}) {
+  if (mode === 'commands') return [];
   const repo = scope?.repo || '';
-  const url = repo ? searchUrlInRepo(repo, query) : searchUrl('repositories', query);
-  const label = repo
+  // Repository search is account-wide by nature; the other modes narrow to the
+  // repository when the palette is scoped to one.
+  const scoped = Boolean(repo) && mode !== 'repos';
+  const type = mode === 'issues'
+    ? 'issues'
+    : mode === 'files' || (mode === 'all' && repo) ? 'code' : 'repositories';
+  const url = scoped ? scopedSearchUrl(repo, query, type) : searchUrl(type, query);
+  const label = scoped
     ? t('palette.fallback.scope', { query, repo })
     : t('palette.fallback.global', { query });
   return [{
@@ -211,8 +237,8 @@ export function searchCommands(query, { scope } = {}) {
     sortKey: 0,
     data: {
       run: { type: 'navigate', url },
-      searchScopes: ['repositories', 'code', 'issues', 'users'],
       query,
+      searchType: type,
     },
     detail: { id: 'search', label, description: '', shortcut: '' },
   }];

@@ -57,6 +57,7 @@ test('prefixes restrict the result kinds', () => {
     searchPalette(makeState(), '> code').groups.flatMap((group) => group.items.map((item) => item.key)).includes('cmd:repo.code'),
     true,
   );
+  assert.equal(searchPalette(makeState(), '> code').groups.some((group) => group.id === 'search'), false);
 });
 
 test('a typed query always ends with the search fallback row', () => {

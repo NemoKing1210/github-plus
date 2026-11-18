@@ -18,6 +18,7 @@ const MAX_PAGES_ANON = 1;
 const KEEP_REPOS = 5;
 const RECORD_MAX_BYTES = 300 * 1024;
 const inflight = new Map();
+let generation = 0;
 
 export function issueKey(repo) {
   return repo || '';
@@ -112,6 +113,7 @@ async function loadIssues(state, { repo, force, signal }) {
   const key = issueKey(repo);
   const existing = state.cache?.issues?.[key] || null;
   const now = Date.now();
+  const stamp = generation;
 
   if (!force) {
     if (isFresh(existing, state.settings.cacheHours, now)) return { status: 'cached' };
@@ -129,6 +131,7 @@ async function loadIssues(state, { repo, force, signal }) {
       cached: existing,
       signal,
     });
+    if (stamp !== generation) return { status: 'discarded' };
     if (first.notModified) {
       if (!existing) throw new Error('GitHub returned 304 without a cached issue list');
       const refreshed = {
@@ -161,6 +164,7 @@ async function loadIssues(state, { repo, force, signal }) {
     }
 
     const record = { etag: first.etag || null, items, fetchedAt: Date.now() };
+    if (stamp !== generation) return { status: 'discarded' };
     persistIssues(state, key, record, rateLimit);
     return { status: 'updated' };
   } catch (error) {
@@ -183,15 +187,19 @@ export function ensureIssues({ repo, force = false, signal } = {}) {
 
   const key = `${issueKey(targetRepo)}|${state.fingerprint}`;
   const running = inflight.get(key);
-  if (running) return running;
+  if (running && !force) return running;
   const promise = loadIssues(state, { repo: targetRepo, force, signal }).finally(() => {
-    inflight.delete(key);
+    if (inflight.get(key) === promise) inflight.delete(key);
   });
   inflight.set(key, promise);
   return promise;
 }
 
-/** Drop in-flight issue loads, so a cleared cache is not refilled by them. */
+/**
+ * Drop in-flight issue loads, so a cleared cache is not refilled by them. The
+ * generation bump makes a load that already reached GitHub discard its result.
+ */
 export function forgetIssues() {
+  generation += 1;
   inflight.clear();
 }

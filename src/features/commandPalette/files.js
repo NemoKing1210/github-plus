@@ -17,10 +17,24 @@ const TREE_MAX_BYTES = 1.5 * 1024 * 1024;
 const TREE_KEEP = 3;
 const MEMORY_KEEP = 10;
 const memoryTrees = new Map();
+const sortedTrees = new WeakMap();
 const inflight = new Map();
+let generation = 0;
 
 export function treeKey(repo, ref) {
   return `${repo}@${ref}`;
+}
+
+function sortedItems(items) {
+  let sorted = sortedTrees.get(items);
+  if (!sorted) {
+    sorted = [...items].sort((left, right) => {
+      if (left.path === right.path) return 0;
+      return left.path < right.path ? -1 : 1;
+    });
+    sortedTrees.set(items, sorted);
+  }
+  return sorted;
 }
 
 /** Keep the blobs and trees GitHub lists, in payload order. */
@@ -43,10 +57,15 @@ function encodePath(path) {
   return String(path).split('/').map(encodeURIComponent).join('/');
 }
 
-function buildFileCandidate(item, repo, ref) {
+function buildFileCandidate(item, repo, ref, scopeDir = '') {
   const segments = item.path.split('/');
   const base = segments.pop();
   const directory = segments.join('/');
+  const relativeDir = !scopeDir || directory === scopeDir
+    ? (scopeDir ? '' : directory)
+    : directory.startsWith(`${scopeDir}/`)
+      ? directory.slice(scopeDir.length + 1)
+      : directory;
   const isTree = item.type === 'tree';
   return {
     key: `file:${repo}@${ref}:${item.path}`,
@@ -54,8 +73,10 @@ function buildFileCandidate(item, repo, ref) {
     groupId: 'files',
     groupTitle: t('palette.group.files'),
     icon: isTree ? 'folder' : 'file',
+    // A folder row can be narrowed into with Tab, like a repository row.
+    scopeable: isTree,
     title: isTree ? `${base}/` : base,
-    titleMuted: directory ? `${directory} /` : '',
+    titleMuted: relativeDir ? `${relativeDir} /` : '',
     meta: isTree ? '' : formatSize(item.size),
     rankFields: [
       { text: base, weight: 3 },
@@ -83,7 +104,7 @@ function treeRecordFor(state, key) {
 }
 
 /** File rows for the requested repository and ref, or the page's own. */
-export function fileCandidates(state, { repo, ref } = {}) {
+export function fileCandidates(state, { repo, ref, dir = '' } = {}) {
   if (state?.settings?.sources?.files === false) return [];
   const targetRepo = repo || state?.context?.repo;
   const targetRef = ref || state?.context?.ref;
@@ -91,11 +112,20 @@ export function fileCandidates(state, { repo, ref } = {}) {
   const tree = treeRecordFor(state, treeKey(targetRepo, targetRef));
   if (!tree || !Array.isArray(tree.items)) return [];
 
-  const items = [...tree.items].sort((left, right) => {
-    if (left.path === right.path) return 0;
-    return left.path < right.path ? -1 : 1;
-  });
-  return items.map((item) => buildFileCandidate(item, targetRepo, targetRef));
+  const prefix = dir ? `${dir}/` : '';
+  const items = sortedItems(tree.items)
+    .filter((item) => !prefix || item.path.startsWith(prefix));
+  return items.map((item) => buildFileCandidate(item, targetRepo, targetRef, dir));
+}
+
+/** Whether a loaded tree has any file row, without building the candidates. */
+export function hasFileItems(state, { repo, ref } = {}) {
+  if (state?.settings?.sources?.files === false) return false;
+  const targetRepo = repo || state?.context?.repo;
+  const targetRef = ref || state?.context?.ref;
+  if (!targetRepo || !targetRef) return false;
+  const tree = treeRecordFor(state, treeKey(targetRepo, targetRef));
+  return Boolean(tree && Array.isArray(tree.items) && tree.items.length);
 }
 
 function persistTree(state, key, record, rateLimit) {
@@ -129,8 +159,11 @@ function persistTree(state, key, record, rateLimit) {
 /**
  * Drop the trees held in memory. Clearing the persistent cache without this
  * would leave the page session serving rows the user just asked to forget.
+ * The generation bump makes an in-flight load discard its result instead of
+ * writing the cleared data back.
  */
 export function forgetTrees() {
+  generation += 1;
   memoryTrees.clear();
   inflight.clear();
 }
@@ -149,6 +182,7 @@ async function loadTree(state, { repo, ref, force, signal }) {
   const memoryKey = memoryKeyFor(state, key);
   const existing = treeRecordFor(state, key);
   const now = Date.now();
+  const stamp = generation;
 
   if (!force) {
     if (isFresh(existing, state.settings.cacheHours, now)) {
@@ -175,6 +209,8 @@ async function loadTree(state, { repo, ref, force, signal }) {
     persistRateLimit(state, error?.rateLimit);
     return { status: 'error', error };
   }
+
+  if (stamp !== generation) return { status: 'discarded' };
 
   if (page.notModified) {
     if (!existing) {
@@ -215,9 +251,9 @@ export function ensureTree({ repo, ref, force = false, signal } = {}) {
 
   const key = `${treeKey(targetRepo, targetRef)}|${state.fingerprint}`;
   const running = inflight.get(key);
-  if (running) return running;
+  if (running && !force) return running;
   const promise = loadTree(state, { repo: targetRepo, ref: targetRef, force, signal }).finally(() => {
-    inflight.delete(key);
+    if (inflight.get(key) === promise) inflight.delete(key);
   });
   inflight.set(key, promise);
   return promise;

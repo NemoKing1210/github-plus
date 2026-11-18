@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.27.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -14,7 +14,7 @@ blame 風の経過日数カラー、ファイルサイズとワンクリック �
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
 翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.25.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.27.1`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
@@ -241,27 +241,35 @@ GitHub Plus はその両方をファイルの行に追加します:
 
 - **現在地から始まる** — リポジトリのページでは、そのリポジトリがすでにパスに
   入った状態でパレットが開くため、最初の一覧はそのリポジトリのページです。
-- **`Tab` で深く進む** — 入力欄はパス（`owner / repo / クエリ`）です。リポジトリの
-  行で `Tab` を押すとパスに追加され、一覧はそのリポジトリのページになり、`/` で
-  ファイル、`#` でオープンな issue と pull request を表示し、検索行はその中を
-  検索します。`Backspace` で最後の階層を削除、`Ctrl/⌘+Backspace` でパスとクエリを
-  消去、パスの区間をクリックするとそれより下の階層をすべて破棄します。
+- **`Tab` で深く進む** — 入力欄はパス（`owner / repo / フォルダー / クエリ`）です。
+  リポジトリの行で `Tab` を押すとパスに追加され、フォルダーの行でもう一度 `Tab` を
+  押すとそのフォルダーに入ります。一覧はそのフォルダーのファイルになり、パスは
+  現在地からの相対表示になり、`Tab` はツリーが許す限り深く進めます。
+  入力欄が空のときは `→` と `←` も同じ働きをするので、矢印キーだけでパスをたどれます。
+  `Backspace` で
+  最後の階層を削除、`Ctrl/⌘+Backspace` でパスとクエリを消去、パスの区間をクリック
+  するとそれより下の階層をすべて破棄します。
 - **自分のリポジトリ** — 所有するすべてのリポジトリ。自分のものが先頭で、行に
   スター、言語、最終 push、公開範囲が表示されます。`@` を入力するとリポジトリ
   だけを検索します。
 - **スター付きリポジトリ** — 何度も戻ってくるプロジェクト。自分のリポジトリの後に
   並び、スターで示されます。
 - **パス内のリポジトリのファイル** — `/` でそのすべてのパス、または一致する
-  クエリを表示します。ファイルは閲覧中のリビジョンで GitHub 上に開きます。
+  クエリを表示します。フォルダーの行には印が付き、`Tab` で階層として開けます。
+  ファイルは閲覧中のリビジョンで GitHub 上に開きます。
 - **オープンな issue と pull request** — `#` でそのリポジトリのオープンな issue と
   pull request を表示します。issue または pull request のバッジ、作成者、更新日時が
   付きます。タイトル、番号、作成者で検索できます。
+- **寛容なマッチング** — クエリは大文字小文字とラテン語のアクセントを無視し
+  （`cafe` で `Café` が見つかります）、語頭と語全体を優先し、空白で分割して
+  すべての語を必要とします。
 - **ページを行として表示** — パス内のリポジトリ自身のページ（Code、Issues、Pull
-  requests、Actions、Projects、Discussions、Releases、Wiki、Security、Insights、
-  所有していれば Settings）、またはルートではアカウントのページ（プロフィール、
-  リポジトリ、スター、通知、gists、GitHub の設定、ダッシュボード）が 1 行ずつ
-  並びます。リポジトリの行には `移動` のヒントが付き、GitHub 検索の行が各クエリの
-  最後に並び、パスがあればその中を検索します。
+  requests、新しいイシュー、変更を比較、Actions、Projects、Discussions、Releases、
+  Wiki、Security、Insights、所有していれば Settings）、またはルートではアカウントの
+  ページ（プロフィール、リポジトリ、スター、新しいリポジトリ、通知、gists、
+  GitHub の設定、ダッシュボード）が 1 行ずつ並びます。リポジトリの行には `移動` の
+  ヒントが付き、GitHub 検索の行が各クエリの最後に並びます。パス内ではコード、
+  `#` では issue、`@` とパス外の自由なクエリではリポジトリを検索します。
 - **GitHub Plus の操作** — パネルを開く、機能を切り替える、キャッシュを更新する。
   `>` でコマンドのみ表示します。
 - **お気に入りと最近使った項目** — よく使うものは `Alt+P` でピン留めできます。
@@ -279,7 +287,8 @@ GitHub Plus はその両方をファイルの行に追加します:
   ず、`api.github.com` にだけ送信されます。キャッシュはアカウントごとに分かれる
   ため、アカウントを切り替えても他人のリポジトリが表示されることはありません。
 - **キーボード優先** — `↑`/`↓` で移動、`Enter` で開く、`Ctrl/⌘+Enter` で新しい
-  タブに開く、`Tab` でリポジトリに入る、`Backspace` でパスの階層を戻る、`Alt+P` で
+  タブに開く、`Tab` でリポジトリかフォルダーに入る、`←`/`→` でパスをたどる、`Backspace` でパスの階層を
+  戻る、`Alt+P` で
   ピン留め、`Ctrl/⌘+C` で行をコピー、`?` ですべてのキーとプレフィックスを表示、
   `Esc` で閉じます（ヘルプが先）。コメントや README のエディターで入力中は邪魔を
   せず、ナビゲーション時には自動で閉じます。ショートカットはプリセットか、

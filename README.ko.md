@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.27.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.25.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
+> **상태:** 초기(`0.27.1`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
 > 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
 > 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
 > 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
@@ -225,26 +225,34 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 
 - **현재 위치에서 시작** — 저장소 페이지에서는 해당 저장소가 이미 경로에 들어간
   채로 팔레트가 열리므로 첫 목록은 그 저장소의 페이지입니다.
-- **`Tab`으로 깊이 들어가기** — 입력 필드는 경로(`owner / repo / 검색어`)입니다.
-  저장소 행에서 `Tab`을 누르면 경로에 추가되어 목록이 그 저장소의 페이지가 되고,
-  `/`는 파일을, `#`는 열린 issue와 pull request를 보여 주며 검색 행은 그 안에서
-  검색합니다. `Backspace`는 마지막 단계를 지우고, `Ctrl/⌘+Backspace`는 경로와
-  검색어를 비우며, 경로 세그먼트를 클릭하면 그 아래를 모두 버립니다.
+- **`Tab`으로 깊이 들어가기** — 입력 필드는 경로(`owner / repo / 폴더 / 검색어`)
+  입니다. 저장소 행에서 `Tab`을 누르면 경로에 추가되고, 폴더 행에서 다시 `Tab`을
+  누르면 그 폴더로 들어갑니다. 목록은 그 폴더의 파일이 되고 경로는 현재 위치 기준
+  으로 표시되며, `Tab`은 트리가 허용하는 만큼 계속 들어갑니다.
+  입력 필드가 비어 있을 때는 `→`와 `←`도 같은 역할을 하므로 화살표 키만으로 경로를 오갈 수 있습니다.
+  `Backspace`는 마지막
+  단계를 지우고, `Ctrl/⌘+Backspace`는 경로와 검색어를 비우며, 경로 세그먼트를
+  클릭하면 그 아래를 모두 버립니다.
 - **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 행에 스타, 언어, 최근 push,
   공개 범위가 표시됩니다. `@`를 입력하면 저장소만 검색합니다.
 - **스타 표시한 저장소** — 자주 돌아오는 프로젝트로, 내 저장소 다음에 오며 별표로
   표시됩니다.
 - **경로에 있는 저장소의 파일** — `/`는 그 안의 모든 경로나 일치하는 검색어를
-  보여 줍니다. 파일은 보고 있는 ref에서 GitHub로 열립니다.
+  보여 줍니다. 폴더 행에는 표시가 붙고 `Tab`으로 단계를 열 수 있으며, 파일은 보고
+  있는 ref에서 GitHub로 열립니다.
 - **열린 issue와 pull request** — `#`는 해당 저장소의 열린 issue와 pull request를
   보여 주며 issue 또는 pull request 배지, 작성자, 업데이트 시간이 붙습니다. 제목,
   번호, 작성자로 검색합니다.
+- **관대한 검색** — 검색어는 대소문자와 라틴 악센트를 무시하고(`cafe`로 `Café`를
+  찾습니다), 단어 시작과 전체 단어를 우선하며, 공백으로 나뉜 모든 부분이
+  일치해야 합니다.
 - **행으로 표시되는 페이지** — 경로에 있는 저장소 자체의 페이지(Code, Issues, Pull
-  requests, Actions, Projects, Discussions, Releases, Wiki, Security, Insights,
-  소유한 경우 Settings) 또는 루트에서는 계정 페이지(프로필, 저장소, 스타, 알림,
-  gists, GitHub 설정, 대시보드)가 한 행씩 나옵니다. 저장소 행에는 `이동` 힌트가
-  붙고, GitHub 검색 행이 모든 검색어의 마지막에 오며 경로가 있으면 그 안에서
-  검색합니다.
+  requests, 새 이슈, 변경 사항 비교, Actions, Projects, Discussions, Releases, Wiki,
+  Security, Insights, 소유한 경우 Settings) 또는 루트에서는 계정 페이지(프로필,
+  저장소, 스타, 새 리포지토리, 알림, gists, GitHub 설정, 대시보드)가 한 행씩
+  나옵니다. 저장소 행에는 `이동` 힌트가 붙고, GitHub 검색 행이 모든 검색어의
+  마지막에 옵니다. 경로 안에서는 코드, `#`는 issue, `@`와 경로 밖의 자유
+  검색어는 저장소를 검색합니다.
 - **GitHub Plus 작업** — 패널 열기, 기능 전환, 캐시 새로 고침. `>`는 명령만
   표시합니다.
 - **즐겨찾기와 최근 항목** — 자주 쓰는 항목은 `Alt+P`로 고정합니다. 고정한 행은
@@ -262,7 +270,8 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
   브라우저에만 저장되며, 백업에 절대 기록되지 않고 `api.github.com`으로만 전송됩니다.
   캐시는 계정별로 분리되므로 계정을 바꿔도 다른 사람의 저장소가 표시되지 않습니다.
 - **키보드 우선** — `↑`/`↓`로 이동, `Enter`로 열기, `Ctrl/⌘+Enter`로 새 탭에서 열기,
-  `Tab`으로 저장소에 들어가기, `Backspace`로 경로 한 단계 나가기, `Alt+P`로 고정,
+  `Tab`으로 저장소나 폴더에 들어가기, `←`/`→`로 경로 오가기, `Backspace`로 경로 한 단계 나가기, `Alt+P`로
+  고정,
   `Ctrl/⌘+C`로 행 복사, `?`로 모든 키와 접두사 보기, `Esc`로 닫기(도움말 먼저).
   댓글이나 README 편집기에서 입력하는 동안에는 방해하지 않고, 탐색 시 스스로
   닫힙니다. 단축키는 프리셋이거나 팔레트 설정 페이지에서 기록한 임의의 조합입니다.

@@ -53,14 +53,24 @@ test('every command carries a run descriptor and a stable icon', () => {
   }
 });
 
-test('the search command encodes the query and its scopes', () => {
+test('the search command follows the prefix and the scope', () => {
   const [command] = searchCommands('a b');
   assert.equal(command.key, 'cmd:search');
   assert.equal(command.data.run.url, 'https://github.com/search?q=a%20b&type=repositories');
-  assert.deepEqual(command.data.searchScopes, ['repositories', 'code', 'issues', 'users']);
+  assert.equal(command.data.searchType, 'repositories');
   assert.equal(command.title, 'Search GitHub for “a b”');
   assert.equal(searchUrl('code', 'a b'), 'https://github.com/search?q=a%20b&type=code');
   assert.equal(searchUrl('users', 'x'), 'https://github.com/search?q=x&type=users');
+});
+
+test('prefixes hand a query to the matching GitHub search', () => {
+  const scope = { repo: 'o/r' };
+  const urlFor = (mode) => searchCommands('x', { scope, mode })[0]?.data.run.url;
+  assert.equal(urlFor('all'), 'https://github.com/search?q=repo%3Ao%2Fr+x&type=code');
+  assert.equal(urlFor('files'), 'https://github.com/search?q=repo%3Ao%2Fr+x&type=code');
+  assert.equal(urlFor('issues'), 'https://github.com/search?q=repo%3Ao%2Fr+x&type=issues');
+  assert.equal(urlFor('repos'), 'https://github.com/search?q=x&type=repositories');
+  assert.deepEqual(searchCommands('x', { mode: 'commands' }), []);
 });
 
 test('togglePatch carries the live section, not just the switch', () => {
@@ -68,4 +78,43 @@ test('togglePatch carries the live section, not just the switch', () => {
   assert.equal(patch.fileIcons.enabled, false);
   assert.equal(patch.fileIcons.folders, true);
   assert.equal(patch.fileIcons.specialNames, true);
+});
+
+test('a token identity supplies the account when the page has no login', () => {
+  const commands = commandCandidates({
+    context: { repo: null, login: null }, identity: 'alice', scope: null, settings, cache: null,
+  });
+  const urls = commands.filter((item) => item.groupId === 'pages').map((item) => item.data.run.url);
+  assert.ok(urls.includes('https://github.com/alice'));
+  assert.ok(urls.includes('https://github.com/alice?tab=repositories'));
+  assert.ok(!urls.some((url) => url.includes('/null')));
+});
+
+test('account and repository pages include creation shortcuts', () => {
+  const scoped = commandCandidates({
+    context: { repo: 'o/r', login: 'alice' }, scope: { repo: 'o/r' }, settings, cache: null,
+  });
+  assert.ok(scoped.some((item) => item.data.run.url === 'https://github.com/o/r/issues/new'));
+  assert.ok(scoped.some((item) => item.data.run.url === 'https://github.com/o/r/compare'));
+  const root = commandCandidates({
+    context: { repo: 'o/r', login: 'alice' }, scope: null, settings, cache: null,
+  });
+  assert.ok(root.some((item) => item.data.run.url === 'https://github.com/new'));
+});
+
+test('the refresh command carries the scoped repository and ref', () => {
+  const scoped = commandCandidates({
+    context: { repo: 'o/page', ref: 'dev', login: 'alice' },
+    scope: { repo: 'o/other' },
+    settings,
+    cache: null,
+  });
+  const refresh = scoped.find((item) => item.data.run.type === 'refreshTree');
+  assert.deepEqual(refresh.data.run, { type: 'refreshTree', repo: 'o/other', ref: 'HEAD' });
+
+  const page = commandCandidates({
+    context: { repo: 'o/page', ref: 'dev', login: 'alice' }, scope: null, settings, cache: null,
+  });
+  const pageRefresh = page.find((item) => item.data.run.type === 'refreshTree');
+  assert.deepEqual(pageRefresh.data.run, { type: 'refreshTree', repo: 'o/page', ref: 'dev' });
 });

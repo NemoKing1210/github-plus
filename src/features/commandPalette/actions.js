@@ -44,7 +44,7 @@ async function toggleSection(section, enabled) {
 async function refresh(action, refresh) {
   const result = action.type === 'refreshRepos'
     ? await ensureRepositories({ force: true })
-    : await ensureTree({ force: true });
+    : await ensureTree({ repo: action.repo, ref: action.ref, force: true });
   refresh();
   if (result?.status === 'error') {
     showToast({

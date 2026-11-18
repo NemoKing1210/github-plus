@@ -208,7 +208,7 @@ function renderCacheCard(draft) {
         limit: formatSize(stats.limitBytes),
       })
       : t('translate.cacheEmpty');
-    meter.style.setProperty('--gp-meter-fill', `${stats.pct}%`);
+    meter.style.setProperty('--gp-meter-ratio', String(stats.pct / 100));
   };
   paintUsage();
   const usageField = el('div', 'gp-field');

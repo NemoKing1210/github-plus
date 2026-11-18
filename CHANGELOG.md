@@ -7,6 +7,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-11-18
+
+### Changed
+
+- The palette's scope path is easier to read: levels sit 6px apart and the `/`
+  separator drops to 13px
+- The palette's field keeps its flat band on focus: no ring around the row,
+  only the caret in the input
+
+[0.27.1]: https://github.com/NemoKing1210/github-plus/compare/v0.27.0...v0.27.1
+
+## [0.27.0] - 2026-11-18
+
+### Added
+
+- Owner avatars on the command palette's repository rows — owned, starred,
+  pinned and recent — from the API's avatar URL, with GitHub's `<login>.png`
+  route as the fallback for a repository cached before the field existed and
+  the row's own glyph when an avatar fails to load
+
+[0.27.0]: https://github.com/NemoKing1210/github-plus/compare/v0.26.1...v0.27.0
+
+## [0.26.1] - 2026-11-18
+
+### Fixed
+
+- Context-menu rows show the focus ring on keyboard focus instead of relying on
+  the hover fill alone
+- Text on an accent or danger fill uses a themed ink token
+  (`--gp-on-accent` / `--gp-on-danger`), so it stays readable on the dark
+  theme's light fills instead of falling under 4.5:1
+- Highlighting rules are scoped to the preview pane, so `.hljs-*` classes on
+  GitHub's own code views are no longer recolored
+- A modal's scroll lock uses `overflow: clip`, so it stops the scroll without
+  making the page root a scroll container
+
+### Changed
+
+- The panel's usage meter, the dirty dot and the switch knob animate with
+  transforms instead of width, so they no longer relayout on every change
+- Overlay and menu widths use percentages instead of `100vw`, so a classic
+  scrollbar no longer pushes a fixed element past the right edge
+- Sidebar group labels, palette group titles and the palette help title are
+  sentence case and untracked
+
+[0.26.1]: https://github.com/NemoKing1210/github-plus/compare/v0.26.0...v0.26.1
+
+## [0.26.0] - 2026-11-18
+
+### Added
+
+- Folder levels in the palette path: `Tab` on a folder row steps into it, the
+  list becomes that folder's files with paths relative to it, a folder level
+  leads with its files, and `Backspace` leaves one folder at a time
+- `←` and `→` walk the path levels on an empty query (into the active
+  repository or folder, and one level up), leaving both keys to the caret while
+  a query is typed
+- `New issue`, `Compare changes` and `New repository` commands
+- Case- and accent-insensitive matching (`cafe` finds `Café`) that prefers word
+  starts and whole words
+- The palette's entry in the userscript manager's menu follows the interface
+  language
+
+### Changed
+
+- The GitHub search row keeps the query's prefix type — issues for `#`, code
+  for `/`, repositories for `@` — and searches inside the path for every type
+  but repositories
+- **Refresh file tree** refreshes the scoped repository and its ref instead of
+  the page's repository
+
+### Fixed
+
+- Clicking a path segment dropped every level instead of leaving the ones below
+  the clicked segment
+- Empty prefix queries could list rows of the wrong kind
+- A short revalidated page no longer makes every cached page be requested again
+- A rapid close and reopen could leave a stale palette overlay that swallowed
+  keys
+- Account rows linked to `github.com/null` when the identity came from a
+  verified token and the page had no signed-in login
+- The incomplete-tree note could describe the wrong repository or ref
+- A forced refresh joined a running load instead of refreshing, and clearing
+  the palette cache could be refilled by a load already in flight
+
+[0.26.0]: https://github.com/NemoKing1210/github-plus/compare/v0.25.0...v0.26.0
+
 ## [0.25.0] - 2026-11-18
 
 ### Added

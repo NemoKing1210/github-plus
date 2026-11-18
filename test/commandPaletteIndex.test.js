@@ -88,7 +88,7 @@ test('a cold open starts at the page repository with its pages and files', async
   input.value = '/a';
   input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
   await new Promise((resolve) => setTimeout(resolve, 120));
-  assert.ok(overlay.querySelector('.gp-command__row[data-key="file:alice/repo@HEAD:a.js"]'));
+  assert.ok(overlay.querySelector('.gp-command__row[data-key="file:alice/repo@main:a.js"]'));
 });
 
 test('the palette never opens over another GitHub Plus overlay', () => {
@@ -245,6 +245,120 @@ test('leaving a failed scope clears its note', async () => {
     assert.equal(overlay.querySelector('.gp-command__tip-note').textContent, '');
   } finally {
     globalThis.GM_xmlhttpRequest = original;
+    shell.closeCommandPalette();
+  }
+});
+
+test('a folder row becomes the next path level and leaves it again', async () => {
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  const files = await import('../src/features/commandPalette/files.js');
+  files.forgetTrees();
+  writeCacheRecord({
+    version: 1,
+    login: 'alice',
+    tokenLogin: null,
+    tokenFingerprint: '',
+    sources: { repos: { pages: [{ items: repoPayload }], fetchedAt: Date.now() } },
+    trees: {
+      [files.treeKey('alice/repo', 'main')]: {
+        items: [
+          { path: 'src', type: 'tree', size: 0 },
+          { path: 'src/x.js', type: 'blob', size: 10 },
+          { path: 'src/deep', type: 'tree', size: 0 },
+          { path: 'src/deep/y.js', type: 'blob', size: 20 },
+          { path: 'test/z.js', type: 'blob', size: 30 },
+        ],
+        fetchedAt: Date.now(),
+      },
+    },
+    issues: {},
+    rateLimit: null,
+  });
+  palette.openPalette();
+  const overlay = latestPalette();
+  const input = overlay.querySelector('.gp-command__input');
+  const segments = () => [...overlay.querySelectorAll('.gp-command__seg')].map((node) => node.textContent);
+  const type = async (value) => {
+    input.value = value;
+    input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 120));
+  };
+
+  await type('/src');
+  const folder = overlay.querySelector('.gp-command__row[data-key="file:alice/repo@main:src"]');
+  assert.ok(folder, 'folder row is listed');
+  folder.dispatchEvent(new dom.window.MouseEvent('pointermove', { bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+  assert.deepEqual(segments(), ['alice', 'repo', 'src']);
+  const inside = [...overlay.querySelectorAll('.gp-command__row')].map((node) => node.dataset.key);
+  assert.ok(inside.includes('file:alice/repo@main:src/x.js'), 'a folder level lists its files');
+  assert.equal(inside.includes('file:alice/repo@main:test/z.js'), false);
+
+  await type('/');
+  const keys = [...overlay.querySelectorAll('.gp-command__row')].map((node) => node.dataset.key);
+  assert.ok(keys.includes('file:alice/repo@main:src/x.js'));
+  assert.ok(keys.includes('file:alice/repo@main:src/deep/y.js'));
+  assert.equal(keys.includes('file:alice/repo@main:test/z.js'), false);
+
+  await type('');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+  assert.deepEqual(segments(), ['alice', 'repo']);
+
+  await type('/src');
+  const again = overlay.querySelector('.gp-command__row[data-key="file:alice/repo@main:src"]');
+  again.dispatchEvent(new dom.window.MouseEvent('pointermove', { bubbles: true }));
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+  assert.deepEqual(segments(), ['alice', 'repo', 'src']);
+
+  overlay.querySelectorAll('.gp-command__seg')[1]
+    .dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.deepEqual(segments(), ['alice', 'repo']);
+  assert.equal(input.value, '');
+
+  overlay.querySelectorAll('.gp-command__seg')[0]
+    .dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.deepEqual(segments(), []);
+  shell.closeCommandPalette();
+});
+
+test('a pinned repository snapshot keeps its scope action before repositories load', async () => {
+  const { COMMAND_PALETTE_PINS_KEY } = await import('../src/core/constants.js');
+  writeCacheRecord({
+    version: 1, login: 'alice', tokenLogin: null, tokenFingerprint: '',
+    sources: {}, trees: {}, issues: {}, rateLimit: null,
+  });
+  localStorage.setItem(COMMAND_PALETTE_PINS_KEY, JSON.stringify({
+    version: 1,
+    identity: 'alice',
+    items: [{
+      key: 'repo:alice/other',
+      kind: 'repo',
+      at: Date.now(),
+      snapshot: {
+        kind: 'repo',
+        title: 'other',
+        titleMuted: 'alice /',
+        groupId: 'repos',
+        groupTitle: 'Repositories',
+        data: { fullName: 'alice/other', name: 'other', owner: 'alice' },
+      },
+    }],
+  }));
+  try {
+    palette.openPalette();
+    const overlay = latestPalette();
+    const row = overlay.querySelector('.gp-command__row[data-key="repo:alice/other"]');
+    assert.ok(row, 'the pinned snapshot is listed while repositories are cold');
+    assert.match(row.querySelector('.gp-command__hint').textContent, /^Tab /);
+    row.dispatchEvent(new dom.window.MouseEvent('pointermove', { bubbles: true }));
+    overlay.querySelector('.gp-command__input')
+      .dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    assert.deepEqual(
+      [...overlay.querySelectorAll('.gp-command__seg')].map((node) => node.textContent),
+      ['alice', 'other'],
+    );
+  } finally {
+    localStorage.removeItem(COMMAND_PALETTE_PINS_KEY);
     shell.closeCommandPalette();
   }
 });

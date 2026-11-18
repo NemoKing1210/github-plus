@@ -178,3 +178,82 @@ test('favorites and recents stay global inside a scope', () => {
   assert.ok(keys.includes('repo:o/b'));
   assert.ok(keys.includes('issue:o/b#2'));
 });
+
+test('an empty prefix restricts the browse list to its kind', () => {
+  const items = [
+    { key: 'cmd:one', kind: 'command', groupId: 'pages', title: 'Code', rankFields: [{ text: 'Code', weight: 3 }] },
+    { key: 'repo:o/r', kind: 'repo', groupId: 'repos', title: 'o/r', rankFields: [{ text: 'o/r', weight: 3 }] },
+    { key: 'file:f', kind: 'file', groupId: 'files', title: 'x.js', rankFields: [{ text: 'x.js', weight: 3 }] },
+    { key: 'issue:i', kind: 'issue', groupId: 'issues', title: '#1 Bug', rankFields: [{ text: 'Bug', weight: 3 }] },
+  ];
+  const keys = (query) => rankCandidates(items, query, { titles: { pinned: 'P', recent: 'R' } })
+    .groups.flatMap((group) => group.items.map((item) => item.key));
+  assert.deepEqual(keys('@'), ['repo:o/r']);
+  assert.deepEqual(keys('>'), ['cmd:one']);
+  assert.deepEqual(keys('/'), ['file:f']);
+  assert.deepEqual(keys('#'), ['issue:i']);
+});
+
+test('an empty prefix also filters favorites and recents', () => {
+  const items = [
+    { key: 'cmd:one', kind: 'command', groupId: 'pages', title: 'Code', rankFields: [{ text: 'Code', weight: 3 }] },
+    { key: 'repo:o/r', kind: 'repo', groupId: 'repos', title: 'o/r', rankFields: [{ text: 'o/r', weight: 3 }] },
+  ];
+  const result = rankCandidates(items, '@', {
+    pinnedKeys: ['cmd:one'],
+    recentKeys: ['repo:o/r'],
+    titles: { pinned: 'P', recent: 'R' },
+  });
+  assert.deepEqual(result.groups.flatMap((group) => group.items.map((item) => item.key)), ['repo:o/r']);
+});
+
+test('diacritics fold in both the query and the text', () => {
+  assert.ok(scoreText('cafe', 'Café'));
+  assert.deepEqual(scoreText('cafe', 'Café').ranges, [[0, 4]]);
+  assert.ok(scoreText('réact', 'react'));
+  assert.ok(scoreText('zurich', 'Zürich'));
+});
+
+test('a subsequence on word starts outranks one scattered inside a word', () => {
+  const boundary = scoreText('gt', 'git-status');
+  const inside = scoreText('gt', 'gist');
+  assert.ok(boundary.score > inside.score, `${boundary.score} > ${inside.score}`);
+});
+
+test('a whole-word hit outranks the same text inside a longer word', () => {
+  const whole = scoreText('react', 'react.js');
+  const partial = scoreText('react', 'reaction');
+  assert.ok(whole.score > partial.score, `${whole.score} > ${partial.score}`);
+});
+
+test('a directory scope keeps only files below it', () => {
+  const items = [
+    { key: 'file:o/a@HEAD:src/x.js', kind: 'file', groupId: 'files', title: 'x.js',
+      data: { repo: 'o/a', path: 'src/x.js' }, rankFields: [{ text: 'x.js', weight: 3 }] },
+    { key: 'file:o/a@HEAD:src/deep/y.js', kind: 'file', groupId: 'files', title: 'y.js',
+      data: { repo: 'o/a', path: 'src/deep/y.js' }, rankFields: [{ text: 'y.js', weight: 3 }] },
+    { key: 'file:o/a@HEAD:test/z.js', kind: 'file', groupId: 'files', title: 'z.js',
+      data: { repo: 'o/a', path: 'test/z.js' }, rankFields: [{ text: 'z.js', weight: 3 }] },
+  ];
+  const result = rankCandidates(items, '/', {
+    scope: { repo: 'o/a', dir: 'src' },
+    titles: { pinned: 'P', recent: 'R' },
+  });
+  assert.deepEqual(
+    result.groups.flatMap((group) => group.items.map((item) => item.key)),
+    ['file:o/a@HEAD:src/x.js', 'file:o/a@HEAD:src/deep/y.js'],
+  );
+});
+
+test('a folder level lists its files in the empty browse list', () => {
+  const items = [
+    { key: 'cmd:code', kind: 'command', groupId: 'pages', title: 'Code', rankFields: [{ text: 'Code', weight: 3 }] },
+    { key: 'file:src/x.js', kind: 'file', groupId: 'files', title: 'x.js',
+      data: { repo: 'o/a', path: 'src/x.js' }, rankFields: [{ text: 'x.js', weight: 3 }] },
+  ];
+  const result = rankCandidates(items, '', {
+    scope: { repo: 'o/a', dir: 'src' },
+    titles: { pinned: 'P', recent: 'R' },
+  });
+  assert.deepEqual(result.groups.map((group) => group.id), ['files', 'pages']);
+});

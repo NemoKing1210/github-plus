@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.27.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 paleta de comandos com `Ctrl/⌘+K`, uma galeria de imagens para markdown
@@ -14,7 +14,7 @@ coloridas no estilo blame para esses arquivos, tamanhos de arquivo com downloads
 em um clique, um menu de contexto para ações de arquivo, uma pré-visualização
 rápida de qualquer arquivo e tradução do conteúdo da página.
 
-> **Status:** inicial (`0.25.0`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.27.1`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Tradução · Paleta · Backup · Sobre), uma paleta
 > de comandos com `Ctrl/⌘+K`, a galeria de imagens de markdown, ícones de
 > arquivo coloridos, idades coloridas no estilo blame, tamanhos de arquivo com
@@ -263,30 +263,37 @@ busca sobre tudo o que você faz ali:
 
 - **Começa onde você está** — em uma página de repositório a paleta abre com
   esse repositório já no caminho, então a primeira lista são as páginas dele.
-- **Aprofunde com `Tab`** — o campo é um caminho (`owner / repo / consulta`).
-  Pressione `Tab` em uma linha de repositório para adicioná-lo: a lista passa a
-  ser as páginas desse repositório, `/` mostra os arquivos, `#` os issues e pull
-  requests abertos, e a linha de busca procura dentro dele. `Backspace` remove o
-  último nível, `Ctrl/⌘+Backspace` limpa o caminho e a consulta, e clicar em um
-  segmento do caminho descarta tudo abaixo dele.
+- **Aprofunde com `Tab`** — o campo é um caminho (`owner / repo / pasta /
+  consulta`). Pressione `Tab` em uma linha de repositório para adicioná-lo, e
+  `Tab` de novo em uma linha de pasta para entrar nela: a lista passa a ser os
+  arquivos dessa pasta, com caminhos relativos ao lugar onde você está, e `Tab`
+  continua descendo tanto quanto a árvore permitir. `→` e `←` fazem o mesmo
+  com o campo vazio, então você percorre o caminho sem sair das setas.
+  `Backspace` remove o último
+  nível, `Ctrl/⌘+Backspace` limpa o caminho e a consulta, e clicar em um segmento
+  do caminho descarta tudo abaixo dele.
 - **Seus repositórios** — todos os que você possui, os seus primeiro, com
   estrelas, linguagem, último push e visibilidade na linha. Digite `@` para
   buscar apenas repositórios.
 - **Repositórios com estrela** — os projetos aos quais você sempre volta; vêm
   depois dos seus e levam uma estrela.
 - **Arquivos do repositório do caminho** — `/` mostra todos os caminhos dele ou
-  uma consulta que corresponda; um arquivo abre no GitHub na revisão que você
-  está vendo.
+  uma consulta que corresponda; as linhas de pasta são marcadas e abrem como
+  nível com `Tab`, e um arquivo abre no GitHub na revisão que você está vendo.
 - **Issues e pull requests abertos** — `#` mostra os issues e pull requests
   abertos do repositório, com selo de issue ou pull request, autor e data de
   atualização; busque por título, número ou autor.
+- **Busca tolerante** — as consultas ignoram maiúsculas e acentos latinos
+  (`cafe` encontra `Café`), preferem inícios e palavras inteiras e são divididas
+  por espaços, com todas as partes obrigatórias.
 - **Páginas como linhas** — as páginas do próprio repositório do caminho (Code,
-  Issues, Pull requests, Actions, Projects, Discussions, Releases, Wiki, Security,
-  Insights e Settings se for seu) ou, na raiz, as páginas da sua conta (perfil,
-  repositórios, estrelas, notificações, gists, configurações do GitHub, painel),
-  cada uma a uma linha; uma linha de repositório traz a dica `Ir para`, e uma
-  linha de busca do GitHub fecha cada consulta e busca dentro do caminho quando
-  há um.
+  Issues, Pull requests, nova issue, comparar alterações, Actions, Projects,
+  Discussions, Releases, Wiki, Security, Insights e Settings se for seu) ou, na
+  raiz, as páginas da sua conta (perfil, repositórios, estrelas, novo
+  repositório, notificações, gists, configurações do GitHub, painel), cada uma a
+  uma linha; uma linha de repositório traz a dica `Ir para`, e uma linha de busca
+  do GitHub fecha cada consulta: código dentro do caminho, issues para `#`,
+  repositórios para `@` e para uma consulta livre fora de um caminho.
 - **Ações do GitHub Plus** — abra o painel, ative ou desative seus recursos ou
   atualize o cache; `>` para comandos.
 - **Favoritos e recentes** — fixe o que você usa o tempo todo (`Alt+P`); as
@@ -307,12 +314,12 @@ busca sobre tudo o que você faz ali:
   nunca entra em um backup e vai apenas para `api.github.com`; o cache pertence
   a cada conta, então trocar de conta nunca mostra repositórios alheios.
 - **Teclado primeiro** — `↑`/`↓` movem a seleção, `Enter` abre, `Ctrl/⌘+Enter`
-  abre em uma nova aba, `Tab` entra em um repositório, `Backspace` sai de um
-  nível do caminho, `Alt+P` fixa, `Ctrl/⌘+C` copia a linha, `?` mostra todas as
-  teclas e prefixos, e `Esc` fecha (a ajuda primeiro); a paleta não atrapalha
-  enquanto você digita em um editor de comentário ou README e se fecha sozinha na
-  navegação. O atalho é uma predefinição ou qualquer combinação gravada na página
-  de configurações da paleta.
+  abre em uma nova aba, `Tab` entra em um repositório ou pasta, `←`/`→` percorrem o caminho,
+  `Backspace` sai de um nível do caminho, `Alt+P` fixa, `Ctrl/⌘+C` copia a linha, `?` mostra
+  todas as teclas e prefixos, e `Esc` fecha (a ajuda primeiro); a paleta não
+  atrapalha enquanto você digita em um editor de comentário ou README e se fecha
+  sozinha na navegação. O atalho é uma predefinição ou qualquer combinação
+  gravada na página de configurações da paleta.
 
 ### Painel de configurações
 
