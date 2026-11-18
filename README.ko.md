@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.23.2`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
+> **상태:** 초기(`0.24.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
 > 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
 > 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
 > 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
@@ -225,24 +225,30 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 
 - **헤더 버튼** — 팔레트 버튼은 GitHub 헤더 작업의 맨 앞에 있으며 어느 페이지에서든
   팔레트를 열 수 있고 현재 단축키가 표시됩니다.
-- **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 상세 패널에 스타, 언어, 최근
+- **한 번에 한 저장소** — 저장소 행에서 `Tab`을 누르면 팔레트가 그 저장소로
+  좁혀집니다. 파일과 issue가 해당 저장소만 보여 주고 검색 행도 그 안에서
+  검색하며, `Backspace`, 칩 또는 `Esc`로 해제합니다.
+- **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 펼친 행에 스타, 언어, 최근
   push, 공개 범위가 표시됩니다. `@`를 입력하면 저장소만 검색합니다.
 - **스타 표시한 저장소** — 자주 돌아오는 프로젝트로, 내 저장소 다음에 오며 별표로
   표시됩니다.
-- **현재 저장소의 파일** — `#`는 현재 저장소의 모든 경로(또는 일치하는 검색어)를
-  보여 줍니다. 파일은 보고 있는 ref에서 GitHub로 열립니다.
+- **현재 저장소의 파일** — `/`는 현재(또는 선택한) 저장소의 모든 경로나 일치하는
+  검색어를 보여 줍니다. 파일은 보고 있는 ref에서 GitHub로 열립니다.
 - **열린 issue와 pull request** — 현재 저장소의 열린 issue와 pull request로, issue
-  또는 pull request 배지가 붙고 상세 패널에 작성자, 업데이트 시간, 댓글 수가
+  또는 pull request 배지가 붙고 펼친 행에 작성자, 업데이트 시간, 댓글 수가
   표시됩니다. 제목, 번호, 작성자로 검색합니다.
 - **GitHub 페이지와 GitHub Plus 작업** — issue, pull request, 알림, 설정을 엽니다.
-  GitHub Plus 패널을 엽니다. 기능을 켜고 끕니다. 캐시를 새로 고칩니다. `>`는 목록을
-  명령으로 제한하고, `?`는 검색어를 GitHub 자체 검색으로 넘깁니다.
+  GitHub Plus 패널을 엽니다. 기능을 켜고 끕니다. 캐시를 새로 고칩니다. `>`는 명령,
+  `#`는 issue와 pull request, `/`는 파일, `@`는 저장소만 표시합니다. GitHub 검색
+  행이 모든 검색어의 마지막에 오며, 범위가 있으면 그 저장소 안에서 검색합니다.
 - **즐겨찾기와 최근 항목** — 자주 쓰는 항목은 `Alt+P`로 고정합니다. 고정한 행은
   별표가 붙어 맨 앞에 오며, 빈 목록과 검색 결과 모두 그렇습니다. 최근에 연 행은
   다음에 열 때 맨 위로 돌아옵니다(GitHub 계정별).
-- **모든 행의 작업** — 행을 마우스 오른쪽 버튼으로 클릭하거나 `Shift+F10`, 또는
-  `⋯` 버튼을 누르면 열기, 새 탭에서 열기, 링크·경로·클론 주소·issue 번호 복사,
-  고정 및 해제를 할 수 있습니다.
+- **그 자리에서 세부 정보** — `→` 또는 행의 화살표로 세부 정보와 작업이 바로
+  아래에 열리고, `←` 또는 `Esc`로 닫으며, `?`로 모든 키와 접두사를 봅니다.
+- **모든 행의 작업** — 행을 마우스 오른쪽 버튼으로 클릭하거나 `Shift+F10`을 누르면
+  열기, 새 탭에서 열기, 링크·경로·클론 주소·issue 번호 복사, 고정 및 해제를 할 수
+  있습니다.
 - **빠르고 조용하게** — 팔레트는 캐시된 목록을 즉시 그리고, 백그라운드에서 갱신하며
   선택한 행을 유지합니다. 결과는 세션 동안과 새로 고침 사이에 ETag와 함께 캐시되므로
   API 할당량을 쓰지 않습니다. 토큰이 없어도 공개 데이터를 읽고 모든 명령이
@@ -252,9 +258,10 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
   브라우저에만 저장되며, 백업에 절대 기록되지 않고 `api.github.com`으로만 전송됩니다.
   캐시는 계정별로 분리되므로 계정을 바꿔도 다른 사람의 저장소가 표시되지 않습니다.
 - **키보드 우선** — `↑`/`↓`로 이동, `Enter`로 열기, `Ctrl/⌘+Enter`로 새 탭에서 열기,
-  `Alt+P`로 고정, `Esc`로 검색어를 지운 뒤 닫습니다. 댓글이나 README 편집기에서
-  입력하는 동안에는 방해하지 않고, 탐색 시 스스로 닫힙니다. 단축키는 프리셋이거나
-  팔레트 설정 페이지에서 기록한 임의의 조합입니다.
+  `→`로 현재 행 펼치기, `Tab`으로 저장소 범위 지정, `Alt+P`로 고정, `Ctrl/⌘+C`로
+  행 복사, `Esc`로 도움말·펼침·검색어·범위를 차례로 되돌린 뒤 닫습니다. 댓글이나
+  README 편집기에서 입력하는 동안에는 방해하지 않고, 탐색 시 스스로 닫힙니다.
+  단축키는 프리셋이거나 팔레트 설정 페이지에서 기록한 임의의 조합입니다.
 
 ### 설정 패널
 
@@ -313,7 +320,6 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 | `commandPalette.sources.issues` | `true` | 현재 저장소의 열린 issue와 pull request |
 | `commandPalette.hideForks` | `false` | 저장소의 포크 숨기기 |
 | `commandPalette.hideArchived` | `false` | 보관된 저장소 숨기기 |
-| `commandPalette.showDetails` | `true` | 목록 아래 상세 패널(760 px 미만에서는 항상 숨김) |
 | `commandPalette.cacheHours` | `6` | 저장소 및 파일 트리 캐시 유지 시간(시간, 0이면 끔) |
 | `commandPalette.maxResults` | `30` | 결과 집합당 최대 행 수(10–100) |
 

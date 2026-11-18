@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,7 +13,7 @@ wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
 any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.23.2`). Settings panel with instant search (General ·
+> **Status:** early (`0.24.0`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
@@ -246,29 +246,36 @@ there:
 
 - **From the header** — the palette button leads GitHub's own header actions
   and opens it from any page while showing the shortcut currently in effect.
+- **One repository at a time** — press `Tab` on a repository row to scope the
+  palette to it: files and issues narrow to that repository, the search row
+  searches inside it, and `Backspace`, the chip or `Escape` leaves the scope.
 - **Your repositories** — every repository you own, owned ones first, with
-  stars, language, last push and visibility in the details pane. Type `@` to
+  stars, language, last push and visibility in the row's expansion. Type `@` to
   search repositories only.
 - **Starred repositories** — the projects you keep coming back to, merged after
   your own and marked with a star.
-- **Files in this repository** — type `#` for every path in the current
-  repository (or a query that matches one); a file opens on GitHub at the ref
-  you are browsing.
+- **Files in this repository** — type `/` for every path in the current (or
+  scoped) repository, or a query that matches one; a file opens on GitHub at
+  the ref you are browsing.
 - **Open issues and pull requests** — the current repository's open issues and
   pull requests, marked with an issue or pull-request badge and carrying the
-  author, update time and comment count in the details pane; search them by
+  author, update time and comment count in the row's expansion; search them by
   title, number or author.
 - **GitHub pages and GitHub Plus actions** — open your issues, pulls,
   notifications or settings; open the GitHub Plus panel; toggle its features;
-  refresh the cache. Type `>` to limit the list to commands, or `?` to send the
-  query to GitHub's own search.
+  refresh the cache. Type `>` for commands, `#` for issues and pull requests,
+  `/` for files or `@` for repositories; a GitHub search row closes every
+  query, searching inside the scope when one is active.
 - **Favorites and recents** — pin what you use constantly (`Alt+P`); pinned
   rows carry a star and come first, on the empty list and on typed queries, and
   recently opened rows come back to the top on the next open, per GitHub
   account.
-- **Actions on any row** — right-click a row, press `Shift+F10` or click its
-  `⋯` button to open it, open it in a new tab, copy its link, path, clone
-  address or issue number, and pin or unpin it.
+- **Details in place** — press `→` or the row's chevron to open its details
+  and actions right under it, `←` or `Escape` to close them, and `?` for the
+  full key and prefix guide.
+- **Actions on any row** — right-click a row or press `Shift+F10` to open it,
+  open it in a new tab, copy its link, path, clone address or issue number, and
+  pin or unpin it.
 - **Fast and quiet** — the palette renders the cached list instantly, refreshes
   it in the background and keeps your selection in place. Results are cached
   with ETags for the session and across reloads, so browsing the palette does
@@ -281,10 +288,11 @@ there:
   kept per account, so switching accounts never shows another account's
   repositories.
 - **Keyboard first** — `↑`/`↓` move, `Enter` opens, `Ctrl/⌘+Enter` opens in a
-  new tab, `Alt+P` pins, `Esc` clears the query and then closes; the palette
-  stays out of the way while you type in a comment or README editor, and closes
-  itself on navigation. The shortcut is a preset or any combination you record
-  on the palette's settings page.
+  new tab, `→` expands the active row, `Tab` scopes a repository, `Alt+P` pins,
+  `Ctrl/⌘+C` copies the row and `Esc` walks back through help, expansion, query
+  and scope before closing; the palette stays out of the way while you type in
+  a comment or README editor, and closes itself on navigation. The shortcut is
+  a preset or any combination you record on the palette's settings page.
 
 ### Settings panel
 
@@ -344,7 +352,6 @@ Stored under `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Open issues and pull requests of the current repository |
 | `commandPalette.hideForks` | `false` | Hide forked repositories |
 | `commandPalette.hideArchived` | `false` | Hide archived repositories |
-| `commandPalette.showDetails` | `true` | Details pane below the list (hidden below 760 px) |
 | `commandPalette.cacheHours` | `6` | Repository and file-tree cache lifetime in hours (0 disables the cache) |
 | `commandPalette.maxResults` | `30` | Maximum number of rows in a result set (10–100) |
 

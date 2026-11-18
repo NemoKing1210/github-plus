@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 paleta de comandos com `Ctrl/⌘+K`, uma galeria de imagens para markdown
@@ -14,7 +14,7 @@ coloridas no estilo blame para esses arquivos, tamanhos de arquivo com downloads
 em um clique, um menu de contexto para ações de arquivo, uma pré-visualização
 rápida de qualquer arquivo e tradução do conteúdo da página.
 
-> **Status:** inicial (`0.23.2`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.24.0`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Tradução · Paleta · Backup · Sobre), uma paleta
 > de comandos com `Ctrl/⌘+K`, a galeria de imagens de markdown, ícones de
 > arquivo coloridos, idades coloridas no estilo blame, tamanhos de arquivo com
@@ -264,30 +264,37 @@ busca sobre tudo o que você faz ali:
 - **Pelo cabeçalho** — o botão da paleta fica à frente das ações do próprio
   cabeçalho do GitHub, abre a paleta de qualquer página e mostra o atalho em
   vigor.
+- **Um repositório por vez** — pressione `Tab` em uma linha de repositório para
+  limitar a paleta a ele: arquivos e issues passam a ser desse repositório, a
+  linha de busca procura dentro dele e `Backspace`, o chip ou `Esc` saem do
+  escopo.
 - **Seus repositórios** — todos os que você possui, os seus primeiro, com
-  estrelas, linguagem, último push e visibilidade no painel de detalhes. Digite
-  `@` para buscar apenas repositórios.
+  estrelas, linguagem, último push e visibilidade na linha expandida. Digite `@`
+  para buscar apenas repositórios.
 - **Repositórios com estrela** — os projetos aos quais você sempre volta; vêm
   depois dos seus e levam uma estrela.
-- **Arquivos do repositório atual** — `#` mostra todos os caminhos do repositório
-  atual (ou uma consulta que corresponda); um arquivo abre no GitHub na revisão
-  que você está vendo.
+- **Arquivos do repositório atual** — `/` mostra todos os caminhos do
+  repositório atual (ou do escopo) ou uma consulta que corresponda; um arquivo
+  abre no GitHub na revisão que você está vendo.
 - **Issues e pull requests abertos** — as issues e pull requests abertos do
-  repositório atual, com selo de issue ou pull request e, no painel de detalhes,
+  repositório atual, com selo de issue ou pull request e, na linha expandida,
   autor, data de atualização e número de comentários; busque por título, número
   ou autor.
 - **Páginas do GitHub e ações do GitHub Plus** — abra suas issues, pull requests,
   notificações ou configurações; abra o painel do GitHub Plus; ative ou desative
-  seus recursos; atualize o cache. `>` limita a lista a comandos e `?` envia a
-  consulta para a busca do próprio GitHub.
+  seus recursos; atualize o cache. `>` para comandos, `#` para issues e pull
+  requests, `/` para arquivos e `@` para repositórios; uma linha de busca do
+  GitHub fecha cada consulta e, dentro de um escopo, busca nele.
 - **Favoritos e recentes** — fixe o que você usa o tempo todo (`Alt+P`); as
   linhas fixadas levam uma estrela e vêm primeiro, tanto na lista vazia quanto
   nos resultados de busca. As linhas abertas recentemente voltam ao topo na
   próxima abertura, separadamente para cada conta do GitHub.
-- **Ações em qualquer linha** — clique com o botão direito em uma linha,
-  pressione `Shift+F10` ou o botão `⋯` para abri-la, abri-la em uma nova aba,
-  copiar o link, o caminho, o endereço de clone ou o número da issue, e fixá-la
-  ou desafixá-la.
+- **Detalhes no lugar** — `→` ou a seta da linha abrem os detalhes e as ações
+  logo abaixo dela, `←` ou `Esc` fecham, e `?` mostra todas as teclas e
+  prefixos.
+- **Ações em qualquer linha** — clique com o botão direito em uma linha ou
+  pressione `Shift+F10` para abri-la, abri-la em uma nova aba, copiar o link, o
+  caminho, o endereço de clone ou o número da issue, e fixá-la ou desafixá-la.
 - **Rápida e discreta** — a paleta mostra na hora a lista em cache, atualiza em
   segundo plano e mantém sua seleção. Os resultados são guardados com ETags
   durante a sessão e entre recarregamentos, então a paleta não gasta cota da
@@ -299,10 +306,12 @@ busca sobre tudo o que você faz ali:
   nunca entra em um backup e vai apenas para `api.github.com`; o cache pertence
   a cada conta, então trocar de conta nunca mostra repositórios alheios.
 - **Teclado primeiro** — `↑`/`↓` movem a seleção, `Enter` abre, `Ctrl/⌘+Enter`
-  abre em uma nova aba, `Alt+P` fixa, `Esc` limpa a consulta e depois fecha; a
-  paleta não atrapalha enquanto você digita em um editor de comentário ou README
-  e se fecha sozinha na navegação. O atalho é uma predefinição ou qualquer
-  combinação gravada na página de configurações da paleta.
+  abre em uma nova aba, `→` expande a linha ativa, `Tab` limita a um repositório,
+  `Alt+P` fixa, `Ctrl/⌘+C` copia a linha e `Esc` volta pela ajuda, expansão,
+  consulta e escopo antes de fechar; a paleta não atrapalha enquanto você digita
+  em um editor de comentário ou README e se fecha sozinha na navegação. O atalho
+  é uma predefinição ou qualquer combinação gravada na página de configurações
+  da paleta.
 
 ### Painel de configurações
 
@@ -363,7 +372,6 @@ Armazenadas em `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Issues e pull requests abertos do repositório atual |
 | `commandPalette.hideForks` | `false` | Ocultar forks de repositórios |
 | `commandPalette.hideArchived` | `false` | Ocultar repositórios arquivados |
-| `commandPalette.showDetails` | `true` | Painel de detalhes abaixo da lista (oculto abaixo de 760 px de qualquer forma) |
 | `commandPalette.cacheHours` | `6` | Validade do cache de repositórios e árvores de arquivos em horas (0 desativa) |
 | `commandPalette.maxResults` | `30` | Número máximo de linhas por conjunto de resultados (10–100) |
 

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -14,7 +14,7 @@ blame 風の経過日数カラー、ファイルサイズとワンクリック �
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
 翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.23.2`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.24.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
@@ -241,26 +241,32 @@ GitHub Plus はその両方をファイルの行に追加します:
 
 - **ヘッダーのボタン** — パレットのボタンは GitHub ヘッダーの操作の先頭にあり、
   どのページでもパレットを開けます。現在のショートカットも表示されます。
+- **リポジトリを 1 つに絞る** — リポジトリの行で `Tab` を押すとパレットがその
+  リポジトリに限定されます。ファイルと issue はそのリポジトリだけになり、検索行も
+  その中を検索します。`Backspace`、チップ、`Esc` で解除できます。
 - **自分のリポジトリ** — 所有するすべてのリポジトリ。自分のものが先頭で、スター、
-  言語、最終 push、公開範囲が詳細ペインに表示されます。`@` を入力すると
+  言語、最終 push、公開範囲が展開した行に表示されます。`@` を入力すると
   リポジトリだけを検索します。
 - **スター付きリポジトリ** — 何度も戻ってくるプロジェクト。自分のリポジトリの後に
   並び、スターで示されます。
-- **現在のリポジトリのファイル** — `#` で現在のリポジトリのすべてのパス（または
-  それに一致するクエリ）を表示します。ファイルは閲覧中のリビジョンで GitHub 上に
-  開きます。
+- **現在のリポジトリのファイル** — `/` で現在の（または限定した）リポジトリの
+  すべてのパス、またはそれに一致するクエリを表示します。ファイルは閲覧中の
+  リビジョンで GitHub 上に開きます。
 - **オープンな issue と pull request** — 現在のリポジトリのオープンな issue と
-  pull request。issue または pull request のバッジが付き、詳細ペインに作成者、
+  pull request。issue または pull request のバッジが付き、展開した行に作成者、
   更新日時、コメント数が表示されます。タイトル、番号、作成者で検索できます。
 - **GitHub のページと GitHub Plus の操作** — issue、pull request、通知、設定を
   開く。GitHub Plus パネルを開く。機能を切り替える。キャッシュを更新する。`>` で
-  コマンドだけに絞り込み、`?` でクエリを GitHub 自身の検索に渡します。
+  コマンド、`#` で issue と pull request、`/` でファイル、`@` でリポジトリに
+  絞り込めます。GitHub 検索の行が各クエリの最後に並び、限定中はそのリポジトリ内を
+  検索します。
 - **お気に入りと最近使った項目** — よく使うものは `Alt+P` でピン留めできます。
   ピン留めした行はスターが付いて先頭に並びます（空の一覧でも検索結果でも）。最近
   開いた行は次回開いたときに先頭へ戻ります（GitHub アカウントごと）。
-- **各行の操作** — 行を右クリックするか `Shift+F10`、または `⋯` ボタンで、開く、
-  新しいタブで開く、リンク・パス・クローン用アドレス・issue 番号のコピー、
-  ピン留めと解除ができます。
+- **その場で詳細** — `→` または行の矢印で詳細と操作が行の直下に開き、`←` または
+  `Esc` で閉じます。`?` ですべてのキーとプレフィックスを表示します。
+- **各行の操作** — 行を右クリックするか `Shift+F10` で、開く、新しいタブで開く、
+  リンク・パス・クローン用アドレス・issue 番号のコピー、ピン留めと解除ができます。
 - **高速で控えめ** — パレットはキャッシュ済みの一覧をすぐに表示し、バックグラウンド
   で更新しながら選択行を保ちます。結果は ETag 付きでセッション中も再読み込み後も
   キャッシュされるため、API の割り当てを消費しません。トークンがなくても公開
@@ -271,9 +277,11 @@ GitHub Plus はその両方をファイルの行に追加します:
   ず、`api.github.com` にだけ送信されます。キャッシュはアカウントごとに分かれる
   ため、アカウントを切り替えても他人のリポジトリが表示されることはありません。
 - **キーボード優先** — `↑`/`↓` で移動、`Enter` で開く、`Ctrl/⌘+Enter` で新しい
-  タブに開く、`Alt+P` でピン留め、`Esc` でクエリを消してから閉じます。コメントや
-  README のエディターで入力中は邪魔をせず、ナビゲーション時には自動で閉じます。
-  ショートカットはプリセットか、パレットの設定ページで記録した任意の組み合わせです。
+  タブに開く、`→` で現在の行を展開、`Tab` でリポジトリに限定、`Alt+P` でピン留め、
+  `Ctrl/⌘+C` で行をコピー、`Esc` でヘルプ、展開、クエリ、限定の順に戻ってから
+  閉じます。コメントや README のエディターで入力中は邪魔をせず、ナビゲーション時には
+  自動で閉じます。ショートカットはプリセットか、パレットの設定ページで記録した
+  任意の組み合わせです。
 
 ### 設定パネル
 
@@ -333,7 +341,6 @@ GitHub Plus はその両方をファイルの行に追加します:
 | `commandPalette.sources.issues` | `true` | 現在のリポジトリのオープンな issue と pull request |
 | `commandPalette.hideForks` | `false` | リポジトリのフォークを隠す |
 | `commandPalette.hideArchived` | `false` | アーカイブ済みリポジトリを隠す |
-| `commandPalette.showDetails` | `true` | 一覧の下の詳細ペイン（760 px 未満では常に非表示） |
 | `commandPalette.cacheHours` | `6` | リポジトリとファイル ツリーのキャッシュ保持時間（時間、0 で無効） |
 | `commandPalette.maxResults` | `30` | 結果セットあたりの最大行数（10–100） |
 

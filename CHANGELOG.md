@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-11-18
+
+### Added
+
+- Repository scope in the command palette: `Tab` on a repository row narrows
+  files, issues and search to that repository, with a removable chip and
+  `Backspace` leading back out
+- Inline row expansion: `→` or a row's chevron opens its details and actions
+  directly under the row, `←` collapses them, and `?` opens a key and prefix
+  guide
+- A Top result group above the list, chosen by query relevance alone and
+  exempt from the result cap
+- `Ctrl/⌘+C` copies the active row's link when no text is selected
+
+### Changed
+
+- The command palette's prefixes now match GitHub's own: `#` for issues and
+  pull requests, `/` for files, `@` for repositories and `>` for commands
+- The GitHub search row now closes every query as the last group, searching
+  inside the active scope
+- The palette gained a tip strip with contextual key hints, in place of its
+  footer
+
+### Removed
+
+- The `commandPalette.showDetails` setting and the details pane it controlled;
+  details now live in each row's expansion
+
+[0.24.0]: https://github.com/NemoKing1210/github-plus/compare/v0.23.2...v0.24.0
+
 ## [0.23.2] - 2026-11-18
 
 ### Fixed

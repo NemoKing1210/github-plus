@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -14,7 +14,7 @@ couleurs d'âge façon blame pour ces fichiers, la taille des fichiers avec
 téléchargement en un clic, un menu contextuel pour les actions sur les fichiers,
 un aperçu rapide de tout fichier et la traduction du contenu des pages.
 
-> **Statut :** début (`0.23.2`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.24.0`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Traduction · Palette · Sauvegarde · À propos),
 > une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du markdown, des
 > icônes de fichiers colorées, des couleurs d'âge façon blame, la taille des
@@ -267,29 +267,38 @@ champ de recherche sur tout ce que vous y faites :
 - **Depuis l'en-tête** — le bouton de la palette, en tête des actions de
   l'en-tête GitHub, l'ouvre depuis n'importe quelle page et affiche le raccourci
   en vigueur.
+- **Un dépôt à la fois** — appuyez sur `Tab` sur une ligne de dépôt pour y
+  restreindre la palette : fichiers et issues se limitent à ce dépôt, la ligne de
+  recherche cherche à l'intérieur, et `Retour arrière`, la pastille ou `Échap`
+  quittent la portée.
 - **Vos dépôts** — tous ceux que vous possédez, les vôtres d'abord, avec étoiles,
-  langage, dernier push et visibilité dans le panneau de détails. Tapez `@` pour
-  ne chercher que des dépôts.
+  langage, dernier push et visibilité dans la ligne dépliée. Tapez `@` pour ne
+  chercher que des dépôts.
 - **Dépôts mis en favori** — les projets auxquels vous revenez sans cesse ; ils
   suivent les vôtres et portent une étoile.
-- **Fichiers du dépôt courant** — `#` affiche tous les chemins du dépôt courant
-  (ou une requête qui y correspond) ; un fichier s'ouvre sur GitHub à la
-  révision que vous consultez.
+- **Fichiers du dépôt courant** — `/` affiche tous les chemins du dépôt courant
+  (ou de la portée) ou une requête qui y correspond ; un fichier s'ouvre sur
+  GitHub à la révision que vous consultez.
 - **Issues et pull requests ouvertes** — les issues et pull requests ouvertes du
   dépôt courant, marquées d'un badge issue ou pull request, avec l'auteur, la
-  date de mise à jour et le nombre de commentaires dans le panneau de détails ;
+  date de mise à jour et le nombre de commentaires dans la ligne dépliée ;
   cherchez par titre, numéro ou auteur.
 - **Pages GitHub et actions GitHub Plus** — ouvrez vos issues, pull requests,
   notifications ou réglages ; ouvrez le panneau GitHub Plus ; activez ou
-  désactivez ses fonctions ; rafraîchissez le cache. `>` limite la liste aux
-  commandes et `?` envoie la requête à la recherche propre à GitHub.
+  désactivez ses fonctions ; rafraîchissez le cache. `>` pour les commandes, `#`
+  pour les issues et pull requests, `/` pour les fichiers et `@` pour les dépôts ;
+  une ligne de recherche GitHub termine chaque requête et, dans une portée,
+  cherche à l'intérieur.
 - **Favoris et récents** — épinglez ce que vous utilisez constamment (`Alt+P`) ;
   les lignes épinglées portent une étoile et passent en premier, dans la liste
   vide comme dans les résultats de recherche. Les lignes ouvertes récemment
   remontent à l'ouverture suivante, séparément pour chaque compte GitHub.
-- **Actions sur chaque ligne** — un clic droit sur une ligne, `Shift+F10` ou son
-  bouton `⋯` l'ouvre, l'ouvre dans un nouvel onglet, copie son lien, son chemin,
-  son adresse de clonage ou son numéro d'issue, et l'épingle ou la détache.
+- **Détails sur place** — `→` ou le chevron d'une ligne déplient ses détails et
+  ses actions juste en dessous, `←` ou `Échap` les referment, et `?` affiche
+  toutes les touches et tous les préfixes.
+- **Actions sur chaque ligne** — un clic droit sur une ligne ou `Shift+F10`
+  l'ouvre, l'ouvre dans un nouvel onglet, copie son lien, son chemin, son adresse
+  de clonage ou son numéro d'issue, et l'épingle ou la détache.
 - **Rapide et discrète** — la palette affiche instantanément la liste en cache,
   la rafraîchit en arrière-plan et conserve votre sélection. Les résultats sont
   mis en cache avec des ETags pour la session et entre les rechargements, la
@@ -302,11 +311,13 @@ champ de recherche sur tout ce que vous y faites :
   `api.github.com` ; le cache appartient à chaque compte, changer de compte
   n'affiche donc jamais les dépôts d'un autre.
 - **Le clavier d'abord** — `↑`/`↓` déplacent la sélection, `Enter` ouvre,
-  `Ctrl/⌘+Enter` ouvre dans un nouvel onglet, `Alt+P` épingle, `Esc` vide la
-  requête puis ferme ; la palette reste discrète pendant la saisie dans un
-  éditeur de commentaire ou de README et se ferme d'elle-même à la navigation.
-  Le raccourci est un préréglage ou n'importe quelle combinaison enregistrée sur
-  la page de réglages de la palette.
+  `Ctrl/⌘+Enter` ouvre dans un nouvel onglet, `→` déplie la ligne active, `Tab`
+  restreint à un dépôt, `Alt+P` épingle, `Ctrl/⌘+C` copie la ligne et `Échap`
+  remonte l'aide, le dépliage, la requête puis la portée avant de fermer ; la
+  palette reste discrète pendant la saisie dans un éditeur de commentaire ou de
+  README et se ferme d'elle-même à la navigation. Le raccourci est un préréglage
+  ou n'importe quelle combinaison enregistrée sur la page de réglages de la
+  palette.
 
 ### Panneau de réglages
 
@@ -367,7 +378,6 @@ Stockés sous `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Issues et pull requests ouvertes du dépôt courant |
 | `commandPalette.hideForks` | `false` | Masquer les forks de dépôts |
 | `commandPalette.hideArchived` | `false` | Masquer les dépôts archivés |
-| `commandPalette.showDetails` | `true` | Panneau de détails sous la liste (masqué sous 760 px de toute façon) |
 | `commandPalette.cacheHours` | `6` | Durée du cache des dépôts et arborescences en heures (0 le désactive) |
 | `commandPalette.maxResults` | `30` | Nombre maximal de lignes par jeu de résultats (10–100) |
 

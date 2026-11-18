@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
@@ -14,7 +14,7 @@ blame, rozmiary plików i pobieranie jednym kliknięciem, menu kontekstowe
 operacji na plikach, szybki podgląd dowolnego pliku i tłumaczenie treści na
 stronie.
 
-> **Status:** wczesny etap (`0.23.2`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.24.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Paleta · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary plików
@@ -257,30 +257,37 @@ wyszukiwania obejmujące wszystko, co tam robisz:
 
 - **Przycisk w nagłówku** — przycisk palety stoi na początku akcji nagłówka
   GitHuba, otwiera ją z dowolnej strony i pokazuje aktualny skrót.
+- **Jedno repozytorium naraz** — naciśnij `Tab` na wierszu repozytorium, aby
+  zawęzić paletę do niego: pliki i issue ograniczą się do tego repozytorium,
+  wiersz wyszukiwania szuka w nim, a `Backspace`, plakietka lub `Esc` opuszczają
+  zakres.
 - **Twoje repozytoria** — wszystkie, których jesteś właścicielem, własne
-  najpierw, z gwiazdkami, językiem, ostatnim push i widocznością w panelu
-  szczegółów. Wpisz `@`, aby szukać tylko repozytoriów.
+  najpierw, z gwiazdkami, językiem, ostatnim push i widocznością w rozwiniętym
+  wierszu. Wpisz `@`, aby szukać tylko repozytoriów.
 - **Repozytoria z gwiazdką** — projekty, do których wracasz; są po twoich
   własnych i oznaczone gwiazdką.
-- **Pliki bieżącego repozytorium** — `#` pokazuje wszystkie ścieżki bieżącego
-  repozytorium (lub pasujące zapytanie); plik otwiera się w GitHubie na wersji,
-  którą przeglądasz.
+- **Pliki bieżącego repozytorium** — `/` pokazuje wszystkie ścieżki bieżącego
+  (lub wybranego) repozytorium lub pasujące zapytanie; plik otwiera się w
+  GitHubie na wersji, którą przeglądasz.
 - **Otwarte issue i pull requesty** — otwarte issue i pull requesty bieżącego
   repozytorium, oznaczone plakietką issue lub pull requesta, z autorem, datą
-  aktualizacji i liczbą komentarzy w panelu szczegółów; szukaj po tytule,
+  aktualizacji i liczbą komentarzy w rozwiniętym wierszu; szukaj po tytule,
   numerze lub autorze.
 - **Strony GitHuba i akcje GitHub Plus** — otwórz swoje issue, pull requesty,
   powiadomienia lub ustawienia; otwórz panel GitHub Plus; przełącz jego funkcje;
-  odśwież pamięć podręczną. `>` ogranicza listę do poleceń, a `?` przekazuje
-  zapytanie do wyszukiwania samego GitHuba.
+  odśwież pamięć podręczną. `>` zawęża do poleceń, `#` do issue i pull
+  requestów, `/` do plików, a `@` do repozytoriów; wiersz wyszukiwania GitHuba
+  kończy każde zapytanie i w zakresie szuka w nim.
 - **Ulubione i ostatnie** — przypnij to, czego używasz stale (`Alt+P`);
   przypięte wiersze mają gwiazdkę i idą pierwsze, zarówno na pustej liście, jak
   i w wynikach wyszukiwania. Ostatnio otwarte wiersze wrócą na górę przy
   następnym otwarciu, osobno dla każdego konta GitHuba.
-- **Akcje dla każdego wiersza** — kliknij wiersz prawym przyciskiem, naciśnij
-  `Shift+F10` lub przycisk `⋯`, aby go otworzyć, otworzyć w nowej karcie,
-  skopiować link, ścieżkę, adres do klonowania lub numer issue, a także przypiąć
-  go lub odpiąć.
+- **Szczegóły na miejscu** — `→` lub strzałka wiersza rozwija jego szczegóły i
+  akcje tuż pod nim, `←` lub `Esc` zamyka, a `?` pokazuje wszystkie klawisze i
+  prefiksy.
+- **Akcje dla każdego wiersza** — kliknij wiersz prawym przyciskiem lub naciśnij
+  `Shift+F10`, aby go otworzyć, otworzyć w nowej karcie, skopiować link, ścieżkę,
+  adres do klonowania lub numer issue, a także przypiąć go lub odpiąć.
 - **Szybko i dyskretnie** — paleta od razu pokazuje listę z pamięci podręcznej,
   odświeża ją w tle i zachowuje zaznaczony wiersz. Wyniki są buforowane z ETagami
   w ramach sesji i między przeładowaniami, więc paleta nie zużywa limitu API; bez
@@ -292,10 +299,12 @@ wyszukiwania obejmujące wszystko, co tam robisz:
   podręczna należy do każdego konta, więc zmiana konta nigdy nie pokazuje cudzych
   repozytoriów.
 - **Najpierw klawiatura** — `↑`/`↓` przesuwają zaznaczenie, `Enter` otwiera,
-  `Ctrl/⌘+Enter` otwiera w nowej karcie, `Alt+P` przypina, `Esc` czyści zapytanie,
-  a potem zamyka; paleta nie przeszkadza podczas pisania w edytorze komentarza
-  lub README i sama zamyka się przy nawigacji. Skrót to ustawienie wstępne lub
-  dowolna kombinacja nagrana na stronie ustawień palety.
+  `Ctrl/⌘+Enter` otwiera w nowej karcie, `→` rozwija aktywny wiersz, `Tab`
+  zawęża do repozytorium, `Alt+P` przypina, `Ctrl/⌘+C` kopiuje wiersz, a `Esc`
+  cofa pomoc, rozwinięcie, zapytanie i zakres, po czym zamyka; paleta nie
+  przeszkadza podczas pisania w edytorze komentarza lub README i sama zamyka się
+  przy nawigacji. Skrót to ustawienie wstępne lub dowolna kombinacja nagrana na
+  stronie ustawień palety.
 
 ### Panel ustawień
 
@@ -355,7 +364,6 @@ Przechowywane pod `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Otwarte issue i pull requesty bieżącego repozytorium |
 | `commandPalette.hideForks` | `false` | Ukrywaj forki repozytoriów |
 | `commandPalette.hideArchived` | `false` | Ukrywaj zarchiwizowane repozytoria |
-| `commandPalette.showDetails` | `true` | Panel szczegółów pod listą (i tak ukryty poniżej 760 px) |
 | `commandPalette.cacheHours` | `6` | Czas życia pamięci podręcznej repozytoriów i drzew plików w godzinach (0 wyłącza) |
 | `commandPalette.maxResults` | `30` | Maksymalna liczba wierszy w zestawie wyników (10–100) |
 
