@@ -57,3 +57,31 @@ test('the preview column leaves a gap at the table edge', async () => {
   const right = Number(/padding-right:\s*(\d+)px\s*!important/.exec(block)?.[1] || 0);
   assert.ok(right >= 12, `the button sits ${right}px from the edge`);
 });
+
+test('the preview set stays inside the expanded folder that owns the row', async () => {
+  installDom();
+  document.querySelector('[data-testid="directory-content"] tbody').innerHTML = `
+    <tr class="react-directory-row" id="root">
+      <td><a href="/o/r/blob/main/root.js">root.js</a></td>
+    </tr>
+    <tr class="react-directory-row gp-tree-row" data-gp-tree-owner="/o/r/tree/main/a">
+      <td><a href="/o/r/blob/main/a/one.js">one.js</a></td>
+    </tr>
+    <tr class="react-directory-row gp-tree-row" data-gp-tree-owner="/o/r/tree/main/a">
+      <td><a href="/o/r/blob/main/a/two.js">two.js</a></td>
+    </tr>
+    <tr class="react-directory-row gp-tree-row" data-gp-tree-owner="/o/r/tree/main/b">
+      <td><a href="/o/r/blob/main/b/other.js">other.js</a></td>
+    </tr>`;
+  const { siblingsForRow } = await import('../src/features/filePreview/surfaces.js');
+  const nested = document.querySelector('[data-gp-tree-owner="/o/r/tree/main/a"]');
+
+  const set = siblingsForRow(nested);
+  assert.deepEqual(set.files.map((file) => file.name), ['one.js', 'two.js']);
+  assert.equal(set.index, 0);
+
+  const root = document.getElementById('root');
+  const top = siblingsForRow(root);
+  assert.deepEqual(top.files.map((file) => file.name), ['root.js']);
+  assert.equal(top.index, 0);
+});

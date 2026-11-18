@@ -46,10 +46,14 @@ function resolveRow(row) {
 export function siblingsForRow(row) {
   const container = row?.closest(PREVIEW_SURFACE.containers[0]);
   if (!container) return null;
+  const group = row.getAttribute('data-gp-tree-owner') || '';
   const rows = container.querySelectorAll(PREVIEW_SURFACE.rows);
   const files = [];
   let index = -1;
   for (let i = 0; i < rows.length; i += 1) {
+    // A folder tree row belongs to the folder that owns it; the page's own
+    // rows have no owner, so navigation never crosses directory boundaries.
+    if ((rows[i].getAttribute('data-gp-tree-owner') || '') !== group) continue;
     const found = resolveRow(rows[i]);
     if (!found) continue;
     if (files.length < PREVIEW_MAX_SIBLINGS) {
