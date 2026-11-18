@@ -60,6 +60,22 @@
   --gp-age-9: #876739;
   --gp-age-10: #9a6700;
 
+  /* Conventional Commit fills: Primer's emphasis surfaces paired with its own
+   * on-emphasis ink, so the type chip follows every GitHub theme. */
+  --gp-commit-ink: var(--fgColor-onEmphasis, #ffffff);
+  --gp-commit-feat: var(--bgColor-success-emphasis, #1f883d);
+  --gp-commit-fix: var(--bgColor-danger-emphasis, #cf222e);
+  --gp-commit-revert: var(--bgColor-danger-emphasis, #cf222e);
+  --gp-commit-docs: var(--bgColor-accent-emphasis, #0969da);
+  --gp-commit-style: var(--bgColor-done-emphasis, #8250df);
+  --gp-commit-refactor: var(--bgColor-attention-emphasis, #bf8700);
+  --gp-commit-perf: var(--bgColor-severe-emphasis, #bc4c00);
+  --gp-commit-test: var(--bgColor-sponsors-emphasis, #bf3989);
+  --gp-commit-build: var(--bgColor-neutral-emphasis, #6e7781);
+  --gp-commit-ci: var(--bgColor-neutral-emphasis, #6e7781);
+  --gp-commit-chore: var(--bgColor-neutral-emphasis, #6e7781);
+  --gp-commit-unknown: var(--bgColor-neutral-emphasis, #6e7781);
+
   /* Code preview syntax palette, following GitHub's own highlighting colors
    * so a previewed file reads like the blob page it was opened from. */
   --gp-code-keyword: #cf222e;

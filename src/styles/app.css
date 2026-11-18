@@ -3563,3 +3563,100 @@ audio.gp-preview__media {
     width: calc(100% - 16px);
   }
 }
+
+/* == Commit badges ========================================================= */
+
+.gp-commit-prefix {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+  margin-right: 4px;
+  font-family: var(--gp-font);
+  font-size: 11px;
+  line-height: 20px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.gp-commit-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--gp-border);
+}
+
+.gp-commit-type {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 8px;
+  font-weight: 600;
+  color: var(--gp-commit-ink);
+  background: var(--gp-commit-fill, var(--gp-commit-unknown));
+  text-decoration: none;
+}
+
+.gp-commit-type--feat { --gp-commit-fill: var(--gp-commit-feat); }
+.gp-commit-type--fix { --gp-commit-fill: var(--gp-commit-fix); }
+.gp-commit-type--revert { --gp-commit-fill: var(--gp-commit-revert); }
+.gp-commit-type--docs { --gp-commit-fill: var(--gp-commit-docs); }
+.gp-commit-type--style { --gp-commit-fill: var(--gp-commit-style); }
+.gp-commit-type--refactor { --gp-commit-fill: var(--gp-commit-refactor); }
+.gp-commit-type--perf { --gp-commit-fill: var(--gp-commit-perf); }
+.gp-commit-type--test { --gp-commit-fill: var(--gp-commit-test); }
+.gp-commit-type--build { --gp-commit-fill: var(--gp-commit-build); }
+.gp-commit-type--ci { --gp-commit-fill: var(--gp-commit-ci); }
+.gp-commit-type--chore { --gp-commit-fill: var(--gp-commit-chore); }
+.gp-commit-type--unknown { --gp-commit-fill: var(--gp-commit-unknown); }
+
+.gp-commit-scope {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 8px;
+  font-weight: 500;
+  color: var(--gp-text-muted);
+  background: var(--gp-bg-2);
+}
+
+.gp-commit-paren { opacity: .45; }
+
+.gp-commit-bang {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gp-on-danger);
+  background: var(--gp-danger);
+}
+
+.gp-commit-bang--plain {
+  color: var(--gp-text-muted);
+  background: none;
+  font-weight: 600;
+}
+
+.gp-commit-colon {
+  color: var(--gp-text-muted);
+  text-decoration: none;
+}
+
+.gp-commit-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 16px;
+}
+
+.gp-commit-legend__item {
+  display: inline-flex;
+  align-items: center;
+}
