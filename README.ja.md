@@ -5,19 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
 ファイルを一覧するあらゆる場所でのカラー ファイル アイコン、それらのファイルの
-blame 風の経過日数カラー、ファイルサイズとワンクリック ダウンロード、ファイル操作
+blame 風の経過日数カラー、リポジトリ一覧のフォルダー展開、ファイルサイズと
+ワンクリック ダウンロード、ファイル操作
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、Conventional
 Commits のコミット バッジ、ページ内テキストの翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.29.2`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.30.0`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · コミット · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
-> blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
+> blame 風の経過日数カラー、フォルダーの展開、ファイルサイズとダウンロード
+> ボタン、ファイルの
 > コンテキスト メニュー、ファイルのクイックプレビュー、コミット バッジ、ページ内
 > 翻訳。今後さらに GitHub の改善を追加予定です。
 
@@ -138,6 +140,31 @@ GitHub は各ファイルが最後に変更されてからの時間をすでに�
 - **ファイルとフォルダー** — フォルダーの行も色付けされます（日付はその最終変更を
   示します）。設定でファイルのみに制限できます。
 - **控えめ** — 機能を無効にすると GitHub 本来の日付色に戻り、痕跡は残りません。
+
+### フォルダーの展開
+
+リポジトリの一覧は一度に 1 階層しか表示しないため、パスをたどるたびにページを
+読み込み直すことになります。GitHub Plus は一覧をツリーに変えます:
+
+- **ワンクリックで中身を表示** — 各フォルダー行の先頭にシェブロンが付き、
+  フォルダーの内容がその直下に通常の行として 1 階層ごとにインデントされて表示
+  されます。同じシェブロンで再び折りたためます。入れ子のフォルダーも同じように、
+  どこまでも展開できます。
+- **フォルダー名はこれまでどおり移動** — 展開するのはシェブロンだけなので、名前を
+  普通にクリックすればこれまでどおりフォルダーが開きます。シェブロンは本物の
+  ボタン(`aria-expanded`、フォルダーごとのラベル)で、キーボードでも操作できます。
+- **ほかの機能もそのまま動作** — 入れ子の行は GitHub の行の形をしているため、
+  ファイル アイコン、blame 風の経過日数カラー、サイズ、ダウンロード ボタン、
+  クイックプレビュー(前後移動はフォルダー内に限定)、ファイルのコンテキスト
+  メニューがそのまま使えます。
+- **日付とメッセージも表示** — 入れ子の各行に最後のコミット メッセージと経過
+  日数の色が付きます。ページと同じセッションから読み取るため、プライベート
+  リポジトリでも動作し、API トークンも消費しません。
+- **正直な上限** — 空のフォルダーはその旨を表示し、1000 件を超えるフォルダーは
+  先頭 1000 件と注記を表示します。リクエストが失敗した場合は、途中まで描画
+  されたツリーではなく、フォルダーを折りたたんだままトーストで知らせます。
+- **控えめ** — 機能を無効にするとシェブロンと入れ子の行はすべて消え、GitHub は
+  元のままです。移動後はすべてのフォルダーが折りたたまれた状態になります。
 
 ### ファイルサイズとダウンロード
 
@@ -356,6 +383,7 @@ Conventional Commits 形式のコミット件名では、`type(scope):` プレ�
 | `filePreview.longPress` | `true` | ファイル名または Markdown のファイル リンクをマウスの左ボタンで長押ししてプレビューを開く |
 | `filePreview.longPressMs` | `450` | プレビューが開くまでの長押し時間（ミリ秒、200–2000） |
 | `filePreview.longPressRing` | `true` | 長押し中にポインター位置へ表示する進行サークル |
+| `folderTree.enabled` | `true` | リポジトリ一覧でフォルダー行を展開できるようにするメイン スイッチ |
 | `commitBadges.enabled` | `true` | Conventional Commits バッジのメイン スイッチ |
 | `commitBadges.unknownTypes` | `true` | 慣例的なセット以外の小文字の型にもスタイルを適用 |
 | `commitBadges.breaking` | `true` | `!` 付きの破壊的変更プレフィックスに赤いマーカーを表示 |

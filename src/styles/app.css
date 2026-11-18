@@ -2157,6 +2157,97 @@ html.gp-modal-open body {
   }
 }
 
+/* == Folder tree =========================================================== */
+/* A 20px slot leads every listing row so folder chevrons and file glyphs stay
+ * aligned; the header gets the same slot so "Name" does not drift. The
+ * chevron is GitHub's 20px icon-button shape, muted until hovered, and its
+ * glyph turns a quarter turn when the folder is open. */
+.gp-tree-slot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+.gp-tree-head-slot {
+  display: inline-block;
+  width: 20px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+.gp-tree-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--gp-text-muted);
+  cursor: pointer;
+  transition: background-color 0.12s, color 0.12s;
+}
+.gp-tree-toggle svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+  transition: transform 0.14s ease;
+}
+.gp-tree-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+.gp-tree-toggle:hover {
+  background: var(--gp-highlight);
+  color: var(--gp-text);
+}
+.gp-tree-toggle:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: 1px;
+}
+.gp-tree-toggle.is-loading {
+  color: var(--gp-text-muted);
+  cursor: progress;
+}
+.gp-tree-toggle.is-loading svg {
+  opacity: 0;
+}
+.gp-tree-toggle.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--gp-highlight);
+  border-top-color: var(--gp-text-muted);
+  border-radius: 50%;
+  animation: gp-viewer-spin 0.8s linear infinite;
+}
+.gp-tree-commit {
+  min-width: 0;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gp-tree-commit-link {
+  color: var(--gp-text-muted);
+  text-decoration: none;
+}
+.gp-tree-commit-link:hover {
+  color: var(--gp-text);
+  text-decoration: underline;
+}
+.gp-tree-note {
+  padding: 8px 16px;
+  color: var(--gp-text-muted);
+  font-family: var(--gp-font);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 /* == File context menu ===================================================== */
 /* A GitHub ActionList-shaped popover: surface fill, floating shadow whose
  * 1px ring stands in for a border (as GitHub's own overlays do), 16px action

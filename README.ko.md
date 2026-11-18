@@ -5,17 +5,19 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
-아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
+아이콘, 그 파일들의 blame 스타일 나이 색상, 저장소 목록의 폴더 펼치기, 파일 크기와 원클릭 다운로드,
+파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, Conventional Commits 커밋 배지, 페이지
 번역을 제공합니다.
 
-> **상태:** 초기(`0.29.2`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
+> **상태:** 초기(`0.30.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
 > 번역 · 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
-> 컬러 파일 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일
+> 컬러 파일 아이콘, blame 스타일 나이 색상, 폴더 펼치기, 다운로드 버튼이 있는
+> 파일 크기, 파일
 > 컨텍스트 메뉴, 파일 빠른 미리보기, 커밋 배지, 페이지 번역. 더 많은 GitHub 개선이
 > 예정되어 있습니다.
 
@@ -129,6 +131,29 @@ GitHub는 각 파일이 마지막으로 변경된 지 얼마나 됐는지 이미
 - **파일과 폴더** — 폴더 행도 색이 입혀지며(날짜는 마지막 변경을 뜻합니다), 설정
   으로 파일에만 적용할 수 있습니다.
 - **조용함** — 기능을 끄면 GitHub의 원래 날짜 색으로 돌아가고 흔적이 남지 않습니다.
+
+### 폴더 펼치기
+
+저장소 목록은 한 번에 한 단계만 보여 주므로 경로를 따라가려면 폴더마다 페이지를
+새로 불러와야 합니다. GitHub Plus는 목록을 트리로 바꿉니다:
+
+- **한 번의 클릭으로 안을 확인** — 모든 폴더 행 앞에 셰브론이 붙고, 폴더 내용이
+  바로 아래에 일반 행으로 한 단계씩 들여쓰여 나타납니다. 같은 셰브론으로 다시
+  접을 수 있고, 중첩된 폴더도 얼마든지 깊이 펼칠 수 있습니다.
+- **폴더 이름은 그대로 이동** — 펼치는 것은 셰브론뿐이라 이름을 그냥 클릭하면
+  이전처럼 폴더가 열립니다. 셰브론은 실제 버튼(`aria-expanded`, 폴더별 레이블)이며
+  키보드로도 조작할 수 있습니다.
+- **다른 기능도 그대로 동작** — 중첩 행은 GitHub 행 모양을 따르므로 파일 아이콘,
+  blame 스타일 나이 색상, 크기, 다운로드 버튼, 빠른 미리보기(이전/다음은 폴더
+  안에서만 이동), 파일 컨텍스트 메뉴가 그대로 적용됩니다.
+- **날짜와 메시지 포함** — 중첩 행마다 마지막 커밋 메시지와 나이 색상이 표시되며,
+  페이지와 같은 세션에서 읽으므로 비공개 저장소도 동작하고 API 토큰을 쓰지
+  않습니다.
+- **정직한 한계** — 빈 폴더는 그렇다고 알려 주고, 1000개를 넘는 폴더는 처음
+  1000개와 안내를 보여 주며, 요청이 실패하면 반쯤 그려진 트리 대신 폴더를 접은
+  채로 토스트를 띄웁니다.
+- **조용함** — 기능을 끄면 모든 셰브론과 중첩 행이 사라져 GitHub가 원래대로
+  돌아가고, 페이지를 이동하면 모든 폴더가 다시 접힙니다.
 
 ### 파일 크기 및 다운로드
 
@@ -336,6 +361,7 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 | `filePreview.longPress` | `true` | 파일 이름이나 Markdown 파일 링크를 마우스 왼쪽 버튼으로 길게 눌러 미리보기 열기 |
 | `filePreview.longPressMs` | `450` | 미리보기가 열릴 때까지 길게 누르는 시간(밀리초, 200–2000) |
 | `filePreview.longPressRing` | `true` | 누르는 동안 포인터 위치에 표시되는 진행 원 |
+| `folderTree.enabled` | `true` | 저장소 목록에서 폴더 행 펼치기의 마스터 스위치 |
 | `commitBadges.enabled` | `true` | Conventional Commits 배지의 기본 스위치 |
 | `commitBadges.unknownTypes` | `true` | 관례적인 집합 밖의 소문자 유형도 꾸미기 |
 | `commitBadges.breaking` | `true` | `!` 가 붙은 호환되지 않는 변경 접두사에 빨간 표시 |

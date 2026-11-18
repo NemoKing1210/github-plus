@@ -5,22 +5,23 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
-wherever GitHub lists files, blame-style age colors for those files, file sizes
-with one-click downloads, a context menu for file actions, a quick preview for
-any file, Conventional Commit badges on commit subjects, and on-page
-translation of markdown, comments, commits and titles.
+wherever GitHub lists files, blame-style age colors for those files, expandable
+folders in the repository listing, file sizes with one-click downloads, a
+context menu for file actions, a quick preview for any file, Conventional
+Commit badges on commit subjects, and on-page translation of markdown, comments,
+commits and titles.
 
-> **Status:** early (`0.29.2`). Settings panel with instant search (General ·
+> **Status:** early (`0.30.0`). Settings panel with instant search (General ·
 > Gallery · Files · Commits · Translation · Palette · Backup · About), a
 > `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
-> file age colors, file sizes with download buttons, a file context menu, a
-> quick file preview, Conventional Commit badges, and on-page translation. More
-> GitHub improvements
+> file age colors, expandable folder rows, file sizes with download buttons, a
+> file context menu, a quick file preview, Conventional Commit badges, and
+> on-page translation. More GitHub improvements
 > planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
@@ -140,6 +141,31 @@ text itself:
   what the date means), and one setting limits the feature to files.
 - **Quiet** — disabling the feature restores GitHub's own date color and leaves
   no trace.
+
+### Expandable folders
+
+A repository listing shows only one level at a time, so following a path means
+a full page load per folder. GitHub Plus turns the listing into a tree:
+
+- **One click to look inside** — every folder row leads with a chevron; the
+  folder's contents appear directly under it as ordinary rows, indented one
+  step per level, and the same chevron collapses them again. Nested folders
+  expand the same way, as deep as you go.
+- **The folder name still navigates** — only the chevron expands, so a plain
+  click on the name opens the folder exactly as before; the chevron is a real
+  button (`aria-expanded`, a label per folder) and keyboard-operable.
+- **Everything else keeps working** — nested rows are GitHub-shaped, so the
+  file icons, blame-style age colors, sizes, download buttons, quick preview
+  (with previous/next staying inside the folder) and the file context menu all
+  work on them without a second thought.
+- **Dates and messages included** — each nested row shows its last commit
+  message and the age color, read from the same session as the page, so
+  private repositories work and no API token is spent.
+- **Honest limits** — an empty folder says so, a folder over 1000 entries shows
+  its first 1000 with a note, and a failed request leaves the folder collapsed
+  with a toast instead of a half-rendered tree.
+- **Quiet** — disabling the feature removes every chevron and nested row,
+  leaving stock GitHub; a navigation starts with every folder collapsed again.
 
 ### File sizes and downloads
 
@@ -369,6 +395,7 @@ Stored under `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
 | `filePreview.longPressMs` | `450` | Hold time in ms before the preview opens (200–2000) |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
+| `folderTree.enabled` | `true` | Master switch for expandable folder rows in repository listings |
 | `commitBadges.enabled` | `true` | Master switch for Conventional Commit badges |
 | `commitBadges.unknownTypes` | `true` | Style lowercase types outside the conventional set too |
 | `commitBadges.breaking` | `true` | Red marker for a `!` breaking-change prefix |

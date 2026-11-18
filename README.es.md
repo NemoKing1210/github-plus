@@ -5,21 +5,23 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
 iconos de archivo en color allí donde GitHub lista archivos, colores de
-antigüedad al estilo blame para esos archivos, tamaños de archivo con descargas
+antigüedad al estilo blame para esos archivos, carpetas expandibles en la lista
+del repositorio, tamaños de archivo con descargas
 en un clic, un menú contextual para acciones de archivo, una vista rápida de
 cualquier archivo, insignias de Conventional Commits y traducción del contenido
 de la página.
 
-> **Estado:** temprano (`0.29.2`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.30.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Commits · Traducción · Paleta · Copia de
 > seguridad · Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
-> antigüedad al estilo blame, los tamaños de archivo con botones de descarga, un
+> antigüedad al estilo blame, las carpetas expandibles, los tamaños de archivo
+> con botones de descarga, un
 > menú contextual de archivos, una vista rápida de archivos, insignias de commit
 > y traducción de la página. Hay más mejoras de GitHub planificadas.
 
@@ -149,6 +151,35 @@ colorea el propio texto de la fecha:
   indica su último cambio) y un ajuste limita la función a los archivos.
 - **Discreto** — al desactivar la función vuelve el color propio de GitHub y no
   queda ningún rastro.
+
+### Carpetas expandibles
+
+Una lista de repositorio muestra solo un nivel a la vez, así que seguir una ruta
+supone una carga de página por carpeta. GitHub Plus convierte la lista en un
+árbol:
+
+- **Un clic para mirar dentro** — cada fila de carpeta empieza con un chevrón;
+  el contenido de la carpeta aparece justo debajo como filas normales, con
+  sangría de un paso por nivel, y el mismo chevrón las vuelve a plegar. Las
+  carpetas anidadas se expanden igual, hasta cualquier profundidad.
+- **El nombre de la carpeta sigue navegando** — solo el chevrón expande, así que
+  un clic normal en el nombre abre la carpeta como antes; el chevrón es un botón
+  real (`aria-expanded`, una etiqueta por carpeta) y se maneja con el teclado.
+- **Todo lo demás sigue funcionando** — las filas anidadas tienen la forma de las
+  filas de GitHub, así que los iconos de archivo, los colores de antigüedad
+  estilo blame, los tamaños, los botones de descarga, la vista rápida (con
+  anterior/siguiente dentro de la carpeta) y el menú contextual funcionan sin
+  más.
+- **Fechas y mensajes incluidos** — cada fila anidada muestra el mensaje del
+  último commit y el color de antigüedad, leídos de la misma sesión que la
+  página, así que los repositorios privados funcionan y no se gasta ningún token
+  de API.
+- **Límites honestos** — una carpeta vacía lo dice, una carpeta de más de 1000
+  entradas muestra las primeras 1000 con una nota, y una petición fallida deja la
+  carpeta plegada con un aviso en lugar de un árbol a medias.
+- **Discreto** — al desactivar la función desaparecen todos los chevrones y
+  filas anidadas y GitHub queda como estaba; tras navegar, todas las carpetas
+  vuelven a estar plegadas.
 
 ### Tamaños y descargas de archivos
 
@@ -395,6 +426,7 @@ Se guardan en `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Mantener el botón izquierdo sobre un nombre de archivo o un enlace de markdown para abrir la vista previa |
 | `filePreview.longPressMs` | `450` | Tiempo de pulsación en ms antes de abrir la vista previa (200–2000) |
 | `filePreview.longPressRing` | `true` | Círculo de progreso junto al puntero mientras se mantiene |
+| `folderTree.enabled` | `true` | Interruptor principal de las carpetas expandibles en las listas de repositorio |
 | `commitBadges.enabled` | `true` | Interruptor principal de las insignias de Conventional Commits |
 | `commitBadges.unknownTypes` | `true` | Dar estilo también a los tipos en minúsculas fuera del conjunto convencional |
 | `commitBadges.breaking` | `true` | Marcador rojo para un prefijo `!` de cambio incompatible |

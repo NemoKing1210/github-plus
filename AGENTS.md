@@ -101,6 +101,11 @@ github-plus/
 │   │   │   ├── highlight.js# highlight.js core + registered languages
 │   │   │   ├── code.js     # Gutter + highlighted code block
 │   │   │   └── cards.js    # Binary / empty / too-large / failure cards
+│   │   ├── folderTree/
+│   │   │   ├── index.js    # Expansion lifecycle, row insertion, observers, settings reaction
+│   │   │   ├── api.js      # Folder listing and commit-info fetches, session caches
+│   │   │   ├── surfaces.js # Listing rows, row targets, child addresses (DOM)
+│   │   │   └── render.js   # Chevron, nested row and note-row builders
 │   │   ├── commitBadges/
 │   │   │   ├── index.js    # Surface observers, signature check, settings reaction
 │   │   │   ├── parse.js    # parseCommitSubject(text): type, scope, breaking (pure)
@@ -162,8 +167,9 @@ github-plus/
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
 ├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview,
-│                           #   translate*, logger*, commandPalette* incl. issues/rowMenu,
-│                           #   headerActions, contextMenu, shortcut, locales, download)
+│                           #   folderTree*, translate*, logger*, commandPalette* incl.
+│                           #   issues/rowMenu, headerActions, contextMenu, shortcut,
+│                           #   locales, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
 ├── github-plus.meta.js     # Generated metadata (do not hand-edit)
@@ -182,7 +188,8 @@ github-plus/
 `applyFileIconsSettings()` → `initFileAgesFeature()` + `applyFileAgesSettings()`
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
 + `applyFileMenuSettings()` → `initFilePreviewFeature()` +
-`applyFilePreviewSettings()` → `initTranslateFeature()` +
+`applyFilePreviewSettings()` → `initFolderTreeFeature()` +
+`applyFolderTreeSettings()` → `initTranslateFeature()` +
 `applyTranslateSettings()` → `initCommitBadgesFeature()` +
 `applyCommitBadgesSettings()` → `initCommandPaletteFeature()` +
 `applyCommandPaletteSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
@@ -245,6 +252,10 @@ Single place for magic values.
   remains) and
   `PREVIEW_LONG_PRESS_MOVE_PX` (8 — movement past it is a drag, not a long
   press).
+- Folder tree: `FOLDER_TREE_MAX_ENTRIES` (1000 — a larger folder is truncated
+  and says so), `FOLDER_TREE_CACHE_MS` (5 minutes — the session cache of a
+  folder's listing and commit info), `FOLDER_TREE_TIMEOUT_MS` (15 s per
+  request) and `FOLDER_TREE_INDENT_PX` (16 — the indent per nesting level).
 - Translation: `TRANSLATE_TARGET_LANGUAGES` (40 codes with native names and
   flags), `TRANSLATION_CACHE_KEY` (`gp_translation_cache_v1`),
   `TRANSLATE_CACHE_HOURS_MAX` (168), `TRANSLATE_CACHE_SOFT_LIMIT_BYTES`
@@ -263,14 +274,15 @@ Single place for magic values.
   pagination caps (`PER_PAGE` 100, 3 pages with a token, 1 without, 5
   repositories and 300 KB per record) live in `features/commandPalette/issues.js`.
 - `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
-  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `commitBadges`, `translate`,
-  `commandPalette`) plus
+  `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `folderTree`,
+  `commitBadges`, `translate`, `commandPalette`) plus
   `getDefaults()`, which returns a deep clone — never mutate the shared
   constants. `DEFAULT_LOGGING` is `{ enabled: false }`; `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
   `DEFAULT_FILE_MENU` is `{ enabled }`, `DEFAULT_FILE_PREVIEW` is
   `{ enabled, rowButton, longPress, longPressMs, longPressRing }`,
+  `DEFAULT_FOLDER_TREE` is `{ enabled }`,
   `DEFAULT_COMMIT_BADGES` is `{ enabled, unknownTypes, breaking }` and
   `DEFAULT_TRANSLATE` is `{ enabled, provider, providerConfig, targetLang, mode,
   display, reveal, linkLabels, surfaces, cacheHours }`;
@@ -283,7 +295,8 @@ Module-level `settings` loaded once at import, normalizers per field,
 `saveSettings(patch)` merges → normalizes → persists → returns the new state.
 Public API: `loadSettings`, `getSettings`, `getLoggingSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
-`getFileMenuSettings`, `getFilePreviewSettings`, `getCommitBadgesSettings`,
+`getFileMenuSettings`, `getFilePreviewSettings`, `getFolderTreeSettings`,
+`getCommitBadgesSettings`,
 `getTranslateSettings`,
 `getCommandPaletteSettings`, `saveSettings`, `toExportableSettings`,
 `normalizeImportedSettings`, `hasCustomSettings`.
@@ -299,8 +312,8 @@ Key facts that must survive refactors:
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
   from the registry leaves no stale key), the `fileIcons` / `fileAges` /
-  `fileMeta` / `fileMenu` / `filePreview` booleans, the three `commitBadges`
-  booleans, and the long-press time
+  `fileMeta` / `fileMenu` / `filePreview` / `folderTree` booleans, the three
+  `commitBadges` booleans, and the long-press time
   clamped to `PREVIEW_LONG_PRESS_MIN_MS`…`PREVIEW_LONG_PRESS_MAX_MS`. The
   `translate` section normalizes its enums (`mode`, `display`, `reveal`), the
   target-language whitelist, the provider id whitelist, the per-provider config
@@ -351,6 +364,9 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:filePreview` — emitted by the same Save; the file-preview feature
   listens to tear down and repaint its listing buttons and to reattach its
   surface observers, closing an open preview when disabled.
+- `settings:folderTree` — emitted by the same Save; the folder-tree feature
+  listens to tear down every chevron, slot and nested row (leaving GitHub's
+  listing byte-identical) and, when enabled, resyncs its surfaces.
 - `settings:translate` — emitted by the same Save; the translate feature tears
   every container down (painted text and chrome), then scans and re-attaches
   its observers when the feature is on, so a provider, target-language or mode
@@ -414,7 +430,7 @@ listener, no `window.__GP_LOG__`.
   surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
   file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
   `GP-1701` palette load/action, `GP-1702` palette cache, `GP-1801` commit-badges
-  surface, `GP-9001` uncaught
+  surface, `GP-1901` folder-tree expand, `GP-9001` uncaught
   error, `GP-9002` unhandled rejection. Rules: log once per
   user-visible failure at the outermost point; layers below only throw, they
   never log.
@@ -673,13 +689,14 @@ without a reload. Nothing else in the feature layer touches the logger.
   from `listSources()`, badge filtering, full-size upgrade, thumbnail strip,
   wrap-around, zoom ceiling.
 - `tabs/files.js`: the single page for every file-listing enhancement — one
-  card per feature (file icons, file ages, file sizes and downloads, the
-  context menu, the quick preview), each with its own master switch in the card
+  card per feature (file icons, file ages, expandable folders, file sizes and
+  downloads, the context menu, the quick preview), each with its own master
+  switch in the card
   header, its scope toggles and fields in the body, and the ten-shade age scale
   preview inside the ages card. The preview card carries the hold-time number
-  input and the progress-circle switch (`icons.*`, `ages.*`, `files.*`,
-  `fileMenu.*`, `preview.*` keys). The features stay independent, so the page
-  has no switch of its own.
+  input and the progress-circle switch (`icons.*`, `ages.*`, `folderTree.*`,
+  `files.*`, `fileMenu.*`, `preview.*` keys). The features stay independent, so
+  the page has no switch of its own.
 - `tabs/commits.js`: the commit-badges card — the master switch in the card
   header, the unknown-types and breaking-marker switches in the body, and an
   11-chip legend built from `TYPE_ORDER` with the same `.gp-commit-*` classes
@@ -998,6 +1015,87 @@ keys move between siblings.
   closes with a 160 ms exit animation. The
   shell never imports a feature; `features/filePreview/index.js` passes the
   translate action in when that surface is on.
+
+### `src/features/folderTree/` — expandable folder rows
+
+Turns the repository listing into a file tree: every folder row gets a
+chevron, and expanding it inserts that folder's children as ordinary GitHub
+rows directly underneath, indented one step per level. The folder name keeps
+its link, so a plain click still navigates and only the chevron expands. Nested
+rows copy only the stable hooks GitHub's own rows expose
+(`tr.react-directory-row`, `.react-directory-filename-column`, the octicon
+glyphs, `.react-directory-commit-age`), which is what lets the file-icons,
+file-ages, file-meta, file-preview and file-menu features decorate them through
+their own surface observers with no changes of their own — the one cross-feature
+rule is that a preview's sibling set stays inside the folder that owns the row
+(`siblingsForRow` groups rows by `data-gp-tree-owner`).
+
+- `api.js`: the two same-origin JSON endpoints GitHub's own tree uses — the
+  folder page with `Accept: application/json`
+  (`payload.codeViewTreeRoute.tree.items`, `totalCount`) and
+  `/owner/repo/tree-commit-info/<ref>/<path>` (the last commit per entry).
+  They carry the visitor's session, so private repositories work and no API
+  token is spent. `fetchFolder(href)` returns
+  `{ path, entries, totalCount }` with entries normalized to
+  `{ name, path, type: 'folder'|'file' }`, folders first and each group sorted
+  by name, capped at `FOLDER_TREE_MAX_ENTRIES`.
+  `fetchCommitInfo(href)` resolves to a `Map` keyed by entry name
+  (`{ oid, url, date, message, title }`) and, unlike the listing, **never
+  rejects**: a failed commit lookup still lets the folder expand, without
+  dates. Both are cached for `FOLDER_TREE_CACHE_MS` and deduplicate an
+  in-flight request; `force` bypasses both. Requests time out after
+  `FOLDER_TREE_TIMEOUT_MS`; a non-2xx throws and is never cached.
+  `folderKey(href)` is the pathname that identifies a folder row, and
+  `clearFolderCache()` forgets both caches.
+- `surfaces.js`: `LISTING_SELECTOR` (`[data-testid="directory-content"]`),
+  `ROW_SELECTOR`, `NOTE_CLASS`; `listingRows(container)` (GitHub's own rows,
+  `tbody` only), `topLevelRows(container)` (the ones without
+  `data-gp-tree-owner`), `rowTarget(row)` → `{ row, link, name, kind, href,
+  key }` or null (submodules are skipped: a link into another repository is
+  not a folder we can list), and `childHref(parentHref, name, kind)` — a child
+  is built from its folder's own address, so the branch or tag is carried over
+  unchanged, and a folder keeps `/tree/` while a file switches it to `/blob/`.
+- `render.js`: `buildSlot(child)` (the 20px slot), `buildExpander({ name,
+  labels })` (the chevron button with `aria-expanded="false"`),
+  `updateExpander(row, expanded, labels)` (mirrors the state onto every
+  chevron of a row — a row has two name cells — plus
+  `data-gp-tree-expanded`), `buildRow(...)`, `buildNoteRow(...)` (deliberately
+  not a `react-directory-row`, so no file feature decorates it) and
+  `relativeDate(date, now)` — the text a `<relative-time>` carries before its
+  custom element upgrades. A nested row carries `data-gp-tree-owner` (the
+  folder that owns it), `data-gp-tree-depth` and, for a folder, `data-gp-tree-key`;
+  its indentation is inline padding (`16 + depth × FOLDER_TREE_INDENT_PX`) on
+  both name cells, and it repeats GitHub's small- and large-screen name cells,
+  so both layouts line up.
+- `index.js`: one observer per listing container (`childList`, `subtree`,
+  debounced `RESCAN_MS`), the same shell watchers and bounded settle wait
+  pattern as the other file features, and one delegated capture-phase `click`
+  listener for the chevrons (the same shape as the gallery's). State per
+  container is `{ expanded, loading, requests }`: `expanded` is the set of open
+  folder keys and survives a React re-render, so `restoreExpanded()` re-inserts
+  rows the framework dropped **from the session cache** instead of refetching;
+  `requests` holds a per-folder token, so collapsing or re-expanding during a
+  load discards the stale response instead of inserting it under a closed
+  folder. `expandFolder` fetches listing and commit info with
+  `Promise.allSettled`, so a commit failure is not an expansion failure. A
+  failure on a user click logs `GP-1901` and shows a toast; a failure while
+  restoring an expanded folder only warns, because the user did not ask for
+  anything. An empty or truncated folder gets a note row; a folder row's
+  chevron carries `aria-busy` and `.is-loading` while it loads, and collapsing
+  keeps focus on the chevron that had it.
+  `applyFolderTreeSettings()` is the single entry point: it tears everything
+  down (rows, slots, header spacers, markers, listener, observers) and, when
+  enabled, installs the listener and syncs the surfaces.
+  `settings:folderTree` triggers it, `settings:language` repaints the chevron
+  labels, and navigation re-applies it — keyed on `pathname + search`, so a
+  hash-only change keeps the open folders while a real page change starts
+  collapsed. The `<body>` observer calls a lightweight `resyncSurfaces()`
+  rather than the full apply: a toast or the hold ring is a direct child of
+  `<body>`, and a full teardown there would collapse the tree mid-gesture. A
+  replaced body is still handled by the `<html>` shell observer.
+- `features/settings/tabs/files.js`: the **Expandable folders** card, a
+  header-only switch (`folderTree.title` / `folderTree.enabledDesc`), because
+  the feature has exactly one setting.
 
 ### `src/features/commitBadges/` — Conventional Commit badges
 
@@ -1506,7 +1604,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 417
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 425
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1571,7 +1669,8 @@ select back to **Custom** on the next open.
 from DESIGN.md, expressed through GitHub's own Primer variables with literal
 fallbacks, so injected UI follows the visitor's theme (light, dark, dimmed).
 `app.css` is the injected stylesheet (header entry, panel, controls, confirm,
-toasts, viewer, context menu, the quick preview and the command palette),
+toasts, viewer, context menu, the folder tree, the quick preview and the
+command palette),
 imported by `main.js` and applied as `GM_addStyle` by the
 build. Every injected class carries the `gp-` prefix — never add an unprefixed
 class to injected UI. Component styles consume tokens via `var(--gp-*)`; raw
@@ -1603,6 +1702,11 @@ must not own feature state. Rules that keep it acyclic:
 - `features/filePreview` imports `features/translate/previewAction.js` (the
   preview header action); `features/translate` never imports `filePreview` or
   the preview shell.
+- `features/folderTree` imports nothing from another feature: the nested rows
+  are GitHub's row shape, so every file feature decorates them through its own
+  surface observer. `features/filePreview/surfaces.js` reads the
+  `data-gp-tree-owner` attribute the tree writes — a DOM contract, not an
+  import — so a preview never crosses a directory boundary.
 - `features/commandPalette/index.js` is the only module that crosses into
   another feature, and only for things the palette cannot own: it imports
   `togglePanel` from `features/settings/panel.js` (via `actions.js`'s
@@ -1638,7 +1742,8 @@ footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:logging' |
 'settings:language' | 'settings:fileIcons' | 'settings:fileAges' |
 'settings:fileMeta' | 'settings:fileMenu' | 'settings:filePreview' |
-'settings:translate' | 'settings:commitBadges' | 'settings:commandPalette')` → gallery repaints its
+'settings:folderTree' | 'settings:translate' | 'settings:commitBadges' |
+'settings:commandPalette')` → gallery repaints its
 stylesheet, the logger applies
 its switch, file and translate features rescan or tear down, the palette closes
 and reinstalls its hotkey, the palette entry relabels itself and the
@@ -1657,6 +1762,23 @@ stale request, renders a spinner and calls `load(file, { mode, signal })` →
 address, and dispatches to the markdown/code/card renderer → the shell swaps in
 `result.node`, updates the meta line and segmented control, and the footer's
 prev/next call `show()` again with the same loader.
+
+## End-to-end data flow (folder tree)
+
+listing mounts → `syncSurfaces()` attaches one observer per container and
+`processContainer` writes the two header spacers and a 20px slot into every
+top-level row → chevron click (capture, delegated) → `toggleFolder` reads
+`rowTarget(row)` → `expandFolder` sets the row busy and fetches the folder
+listing and its `tree-commit-info` in parallel (session cache first, one
+in-flight request per folder) → `buildRow` inserts each child under the row,
+in listing order, carrying GitHub's row hooks plus
+`data-gp-tree-owner`/`data-gp-tree-depth` → the file features' own observers
+see new `tr.react-directory-row` nodes and decorate them (icons, age, size,
+preview button) → the chevron flips to `aria-expanded="true"` and the folder
+key joins `state.expanded`. A React re-render that drops the rows triggers the
+container observer; `restoreExpanded()` re-inserts them from the cache without
+a request. Collapsing removes every descendant row deeper than the folder and
+bumps its request token, so a late response cannot re-insert them.
 
 ## End-to-end data flow (translation)
 
@@ -1715,6 +1837,14 @@ hotkey.
   (repository README, blob view, wiki, issue, discussion, review comment).
   That container is the gallery set boundary; the quick preview renders its
   own markdown into `.gp-preview__md`, which is a gallery boundary too.
+- GitHub's own repository tree reads a folder from the page's own address with
+  `Accept: application/json` (`payload.codeViewTreeRoute.tree`), and last
+  commits from `/owner/repo/tree-commit-info/<ref>/<path>`. Both are
+  same-origin, carry the visitor's session (so private repositories work) and
+  spend no API token; `features/folderTree/api.js` is the only caller and
+  caches the answers for the session. Neither endpoint is part of a documented
+  public API, so a shape change degrades to "the folder does not expand",
+  never to a broken listing.
 - GitHub's header markup changes over time. Keep `HEADER_TARGETS` ordered from
   most to least specific and let `ui/headerActions.js` insert entries *next to*
   GitHub's own actions (never replace, move or restyle them), so a header
@@ -1774,6 +1904,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |
 | `filePreview.longPressMs` | `450` | Hold time in ms, clamped to 200…2000 |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
+| `folderTree.enabled` | `true` | Master switch; disabling removes every chevron, slot and nested row, leaving GitHub's listing byte-identical |
 | `commitBadges.enabled` | `true` | Master switch; disabling restores every commit subject and removes all observers |
 | `commitBadges.unknownTypes` | `true` | Style types outside the conventional set too |
 | `commitBadges.breaking` | `true` | Show a red marker when the prefix ends with `!` |
@@ -1822,7 +1953,8 @@ with English fallback.
 ## Design
 
 All injected UI (the palette header entry, panel, controls, confirm dialog, toasts,
-context menu, viewer, file icons, file-age dates, the file size column and
+context menu, viewer, file icons, file-age dates, the folder-tree chevrons and
+nested rows, the file size column and
 download buttons, the quick file preview, the commit type/scope token, and the
 translation button, bar and
 result boxes)
@@ -1967,6 +2099,21 @@ and check diagnostics for edited files.
   so test at a wide window; a GitHub redesign that renames
   `.react-directory-row` or drops the table header turns the surface into a
   no-op — extend the registry, never add a document-wide observer.
+- Folder chevrons missing or a folder will not expand: check **Expandable
+  folders** is on and the page is a repository listing
+  (`[data-testid="directory-content"]` with `tr.react-directory-row` rows).
+  Submodule rows get no chevron on purpose, and a folder whose listing request
+  fails stays collapsed with a toast (`GP-1901` in the console) — check the
+  Network tab for the folder page's JSON request and its
+  `tree-commit-info` sibling. A folder that expands with names but no dates
+  means only `tree-commit-info` failed: that is not an error by design. A
+  folder over `FOLDER_TREE_MAX_ENTRIES` (1000) shows the truncation note
+  instead of the rest; an empty one shows its empty note. Rows collapsing on
+  their own after a toast means something called the full apply on a
+  `<body>` change — the body observer must go through `resyncSurfaces()`.
+  A chevron with no nested rows after a React re-render means
+  `restoreExpanded()` could not find the folder row (`data-gp-tree-key`), not
+  that the fetch failed — check the console for the restore warning.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
   that the registered button (`.gp-header-btn` with `.gp-palette-btn`) leads
   it, or leads the row around the avatar on a renamed header. A header rework

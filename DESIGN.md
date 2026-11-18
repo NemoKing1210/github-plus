@@ -761,6 +761,36 @@ and the column is hidden.
 Turning the feature off removes the cells and the header label, leaving the
 table exactly as GitHub rendered it.
 
+### Folder tree (`.gp-tree-*`)
+
+Every listing row leads with a `20px` slot, so the folder chevron, the file
+glyph and the name column all start at the same x: a folder row puts the
+chevron in the slot and a file row keeps it empty (the native octicon sits
+next to it, unchanged). The header row gets the same slot before its first two
+cells' labels, so "Name" does not drift when the tree appears. The chevron is
+GitHub's own icon-button shape — transparent, muted, no border — so it reads as
+chrome until hovered. Expanding a folder inserts its children as ordinary rows
+underneath, indented by `16px` per level, each still shaped like a GitHub row
+so the file icons, ages, size and preview columns line up with the page's own.
+
+| Class | Rules |
+|---|---|
+| `.gp-tree-slot` | The name-column slot: inline-flex, centered, `20×20`, `flex: none` |
+| `.gp-tree-head-slot` | The same slot in the header row: inline-block, `20px` wide, `10px` right margin (GitHub's name-cell gap), middle-aligned |
+| `.gp-tree-toggle` | The disclosure button: `20×20`, no border, `4px` radius, transparent fill, `var(--gp-text-muted)`, `pointer` cursor; its 14×14 glyph turns `90deg` from `[aria-expanded="true"]` |
+| `.gp-tree-toggle:hover` | `var(--gp-highlight)` fill, `var(--gp-text)` glyph |
+| `.gp-tree-toggle:focus-visible` | `2px solid var(--gp-focus)` outline, `1px` offset |
+| `.gp-tree-toggle.is-loading` | `progress` cursor; the chevron is hidden and a `12px` ring spins in its place (the shared `gp-viewer-spin`) |
+| `.gp-tree-commit`, `.gp-tree-commit-link` | Nested commit message cell: ellipsis at `420px`, nowrap; the link is muted and underlines on hover |
+| `.gp-tree-note` | A note row ("empty folder", "first 1000 entries", failure): `8px 16px`, `12px` muted text |
+
+The row's indentation is written inline (`16 + depth × 16` px) on its two name
+cells, because it is per-row data rather than a style variant. The disclosure
+is the row's only new control: the folder name keeps its link and its
+navigation, so a plain click still opens the folder and only the chevron
+expands it. Turning the feature off removes every slot, chevron and nested row,
+leaving the listing exactly as GitHub rendered it.
+
 ### Quick file preview (`.gp-preview`)
 
 A centered modal above the page with the same anatomy as the panel: a header

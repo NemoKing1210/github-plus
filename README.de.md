@@ -5,19 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
 farbige Dateisymbole überall dort, wo GitHub Dateien auflistet, Altersfarben im
-Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
+Blame-Stil für diese Dateien, aufklappbare Ordner in der
+Repository-Auflistung, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei,
 Commit-Badges nach Conventional Commits und die Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.29.2`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.30.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Commits · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
-> Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
+> Dateisymbole, Altersfarben im Blame-Stil, aufklappbare Ordner,
+> Dateigrößen mit
 > Download-Schaltflächen, ein Dateikontextmenü, eine Schnellvorschau für Dateien,
 > Commit-Badges und die Übersetzung von Seiteninhalten. Weitere
 > GitHub-Verbesserungen sind geplant.
@@ -148,6 +150,35 @@ Blame-Legende und färbt den Datumstext selbst:
   Dateien.
 - **Unaufdringlich** — beim Deaktivieren kehrt GitHubs eigene Datumsfarbe zurück
   und es bleibt keine Spur.
+
+### Aufklappbare Ordner
+
+Eine Repository-Auflistung zeigt immer nur eine Ebene, sodass jeder Schritt
+entlang eines Pfads eine neue Seite lädt. GitHub Plus macht daraus einen Baum:
+
+- **Ein Klick zum Hineinschauen** — jede Ordnerzeile beginnt mit einem Chevron;
+  der Inhalt des Ordners erscheint direkt darunter als gewöhnliche Zeilen, eine
+  Ebene pro Stufe eingerückt, und dasselbe Chevron klappt sie wieder zu.
+  Verschachtelte Ordner lassen sich genauso beliebig tief öffnen.
+- **Der Ordnername navigiert weiterhin** — nur das Chevron klappt auf, ein
+  einfacher Klick auf den Namen öffnet den Ordner wie bisher; das Chevron ist
+  eine echte Schaltfläche (`aria-expanded`, eine Beschriftung pro Ordner) und
+  per Tastatur bedienbar.
+- **Alles andere funktioniert weiter** — verschachtelte Zeilen haben GitHubs
+  Zeilenform, daher funktionieren Dateisymbole, Altersfarben im Blame-Stil,
+  Größen, Download-Schaltflächen, die Schnellvorschau (Vor/Zurück bleibt im
+  Ordner) und das Dateikontextmenü ohne weiteres Zutun.
+- **Daten und Nachrichten inklusive** — jede verschachtelte Zeile zeigt die
+  letzte Commit-Nachricht und die Altersfarbe, gelesen aus derselben Sitzung wie
+  die Seite, sodass private Repositories funktionieren und kein API-Token
+  verbraucht wird.
+- **Ehrliche Grenzen** — ein leerer Ordner sagt das, ein Ordner mit mehr als
+  1000 Einträgen zeigt die ersten 1000 mit einem Hinweis, und eine
+  fehlgeschlagene Anfrage lässt den Ordner mit einem Toast zusammengeklappt
+  statt einen halb gerenderten Baum.
+- **Unauffällig** — beim Deaktivieren verschwinden alle Chevrons und
+  verschachtelten Zeilen, GitHub bleibt wie es ist; nach einer Navigation sind
+  alle Ordner wieder zugeklappt.
 
 ### Dateigrößen und Downloads
 
@@ -396,6 +427,7 @@ Gespeichert unter `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Vorschau öffnen, indem die linke Maustaste auf einem Dateinamen oder einem Markdown-Dateilink gehalten wird |
 | `filePreview.longPressMs` | `450` | Haltezeit in ms, bis die Vorschau öffnet (200–2000) |
 | `filePreview.longPressRing` | `true` | Fortschrittskreis am Zeiger während des Haltens |
+| `folderTree.enabled` | `true` | Hauptschalter für aufklappbare Ordnerzeilen in Repository-Auflistungen |
 | `commitBadges.enabled` | `true` | Hauptschalter für Conventional-Commit-Badges |
 | `commitBadges.unknownTypes` | `true` | Auch kleingeschriebene Typen außerhalb des konventionellen Satzes gestalten |
 | `commitBadges.breaking` | `true` | Rote Markierung für ein `!`-Präfix (Breaking Change) |

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-11-18
+
+### Added
+
+- Repository listings expand into a file tree: every folder row leads with a
+  chevron that inserts the folder's contents underneath as ordinary GitHub
+  rows, indented one step per level, and collapses them again. Nested folders
+  expand the same way, the folder name keeps its own navigation, and a nested
+  row is decorated by the file icons, blame-style ages, sizes, download
+  buttons, quick preview (whose previous/next stays inside the folder) and the
+  file context menu exactly like a native row
+- Folder contents and their last commits come from the page's own same-origin
+  endpoints, so private repositories work without an API token and the session
+  cache serves a React re-render. An empty folder shows a note, a folder over
+  1000 entries shows its first 1000 with a truncation note, a failed request
+  leaves the folder collapsed with a toast, and turning the feature off leaves
+  GitHub's listing byte-identical
+
+[0.30.0]: https://github.com/NemoKing1210/github-plus/compare/v0.29.2...v0.30.0
+
 ## [0.29.2] - 2026-11-18
 
 ### Fixed

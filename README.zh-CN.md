@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
-文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览、Conventional
+可展开的文件夹、文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览、Conventional
 Commits 提交徽章，以及页面内容的翻译。
 
-> **状态：** 早期（`0.29.2`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
+> **状态：** 早期（`0.30.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
 > 翻译 · 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
-> 图标、blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件
-> 预览、提交徽章，以及页面翻译。计划加入更多 GitHub 改进。
+> 图标、blame 风格的年龄着色、可展开的文件夹、带下载按钮的文件大小、文件上下文
+> 菜单、快速文件预览、提交徽章，以及页面翻译。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -118,6 +118,27 @@ Plus 借用 blame 的色阶，直接给日期文字着色：
 - **文件和文件夹**——文件夹行也会着色（日期表示其最后一次更改），一项设置可以只用
   于文件。
 - **克制**——关闭功能后恢复 GitHub 自己的日期颜色，不留下任何痕迹。
+
+### 可展开的文件夹
+
+仓库文件列表一次只显示一层，沿路径查看往往要为每个文件夹重新加载页面。GitHub
+Plus 把列表变成文件树：
+
+- **一键查看内部** — 每个文件夹行前都有一个折角图标；文件夹内容以普通行的形式
+  直接显示在下方，每层缩进一级，再次点击同一图标即可收起。嵌套文件夹也能同样
+  展开，层数不限。
+- **文件夹名仍可导航** — 只有折角图标负责展开，因此直接点击名称仍像以前一样打开
+  文件夹；该图标是真正的按钮（带 `aria-expanded` 和每个文件夹的标签），也支持
+  键盘操作。
+- **其他功能照常工作** — 嵌套行沿用 GitHub 的行结构，因此文件图标、blame 风格的
+  年龄着色、大小、下载按钮、快速预览（上一个/下一个只在当前文件夹内）以及文件
+  上下文菜单都能直接生效。
+- **包含日期和提交信息** — 每个嵌套行都显示最后一次提交信息和年龄颜色，数据与
+  页面来自同一会话，因此私有仓库也能使用，且不消耗 API 令牌。
+- **如实说明限制** — 空文件夹会明确提示，超过 1000 个条目的文件夹显示前 1000 个
+  并附注说明，请求失败时文件夹保持收起并弹出提示，而不是留下半成品树。
+- **安静** — 关闭该功能会移除所有折角图标和嵌套行，GitHub 恢复原样；页面跳转后
+  所有文件夹重新收起。
 
 ### 文件大小与下载
 
@@ -294,6 +315,7 @@ Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为�
 | `filePreview.longPress` | `true` | 在文件名或 Markdown 文件链接上按住鼠标左键以打开预览 |
 | `filePreview.longPressMs` | `450` | 打开预览前的按住时长（毫秒，200–2000） |
 | `filePreview.longPressRing` | `true` | 按住时在指针处显示进度圆圈 |
+| `folderTree.enabled` | `true` | 仓库列表中可展开文件夹行的总开关 |
 | `commitBadges.enabled` | `true` | Conventional Commits 徽章的总开关 |
 | `commitBadges.unknownTypes` | `true` | 也为常规集合之外的小写类型添加样式 |
 | `commitBadges.breaking` | `true` | 为带 `!` 的破坏性变更前缀显示红色标记 |

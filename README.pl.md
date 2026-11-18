@@ -5,20 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.29.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
 wszędzie tam, gdzie GitHub wyświetla pliki, kolory wieku tych plików w stylu
-blame, rozmiary plików i pobieranie jednym kliknięciem, menu kontekstowe
+blame, rozwijane foldery na liście repozytorium, rozmiary plików i pobieranie
+jednym kliknięciem, menu kontekstowe
 operacji na plikach, szybki podgląd dowolnego pliku, odznaki Conventional Commits
 i tłumaczenie treści na stronie.
 
-> **Status:** wczesny etap (`0.29.2`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.30.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Commity · Tłumaczenie · Paleta · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
-> Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary plików
-> z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików,
+> Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozwijane foldery,
+> rozmiary plików z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików,
 > odznaki commitów i tłumaczenie treści strony. W planach kolejne ulepszenia
 > GitHuba.
 
@@ -141,6 +142,33 @@ sam tekst daty:
   ostatnią zmianę), a ustawienie pozwala ograniczyć funkcję do plików.
 - **Dyskretnie** — wyłączenie funkcji przywraca własny kolor daty GitHuba i nie
   pozostawia śladów.
+
+### Rozwijane foldery
+
+Lista repozytorium pokazuje tylko jeden poziom naraz, więc podążanie ścieżką
+oznacza wczytanie strony dla każdego folderu. GitHub Plus zamienia listę w
+drzewo:
+
+- **Jedno kliknięcie, by zajrzeć do środka** — każdy wiersz folderu zaczyna się od
+  szewronu; zawartość folderu pojawia się tuż pod nim jako zwykłe wiersze, wcięte
+  o jeden krok na poziom, a ten sam szewron je zwija. Zagnieżdżone foldery
+  rozwijają się tak samo, na dowolną głębokość.
+- **Nazwa folderu nadal nawiguje** — rozwija tylko szewron, więc zwykłe kliknięcie
+  nazwy otwiera folder jak dotąd; szewron to prawdziwy przycisk (`aria-expanded`,
+  etykieta dla każdego folderu), obsługiwany też z klawiatury.
+- **Wszystko inne działa dalej** — zagnieżdżone wiersze mają kształt wierszy
+  GitHuba, więc ikony plików, kolory wieku w stylu blame, rozmiary, przyciski
+  pobierania, szybki podgląd (poprzedni/następny zostaje w folderze) i menu
+  kontekstowe plików działają na nich bez zmian.
+- **Daty i komunikaty w zestawie** — każdy zagnieżdżony wiersz pokazuje komunikat
+  ostatniego commita i kolor wieku, czytane z tej samej sesji co strona, więc
+  prywatne repozytoria działają, a token API nie jest zużywany.
+- **Uczciwe ograniczenia** — pusty folder to zgłasza, folder z ponad 1000 pozycji
+  pokazuje pierwsze 1000 z uwagą, a nieudane żądanie zostawia folder zwinięty
+  z powiadomieniem zamiast na wpół narysowanego drzewa.
+- **Dyskretnie** — wyłączenie funkcji usuwa wszystkie szewrony i zagnieżdżone
+  wiersze, zostawiając GitHuba bez zmian; po nawigacji wszystkie foldery są znów
+  zwinięte.
 
 ### Rozmiary i pobieranie plików
 
@@ -379,6 +407,7 @@ Przechowywane pod `gp_settings_v1`.
 | `filePreview.longPress` | `true` | Otwieraj podgląd po przytrzymaniu lewego przycisku myszy na nazwie pliku lub linku Markdown |
 | `filePreview.longPressMs` | `450` | Czas przytrzymania w ms do otwarcia podglądu (200–2000) |
 | `filePreview.longPressRing` | `true` | Okrąg postępu przy wskaźniku podczas przytrzymania |
+| `folderTree.enabled` | `true` | Główny przełącznik rozwijanych folderów na listach repozytorium |
 | `commitBadges.enabled` | `true` | Główny przełącznik odznak Conventional Commits |
 | `commitBadges.unknownTypes` | `true` | Stylizuj także małe litery typów spoza konwencjonalnego zestawu |
 | `commitBadges.breaking` | `true` | Czerwony znacznik dla prefiksu `!` (zmiana niekompatybilna) |
