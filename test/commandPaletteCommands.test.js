@@ -139,3 +139,14 @@ test('the refresh command carries the scoped repository and ref', () => {
   const pageRefresh = page.find((item) => item.data.run.type === 'refreshTree');
   assert.deepEqual(pageRefresh.data.run, { type: 'refreshTree', repo: 'o/page', ref: 'dev' });
 });
+
+test('the palette can toggle commit badges', () => {
+  const commands = commandCandidates({
+    context: { repo: 'o/r', login: 'alice' }, settings, cache: null,
+  });
+  const toggle = commands.find((item) => item.key === 'cmd:toggle.commitBadges');
+  assert.ok(toggle);
+  assert.equal(toggle.data.run.type, 'toggle');
+  assert.equal(toggle.data.run.section, 'commitBadges');
+  assert.equal(toggle.data.run.enabled, false);
+});

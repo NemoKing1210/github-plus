@@ -25,6 +25,7 @@ export const TOGGLE_LABEL_KEYS = {
   fileMeta: 'files.enabled',
   fileMenu: 'fileMenu.title',
   filePreview: 'preview.enabled',
+  commitBadges: 'commitBadges.enabled',
   translate: 'translate.enabled',
 };
 
