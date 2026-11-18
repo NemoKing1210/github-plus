@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fileTarget, markdownFileTarget, rawUrlFor } from '../src/utils/fileTarget.js';
+import { JSDOM } from 'jsdom';
+import {
+  fileTarget,
+  folderTarget,
+  markdownFileTarget,
+  markdownFolderTarget,
+  rawUrlFor,
+  resolveFolderTarget,
+} from '../src/utils/fileTarget.js';
 
 test('resolves a blob link into its raw address and relative path', () => {
   const target = fileTarget('/o/r/blob/main/src/a.js', 'https://github.com', 'main');
@@ -131,4 +139,100 @@ test('ignores markdown links that do not reach a file', () => {
     markdownFileTarget('https://gitlab.com/o/r/blob/main/a.js', base, 'main'),
     null,
   );
+});
+
+test('resolves a folder link into its repository-relative path', () => {
+  const target = folderTarget('/o/r/tree/main/src', 'https://github.com', 'main');
+  assert.deepEqual(target, {
+    href: 'https://github.com/o/r/tree/main/src',
+    relative: 'src',
+    name: 'src',
+    owner: 'o',
+    repo: 'r',
+  });
+});
+
+test('keeps the whole folder path and the last segment as its name', () => {
+  const target = folderTarget('/o/r/tree/main/src/lib', 'https://github.com', 'main');
+  assert.equal(target.relative, 'src/lib');
+  assert.equal(target.name, 'lib');
+});
+
+test('strips a folder branch name that contains slashes', () => {
+  const target = folderTarget('/o/r/tree/feat/ui/src', 'https://github.com', 'feat/ui');
+  assert.equal(target.relative, 'src');
+});
+
+test('a repository root tree address is not a folder', () => {
+  assert.equal(folderTarget('/o/r/tree/main', 'https://github.com', 'main'), null);
+  assert.equal(folderTarget('/o/r/tree/main', 'https://github.com'), null);
+  assert.equal(folderTarget('/o/r/blob/main/a.js', 'https://github.com', 'main'), null);
+  assert.equal(folderTarget('', 'https://github.com'), null);
+});
+
+test('decodes a percent-encoded folder path', () => {
+  const target = folderTarget('/o/r/tree/main/my%20docs', 'https://github.com', 'main');
+  assert.equal(target.relative, 'my docs');
+  assert.equal(target.name, 'my docs');
+});
+
+test('resolves a markdown link that points at a folder', () => {
+  const base = 'https://github.com/o/r/blob/main/README.md';
+  const target = markdownFolderTarget('/o/r/tree/main/docs/api', base, 'main');
+  assert.equal(target.relative, 'docs/api');
+  assert.equal(target.name, 'api');
+});
+
+test('ignores markdown links that do not reach a folder', () => {
+  const base = 'https://github.com/o/r/blob/main/README.md';
+  assert.equal(markdownFolderTarget('/o/r/blob/main/a.js', base, 'main'), null);
+  assert.equal(markdownFolderTarget('/o/r/tree/main', base, 'main'), null);
+  assert.equal(markdownFolderTarget('#install', base, 'main'), null);
+  assert.equal(
+    markdownFolderTarget('https://gitlab.com/o/r/tree/main/src', base, 'main'),
+    null,
+  );
+});
+
+test('resolves a folder row on a repository home page', () => {
+  const dom = new JSDOM(
+    `<div data-testid="directory-content"><table><tbody>
+      <tr class="react-directory-row">
+        <td class="react-directory-filename-column">
+          <a href="/o/r/tree/main/.github/workflows" aria-label=".github/workflows, (Directory)">
+            <span class="react-directory-default-color">.github/</span><span>workflows</span>
+          </a>
+        </td>
+      </tr>
+    </tbody></table></div>`,
+    { url: 'https://github.com/o/r' },
+  );
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  globalThis.Element = dom.window.Element;
+  globalThis.location = dom.window.location;
+
+  const target = resolveFolderTarget(document.querySelector('a'));
+  assert.equal(target.relative, '.github/workflows');
+  assert.equal(target.name, 'workflows');
+  assert.equal(target.source, 'listing');
+});
+
+test('a folder row of another repository keeps the browser menu', () => {
+  const dom = new JSDOM(
+    `<div data-testid="directory-content"><table><tbody>
+      <tr class="react-directory-row">
+        <td class="react-directory-filename-column">
+          <a href="/other/repo/tree/main/src" aria-label="src, (Directory)">src</a>
+        </td>
+      </tr>
+    </tbody></table></div>`,
+    { url: 'https://github.com/o/r/tree/main' },
+  );
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  globalThis.Element = dom.window.Element;
+  globalThis.location = dom.window.location;
+
+  assert.equal(resolveFolderTarget(document.querySelector('a')), null);
 });

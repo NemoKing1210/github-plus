@@ -5,22 +5,23 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
 farbige Dateisymbole überall dort, wo GitHub Dateien auflistet, Altersfarben im
 Blame-Stil für diese Dateien, aufklappbare Ordner in der
 Repository-Auflistung, Dateigrößen mit Ein-Klick-Downloads, ein
-Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei,
+Kontextmenü für Datei- und Ordneraktionen, eine Schnellvorschau für jede Datei,
 Commit-Badges nach Conventional Commits und die Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.30.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.32.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Commits · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, aufklappbare Ordner,
 > Dateigrößen mit
-> Download-Schaltflächen, ein Dateikontextmenü, eine Schnellvorschau für Dateien,
+> Download-Schaltflächen, ein Datei- und Ordnerkontextmenü, eine Schnellvorschau
+> für Dateien,
 > Commit-Badges und die Übersetzung von Seiteninhalten. Weitere
 > GitHub-Verbesserungen sind geplant.
 
@@ -204,27 +205,39 @@ beides direkt den Dateizeilen hinzu:
   entfernt die Funktion jede Größe, jede Schaltfläche und jede Zelle und
   hinterlässt normales GitHub.
 
-### Dateikontextmenü
+### Datei- und Ordnerkontextmenü
 
-Ein Rechtsklick auf eine Datei ist der schnellste Weg zur gewünschten Aktion —
-und GitHubs eigenes Menü bietet keine davon. GitHub Plus ersetzt es für Dateien:
+Ein Rechtsklick auf eine Datei oder einen Ordner ist der schnellste Weg zur
+gewünschten Aktion — und GitHubs eigenes Menü bietet keine davon. GitHub Plus
+ersetzt es für Dateien und Ordner:
 
 - **Schnellaktionen** — ein Rechtsklick auf eine Datei in einer
   Repository-Liste, in der Dateibaum-Seitenleiste oder auf einen Dateilink in
   gerendertem Markdown öffnet **Öffnen**,
   **In neuem Tab öffnen**, **Herunterladen**, **Inhalt kopieren**,
-  **Link kopieren** und **Pfad kopieren**. Auf einer Datei- oder Blame-Seite
-  erscheint dasselbe Menü (ohne **Öffnen**, denn dort bist du schon).
+  **Link kopieren**, **Pfad kopieren** und **Namen kopieren**. Auf einer Datei-
+  oder Blame-Seite erscheint dasselbe Menü (ohne **Öffnen**, denn dort bist du
+  schon).
+- **Auch Ordner** — ein Ordner in der Liste, im Seitenleisten-Baum oder ein
+  Ordnerlink in gerendertem Markdown bekommt sein eigenes kurzes Menü:
+  **Öffnen**, **In neuem Tab öffnen**, **Link kopieren**, **Pfad kopieren** und
+  **Namen kopieren**. In einem Ordner gibt es nichts herunterzuladen und nichts
+  zu lesen, deshalb fehlen diese Aktionen.
+- **Aufklappen aus dem Menü** — bei einem Ordner in der Repository-Liste bietet
+  das Menü **Aufklappen** oder **Zuklappen**: derselbe Schalter wie am Pfeil der
+  Zeile, nur ohne ihn treffen zu müssen.
 - **Inhalt kopieren** — der Inhalt einer Textdatei landet direkt in der
   Zwischenablage, ohne die Seite zu öffnen; Binärdateien und alles über 1 MiB
   wird stattdessen mit einem klaren Hinweis abgelehnt, damit weder Müll
   eingefügt wird noch der Tab hängt.
 - **Pfad kopieren** — der repository-relative Pfad (`src/main.js`), bereit für
   Terminal, Import oder Link.
-- **Nur wo es hilft** — für Ordner, Bilder, Medien und gewöhnliche Links (auch
-  Markdown-Links, die auf keine Datei im Repository zeigen) bleibt das native
-  Menü unangetastet; ein Rechtsklick, der keine Datei trifft, verhält sich wie
-  zuvor.
+- **Namen kopieren** — nur der Name des Eintrags (`src`, `README.md`), für
+  Import, Commit-Nachricht oder Suche.
+- **Nur wo es hilft** — für Submodule, Bilder, Medien und gewöhnliche Links
+  (auch Markdown-Links, die auf keine Datei im Repository zeigen) bleibt das
+  native Menü unangetastet; ein Rechtsklick, der weder Datei noch Ordner trifft,
+  verhält sich wie zuvor.
 - **Auch per Tastatur** — die Kontextmenü-Taste öffnet dasselbe Menü am
   Dateilink, mit vollständiger Pfeilnavigation und wiederhergestelltem Fokus
   nach dem Schließen; beim Deaktivieren kehrt überall das Browser-Menü zurück.
@@ -421,7 +434,7 @@ Gespeichert unter `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Hauptschalter für Dateigrößen und Download-Schaltflächen |
 | `fileMeta.sizes` | `true` | Die Größe jeder Datei in Repository-Listen anzeigen |
 | `fileMeta.download` | `true` | Download-Schaltfläche in Repository-Listen |
-| `fileMenu.enabled` | `true` | Hauptschalter für das Dateikontextmenü |
+| `fileMenu.enabled` | `true` | Hauptschalter für das Datei- und Ordnerkontextmenü |
 | `filePreview.enabled` | `true` | Hauptschalter für die Schnellvorschau von Dateien |
 | `filePreview.rowButton` | `true` | Auge-Schaltfläche in den Zeilen der Dateiliste (das Kontextmenü bietet **Vorschau** immer an) |
 | `filePreview.longPress` | `true` | Vorschau öffnen, indem die linke Maustaste auf einem Dateinamen oder einem Markdown-Dateilink gehalten wird |

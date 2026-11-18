@@ -212,18 +212,29 @@ checks are on `github.com` (the script also matches `gist.github.com`).
       route carries the session); a blocked fetch opens the raw file in a new
       tab instead.
 
-### File context menu
+### File and folder context menu
 
 - [ ] Right-clicking a file in a repository listing opens the GitHub Plus menu
       with **Open**, **Open in new tab**, **Download**, **Copy contents**,
-      **Copy link** and **Copy path**; right-clicking a folder, or anywhere
-      outside a file row, keeps the browser's native menu.
+      **Copy link**, **Copy path** and **Copy name**.
+- [ ] Right-clicking a folder row in the listing or the sidebar tree, or a
+      folder link in rendered markdown, opens the folder menu with **Open**,
+      **Open in new tab**, **Copy link**, **Copy path** and **Copy name**.
+      A submodule row, a tree link into another repository and anywhere outside
+      a file or folder row keeps the browser's native menu.
+- [ ] A folder row of the listing offers **Expand** (or **Collapse** while it is
+      open) between the navigation entries and the clipboard ones, and choosing
+      it inserts or removes the folder's nested rows exactly like its chevron;
+      a sidebar or markdown folder keeps the plain menu, and so does every
+      folder while **Expandable folders** is off.
 - [ ] On a blob page, right-clicking the file content (code or rendered
-      markdown) opens the same menu without **Open**; right-clicking an image,
-      a foreign link or the page chrome keeps the native menu.
+      markdown) opens the same file menu without **Open**; right-clicking an
+      image, a foreign link or the page chrome keeps the native menu.
 - [ ] **Download** saves the file under its own name; **Copy link** copies the
       blob address and **Copy path** the repository-relative path (no branch
       prefix), each with its own success toast.
+- [ ] **Copy name** copies the entry's own name (`src`, `README.md`) for a file
+      and a folder alike, with its own success toast.
 - [ ] **Copy contents** copies a text file's contents; a binary file, a file
       over 1 MiB and a blocked fetch each show their warning/error toast and
       leave the clipboard untouched.
@@ -231,8 +242,8 @@ checks are on `github.com` (the script also matches `gist.github.com`).
       file link, arrows/`Home`/`End` move, `Enter` runs a row, `Esc` closes and
       returns focus; a click outside or any scroll closes it.
 - [ ] The menu is localized with the current interface language and disappears
-      on client-side navigation; turning the **File context menu** card off
-      restores the native menu everywhere.
+      on client-side navigation; turning the **File and folder context menu**
+      card off restores the native menu everywhere.
 
 ### Quick file preview
 

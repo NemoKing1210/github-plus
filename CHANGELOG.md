@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-11-18
+
+### Added
+
+- The folder context menu offers **Expand** and **Collapse** for a folder row
+  of the repository listing, driving the same disclosure as the row's chevron
+  and following its live state. Sidebar-tree folders, folder links in rendered
+  markdown and every folder while **Expandable folders** is off keep the plain
+  menu.
+
+[0.32.0]: https://github.com/NemoKing1210/github-plus/compare/v0.31.1...v0.32.0
+
+## [0.31.1] - 2026-11-18
+
+### Fixed
+
+- The folder context menu appears on a repository home page again: the
+  repository path was only recognized when a segment followed the repository
+  name, so the listing at `/owner/repo` resolved no folder. A collapsed
+  single-child folder row now also copies its own name (`workflows`) instead of
+  the whole chain GitHub prints (`.github/workflows`)
+
+[0.31.1]: https://github.com/NemoKing1210/github-plus/compare/v0.31.0...v0.31.1
+
+## [0.31.0] - 2026-11-18
+
+### Added
+
+- Folders get their own context menu: right-clicking a folder row in the
+  repository listing, a folder in the sidebar file tree or a folder link in
+  rendered markdown offers open, open in a new tab, copy link, copy path and
+  copy name. Submodules, the repository root and links into another
+  repository keep the browser's menu, and the folder tree's nested rows work
+  like native rows
+- **Copy name** joins both menus, so the entry's own name reaches the clipboard
+  without the directory prefix
+- The size column shows a loading placeholder while a file's size is being
+  probed, so a row that is still loading reads differently from one whose size
+  is unknown. The placeholder leaves the slot as soon as the probe answers,
+  whether it found a size or not
+
+[0.31.0]: https://github.com/NemoKing1210/github-plus/compare/v0.30.0...v0.31.0
+
 ## [0.30.0] - 2026-11-18
 
 ### Added

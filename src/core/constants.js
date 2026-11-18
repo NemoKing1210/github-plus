@@ -243,7 +243,7 @@ const DEFAULT_FILE_META = {
   download: true,
 };
 
-/** File context menu: quick actions on a file listing row or a file page. */
+/** File and folder context menu: quick actions on listing rows and file pages. */
 const DEFAULT_FILE_MENU = {
   enabled: true,
 };

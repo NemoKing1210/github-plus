@@ -5,16 +5,16 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
-可展开的文件夹、文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览、Conventional
+可展开的文件夹、文件大小与一键下载，用于文件和文件夹操作的上下文菜单、任意文件的快速预览、Conventional
 Commits 提交徽章，以及页面内容的翻译。
 
-> **状态：** 早期（`0.30.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
+> **状态：** 早期（`0.32.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
 > 翻译 · 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
-> 图标、blame 风格的年龄着色、可展开的文件夹、带下载按钮的文件大小、文件上下文
+> 图标、blame 风格的年龄着色、可展开的文件夹、带下载按钮的文件大小、文件和文件夹上下文
 > 菜单、快速文件预览、提交徽章，以及页面翻译。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
@@ -154,19 +154,25 @@ GitHub Plus 把两者直接加到文件行上：
   因此从不触碰每小时 60 次的匿名限额。
 - **低调** — 文件夹对应的一列保持为空；关闭该功能后所有大小、按钮和新增列都会消失，页面恢复为原生 GitHub。
 
-### 文件上下文菜单
+### 文件和文件夹上下文菜单
 
-右键单击文件是最快的操作入口——而 GitHub 自带的菜单并不提供这些操作。GitHub Plus
-会为文件替换该菜单：
+右键单击文件或文件夹是最快的操作入口——而 GitHub 自带的菜单并不提供这些操作。
+GitHub Plus 会为文件和文件夹替换该菜单：
 
 - **快捷操作** — 在仓库文件列表、文件树侧边栏或渲染后的 Markdown 中右键单击文件链接，可**打开**、
-  **在新标签页中打开**、**下载**、**复制内容**、**复制链接**和**复制路径**。
+  **在新标签页中打开**、**下载**、**复制内容**、**复制链接**、**复制路径**和**复制名称**。
   在文件页面或 blame 页面中会出现同样的菜单（不含**打开**，因为你已经在该页面）。
+- **文件夹同样适用** — 列表或侧边栏中的文件夹、渲染后的 Markdown 中的文件夹链接会打开
+  自己的精简菜单：**打开**、**在新标签页中打开**、**复制链接**、**复制路径**和**复制名称**。
+  文件夹没有可下载或可阅读的内容，因此不显示这些操作。
+- **从菜单展开** — 仓库列表中的文件夹，其菜单提供**展开**或**折叠**：与行内箭头相同的开关，
+  不用去瞄准那个小箭头。
 - **复制内容** — 文本文件的内容无需打开页面即可直接进入剪贴板；二进制文件和超过
   1 MiB 的文件会被明确提示拒绝，而不是粘贴乱码或卡住标签页。
 - **复制路径** — 相对于仓库的路径（`src/main.js`），可直接粘贴到终端、导入语句或链接中。
-- **只在有用之处生效** — 文件夹、图片、媒体和普通链接（包括不指向仓库文件的
-  Markdown 链接）仍使用原生菜单；没有指向文件的右键单击行为与之前完全一致。
+- **复制名称** — 只复制条目自身的名称（`src`、`README.md`），用于导入、提交信息或搜索。
+- **只在有用之处生效** — 子模块、图片、媒体和普通链接（包括不指向仓库文件的
+  Markdown 链接）仍使用原生菜单；没有指向文件或文件夹的右键单击行为与之前完全一致。
 - **也支持键盘** — 上下文菜单键会在文件链接处打开同一菜单，支持方向键导航，关闭后
   焦点会回到原处；关闭该功能后各处都会恢复浏览器菜单。
 
@@ -309,7 +315,7 @@ Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为�
 | `fileMeta.enabled` | `true` | 文件大小与下载按钮的总开关 |
 | `fileMeta.sizes` | `true` | 在仓库文件列表中显示每个文件的大小 |
 | `fileMeta.download` | `true` | 仓库文件列表中的下载按钮 |
-| `fileMenu.enabled` | `true` | 文件上下文菜单总开关 |
+| `fileMenu.enabled` | `true` | 文件和文件夹上下文菜单总开关 |
 | `filePreview.enabled` | `true` | 快速文件预览总开关 |
 | `filePreview.rowButton` | `true` | 文件列表行中的眼睛按钮（右键菜单始终提供**预览**） |
 | `filePreview.longPress` | `true` | 在文件名或 Markdown 文件链接上按住鼠标左键以打开预览 |

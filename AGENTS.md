@@ -155,7 +155,7 @@ github-plus/
 │   └── utils/
 │       ├── dom.js          # el, append, debounce, eachNode, toArray, escapeHtml, isOwnUi
 │       ├── download.js     # File download (fetch → blob → <a download>)
-│       ├── fileTarget.js   # rawUrlFor / fileTarget / resolveFileTarget (pure)
+│       ├── fileTarget.js   # rawUrlFor / fileTarget / folderTarget / resolve*Target (pure)
 │       ├── http.js         # request(): status + headers, GM/fetch transport
 │       ├── navigation.js   # watchNavigation (turbo/pjax/pushState URL watcher)
 │       ├── scrollLock.js   # counted page scroll lock for modal overlays
@@ -816,7 +816,10 @@ the column's left edge and the button is pushed to its right edge, following
 GitHub's own icon buttons (28×28, 6px radius, 16px glyph, neutral fill on
 hover). Our own header cell names the column
 for assistive tech; GitHub collapses its listing header row to `font-size: 0`,
-so the same is done to ours and no header band appears. GitHub's own cells are
+so the same is done to ours and no header band appears. A file row's size comes
+from a `HEAD` probe, so the size slot holds a muted placeholder bar until the
+answer lands; the placeholder is removed either way, so a failed probe leaves
+the size out instead of a bar that never goes away. GitHub's own cells are
 never restyled or reordered, and the column is removed on teardown. The blob
 page is deliberately not decorated: GitHub already shows a file's size and a
 download button in its own file header, so adding ours would duplicate GitHub's
@@ -830,12 +833,13 @@ chrome.
   selector of the table header row and the `columnLabelKey` for its label.
   `resolve(row)` returns `{ name, rawUrl }` for a file row and `{}` for any
   other row, which still gets the empty cell.
-- `inject.js`: `renderMeta` builds the cell's content (size label and/or
-  download button), `placeCell` appends the new last cell with that content (or
-  empty for a folder), `placeHead` names the column in the header row for
-  assistive tech (idempotent; visually collapsed like GitHub's own header
-  cells), `setMetaSize` fills a size that arrived later, and `clearMeta` removes
-  every cell, strip and header label.
+- `inject.js`: `renderMeta` builds the cell's content (a loading placeholder
+  plus the size label, and/or the download button), `placeCell` appends the new
+  last cell with that content (or empty for a folder), `placeHead` names the
+  column in the header row for assistive tech (idempotent; visually collapsed
+  like GitHub's own header cells), `setMetaSize` settles the strip — it always
+  removes the placeholder and shows the text only when there is one — and
+  `clearMeta` removes every cell, strip, placeholder and header label.
 - `index.js`: one observer per surface container (same shapes, shell watchers
   and bounded settle wait as the other file features). Sizes are not in GitHub's
   tree markup, so a row's raw address is probed with a `HEAD` request; a shared
@@ -853,20 +857,23 @@ chrome.
   carries the session for private repositories, and a blocked fetch falls back
   to a new tab.
 
-### `src/features/fileMenu/` — file context menu
+### `src/features/fileMenu/` — file and folder context menu
 
-Right-clicking a file in the repository listing, in the sidebar file tree, on
-a blob or blame page, or on a file link in rendered markdown opens the
-project's own menu instead of the browser's:
-open, open in a new tab, download, copy contents, copy link, copy path. One
+Right-clicking a file or folder in the repository listing, in the sidebar file
+tree, on a blob or blame page, or on a link in rendered markdown opens the
+project's own menu instead of the browser's. A file offers open, open in a new
+tab, download, copy contents, copy link, copy path and copy name; a folder
+offers open, open in a new tab, expand/collapse, copy link, copy path and copy
+name. One
 delegated capture-phase `contextmenu` listener on the document — the same shape
 as the gallery's click listener, with no per-row state to invalidate — and the
-native menu is replaced **only** when the click resolves to a file. Folders,
-submodules, images, media and foreign links keep the browser menu.
+native menu is replaced **only** when the click resolves to a file or folder.
+Submodules, images, media, foreign links and tree links into another repository
+keep the browser menu.
 
-- `utils/fileTarget.js` supplies `resolveFileTarget(node)` (see `src/utils/`
-  below) for every surface, plus `fileTarget` for the download address and
-  path.
+- `utils/fileTarget.js` supplies `resolveFileTarget(node)` and
+  `resolveFolderTarget(node)` (see `src/utils/` below) for every surface, plus
+  `fileTarget` / `folderTarget` for the addresses and paths the actions use.
 - `copy.js`: `isCopyableContent(contentType, name)` (pure) — a known content
   type decides; an empty type falls back to a textual extension or a
   well-known name (`Dockerfile`, `Makefile`, …). Binary types win over a
@@ -887,21 +894,39 @@ submodules, images, media and foreign links keep the browser menu.
   `anchor` is the row link, the markdown link or the breadcrumb filename, used
   for keyboard opens. A tree row for the file already open is reported as
   `blob`, so it offers no redundant **Open**.
-- `index.js`: `buildItems()` builds the action list through `ui/contextMenu.js`
-  and `ACTION_ICONS`; open is omitted when the file is the page itself (already
-  there), download uses `utils/download.js`, copy contents fetches the
-  same-origin raw address
+  `resolveFolderTarget(node)` is its sibling for folders and returns
+  `{ kind: 'folder', name, href, relative, source, anchor }`: a `/tree/` link of
+  a listing row (including the rows the folder tree inserts), a folder row of
+  the sidebar tree, or a folder link in rendered markdown. A submodule row
+  (`aria-label` carrying `(Submodule)`) and a tree link into another repository
+  are skipped, and so is the repository root (`/owner/repo/tree/<ref>`), which is
+  the listing itself rather than a folder row.
+- `index.js`: `buildFileItems()` and `buildFolderItems()` build the action lists
+  through `ui/contextMenu.js` and `ACTION_ICONS`; open is omitted when the file
+  is the page itself (already there), download uses `utils/download.js`, copy
+  contents fetches the same-origin raw address
   (declared `content-length` and blob size checked against
-  `FILE_COPY_MAX_BYTES`, then `isCopyableContent`), and every clipboard write
+  `FILE_COPY_MAX_BYTES`, then `isCopyableContent`), copy name writes the file or
+  folder name, and every clipboard write
   reports through `ui/toast.js` — success and the three refusals (too large,
   not text, clipboard failure) each have their own localized message.
   `applyFileMenuSettings()` installs or removes the listener (closing an open
   menu on removal), `initFileMenuFeature()` also closes the menu on
   `watchNavigation` and subscribes to `settings:fileMenu`. A failed action logs
   `GP-1401` once and shows an error toast.
-- The first menu entry is **Preview** (`ACTION_ICONS.eye`) when the preview
-  feature is on; it calls `openPreviewForTarget(target)` from
-  `features/filePreview` — the one-way `fileMenu → filePreview` import.
+- The first menu entry of a file is **Preview** (`ACTION_ICONS.eye`) when the
+  preview feature is on; it calls `openPreviewForTarget(target)` from
+  `features/filePreview` — the one-way `fileMenu → filePreview` import. A
+  folder has nothing to preview, download or read, so its menu is the
+  navigation, the disclosure and the three clipboard actions.
+- A folder row of the current listing also gets **Expand** or **Collapse**
+  (`ACTION_ICONS.expand` / `.collapse`) in the second group, between the
+  navigation entries and the clipboard ones. The item exists only for a row the
+  folder tree owns — `folderRowExpansion(row)` from `features/folderTree`
+  returns `'expanded'`, `'collapsed'` or null — so a sidebar tree row, a
+  markdown folder link and every row while the folder tree is off keep the
+  plain menu, and the label follows the live state. Selecting it calls
+  `toggleFolderRow(row)`, the same disclosure the chevron drives.
 
 ### `src/features/filePreview/` — quick file preview
 
@@ -1093,6 +1118,10 @@ rule is that a preview's sibling set stays inside the folder that owns the row
   rather than the full apply: a toast or the hold ring is a direct child of
   `<body>`, and a full teardown there would collapse the tree mid-gesture. A
   replaced body is still handled by the `<html>` shell observer.
+  `folderRowExpansion(row)` reports `'expanded'`, `'collapsed'` or null for a
+  listing folder row this feature currently owns, and `toggleFolderRow(row)`
+  drives that row's disclosure without a chevron click — the two exports the
+  file menu's **Expand**/**Collapse** item uses.
 - `features/settings/tabs/files.js`: the **Expandable folders** card, a
   header-only switch (`folderTree.title` / `folderTree.enabledDesc`), because
   the feature has exactly one setting.
@@ -1623,13 +1652,16 @@ select back to **Custom** on the next open.
   in every engine** a userscript runs in — `for...of` over them throws
   "… is not iterable" there, so iterate DOM collections (and arrays handed in
   from the DOM) with them, never `for...of`.
-- `fileTarget.js`: `rawUrlFor(href, base)`, `fileTarget(href, base, ref)` and
-  `markdownFileTarget(href, base, ref)` (pure) — the raw address rewrite, the
-  file-view parser and the rendered-markdown link parser shared by the file
-  sizes, the file menu and the preview; `resolveFileTarget(node)` is the DOM
-  resolver used by the context menu and by the preview's long press, covering
-  listing rows, the sidebar tree, file links in rendered markdown and the
-  current blob/blame view. Unit-tested by `test/fileTarget.test.js`.
+- `fileTarget.js`: `rawUrlFor(href, base)`, `fileTarget(href, base, ref)`,
+  `folderTarget(href, base, ref)`, `markdownFileTarget(href, base, ref)` and
+  `markdownFolderTarget(href, base, ref)` (pure) — the raw address rewrite, the
+  file-view parser, the folder-tree parser and the rendered-markdown link
+  parsers shared by the file sizes, the file menu and the preview;
+  `resolveFileTarget(node)` is the DOM resolver used by the context menu and by
+  the preview's long press, covering listing rows, the sidebar tree, file links
+  in rendered markdown and the current blob/blame view, and
+  `resolveFolderTarget(node)` resolves the folder behind a right-click for the
+  same surfaces. Unit-tested by `test/fileTarget.test.js`.
 - `size.js`: `formatSize(bytes)` (pure) — binary units with GitHub's labels and
   three significant digits (`2929` → `2.86 KB`). Unit-tested by
   `test/fileMeta.test.js`.
@@ -1697,8 +1729,9 @@ must not own feature state. Rules that keep it acyclic:
   reusable, not gallery- or file-specific. The preview shell takes its content
   loader as a `load` callback, so the feature supplies rendering and the shell
   never imports it.
-- `features/fileMenu` imports `features/filePreview` (for **Preview**); the
-  reverse is never allowed.
+- `features/fileMenu` imports `features/filePreview` (for **Preview**) and
+  `features/folderTree` (for **Expand**/**Collapse**); neither reverse is
+  allowed.
 - `features/filePreview` imports `features/translate/previewAction.js` (the
   preview header action); `features/translate` never imports `filePreview` or
   the preview shell.
@@ -2094,7 +2127,8 @@ and check diagnostics for edited files.
   empty cell).
   A size label with no text means the HEAD probe returned no `Content-Length`
   (check the Network tab — a blocked request or a file served without a length
-  is the usual cause). The column is a `td` appended to the row and a `th` in
+  is the usual cause); the loading placeholder disappears in that case, so a
+  bar that never goes away means the probe never settled. The column is a `td` appended to the row and a `th` in
   the header row (`table thead tr`), and it is hidden below 768px on purpose,
   so test at a wide window; a GitHub redesign that renames
   `.react-directory-row` or drops the table header turns the surface into a
@@ -2123,16 +2157,25 @@ and check diagnostics for edited files.
   header. A page
   with no target at all has no buttons until one appears; the registry's
   bounded poll and shell observers are what catch it.
-- File context menu not opening: check **File context menu** is on, the page is a
-  repository listing, the sidebar file tree, a blob/blame view or rendered
-  markdown, and the right-click landed on a file row link, a tree file row, a
-  file link inside `.markdown-body` or inside the file content — folders,
-  submodules, images, media, hash-only links and foreign links keep the browser
-  menu by design. The menu claims `#gp-context-menu`; inspect its
-  `aria-label` for the resolved file name. Copy contents refusing a file means
+- File context menu not opening: check **File and folder context menu** is on,
+  the page is a repository listing, the sidebar file tree, a blob/blame view or
+  rendered markdown, and the right-click landed on a file or folder row link, a
+  tree row, a link inside `.markdown-body` or inside the file content. A folder
+  menu appears on a listing folder row, a sidebar folder row and a folder link
+  in rendered markdown; submodules, the repository root, images, media,
+  hash-only links, foreign links and tree links into another repository keep
+  the browser menu by design. The menu claims `#gp-context-menu`; inspect its
+  `aria-label` for the resolved name. Copy contents refusing a file means
   `isCopyableContent()` saw a non-text type, the file exceeds
   `FILE_COPY_MAX_BYTES` (1 MiB) or the raw fetch failed (`GP-1401` in the
-  console). A menu left open after a soft navigation means `watchNavigation`
+  console). Copy name writes the entry's own name, never a markdown link label.
+  A folder menu with no **Expand**/**Collapse** means the row is not one the
+  folder tree owns: **Expandable folders** is off, the row is in the sidebar
+  tree or a markdown link, or the listing container has no observer yet
+  (`folderRowExpansion()` returns null for all three). The item acts on the
+  live row, so a menu opened before the folder finished loading shows
+  **Collapse** only after the rows are inserted.
+  A menu left open after a soft navigation means `watchNavigation`
   stopped firing.
 - Page download button missing: the gallery and `gallery.download` must both be
   on, the image must sit inside an enabled source container and pass the

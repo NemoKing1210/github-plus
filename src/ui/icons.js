@@ -76,6 +76,12 @@ export const ACTION_ICONS = {
     '<path d="M3 3v5a2 2 0 0 0 2 2h6"/>'
     + '<path d="m9 7.5 2.5 2.5L9 12.5"/>',
   ),
+  name: svg(
+    '<path d="M2.75 2.75h4.5l6 6-4.5 4.5-6-6Z"/>'
+    + '<circle cx="5.6" cy="5.6" r=".9"/>',
+  ),
+  expand: svg('<path d="m4 6 4 4 4-4"/>'),
+  collapse: svg('<path d="m4 10 4-4 4 4"/>'),
   eye: svg(
     '<path d="M1.75 8s2.25-3.75 6.25-3.75S14.25 8 14.25 8 12 11.75 8 11.75 1.75 8 1.75 8Z"/>'
     + '<circle cx="8" cy="8" r="1.9"/>',

@@ -5,22 +5,24 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
 wherever GitHub lists files, blame-style age colors for those files, expandable
 folders in the repository listing, file sizes with one-click downloads, a
-context menu for file actions, a quick preview for any file, Conventional
+context menu for file and folder actions, a quick preview for any file,
+Conventional
 Commit badges on commit subjects, and on-page translation of markdown, comments,
 commits and titles.
 
-> **Status:** early (`0.30.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.32.0`). Settings panel with instant search (General ·
 > Gallery · Files · Commits · Translation · Palette · Backup · About), a
 > `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, expandable folder rows, file sizes with download buttons, a
-> file context menu, a quick file preview, Conventional Commit badges, and
+> file and folder context menu, a quick file preview, Conventional Commit badges,
+> and
 > on-page translation. More GitHub improvements
 > planned.
 
@@ -187,25 +189,35 @@ and saving one means opening it first. GitHub Plus adds both to the file rows:
 - **Quiet** — folder rows keep an empty cell; disabling the feature removes
   every size, button and cell, leaving stock GitHub.
 
-### File context menu
+### File and folder context menu
 
-Right-clicking a file is the fastest path to what you want to do with it — and
-GitHub's own menu does not offer any of it. GitHub Plus replaces it for files:
+Right-clicking a file or folder is the fastest path to what you want to do with
+it — and GitHub's own menu does not offer any of it. GitHub Plus replaces it for
+files and folders:
 
 - **Quick actions** — right-click a file in a repository listing, in the file
   tree sidebar or a file link in rendered markdown for **Open**, **Open in new
-  tab**, **Download**, **Copy contents**, **Copy link** and **Copy path**. On a
-  file or blame page the same menu appears (without **Open**, since you are
-  already there).
+  tab**, **Download**, **Copy contents**, **Copy link**, **Copy path** and
+  **Copy name**. On a file or blame page the same menu appears (without
+  **Open**, since you are already there).
+- **Folders too** — a folder row in the listing or the sidebar tree, or a folder
+  link in rendered markdown, gets its own shorter menu: **Open**, **Open in new
+  tab**, **Copy link**, **Copy path** and **Copy name**. There is nothing to
+  download or read in a folder, so those actions are left out.
+- **Expand from the menu** — a folder in the repository listing also offers
+  **Expand** or **Collapse**: the same disclosure as the row's chevron, without
+  having to hit it.
 - **Copy the contents** — a text file's contents go straight to the clipboard
   without opening the page; binary files and anything over 1 MiB are refused
   with a clear toast instead of pasting garbage or freezing the tab.
 - **Copy the path** — the repository-relative path (`src/main.js`), ready to
   paste into a terminal, an import or a link.
-- **Only where it helps** — the native menu stays untouched for folders,
+- **Copy the name** — just the entry's own name (`src`, `README.md`), for an
+  import, a commit message or a search.
+- **Only where it helps** — the native menu stays untouched for submodules,
   images, media and ordinary links (including markdown links that point at no
-  repository file); a right-click you did not aim at a file behaves exactly as
-  before.
+  repository file); a right-click you did not aim at a file or folder behaves
+  exactly as before.
 - **Keyboard too** — the context-menu key opens the same menu at the file's
   link, with full arrow-key navigation and focus restored on close; turning the
   feature off restores the browser's menu everywhere.
@@ -389,7 +401,7 @@ Stored under `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Master switch for file sizes and download buttons |
 | `fileMeta.sizes` | `true` | Show each file's size in repository listings |
 | `fileMeta.download` | `true` | Download button in the repository file listings |
-| `fileMenu.enabled` | `true` | Master switch for the file context menu |
+| `fileMenu.enabled` | `true` | Master switch for the file and folder context menu |
 | `filePreview.enabled` | `true` | Master switch for the quick file preview |
 | `filePreview.rowButton` | `true` | Eye button in repository listing rows (the context menu always offers **Preview**) |
 | `filePreview.longPress` | `true` | Hold the left mouse button on a file name or a markdown file link to open the preview |

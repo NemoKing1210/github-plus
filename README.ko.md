@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
@@ -14,7 +14,7 @@ GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널,
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, Conventional Commits 커밋 배지, 페이지
 번역을 제공합니다.
 
-> **상태:** 초기(`0.30.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
+> **상태:** 초기(`0.32.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
 > 번역 · 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
 > 컬러 파일 아이콘, blame 스타일 나이 색상, 폴더 펼치기, 다운로드 버튼이 있는
 > 파일 크기, 파일
@@ -172,25 +172,34 @@ GitHub의 디렉터리 목록은 파일이 언제 바뀌었는지는 보여 주�
 - **은은함** — 폴더의 열은 비어 있으며, 기능을 끄면 모든 크기, 버튼, 추가한 열이 사라져 원래
   GitHub로 돌아갑니다.
 
-### 파일 컨텍스트 메뉴
+### 파일 및 폴더 컨텍스트 메뉴
 
-파일을 마우스 오른쪽 버튼으로 클릭하는 것은 원하는 작업으로 가는 가장 빠른 길이지만,
-GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일에 대해 그 메뉴를
-대체합니다:
+파일이나 폴더를 마우스 오른쪽 버튼으로 클릭하는 것은 원하는 작업으로 가는 가장 빠른
+길이지만, GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일과 폴더에 대해
+그 메뉴를 대체합니다:
 
 - **빠른 작업** — 저장소 목록, 파일 트리 사이드바 또는 렌더링된 Markdown의 파일
   링크에서 파일을 마우스 오른쪽 버튼으로 클릭하면
   **열기**, **새 탭에서 열기**, **다운로드**, **내용 복사**,
-  **링크 복사**, **경로 복사**를 사용할 수 있습니다. 파일 페이지나 blame 페이지에서도
-  같은 메뉴가 나타납니다(**열기**는 이미 그 페이지에 있으므로 없습니다).
+  **링크 복사**, **경로 복사**, **이름 복사**를 사용할 수 있습니다. 파일 페이지나
+  blame 페이지에서도 같은 메뉴가 나타납니다(**열기**는 이미 그 페이지에 있으므로
+  없습니다).
+- **폴더도 지원** — 목록이나 사이드바의 폴더, 렌더링된 Markdown의 폴더 링크에는
+  전용 짧은 메뉴가 열립니다: **열기**, **새 탭에서 열기**, **링크 복사**,
+  **경로 복사**, **이름 복사**. 폴더에는 다운로드하거나 읽을 내용이 없으므로 그
+  작업들은 빠집니다.
+- **메뉴에서 펼치기** — 저장소 목록의 폴더에는 **펼치기** 또는 **접기**가 함께
+  나옵니다. 행의 셰브론과 같은 토글을, 셰브론을 겨냥하지 않고 쓸 수 있습니다.
 - **내용 복사** — 텍스트 파일의 내용은 페이지를 열지 않고 바로 클립보드로 들어갑니다.
   바이너리 파일과 1 MiB를 넘는 파일은 깨진 문자가 붙거나 탭이 멈추는 대신 명확한
   알림과 함께 거부됩니다.
 - **경로 복사** — 저장소 기준 상대 경로(`src/main.js`)로, 터미널·import 문·링크에
   바로 붙여 넣을 수 있습니다.
-- **도움이 되는 곳에서만** — 폴더, 이미지, 미디어, 저장소 파일을 가리키지 않는
+- **이름 복사** — 항목 자체의 이름(`src`, `README.md`)만 복사합니다. import 문,
+  커밋 메시지, 검색에 유용합니다.
+- **도움이 되는 곳에서만** — 서브모듈, 이미지, 미디어, 저장소 파일을 가리키지 않는
   Markdown 링크를 포함한 일반 링크에는 기본 메뉴가 그대로 유지됩니다.
-  파일을 가리키지 않는 오른쪽 클릭은 이전과 똑같이 동작합니다.
+  파일이나 폴더를 가리키지 않는 오른쪽 클릭은 이전과 똑같이 동작합니다.
 - **키보드도 지원** — 컨텍스트 메뉴 키를 누르면 파일 링크 위치에 같은 메뉴가 열리고,
   화살표 키로 이동하며 닫으면 포커스가 돌아옵니다. 기능을 끄면 어디서나 브라우저
   메뉴로 돌아갑니다.
@@ -355,7 +364,7 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 | `fileMeta.enabled` | `true` | 파일 크기와 다운로드 버튼의 총 스위치 |
 | `fileMeta.sizes` | `true` | 저장소 파일 목록에 각 파일의 크기 표시 |
 | `fileMeta.download` | `true` | 저장소 파일 목록의 다운로드 버튼 |
-| `fileMenu.enabled` | `true` | 파일 컨텍스트 메뉴 마스터 스위치 |
+| `fileMenu.enabled` | `true` | 파일 및 폴더 컨텍스트 메뉴 마스터 스위치 |
 | `filePreview.enabled` | `true` | 파일 빠른 미리보기 마스터 스위치 |
 | `filePreview.rowButton` | `true` | 파일 목록 행의 눈 버튼(컨텍스트 메뉴에서는 항상 **미리보기** 제공) |
 | `filePreview.longPress` | `true` | 파일 이름이나 Markdown 파일 링크를 마우스 왼쪽 버튼으로 길게 눌러 미리보기 열기 |

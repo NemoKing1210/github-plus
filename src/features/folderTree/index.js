@@ -416,6 +416,28 @@ function observeShell() {
   shellObserver.observe(document.documentElement, { childList: true });
 }
 
+/**
+ * The expansion state of a row the file menu can act on: `'expanded'` or
+ * `'collapsed'` for a listing folder row this feature currently owns, else
+ * null. A row without a chevron must not offer an expansion.
+ */
+export function folderRowExpansion(row) {
+  if (!getFolderTreeSettings().enabled || !(row instanceof Element)) return null;
+  const container = row.closest(LISTING_SELECTOR);
+  if (!container || !observers.has(container)) return null;
+  const target = rowTarget(row);
+  if (!target || target.kind !== 'folder') return null;
+  const state = listings.get(container);
+  return state && state.expanded.has(target.key) ? 'expanded' : 'collapsed';
+}
+
+/** Toggle the disclosure of a folder row this feature owns; false when it does not. */
+export function toggleFolderRow(row) {
+  if (!folderRowExpansion(row)) return false;
+  toggleFolder(row.closest(LISTING_SELECTOR), row);
+  return true;
+}
+
 /** Repaint every chevron's label in the current locale. */
 export function refreshFolderTreeLabels() {
   const containers = document.querySelectorAll(LISTING_SELECTOR);

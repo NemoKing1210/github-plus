@@ -5,21 +5,21 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 paleta de comandos com `Ctrl/⌘+K`, uma galeria de imagens para markdown
 renderizado, ícones de arquivo coloridos onde o GitHub lista arquivos, idades
 coloridas no estilo blame para esses arquivos, pastas expansíveis na listagem do
-repositório, tamanhos de arquivo com downloads em um clique, um menu de contexto para ações de arquivo, uma pré-visualização
+repositório, tamanhos de arquivo com downloads em um clique, um menu de contexto para ações de arquivo e pasta, uma pré-visualização
 rápida de qualquer arquivo, emblemas de Conventional Commits e tradução do
 conteúdo da página.
 
-> **Status:** inicial (`0.30.0`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.32.0`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Commits · Tradução · Paleta · Backup · Sobre),
 > uma paleta de comandos com `Ctrl/⌘+K`, a galeria de imagens de markdown, ícones
 > de arquivo coloridos, idades coloridas no estilo blame, pastas expansíveis,
-> tamanhos de arquivo com botões de download, um menu de contexto de arquivos, uma pré-visualização
+> tamanhos de arquivo com botões de download, um menu de contexto de arquivos e pastas, uma pré-visualização
 > rápida de arquivos, emblemas de commit e tradução da página. Mais melhorias no
 > GitHub estão planejadas.
 
@@ -196,28 +196,37 @@ diretamente às linhas de arquivo:
 - **Discreto** — pastas mantêm uma célula vazia, e desativar o recurso remove
   cada tamanho, botão e célula, devolvendo o GitHub original.
 
-### Menu de contexto de arquivos
+### Menu de contexto de arquivos e pastas
 
-Clicar com o botão direito em um arquivo é o caminho mais rápido para o que você
-quer fazer com ele — e o menu do próprio GitHub não oferece nada disso. O GitHub
-Plus o substitui para arquivos:
+Clicar com o botão direito em um arquivo ou pasta é o caminho mais rápido para o
+que você quer fazer com ele — e o menu do próprio GitHub não oferece nada disso.
+O GitHub Plus o substitui para arquivos e pastas:
 
 - **Ações rápidas** — clique com o botão direito em um arquivo de uma listagem
   do repositório, da barra lateral da árvore de arquivos ou em um link para um
   arquivo em markdown renderizado para **Abrir**,
-  **Abrir em nova aba**, **Baixar**, **Copiar conteúdo**, **Copiar link** e
-  **Copiar caminho**. Na página de um arquivo ou de blame aparece o mesmo menu
-  (sem **Abrir**, pois você já está lá).
+  **Abrir em nova aba**, **Baixar**, **Copiar conteúdo**, **Copiar link**,
+  **Copiar caminho** e **Copiar nome**. Na página de um arquivo ou de blame
+  aparece o mesmo menu (sem **Abrir**, pois você já está lá).
+- **Pastas também** — uma pasta da listagem, da árvore lateral ou um link para
+  uma pasta em markdown renderizado tem seu próprio menu curto: **Abrir**,
+  **Abrir em nova aba**, **Copiar link**, **Copiar caminho** e **Copiar nome**.
+  Não há nada para baixar nem ler em uma pasta, então essas ações não aparecem.
+- **Expandir pelo menu** — em uma pasta da listagem do repositório o menu oferece
+  **Expandir** ou **Recolher**: o mesmo controle do chevron da linha, sem
+  precisar acertá-lo.
 - **Copiar o conteúdo** — o conteúdo de um arquivo de texto vai direto para a
   área de transferência sem abrir a página; arquivos binários e qualquer coisa
   acima de 1 MiB são recusados com um aviso claro, em vez de colar lixo ou
   travar a aba.
 - **Copiar o caminho** — o caminho relativo ao repositório (`src/main.js`),
   pronto para colar em um terminal, um import ou um link.
-- **Só onde ajuda** — o menu nativo permanece intacto para pastas, imagens,
+- **Copiar o nome** — só o nome do item (`src`, `README.md`), para um import, uma
+  mensagem de commit ou uma busca.
+- **Só onde ajuda** — o menu nativo permanece intacto para submódulos, imagens,
   mídia e links comuns (inclusive links de markdown que não apontam para nenhum
-  arquivo do repositório); um clique direito que não aponta para um arquivo se
-  comporta como antes.
+  arquivo do repositório); um clique direito que não aponta para um arquivo ou
+  pasta se comporta como antes.
 - **Também pelo teclado** — a tecla de menu de contexto abre o mesmo menu no
   link do arquivo, com navegação pelas setas e foco restaurado ao fechar;
   desativar o recurso devolve o menu do navegador em todos os lugares.
@@ -407,7 +416,7 @@ Armazenadas em `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Chave mestra para tamanhos e botões de download |
 | `fileMeta.sizes` | `true` | Mostrar o tamanho de cada arquivo nas listagens do repositório |
 | `fileMeta.download` | `true` | Botão de download nas listagens do repositório |
-| `fileMenu.enabled` | `true` | Chave mestra do menu de contexto de arquivos |
+| `fileMenu.enabled` | `true` | Chave mestra do menu de contexto de arquivos e pastas |
 | `filePreview.enabled` | `true` | Chave mestra da pré-visualização rápida de arquivos |
 | `filePreview.rowButton` | `true` | Botão de olho nas linhas da lista de arquivos (o menu de contexto sempre oferece **Pré-visualização**) |
 | `filePreview.longPress` | `true` | Segurar o botão esquerdo sobre um nome de arquivo ou um link de markdown para abrir a pré-visualização |

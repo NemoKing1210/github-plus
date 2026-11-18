@@ -748,6 +748,7 @@ its own.
 | `.gp-file-meta-head` | `font-size: 0` — the column name is exposed to assistive tech, not painted |
 | `.gp-file-meta` | Full-width flex, `gap: 6px`, `11px/1` tabular `var(--gp-text-muted)`, no fill or border |
 | `.gp-file-size` | The size text, left edge of the column; `[hidden]` while the probe has not answered, so an unknown size leaves no gap |
+| `.gp-file-size-skeleton` | The loading placeholder that holds the size's spot while the HEAD probe runs: `44×8`, `4px` radius, `var(--gp-highlight)`, `aria-hidden`; removed when the probe answers, so a failed probe leaves the slot empty and no gap |
 | `.gp-file-download` | GitHub's icon-button shape: `28×28`, `var(--gp-radius)`, no border, transparent fill, `var(--gp-text-muted)` glyph; `margin-left: auto` keeps it on the right edge even when the size is absent |
 | `.gp-file-download svg` | `16×16` block glyph (`VIEWER_ICONS.download`) |
 | `.gp-file-download:hover` | `var(--gp-highlight)` fill, `var(--gp-text)` glyph |
@@ -1019,6 +1020,7 @@ the card moves to `6vh` and keeps an 8px gutter
 | Download hover | `.gp-download-btn:not([hidden])` | The floating button is shown over the hovered markdown image's top-right corner; hidden on pointer-out, scroll, resize and navigation |
 | Hold in progress | `.gp-hold-ring` | A transparent ring at the press point that appears after a short beat and whose accent arc fills over the rest of `filePreview.longPressMs`; hidden when the preview opens, the pointer moves past the drag threshold or the button is released |
 | File download hover | `.gp-file-download:hover` | The icon button takes the `var(--gp-highlight)` fill and a `var(--gp-text)` glyph, like GitHub's own icon buttons |
+| File size loading | `.gp-file-size-skeleton` | A muted `44×8` bar in the size slot that pulses while the HEAD probe runs; it is removed when the answer lands (a size or nothing at all), never left behind |
 | Context menu row hover | `.gp-context-menu__item:hover` | `var(--gp-highlight)` fill, no outline |
 | Context menu row focus | `.gp-context-menu__item:focus-visible` | the same `var(--gp-highlight)` fill plus the `var(--gp-focus)` ring drawn inside the row (`-2px`), so a keyboard open and a pointer hover read the same |
 | Context menu row disabled | `.gp-context-menu__item:disabled` | `var(--gp-text-muted)` label, transparent fill, default cursor |
@@ -1061,6 +1063,7 @@ each is a per-instance value that CSS cannot know).
 | Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the hold time minus the appearance delay) |
 | Command palette | `gp-command-fade` on the scrim (`0.16s ease-out`) and `gp-command-in` on the card — fade + `translateY(-10px) scale(0.985)` → rest from a `50% 0` origin, `0.2s cubic-bezier(0.16, 1, 0.3, 1)`; closing fades the scrim and lifts the card `-6px` to `scale(0.99)` over `0.14s ease-in` before removal |
 | Palette progress | `gp-command-progress` — a 40%-wide accent gradient sweeping the 2px bar once per `1s`, linear, only while a source loads |
+| File size placeholder | `gp-file-skeleton-pulse` — opacity `1 → 0.35 → 1` over `1.2s ease-in-out`, infinite, only while the size probe is in flight; under reduced motion the bar stays static |
 
 - Hover on elements placed into GitHub's own chrome (the header button and the
   avatar-menu row) has no transition on purpose: they must feel native, and
@@ -1076,7 +1079,8 @@ each is a per-instance value that CSS cannot know).
   `.gp-toast--leaving`, `.gp-switch__track`, `.gp-switch__track::after`,
   `.gp-meter__fill`, `.gp-file-download`, `.gp-viewer-overlay`, `.gp-viewer__image`,
   `.gp-command-overlay`, `.gp-command` and `.gp-command__bar.is-loading` (the
-  loading bar keeps its static accent gradient instead of sweeping), and the
+  loading bar keeps its static accent gradient instead of sweeping), the file
+  size placeholder (which keeps its static muted bar), and the
   search result spotlight (which keeps a static accent ring instead). The viewer spinner,
   the toast progress bar and the hold-progress ring are outside that list (a
   spinner, a countdown and hold progress are information, not decoration), so

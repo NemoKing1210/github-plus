@@ -122,8 +122,7 @@ function queueSize(meta, rawUrl) {
   const load = () => {
     requestSize(rawUrl).then((bytes) => {
       if (!meta.isConnected) return;
-      const text = formatSize(bytes);
-      if (text) setMetaSize(meta, text);
+      setMetaSize(meta, formatSize(bytes));
     });
   };
   if (visibility) {

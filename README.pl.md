@@ -5,21 +5,22 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
 wszędzie tam, gdzie GitHub wyświetla pliki, kolory wieku tych plików w stylu
 blame, rozwijane foldery na liście repozytorium, rozmiary plików i pobieranie
 jednym kliknięciem, menu kontekstowe
-operacji na plikach, szybki podgląd dowolnego pliku, odznaki Conventional Commits
+plików i folderów, szybki podgląd dowolnego pliku, odznaki Conventional Commits
 i tłumaczenie treści na stronie.
 
-> **Status:** wczesny etap (`0.30.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.32.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Commity · Tłumaczenie · Paleta · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozwijane foldery,
-> rozmiary plików z przyciskami pobierania, menu kontekstowe plików, szybki podgląd plików,
+> rozmiary plików z przyciskami pobierania, menu kontekstowe plików i folderów,
+> szybki podgląd plików,
 > odznaki commitów i tłumaczenie treści strony. W planach kolejne ulepszenia
 > GitHuba.
 
@@ -192,28 +193,37 @@ wprost do wierszy plików:
 - **Dyskretnie** — foldery zachowują pustą kolumnę, a wyłączenie funkcji usuwa
   każdy rozmiar, przycisk i komórkę, przywracając zwykłego GitHuba.
 
-### Menu kontekstowe plików
+### Menu kontekstowe plików i folderów
 
-Kliknięcie pliku prawym przyciskiem to najkrótsza droga do tego, co chcesz z nim
-zrobić — a własne menu GitHuba nie oferuje niczego z tego. GitHub Plus zastępuje
-je dla plików:
+Kliknięcie pliku lub folderu prawym przyciskiem to najkrótsza droga do tego, co
+chcesz z nim zrobić — a własne menu GitHuba nie oferuje niczego z tego. GitHub
+Plus zastępuje je dla plików i folderów:
 
 - **Szybkie akcje** — kliknięcie pliku prawym przyciskiem na liście repozytorium,
   w bocznym panelu drzewa plików lub linku do pliku w wyrenderowanym Markdownie
   otwiera **Otwórz**, **Otwórz w nowej
-  karcie**, **Pobierz**, **Kopiuj zawartość**, **Kopiuj link** i **Kopiuj
-  ścieżkę**. Na stronie pliku lub blame pojawia się to samo menu (bez
-  **Otwórz**, bo już tam jesteś).
+  karcie**, **Pobierz**, **Kopiuj zawartość**, **Kopiuj link**, **Kopiuj
+  ścieżkę** i **Kopiuj nazwę**. Na stronie pliku lub blame pojawia się to samo
+  menu (bez **Otwórz**, bo już tam jesteś).
+- **Także foldery** — folder na liście, w panelu bocznym lub link do folderu
+  w wyrenderowanym Markdownie ma własne krótkie menu: **Otwórz**, **Otwórz
+  w nowej karcie**, **Kopiuj link**, **Kopiuj ścieżkę** i **Kopiuj nazwę**.
+  W folderze nie ma czego pobierać ani czytać, więc tych akcji tam nie ma.
+- **Rozwijanie z menu** — dla folderu na liście repozytorium menu oferuje
+  **Rozwiń** albo **Zwiń**: ten sam przełącznik co strzałka wiersza, tylko bez
+  celowania w nią.
 - **Kopiowanie zawartości** — zawartość pliku tekstowego trafia prosto do
   schowka bez otwierania strony; pliki binarne i wszystko powyżej 1 MiB jest
   odrzucane z czytelnym komunikatem, zamiast wklejać śmieci albo zawieszać
   kartę.
 - **Kopiowanie ścieżki** — ścieżka względna wobec repozytorium (`src/main.js`),
   gotowa do wklejenia w terminalu, imporcie lub linku.
-- **Tylko tam, gdzie pomaga** — natywne menu pozostaje nietknięte dla folderów,
-  obrazów, multimediów i zwykłych linków (w tym linków Markdown, które nie
-  prowadzą do żadnego pliku repozytorium); kliknięcie prawym przyciskiem, które
-  nie trafia w plik, działa jak wcześniej.
+- **Kopiowanie nazwy** — tylko nazwa elementu (`src`, `README.md`), przydatna
+  w imporcie, opisie commita lub wyszukiwaniu.
+- **Tylko tam, gdzie pomaga** — natywne menu pozostaje nietknięte dla
+  podmodułów, obrazów, multimediów i zwykłych linków (w tym linków Markdown,
+  które nie prowadzą do żadnego pliku repozytorium); kliknięcie prawym
+  przyciskiem, które nie trafia w plik ani folder, działa jak wcześniej.
 - **Także z klawiatury** — klawisz menu kontekstowego otwiera to samo menu przy
   linku do pliku, z nawigacją strzałkami i przywróceniem fokusu po zamknięciu;
   wyłączenie funkcji przywraca menu przeglądarki wszędzie.
@@ -401,7 +411,7 @@ Przechowywane pod `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Główny przełącznik rozmiarów i przycisków pobierania |
 | `fileMeta.sizes` | `true` | Pokazuj rozmiar każdego pliku na listach repozytorium |
 | `fileMeta.download` | `true` | Przycisk pobierania na listach repozytorium |
-| `fileMenu.enabled` | `true` | Główny przełącznik menu kontekstowego plików |
+| `fileMenu.enabled` | `true` | Główny przełącznik menu kontekstowego plików i folderów |
 | `filePreview.enabled` | `true` | Główny przełącznik szybkiego podglądu plików |
 | `filePreview.rowButton` | `true` | Przycisk oka w wierszach listy plików (menu kontekstowe zawsze oferuje **Podgląd**) |
 | `filePreview.longPress` | `true` | Otwieraj podgląd po przytrzymaniu lewego przycisku myszy na nazwie pliku lub linku Markdown |

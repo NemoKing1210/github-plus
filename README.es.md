@@ -5,24 +5,26 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.30.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
 iconos de archivo en color allí donde GitHub lista archivos, colores de
 antigüedad al estilo blame para esos archivos, carpetas expandibles en la lista
 del repositorio, tamaños de archivo con descargas
-en un clic, un menú contextual para acciones de archivo, una vista rápida de
+en un clic, un menú contextual para acciones de archivo y carpeta, una vista
+rápida de
 cualquier archivo, insignias de Conventional Commits y traducción del contenido
 de la página.
 
-> **Estado:** temprano (`0.30.0`). Panel de ajustes con búsqueda instantánea
+> **Estado:** temprano (`0.32.0`). Panel de ajustes con búsqueda instantánea
 > (General · Galería · Archivos · Commits · Traducción · Paleta · Copia de
 > seguridad · Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, las carpetas expandibles, los tamaños de archivo
 > con botones de descarga, un
-> menú contextual de archivos, una vista rápida de archivos, insignias de commit
+> menú contextual de archivos y carpetas, una vista rápida de archivos, insignias
+> de commit
 > y traducción de la página. Hay más mejoras de GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
@@ -205,28 +207,38 @@ las filas de archivos:
   función desaparecen todos los tamaños, botones y celdas, dejando el GitHub de
   siempre.
 
-### Menú contextual de archivos
+### Menú contextual de archivos y carpetas
 
-Hacer clic derecho en un archivo es la vía más rápida a lo que quieres hacer con
-él, y el menú propio de GitHub no ofrece nada de eso. GitHub Plus lo sustituye
-para los archivos:
+Hacer clic derecho en un archivo o una carpeta es la vía más rápida a lo que
+quieres hacer con él, y el menú propio de GitHub no ofrece nada de eso. GitHub
+Plus lo sustituye para los archivos y las carpetas:
 
 - **Acciones rápidas** — clic derecho en un archivo de una lista del repositorio,
   de la barra lateral del árbol de archivos o en un enlace a un archivo dentro de
   markdown renderizado abre **Abrir**, **Abrir en una
-  pestaña nueva**, **Descargar**, **Copiar contenido**, **Copiar enlace** y
-  **Copiar ruta**. En la página de un archivo o de blame aparece el mismo menú
-  (sin **Abrir**, porque ya estás allí).
+  pestaña nueva**, **Descargar**, **Copiar contenido**, **Copiar enlace**,
+  **Copiar ruta** y **Copiar nombre**. En la página de un archivo o de blame
+  aparece el mismo menú (sin **Abrir**, porque ya estás allí).
+- **También las carpetas** — una carpeta de la lista, del árbol lateral o un
+  enlace a una carpeta en markdown renderizado tiene su propio menú corto:
+  **Abrir**, **Abrir en una pestaña nueva**, **Copiar enlace**, **Copiar ruta** y
+  **Copiar nombre**. En una carpeta no hay nada que descargar ni leer, así que
+  esas acciones no aparecen.
+- **Expandir desde el menú** — en una carpeta de la lista del repositorio el menú
+  ofrece **Expandir** o **Contraer**: el mismo control que la flecha de la fila,
+  sin tener que acertarle.
 - **Copiar el contenido** — el contenido de un archivo de texto va directo al
   portapapeles sin abrir la página; los archivos binarios y todo lo que supere
   1 MiB se rechazan con un aviso claro, en lugar de pegar basura o bloquear la
   pestaña.
 - **Copiar la ruta** — la ruta relativa al repositorio (`src/main.js`), lista
   para pegarla en una terminal, un import o un enlace.
-- **Solo donde ayuda** — el menú nativo sigue intacto para carpetas, imágenes,
+- **Copiar el nombre** — solo el nombre del elemento (`src`, `README.md`), para
+  un import, un mensaje de commit o una búsqueda.
+- **Solo donde ayuda** — el menú nativo sigue intacto para submódulos, imágenes,
   multimedia y enlaces normales (también los enlaces de markdown que no apuntan
   a ningún archivo del repositorio); un clic derecho que no apunta a un archivo
-  se comporta como antes.
+  ni a una carpeta se comporta como antes.
 - **También con teclado** — la tecla de menú contextual abre el mismo menú en el
   enlace del archivo, con navegación por flechas y el foco restaurado al
   cerrarlo; al desactivar la función vuelve el menú del navegador en todas
@@ -420,7 +432,7 @@ Se guardan en `gp_settings_v1`.
 | `fileMeta.enabled` | `true` | Interruptor principal de tamaños y botones de descarga |
 | `fileMeta.sizes` | `true` | Mostrar el tamaño de cada archivo en las listas del repositorio |
 | `fileMeta.download` | `true` | Botón de descarga en las listas del repositorio |
-| `fileMenu.enabled` | `true` | Interruptor principal del menú contextual de archivos |
+| `fileMenu.enabled` | `true` | Interruptor principal del menú contextual de archivos y carpetas |
 | `filePreview.enabled` | `true` | Interruptor principal de la vista rápida de archivos |
 | `filePreview.rowButton` | `true` | Botón de ojo en las filas de la lista de archivos (el menú contextual siempre ofrece **Vista previa**) |
 | `filePreview.longPress` | `true` | Mantener el botón izquierdo sobre un nombre de archivo o un enlace de markdown para abrir la vista previa |

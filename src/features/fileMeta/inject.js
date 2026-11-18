@@ -5,6 +5,8 @@ import { el } from '../../utils/dom.js';
 const META_CLASS = 'gp-file-meta';
 const CELL_CLASS = 'gp-file-meta-cell';
 const HEAD_CLASS = 'gp-file-meta-head';
+const SIZE_CLASS = 'gp-file-size';
+const SKELETON_CLASS = 'gp-file-size-skeleton';
 
 /**
  * The size/download strip that goes into the column. It is our own node,
@@ -14,7 +16,13 @@ const HEAD_CLASS = 'gp-file-meta-head';
 export function renderMeta({ name, showSize, showDownload, onDownload }) {
   const meta = el('span', META_CLASS);
   if (showSize) {
-    const size = el('span', 'gp-file-size');
+    // The HEAD probe answers asynchronously, so the strip holds a placeholder
+    // until it does: a row that is still loading reads differently from one
+    // whose size is simply unknown.
+    const skeleton = el('span', SKELETON_CLASS);
+    skeleton.setAttribute('aria-hidden', 'true');
+    meta.appendChild(skeleton);
+    const size = el('span', SIZE_CLASS);
     size.hidden = true;
     meta.appendChild(size);
   }
@@ -61,9 +69,14 @@ export function placeHead(headRow, label) {
   headRow.appendChild(head);
 }
 
-/** Fill in a size that arrived after the strip was rendered. */
+/**
+ * Settle the strip when the probe answers: the placeholder always goes, and the
+ * size appears only when there is one, so a failed probe leaves no gap.
+ */
 export function setMetaSize(meta, text) {
-  const size = meta.querySelector('.gp-file-size');
+  const skeleton = meta.querySelector(`.${SKELETON_CLASS}`);
+  if (skeleton) skeleton.remove();
+  const size = meta.querySelector(`.${SIZE_CLASS}`);
   if (!size || !text) return;
   size.textContent = text;
   size.hidden = false;

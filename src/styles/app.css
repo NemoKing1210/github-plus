@@ -2110,6 +2110,31 @@ html.gp-modal-open body {
 .gp-file-size[hidden] {
   display: none;
 }
+/* The size is a network answer, so the slot holds a placeholder until it lands:
+ * a muted bar that pulses while the HEAD probe runs. A failed probe removes it,
+ * which leaves the slot empty and the button on the column's right edge. */
+.gp-file-size-skeleton {
+  flex: none;
+  width: 44px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--gp-highlight);
+  animation: gp-file-skeleton-pulse 1.2s ease-in-out infinite;
+}
+@keyframes gp-file-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gp-file-size-skeleton {
+    animation: none;
+  }
+}
 /* GitHub's own icon buttons are 28×28 with a 16px glyph, a 6px radius and no
  * border; the neutral fill appears only on hover (DESIGN.md §11). */
 .gp-file-download {
@@ -2146,7 +2171,8 @@ html.gp-modal-open body {
     width: 40px;
     padding: 0 4px;
   }
-  .gp-file-meta-cell .gp-file-size {
+  .gp-file-meta-cell .gp-file-size,
+  .gp-file-meta-cell .gp-file-size-skeleton {
     display: none;
   }
 }
