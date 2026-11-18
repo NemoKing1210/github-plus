@@ -28,6 +28,8 @@ export default {
   'tab.gallery.desc': '내장 뷰어에서 Markdown 이미지를 확인합니다.',
   'tab.files': '파일',
   'tab.files.desc': 'GitHub에 나열되는 파일에 아이콘, 커밋 시기, 크기, 다운로드, 컨텍스트 메뉴, 빠른 미리보기를 제공합니다.',
+  'tab.commits': '커밋',
+  'tab.commits.desc': '커밋 제목의 Conventional Commits 유형과 범위.',
   'tab.backup.desc': '설정을 파일로 내보내고 다시 가져옵니다.',
   'tab.about.desc': '버전, 제작자와 소스 코드를 확인합니다.',
 
@@ -169,6 +171,13 @@ export default {
   'preview.counter': '{current} / {total}',
   'preview.lines': '{count}줄',
 
+  'commitBadges.enabled': '커밋 배지',
+  'commitBadges.enabledDesc': 'GitHub가 표시하는 모든 커밋 제목에 유형과 범위를 색상 라벨로 표시합니다.',
+  'commitBadges.unknownTypes': '알 수 없는 유형',
+  'commitBadges.unknownTypesDesc': '관례적인 유형 외의 유형도 꾸밉니다. 끄면 해당 커밋은 그대로 표시됩니다.',
+  'commitBadges.breaking': '호환되지 않는 변경 표시',
+  'commitBadges.breakingDesc': '접두사가 "!"로 끝나면 빨간 표시를 보여 줍니다.',
+  'commitBadges.legend': '관례적인 유형',
   'tab.translate': '번역',
   'tab.translate.desc': '페이지의 마크다운, 댓글, 커밋, 제목을 번역합니다.',
   'translate.enabled': '번역',

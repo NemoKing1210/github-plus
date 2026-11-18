@@ -28,6 +28,8 @@ export default {
   'tab.gallery.desc': 'Parcourir les images Markdown dans la visionneuse intégrée.',
   'tab.files': 'Fichiers',
   'tab.files.desc': 'Icônes, âge des commits, tailles, téléchargements, un menu contextuel et un aperçu rapide pour les fichiers listés par GitHub.',
+  'tab.commits': 'Commits',
+  'tab.commits.desc': 'Types et portées Conventional Commits dans les titres de commit.',
   'tab.backup.desc': 'Exporter les paramètres dans un fichier et les réimporter.',
   'tab.about.desc': 'Version, auteur et code source.',
 
@@ -169,6 +171,13 @@ export default {
   'preview.counter': '{current} / {total}',
   'preview.lines': '{count} lignes',
 
+  'commitBadges.enabled': 'Badges de commit',
+  'commitBadges.enabledDesc': 'Afficher le type et la portée du commit sous forme de pastille colorée dans chaque titre rendu par GitHub.',
+  'commitBadges.unknownTypes': 'Types inconnus',
+  'commitBadges.unknownTypesDesc': 'Styliser aussi les types hors du jeu conventionnel ; désactivé, ces commits restent simples.',
+  'commitBadges.breaking': 'Marqueur de changement incompatible',
+  'commitBadges.breakingDesc': 'Afficher un marqueur rouge lorsque le préfixe se termine par « ! ».',
+  'commitBadges.legend': 'Types conventionnels',
   'tab.translate': 'Traduction',
   'tab.translate.desc': 'Traduisez le markdown, les commentaires, les commits et les titres de la page.',
   'translate.enabled': 'Traduction',

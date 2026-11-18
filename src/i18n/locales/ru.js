@@ -28,6 +28,8 @@ export default {
   'tab.gallery.desc': 'Просмотр изображений из Markdown во встроенном просмотрщике.',
   'tab.files': 'Файлы',
   'tab.files.desc': 'Иконки, возраст коммитов, размеры, загрузки, контекстное меню и быстрый просмотр для файлов, которые показывает GitHub.',
+  'tab.commits': 'Коммиты',
+  'tab.commits.desc': 'Типы и области Conventional Commits в заголовках коммитов.',
   'tab.backup.desc': 'Экспорт настроек в файл и импорт обратно.',
   'tab.about.desc': 'Версия, автор и исходный код.',
 
@@ -169,6 +171,13 @@ export default {
   'preview.counter': '{current} / {total}',
   'preview.lines': '{count} строк',
 
+  'commitBadges.enabled': 'Бейджи коммитов',
+  'commitBadges.enabledDesc': 'Показывать типы и области коммитов цветной меткой в каждом заголовке, который отображает GitHub.',
+  'commitBadges.unknownTypes': 'Неизвестные типы',
+  'commitBadges.unknownTypesDesc': 'Оформлять и типы вне конвенционального набора; если выключить, такие коммиты останутся обычными.',
+  'commitBadges.breaking': 'Метка ломающего изменения',
+  'commitBadges.breakingDesc': 'Показывать красную метку, когда префикс заканчивается на «!».',
+  'commitBadges.legend': 'Конвенциональные типы',
   'tab.translate': 'Перевод',
   'tab.translate.desc': 'Переводите markdown, комментарии, коммиты и заголовки на странице.',
   'translate.enabled': 'Перевод',

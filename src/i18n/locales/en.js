@@ -28,6 +28,8 @@ export default {
   'tab.gallery.desc': 'Browse markdown images in the built-in viewer.',
   'tab.files': 'Files',
   'tab.files.desc': 'Icons, commit ages, sizes, downloads, a context menu and a quick preview for the files GitHub lists.',
+  'tab.commits': 'Commits',
+  'tab.commits.desc': 'Conventional Commit types and scopes on commit subjects.',
   'tab.backup.desc': 'Export settings to a file and import them back.',
   'tab.about.desc': 'Version, author and source code.',
 
@@ -169,6 +171,13 @@ export default {
   'preview.counter': '{current} / {total}',
   'preview.lines': '{count} lines',
 
+  'commitBadges.enabled': 'Commit badges',
+  'commitBadges.enabledDesc': 'Show commit types and scopes as a colored token on every commit subject GitHub renders.',
+  'commitBadges.unknownTypes': 'Unknown types',
+  'commitBadges.unknownTypesDesc': 'Style types outside the conventional set too; turning this off leaves those commits plain.',
+  'commitBadges.breaking': 'Breaking-change marker',
+  'commitBadges.breakingDesc': 'Show a red marker when the prefix ends with “!”.',
+  'commitBadges.legend': 'Conventional types',
   'tab.translate': 'Translation',
   'tab.translate.desc': 'Translate markdown, comments, commits and titles on the page.',
   'translate.enabled': 'Translation',

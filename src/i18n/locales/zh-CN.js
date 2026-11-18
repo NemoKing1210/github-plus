@@ -28,6 +28,8 @@ export default {
   'tab.gallery.desc': '在内置查看器中浏览 Markdown 图片。',
   'tab.files': '文件',
   'tab.files.desc': '为 GitHub 列出的文件提供图标、提交时间、大小、下载、右键菜单和快速预览。',
+  'tab.commits': '提交',
+  'tab.commits.desc': '提交标题中的 Conventional Commits 类型和范围。',
   'tab.backup.desc': '将设置导出为文件并重新导入。',
   'tab.about.desc': '版本、作者和源代码。',
 
@@ -169,6 +171,13 @@ export default {
   'preview.counter': '{current} / {total}',
   'preview.lines': '{count} 行',
 
+  'commitBadges.enabled': '提交徽章',
+  'commitBadges.enabledDesc': '在 GitHub 渲染的每个提交标题中以彩色标签显示提交类型和范围。',
+  'commitBadges.unknownTypes': '未知类型',
+  'commitBadges.unknownTypesDesc': '也为常规集合之外的类型添加样式；关闭后这些提交保持原样。',
+  'commitBadges.breaking': '破坏性变更标记',
+  'commitBadges.breakingDesc': '当前缀以“!”结尾时显示红色标记。',
+  'commitBadges.legend': '常规类型',
   'tab.translate': '翻译',
   'tab.translate.desc': '翻译页面上的 Markdown、评论、提交和标题。',
   'translate.enabled': '翻译',

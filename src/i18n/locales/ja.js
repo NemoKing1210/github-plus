@@ -28,6 +28,8 @@ export default {
   'tab.gallery.desc': '組み込みビューアで Markdown 画像を閲覧します。',
   'tab.files': 'ファイル',
   'tab.files.desc': 'GitHub が一覧表示するファイルに、アイコン、コミット日時、サイズ、ダウンロード、コンテキストメニュー、クイックプレビューを追加します。',
+  'tab.commits': 'コミット',
+  'tab.commits.desc': 'コミット件名の Conventional Commits の型とスコープ。',
   'tab.backup.desc': '設定をファイルにエクスポートし、インポートして復元します。',
   'tab.about.desc': 'バージョン、作者、ソースコード。',
 
@@ -169,6 +171,13 @@ export default {
   'preview.counter': '{current} / {total}',
   'preview.lines': '{count} 行',
 
+  'commitBadges.enabled': 'コミットバッジ',
+  'commitBadges.enabledDesc': 'GitHub が表示するすべてのコミット件名で、型とスコープを色付きのラベルとして表示します。',
+  'commitBadges.unknownTypes': '不明な型',
+  'commitBadges.unknownTypesDesc': '慣例的な型以外にもスタイルを適用します。オフにするとそれらのコミットはそのまま表示されます。',
+  'commitBadges.breaking': '破壊的変更のマーカー',
+  'commitBadges.breakingDesc': 'プレフィックスが「!」で終わるときに赤いマーカーを表示します。',
+  'commitBadges.legend': '慣例的な型',
   'tab.translate': '翻訳',
   'tab.translate.desc': 'ページ上の Markdown、コメント、コミット、タイトルを翻訳します。',
   'translate.enabled': '翻訳',
