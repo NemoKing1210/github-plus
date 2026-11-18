@@ -1,4 +1,5 @@
 import { getTranslateSettings } from '../../core/settings.js';
+import { emit } from '../../core/bus.js';
 import { Codes, createLogger } from '../../core/logger/index.js';
 import { getLocale, t } from '../../i18n/index.js';
 import { toArray } from '../../utils/dom.js';
@@ -29,6 +30,9 @@ function restorePainted(state) {
     if (el && originalHtml !== null && originalHtml !== undefined) el.innerHTML = originalHtml;
   });
   state.painted = [];
+  // The restored HTML is GitHub's original, which may carry decorations that
+  // were disabled while the translation was showing.
+  emit('translate:restored', { container: state.container });
 }
 
 /**

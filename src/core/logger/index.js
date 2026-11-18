@@ -43,6 +43,8 @@ export const Codes = {
   PALETTE_LOAD: 'GP-1701',
   /** Reading or persisting the palette cache failed. */
   PALETTE_CACHE: 'GP-1702',
+  /** A commit-badge surface or its selectors failed. */
+  COMMIT_BADGES: 'GP-1801',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
   /** An uncaught runtime error attributable to this script. */

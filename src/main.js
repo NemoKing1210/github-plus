@@ -11,6 +11,7 @@ import { applyFileMetaSettings, initFileMetaFeature } from './features/fileMeta/
 import { applyFileMenuSettings, initFileMenuFeature } from './features/fileMenu/index.js';
 import { applyFilePreviewSettings, initFilePreviewFeature } from './features/filePreview/index.js';
 import { applyTranslateSettings, initTranslateFeature } from './features/translate/index.js';
+import { applyCommitBadgesSettings, initCommitBadgesFeature } from './features/commitBadges/index.js';
 import { applyCommandPaletteSettings, initCommandPaletteFeature } from './features/commandPalette/index.js';
 import { applyGallerySettings, initGalleryFeature } from './gallery/index.js';
 import { closeFilePreview, isFilePreviewOpen } from './ui/filePreview.js';
@@ -56,6 +57,8 @@ function init() {
   applyFilePreviewSettings();
   initTranslateFeature();
   applyTranslateSettings();
+  initCommitBadgesFeature();
+  applyCommitBadgesSettings();
   initCommandPaletteFeature();
   applyCommandPaletteSettings();
   watchNavigation(resetOverlaysOnNavigation);

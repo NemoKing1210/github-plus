@@ -508,3 +508,16 @@ test('a plain-text file keeps its lines and shows the translation below', async 
   host.remove();
   slot.remove();
 });
+
+test('restoring a translated container emits translate:restored', async () => {
+  const { on } = await import('../src/core/bus.js');
+  const seen = [];
+  const off = on('translate:restored', (payload) => seen.push(payload));
+  const state = ensureContainer(container, surface);
+  await runContainer(state, { translate: upper });
+  toggleContainer(state);
+  off();
+  assert.ok(seen.length > 0);
+  assert.equal(seen.at(-1).container, container);
+  teardownAllContainers();
+});
