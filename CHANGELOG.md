@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-11-18
+
+### Added
+
+- Conventional Commit subjects show their type and scope as a two-tone token
+  on the commit history, a pull request's Commits tab, the single-commit page
+  and the repository home's latest-commit block. Known types get their own
+  color, unknown lowercase types get a neutral one, and a red marker calls out
+  a breaking change; the subject text itself is unchanged
+
+[0.29.0]: https://github.com/NemoKing1210/github-plus/compare/v0.28.0...v0.29.0
+
 ## [0.28.0] - 2026-11-18
 
 ### Added
