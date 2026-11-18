@@ -2,8 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 globalThis.localStorage = { getItem: () => null, setItem() {} };
+globalThis.location = { href: 'https://github.com/' };
+globalThis.document = {
+  querySelector: (selector) => (
+    selector === 'meta[name="user-login"]'
+      ? { getAttribute: () => 'alice' }
+      : null
+  ),
+};
 
-const { issueCandidates, normalizeIssue } = await import('../src/features/commandPalette/issues.js');
+const { issueCandidates, normalizeIssue, ensureIssues } = await import('../src/features/commandPalette/issues.js');
 
 test('pull requests and issues share a shape and a badge', () => {
   const pr = normalizeIssue({ number: 7, title: 'Fix it', html_url: 'https://github.com/o/r/pull/7', user: { login: 'ann' }, updated_at: '2026-11-01T00:00:00Z', pull_request: {} }, 'o/r');
@@ -28,4 +36,28 @@ test('candidates are labelled with number and author', () => {
   assert.match(item.title, /^#7 /);
   assert.ok(item.badges.includes('pullRequest'));
   assert.equal(item.data.run.url, 'https://github.com/o/r/pull/7');
+});
+
+test('issue rows can be built for an explicit repository', () => {
+  const state = {
+    settings: { sources: { issues: true } },
+    context: { repo: 'o/page' },
+    cache: { issues: { 'o/other': { items: [
+      { number: 7, title: 'Scoped bug', url: 'u', author: 'a', updatedAt: '2026-11-01T00:00:00Z', kindLabel: 'issue', comments: 0, repo: 'o/other' },
+    ] } } },
+  };
+  const rows = issueCandidates(state, { repo: 'o/other' });
+  assert.equal(rows[0].key, 'issue:o/other#7');
+});
+
+test('ensureIssues loads an explicit repository', async () => {
+  const urls = [];
+  globalThis.GM_xmlhttpRequest = (options) => {
+    urls.push(options.url);
+    options.onload({ status: 200, responseText: '[]', responseHeaders: '' });
+  };
+  const result = await ensureIssues({ repo: 'o/other' });
+  assert.equal(result.status, 'updated');
+  assert.ok(urls.some((url) => url.includes('/repos/o/other/issues')));
+  delete globalThis.GM_xmlhttpRequest;
 });

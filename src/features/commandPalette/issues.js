@@ -70,14 +70,14 @@ function buildIssueCandidate(item, repo) {
   };
 }
 
-/** Open issues and pull requests of the repository the page shows. */
-export function issueCandidates(state) {
+/** Open issues and pull requests of the requested repository, or the page's own. */
+export function issueCandidates(state, { repo } = {}) {
   if (state?.settings?.sources?.issues === false) return [];
-  const repo = state?.context?.repo;
-  if (!repo) return [];
-  const record = state?.cache?.issues?.[issueKey(repo)];
+  const targetRepo = repo || state?.context?.repo;
+  if (!targetRepo) return [];
+  const record = state?.cache?.issues?.[issueKey(targetRepo)];
   const items = Array.isArray(record?.items) ? record.items : [];
-  return items.map((item) => buildIssueCandidate(item, repo));
+  return items.map((item) => buildIssueCandidate(item, targetRepo));
 }
 
 function persistIssues(state, repo, record, rateLimit) {
@@ -171,20 +171,20 @@ async function loadIssues(state, { repo, force, signal }) {
 }
 
 /**
- * Load the current repository's issues once, revalidating the cached copy.
+ * Load the requested repository's issues once, revalidating the cached copy.
  * Concurrent callers for the same repository and token share the load.
  */
-export function ensureIssues({ force = false, signal } = {}) {
+export function ensureIssues({ repo, force = false, signal } = {}) {
   const state = readPaletteState();
-  const repo = state.context.repo;
-  if (!repo) return Promise.resolve({ status: 'unavailable' });
+  const targetRepo = repo || state.context.repo;
+  if (!targetRepo) return Promise.resolve({ status: 'unavailable' });
   if (state.settings.sources.issues === false) return Promise.resolve({ status: 'disabled' });
   if (!state.identity) return Promise.resolve({ status: 'anonymous' });
 
-  const key = `${issueKey(repo)}|${state.fingerprint}`;
+  const key = `${issueKey(targetRepo)}|${state.fingerprint}`;
   const running = inflight.get(key);
   if (running) return running;
-  const promise = loadIssues(state, { repo, force, signal }).finally(() => {
+  const promise = loadIssues(state, { repo: targetRepo, force, signal }).finally(() => {
     inflight.delete(key);
   });
   inflight.set(key, promise);

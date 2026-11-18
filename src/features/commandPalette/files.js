@@ -82,20 +82,20 @@ function treeRecordFor(state, key) {
   return state.cache?.trees?.[key] || null;
 }
 
-/** File rows for the repository and ref the page shows. */
-export function fileCandidates(state) {
+/** File rows for the requested repository and ref, or the page's own. */
+export function fileCandidates(state, { repo, ref } = {}) {
   if (state?.settings?.sources?.files === false) return [];
-  const repo = state?.context?.repo;
-  const ref = state?.context?.ref;
-  if (!repo || !ref) return [];
-  const tree = treeRecordFor(state, treeKey(repo, ref));
+  const targetRepo = repo || state?.context?.repo;
+  const targetRef = ref || state?.context?.ref;
+  if (!targetRepo || !targetRef) return [];
+  const tree = treeRecordFor(state, treeKey(targetRepo, targetRef));
   if (!tree || !Array.isArray(tree.items)) return [];
 
   const items = [...tree.items].sort((left, right) => {
     if (left.path === right.path) return 0;
     return left.path < right.path ? -1 : 1;
   });
-  return items.map((item) => buildFileCandidate(item, repo, ref));
+  return items.map((item) => buildFileCandidate(item, targetRepo, targetRef));
 }
 
 function persistTree(state, key, record, rateLimit) {
@@ -202,21 +202,21 @@ async function loadTree(state, { repo, ref, force, signal }) {
 }
 
 /**
- * Load the current repository's tree once, revalidating the cached copy.
- * Concurrent callers for the same tree and token share the in-flight load.
+ * Load a tree once, revalidating the cached copy. Concurrent callers for the
+ * same tree and token share the in-flight load.
  */
-export function ensureTree({ force = false, signal } = {}) {
+export function ensureTree({ repo, ref, force = false, signal } = {}) {
   const state = readPaletteState();
-  const repo = state.context.repo;
-  const ref = state.context.ref;
-  if (!repo || !ref) return Promise.resolve({ status: 'unavailable' });
+  const targetRepo = repo || state.context.repo;
+  const targetRef = ref || state.context.ref;
+  if (!targetRepo || !targetRef) return Promise.resolve({ status: 'unavailable' });
   if (state.settings.sources.files === false) return Promise.resolve({ status: 'disabled' });
   if (!state.identity) return Promise.resolve({ status: 'anonymous' });
 
-  const key = `${treeKey(repo, ref)}|${state.fingerprint}`;
+  const key = `${treeKey(targetRepo, targetRef)}|${state.fingerprint}`;
   const running = inflight.get(key);
   if (running) return running;
-  const promise = loadTree(state, { repo, ref, force, signal }).finally(() => {
+  const promise = loadTree(state, { repo: targetRepo, ref: targetRef, force, signal }).finally(() => {
     inflight.delete(key);
   });
   inflight.set(key, promise);

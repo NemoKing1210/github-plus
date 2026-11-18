@@ -75,6 +75,36 @@ test('fileCandidates honor the files switch and a missing tree', () => {
   assert.deepEqual(fileCandidates(state), []);
 });
 
+test('file rows can be built for an explicit repository and HEAD', () => {
+  const state = {
+    context: { repo: 'o/page', ref: 'main' },
+    settings: { sources: { files: true } },
+    cache: { trees: { [treeKey('o/other', 'HEAD')]: { items: [
+      { path: 'src/x.js', type: 'blob', size: 12 },
+    ] } } },
+  };
+  const rows = fileCandidates(state, { repo: 'o/other', ref: 'HEAD' });
+  assert.equal(rows[0].key, 'file:o/other@HEAD:src/x.js');
+  assert.equal(rows[0].data.url, 'https://github.com/o/other/blob/HEAD/src/x.js');
+});
+
+test('ensureTree loads an explicit repository at HEAD', async () => {
+  const urls = [];
+  globalThis.GM_xmlhttpRequest = (options) => {
+    urls.push(options.url);
+    options.onload({
+      status: 200,
+      responseText: JSON.stringify({ truncated: false, tree: [{ path: 'a.js', type: 'blob', size: 10 }] }),
+      responseHeaders: '',
+    });
+  };
+  const result = await ensureTree({ repo: 'o/other', ref: 'HEAD' });
+  assert.equal(result.status, 'updated');
+  assert.ok(urls.some((url) => url.includes('/repos/o/other/git/trees/HEAD')));
+  delete globalThis.GM_xmlhttpRequest;
+  files.forgetTrees();
+});
+
 test('clearing the cache also drops the trees held for the session', async () => {
   globalThis.GM_xmlhttpRequest = (options) => options.onload({
     status: 200,
