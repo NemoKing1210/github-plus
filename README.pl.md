@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.22.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.22.2-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
@@ -14,7 +14,7 @@ blame, rozmiary plików i pobieranie jednym kliknięciem, menu kontekstowe
 operacji na plikach, szybki podgląd dowolnego pliku i tłumaczenie treści na
 stronie.
 
-> **Status:** wczesny etap (`0.22.1`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.22.2`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Paleta · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary plików

@@ -527,18 +527,26 @@ report through it.
 one button into GitHub's header and returns `{ node, update(patch), remove() }`;
 `headerActionNode(id)` and `syncHeaderActions()` complete the API. `HEADER_TARGETS`
 is ordered most to least specific (`.AppHeader-globalBar-end`,
-`.AppHeader-globalBar`, `#user-links`). Actions are kept in one registry Map
+`.AppHeader-globalBar`, `#user-links`). When none matches, the registry falls
+back to the page's `header:not([data-marketing-header])` and mounts next to the
+signed-in avatar (found through `img.avatar`, an avatar test id, the profile
+link or a profile-labelled control), so a renamed header degrades to a
+different position instead of no entries at all. Actions are kept in one
+registry Map
 keyed by `id`, sorted by `order` (the palette is 10, settings 20), and mounted
-as siblings of GitHub's own actions — before `.AppHeader-user` when that is a
-child of the target, inside an `li.gp-header-item` when the target is a `ul`.
+as siblings of GitHub's own actions — before `.AppHeader-user` or the avatar
+anchor, inside an `li.gp-header-item` when the target is a `ul`.
 Every button carries `.gp-header-btn` plus its registered class, an icon
 `.gp-header-btn__icon` and the label as both `title` and `aria-label`, so
-`isOwnUi()` has one root class to scan. A sync re-mounts every registration
-(the registry is the source of truth, never stale DOM). The registry installs
-the watchers once on the first registration — direct-children observers on
-`<html>` and `<body>` for an app-shell swap, a bounded poll (12 × 500 ms) for a
-header rendered late, and one `watchNavigation` — never a document-wide
-observer. A page with no header target simply has no buttons until one appears.
+`isOwnUi()` has one root class to scan. A sync applies labels and then writes
+DOM only when a host is missing, detached, out of order or on the wrong side of
+the anchor — it never re-creates placed buttons. The registry installs the
+watchers once on the first registration — direct-children observers on `<html>`
+and `<body>` for an app-shell swap, a `childList` observer on the resolved
+header target so a React re-render that drops a button is repaired, a bounded
+poll (12 × 500 ms) for a header rendered late, and one `watchNavigation` — never
+a document-wide observer. A page with no header target simply has no buttons
+until one appears.
 
 ### `src/ui/contextMenu.js` — reusable menu
 
@@ -1769,8 +1777,11 @@ and check diagnostics for edited files.
   no-op — extend the registry, never add a document-wide observer.
 - Header entry missing: check which of `HEADER_TARGETS` exists on the page and
   that the registered button (`.gp-header-btn` with `.gp-settings-btn` /
-  `.gp-palette-btn`) is inside it. A header rework on GitHub's side is the
-  usual cause — extend the list, never restyle GitHub's own header. A page
+  `.gp-palette-btn`) is inside it or beside the avatar. A header rework on
+  GitHub's side is the
+  usual cause — extend `HEADER_TARGETS` (the avatar fallback already mounts
+  next to `img.avatar` on a renamed header), never restyle GitHub's own
+  header. A page
   with no target at all has no buttons until one appears; the registry's
   bounded poll and shell observers are what catch it.
 - File context menu not opening: check **File context menu** is on, the page is a

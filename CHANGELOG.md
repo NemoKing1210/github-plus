@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.2] - 2026-11-18
+
+### Fixed
+
+- The settings and command palette buttons no longer disappear when GitHub
+  renames its header containers: the registry falls back to the signed-in
+  avatar, so the entries mount next to it instead of nowhere
+- A header re-render that drops an entry is now repaired by an observer on the
+  header itself, and a sync no longer re-creates buttons that are already in
+  place
+
+[0.22.2]: https://github.com/NemoKing1210/github-plus/compare/v0.22.1...v0.22.2
+
 ## [0.22.1] - 2026-11-18
 
 ### Fixed

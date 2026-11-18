@@ -14,6 +14,16 @@ export const HEADER_TARGETS = [
   '#user-links',
 ];
 
+/** Avatar hooks used when GitHub renames the header containers. */
+const AVATAR_HOOKS = [
+  'img.avatar',
+  'img[class*="avatar" i]',
+  '[data-testid="github-avatar"]',
+  'a[href$="/settings/profile"]',
+  'button[aria-label*="profile" i]',
+  'summary[aria-label*="profile" i]',
+];
+
 const CHROME_DEBOUNCE_MS = 200;
 const HEADER_POLL_MS = 500;
 const HEADER_POLL_TRIES = 12;
@@ -26,13 +36,46 @@ let chromeBody = null;
 let rootObserver = null;
 let headerPoll = null;
 let navigationWatched = false;
+let headerObserver = null;
+let observedHeaderTarget = null;
+let headerAnchor = null;
+
+function findAvatarAnchor(header) {
+  for (const selector of AVATAR_HOOKS) {
+    const node = header.querySelector(selector);
+    if (!node) continue;
+    let anchor = node.closest('a, button, summary') || node;
+    while (anchor.parentElement && anchor.parentElement !== header && anchor.parentElement.children.length <= 1) {
+      anchor = anchor.parentElement;
+    }
+    return anchor;
+  }
+  return null;
+}
 
 function findHeaderTarget() {
   for (const selector of HEADER_TARGETS) {
     const node = document.querySelector(selector);
-    if (node) return node;
+    if (node) {
+      headerAnchor = null;
+      return node;
+    }
   }
-  return null;
+  // GitHub renames its header containers from time to time. The avatar is the
+  // one element every signed-in header keeps, so the fallback mounts next to
+  // it instead of leaving the page with no entries at all.
+  const header = document.querySelector('header:not([data-marketing-header])');
+  if (!header) {
+    headerAnchor = null;
+    return null;
+  }
+  const avatar = findAvatarAnchor(header);
+  if (avatar && avatar.parentElement) {
+    headerAnchor = avatar;
+    return avatar.parentElement;
+  }
+  headerAnchor = null;
+  return header;
 }
 
 function stopHeaderPoll() {
@@ -99,6 +142,23 @@ function apply(record) {
   }
 }
 
+function observeHeaderTarget(target) {
+  if (typeof MutationObserver !== 'function') return;
+  if (headerObserver && observedHeaderTarget === target) return;
+  if (headerObserver) headerObserver.disconnect();
+  observedHeaderTarget = target;
+  // A React re-render can drop our buttons without replacing the header; the
+  // sync below is idempotent, so its own inserts do not make this loop.
+  headerObserver = new MutationObserver(scheduleSync);
+  headerObserver.observe(target, { childList: true });
+}
+
+function stopHeaderObserver() {
+  if (headerObserver) headerObserver.disconnect();
+  headerObserver = null;
+  observedHeaderTarget = null;
+}
+
 function mountHost(target, record) {
   if (target.tagName !== 'UL') return record.node;
   const item = el('li', 'gp-header-item');
@@ -108,25 +168,61 @@ function mountHost(target, record) {
 
 /**
  * Mount, reorder or remove every registered action. Runs on boot, navigation,
- * an app-shell swap and every `update()`, so it is idempotent by construction.
+ * an app-shell swap and every `update()`. DOM writes happen only when a host is
+ * missing, detached, out of order or on the wrong side of the anchor, so the
+ * header observer can call it after every mutation without churning.
  */
 export function syncHeaderActions() {
-  for (const record of actions.values()) {
-    record.host?.remove();
-    record.host = null;
-    apply(record);
-  }
   const target = findHeaderTarget();
   if (!target) {
+    stopHeaderObserver();
     startHeaderPoll();
     return;
   }
   stopHeaderPoll();
+  observeHeaderTarget(target);
+
   const ordered = [...actions.values()]
     .filter((record) => record.visible)
     .sort((a, b) => a.order - b.order);
+  for (const record of actions.values()) apply(record);
+
+  const visible = new Set(ordered);
+  for (const record of actions.values()) {
+    if (visible.has(record)) continue;
+    record.host?.remove();
+    record.host = null;
+  }
+
   const userMenu = target.querySelector('.AppHeader-user');
-  const anchor = userMenu && userMenu.parentElement === target ? userMenu : null;
+  const anchor = headerAnchor && headerAnchor.parentElement === target
+    ? headerAnchor
+    : (userMenu && userMenu.parentElement === target ? userMenu : null);
+
+  let placed = true;
+  let previous = null;
+  for (const record of ordered) {
+    const host = record.host;
+    if (!host || !host.isConnected || host.parentElement !== target) {
+      placed = false;
+      break;
+    }
+    if (previous && !(previous.compareDocumentPosition(host) & 4)) {
+      placed = false;
+      break;
+    }
+    if (anchor && !(host.compareDocumentPosition(anchor) & 4)) {
+      placed = false;
+      break;
+    }
+    previous = host;
+  }
+  if (placed) return;
+
+  for (const record of ordered) {
+    record.host?.remove();
+    record.host = null;
+  }
   for (const record of ordered) {
     const host = mountHost(target, record);
     if (anchor) target.insertBefore(host, anchor);

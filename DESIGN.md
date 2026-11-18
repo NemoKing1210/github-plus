@@ -262,8 +262,9 @@ exists in `app.css` without a rule is listed as "structural".
 
 Both entries are built by `src/ui/headerActions.js`, which mounts registered
 actions into `.AppHeader-globalBar-end`, then `.AppHeader-globalBar`, then
-`#user-links`, sorts them by `order` and re-mounts them when GitHub swaps the
-header. Each button carries `title` and `aria-label` from its registered label.
+`#user-links`, and on a renamed header next to the avatar, sorts them by
+`order` and re-mounts them when GitHub swaps the header or a re-render drops
+one. Each button carries `title` and `aria-label` from its registered label.
 
 ### Settings entry — user menu row
 

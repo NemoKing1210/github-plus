@@ -61,3 +61,34 @@ test('a replaced body gets the actions again', async () => {
   assert.ok(document.querySelector('.gp-header-btn'));
   action.remove();
 });
+
+test('an unrecognized header mounts next to the avatar', () => {
+  document.body.innerHTML = '<header data-new-shell><div class="toolbar">'
+    + '<button class="utility">x</button>'
+    + '<button class="avatar-btn"><img class="avatar" src="a.png" alt=""></button>'
+    + '</div></header>';
+  const action = registerHeaderAction({ id: 'palette', order: 10, label: 'Palette', onClick: click });
+  syncHeaderActions();
+  const toolbar = document.querySelector('.toolbar');
+  const buttons = Array.from(toolbar.children);
+  const index = buttons.indexOf(action.node);
+  assert.notEqual(index, -1);
+  assert.ok(index < buttons.indexOf(document.querySelector('.avatar-btn')));
+  action.remove();
+});
+
+test('a header re-render brings the actions back', async () => {
+  document.body.innerHTML = '<header class="AppHeader"><div class="AppHeader-globalBar-end">'
+    + '<a class="AppHeader-user">me</a></div></header>';
+  const action = registerHeaderAction({ id: 'palette', order: 10, label: 'Palette', onClick: click });
+  syncHeaderActions();
+  // Let the body observer's pending sync for the header above finish first.
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  const end = document.querySelector('.AppHeader-globalBar-end');
+  end.replaceChildren(document.querySelector('.AppHeader-user'));
+  assert.equal(action.node.isConnected, false);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  assert.equal(action.node.isConnected, true);
+  assert.equal(action.node.parentElement, end);
+  action.remove();
+});
