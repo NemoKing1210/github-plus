@@ -118,3 +118,19 @@ test('translate:restored clears badges while disabled', () => {
   assert.equal(container.querySelector('.commit-title').textContent, 'fix: x');
   assert.match(container.textContent, /body$/);
 });
+
+test('a re-render that drops the badge but keeps the text re-decorates it', async () => {
+  saveSettings({ commitBadges: { enabled: true } });
+  applyCommitBadgesSettings();
+  const title = document.querySelector('#list-title');
+  title.textContent = 'fix(core): y';
+  await sleep(250);
+  assert.ok(title.querySelector('.gp-commit-type--fix'));
+
+  // React replacing the title's children puts the plain subject back: the
+  // badge is gone while the text still matches the stored signature.
+  title.replaceChildren(document.createTextNode('fix(core): y'));
+  await sleep(250);
+  assert.ok(title.querySelector('.gp-commit-type--fix'));
+  assert.equal(title.textContent, 'fix(core): y');
+});

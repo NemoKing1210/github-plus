@@ -38,7 +38,10 @@ let noSurfaceReported = false;
 
 function processTitle(title, settings) {
   const current = title.textContent;
-  if (decorated.get(title) === current) return;
+  // A re-render can drop our spans while putting the same text back, so the
+  // signature alone does not prove the badge survived: only an unchanged text
+  // with the badge still in the DOM is current.
+  if (decorated.get(title) === current && hasCommitBadge(title)) return;
 
   // A recycled row can change its subject while our wrapper is still in the
   // DOM; unwrap first so the parse sees the plain text, never our markup.

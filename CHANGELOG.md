@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.1] - 2026-11-18
+
+### Fixed
+
+- Commit badges no longer disappear when GitHub re-renders a commit subject
+  with the same text: the feature checks the token is still in the page instead
+  of trusting the cached text alone
+
+[0.29.1]: https://github.com/NemoKing1210/github-plus/compare/v0.29.0...v0.29.1
+
 ## [0.29.0] - 2026-11-18
 
 ### Added
