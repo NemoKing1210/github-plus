@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.1] - 2026-11-18
+
+### Fixed
+
+- The **Check token** and **Remove token** buttons on the command palette's
+  settings page no longer touch: the row's button group now wraps and keeps an
+  8px gap between its buttons
+
+[0.22.1]: https://github.com/NemoKing1210/github-plus/compare/v0.22.0...v0.22.1
+
 ## [0.22.0] - 2026-11-18
 
 ### Added

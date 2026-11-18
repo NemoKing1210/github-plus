@@ -364,6 +364,7 @@ between pages with wrap-around.
 | `.gp-row__text` | `flex: 1 1 auto`, column, `gap: 2px`, `min-width: 0` |
 | `.gp-row__label` / `.gp-row__hint` | `14px/500` strong / `12px` muted |
 | `.gp-row__control` | `flex: 0 0 auto`, flex, `gap: 8px` |
+| `.gp-row__buttons` | A group of row-level buttons (the token controls): flex, wraps, `gap: 8px` |
 | `.gp-hint` | Standalone `12px/1.5` muted paragraph |
 | `.gp-field` | Stacked column, `gap: 6px`, `padding: 12px 16px`, bottom `1px var(--gp-line)` (last child `0`) |
 | `.gp-field__label` | `13px/600` strong |

@@ -621,6 +621,11 @@ html.gp-modal-open body {
   min-width: 0;
   flex: 1 1 auto;
 }
+.gp-row__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .gp-row__label {
   color: var(--gp-text);
   font-size: 14px;
