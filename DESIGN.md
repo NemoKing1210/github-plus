@@ -844,22 +844,32 @@ the script may paint above it; the shared `--gp-scrim` is the same as every
 other overlay, but the palette adds no backdrop blur, so the page behind it
 stays legible. Width is
 `min(760px, calc(100vw - 32px))` and height `max-height: 72vh`, so a long list
-scrolls inside the card while the footer stays put. Everything is
+scrolls inside the card while the tip strip stays put. Everything is
 `var(--gp-*)` — no raw hex, no page selectors.
+
+The card has three bands: the field (optional scope chip, query, `Esc` chip),
+the scrolling list, and the tip strip. There is no details aside and no footer:
+a row's details and actions open in an inline expansion directly under that
+row, and the tip strip is the only chrome below the list. Details are therefore
+never hidden behind a second scroll area, and the list keeps the full card
+width at every size.
 
 | Class | Rules |
 |---|---|
 | `.gp-command-overlay` | Fixed inset, `display: grid`, `place-items: start center`, `padding-top: 12vh`, `var(--gp-scrim)`, `z-index: 1000005`, `gp-command-fade` |
 | `.gp-command` | Column flex, `min(760px, calc(100vw - 32px))`, `max-height: 72vh`, `overflow: hidden`, `var(--gp-bg-1)`, 1px `var(--gp-border)`, `var(--gp-radius-lg)`, `var(--gp-shadow-float)`, `gp-command-in` |
-| `.gp-command--compact` | `min(560px, calc(100vw - 24px))` — used when the details pane is off at open time |
-| `.gp-command__field` | Input row: `12px 14px`, 8px gap, bottom border on `var(--gp-line)`; a 16px muted search glyph, the input and the shortcut chips |
+| `.gp-command__field` | Input row: `12px 14px`, 8px gap, bottom border on `var(--gp-line)`; the scope chip when set, a 16px muted search glyph, the input and the `Esc` chip |
 | `.gp-command__input` | Borderless, transparent, `font-size: 16px` (so iOS does not zoom), accent-colored caret inherited from the page; its `:focus-visible` outline is suppressed because the whole row is the field |
 | `.gp-command__kbd` | Shortcut chip: `11px` mono `var(--gp-text-muted)` on `var(--gp-bg-2)` with a `var(--gp-border)` edge |
-| `.gp-command__bar` | A `2px` progress strip under the field, transparent when idle; `.is-loading` paints an accent gradient that sweeps (`gp-command-progress`), the only motion while a source refreshes |
-| `.gp-command__main` | The stacked body: column flex — the list on top, the details pane under it; both scroll independently |
-| `.gp-command__list` | `flex: 1`, `min-height: 0`, `overflow-y: auto`, `6px` padding — it takes whatever the details pane leaves |
+| `.gp-command__scope` | The active scope as a pill inside the field: bordered `var(--gp-bg-2)`, 999px radius, 13px label clipped to 40% of the row, hover moves the border to `var(--gp-accent)`; a 12px `×` in `var(--gp-text-muted)` closes it |
+| `.gp-command__bar` | A `2px` progress line pinned to the top edge of the tip strip, transparent when idle; `.is-loading` paints an accent gradient that sweeps (`gp-command-progress`), the only motion while a source refreshes |
+| `.gp-command__main` | The scrolling body: column flex, `min-height: 0`; holds only the list |
+| `.gp-command__list` | `flex: 1`, `min-height: 0`, `overflow-y: auto`, `6px` padding — it takes the height the tip strip leaves |
+| `.gp-command__tip` | The single line under the list: `8px 14px`, top border on `var(--gp-line)`, `var(--gp-bg-2)`, 12px muted text; the hint text on the left, a help pill next to it and the status note pushed right |
+| `.gp-command__tip-help` | A `11px` text pill around the help hint: transparent, muted, hover fills `var(--gp-bg-1)`; hidden when the palette has no help map |
+| `.gp-command__tip-note` | The source status (offline, rate limit, truncated tree) in 12px muted text, `margin-left: auto`, never wrapping |
 | `.gp-command__group-title` | Group heading: `11px`/600 uppercase, `0.04em` tracking, `var(--gp-text-muted)` |
-| `.gp-command__row` | One result: grid `20px auto minmax(0, 1fr) auto auto` (icon, muted prefix, title, badges, meta), 8px gaps, `8px 10px`, `var(--gp-radius)`, pointer cursor |
+| `.gp-command__row` | One result: grid `20px auto minmax(0, 1fr) auto auto auto 20px` (icon, muted prefix, title, badges, meta, key hints, chevron), 8px gaps, `8px 10px`, `var(--gp-radius)`, pointer cursor |
 | `.gp-command__row[aria-selected="true"]`, `.is-active` | The active row fills with `var(--gp-accent-soft)` and its icon and title take `var(--gp-accent)`; no border or outline is drawn, so a moving selection never shifts the list |
 | `.gp-command__muted` | The muted prefix (a starred marker, a command's scope) in `13px` `var(--gp-text-muted)`, never wrapping |
 | `.gp-command__title` | `14px`, one line, ellipsized |
@@ -867,26 +877,33 @@ scrolls inside the card while the footer stays put. Everything is
 | `.gp-command__mark` | A matched range: `var(--gp-accent)` and 600 weight on a transparent background — a highlight, not a chip |
 | `.gp-command__badge` | Pill `11px` on `var(--gp-bg-2)`, `999px` radius; inside the active row it flips to `var(--gp-bg-1)` so it stays legible on the accent tint |
 | `.gp-command__meta` | Right-hand metadata (stars, size, shortcut) in `12px` tabular `var(--gp-text-muted)` |
-| `.gp-command__row--menued` | The row grid plus a `28px` trailing column for the row-menu button |
-| `.gp-command__more` | `24×24` icon-only `⋯` button in that column: transparent, `var(--gp-text-muted)`, `24px` radius `var(--gp-radius)`; invisible and untargetable until the row is hovered, active or the button is focus-visible, so it never changes the row's height and an untouched row cannot hit it by accident |
-| `.gp-command__detail` | The details pane under the list: `flex: none`, `max-height: 240px`, `12px 14px` padding, top border on `var(--gp-line)`, own scroll; `[hidden]` when the pane is off |
-| `.gp-command__list` / `__detail` scrollbars | Thin and themed: `scrollbar-width: thin` with a `var(--gp-border)` thumb on a transparent track (Firefox); a 10px WebKit scrollbar whose rounded thumb is `var(--gp-border)` inside a 3px transparent inset, `var(--gp-text-muted)` on hover |
+| `.gp-command__hint` | The active row's key hints (`↵ open · Tab inside · → details`) in `11px` `var(--gp-text-muted)`; hidden on every other row and below `760px`, so the list never carries a second line |
+| `.gp-command__chev` | A `20×20` transparent glyph button in the trailing column: `var(--gp-text-muted)`, 14px chevron that rotates 90° while `aria-expanded="true"`; invisible and untargetable until the row is hovered, active or the button is focus-visible |
+| `.gp-command__expansion` | The open row's details directly under it: `margin: 0 12px 6px 44px` (aligned past the icon), `10px 12px`, `var(--gp-bg-2)`, a 2px `var(--gp-accent)` left rule and an 8px right radius — an annotation attached to the row, not a second card |
+| `.gp-command__expansion .gp-detail__*` | The same detail markup as before, compacted: a `14px` title, and the action buttons laid out in a wrapping flex row instead of a stack, each on `var(--gp-bg-1)` with a `var(--gp-border)` edge |
+| `.gp-command__list` scrollbar | Thin and themed: `scrollbar-width: thin` with a `var(--gp-border)` thumb on a transparent track (Firefox); a 10px WebKit scrollbar whose rounded thumb is `var(--gp-border)` inside a 3px transparent inset, `var(--gp-text-muted)` on hover |
+| `.gp-command__help` | The `?` help popover anchored under the field (`top: 52px`, 14px side insets, `z-index: 2`): bordered `var(--gp-bg-1)` card with `var(--gp-shadow-float)`, a grid of prefix lines, key rows and the one-line shortcut summary |
+| `.gp-command__help-title` | `11px`/600 uppercase `0.04em` muted heading |
+| `.gp-command__help-prefix` | One prefix line (`> commands`) in mono `12px` `var(--gp-text)` |
+| `.gp-command__help-row` | A key row: flex, 8px gap |
+| `.gp-command__help-key` | The keycap: at least `44px` wide, bordered `var(--gp-bg-2)`, mono `11px` muted, centred |
+| `.gp-command__help-keys` | The shortcut summary under a `var(--gp-line)` divider, 12px muted |
 | `.gp-detail__title` / `__desc` | `15px`/600 title with `overflow-wrap: anywhere`, then a `13px`/1.45 muted description |
 | `.gp-detail__facts` / `__fact` / `__dot` | Fact rows (`12px` muted with a 14px glyph); the language dot is an 8px `var(--gp-accent)` circle |
 | `.gp-detail__tags` / `__tag` | Visibility and state tags as `11px` pills on `var(--gp-bg-2)`, wrapping |
 | `.gp-detail__shortcut` / `__kbd` | A command's shortcut in the same mono chip as the field |
-| `.gp-detail__actions` / `__action` | Full-width text buttons, `13px`, transparent with a transparent 1px edge; hover fills `var(--gp-bg-2)` and shows the border, `:focus-visible` takes the `var(--gp-focus)` outline |
-| `.gp-command__foot` | Footer bar: `8px 14px`, top border on `var(--gp-line)`, `12px` muted text, hints at the ends |
+| `.gp-detail__actions` / `__action` | Text buttons, `13px`, transparent with a transparent 1px edge; hover fills `var(--gp-bg-2)` and shows the border, `:focus-visible` takes the `var(--gp-focus)` outline. Outside the palette they stack full width; the expansion lays them out in a row |
 | `.gp-command__empty` | Centered empty state (`32px 16px`): muted glyph, a `14px`/600 `var(--gp-text)` title and a `13px` hint |
 | `.gp-command__announcer` | Visually hidden `aria-live="polite"` region for the result count; never styled into the layout |
 
 Motion is one 120 ms fade for the scrim and a 120 ms fade plus a `-2px` rise
-for the card; closing fades the overlay for 120 ms before it is removed. Under
-`prefers-reduced-motion: reduce` the overlay, card and progress sweep drop
-their animations, so the palette still opens and closes, it just appears.
-Below `760px` the details pane is hidden regardless of the setting; below
-`520px` the card moves to `6vh` and keeps an
-8px gutter (`calc(100vw - 16px)`).
+for the card; closing fades the overlay for 120 ms before it is removed. A
+chevron rotates over 120 ms when its row expands, and that rotation is the only
+motion the expansion adds. Under `prefers-reduced-motion: reduce` the overlay,
+card and progress sweep drop their animations, so the palette still opens and
+closes, it just appears. Below `760px` the row hints are hidden; below `520px`
+the card moves to `6vh` and keeps an 8px gutter
+(`calc(100vw - 16px)`).
 
 ## 7. States
 
@@ -1004,7 +1021,6 @@ rather than a dialog:
 
 | Selector | Change |
 |---|---|
-| `.gp-command__detail` (≤760px) | `display: none`, regardless of `commandPalette.showDetails` — a stacked pane would crowd the list out of the card |
 | `.gp-command-overlay` (≤520px) | `padding-top: 6vh` — a short viewport cannot spare 12% above the card |
 | `.gp-command` (≤520px) | `calc(100vw - 16px)` — an 8px gutter instead of 16px |
 

@@ -3036,8 +3036,9 @@ audio.gp-preview__media {
 }
 
 /* == Command palette ====================================================== */
-/* A modal search surface: one input, a grouped list and a details pane. It
-   sits above every other overlay and owns no page markup. */
+/* A modal search surface: one input with an optional scope chip, a grouped
+   list whose active row expands in place, and a tip strip. It sits above every
+   other overlay and owns no page markup. */
 .gp-command-overlay {
   position: fixed;
   inset: 0;
@@ -3050,6 +3051,7 @@ audio.gp-preview__media {
 }
 
 .gp-command {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: min(760px, calc(100vw - 32px));
@@ -3062,10 +3064,6 @@ audio.gp-preview__media {
   color: var(--gp-text);
   font-family: var(--gp-font);
   animation: gp-command-in 120ms ease-out;
-}
-
-.gp-command--compact {
-  width: min(560px, calc(100vw - 24px));
 }
 
 .gp-command-overlay.is-closing {
@@ -3112,6 +3110,48 @@ audio.gp-preview__media {
   outline: none;
 }
 
+.gp-command__scope {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  max-width: 40%;
+  padding: 2px 6px 2px 8px;
+  border: 1px solid var(--gp-border);
+  border-radius: 999px;
+  background: var(--gp-bg-2);
+  color: var(--gp-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.gp-command__scope:hover {
+  border-color: var(--gp-accent);
+  background: var(--gp-bg-1);
+}
+
+.gp-command__scope:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: 1px;
+}
+
+.gp-command__scope-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gp-command__scope-close {
+  display: inline-flex;
+  color: var(--gp-text-muted);
+}
+
+.gp-command__scope-close svg {
+  width: 12px;
+  height: 12px;
+}
+
 .gp-command__kbd {
   padding: 1px 6px;
   border: 1px solid var(--gp-border);
@@ -3123,6 +3163,10 @@ audio.gp-preview__media {
 }
 
 .gp-command__bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
   height: 2px;
   background: transparent;
 }
@@ -3139,6 +3183,53 @@ audio.gp-preview__media {
   flex: 1;
   flex-direction: column;
   min-height: 0;
+}
+
+.gp-command__tip {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--gp-line);
+  background: var(--gp-bg-2);
+  color: var(--gp-text-muted);
+  font-size: 12px;
+}
+
+.gp-command__tip-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gp-command__tip-help {
+  flex: none;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gp-text-muted);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.gp-command__tip-help[hidden] {
+  display: none;
+}
+
+.gp-command__tip-help:hover,
+.gp-command__tip-help:focus-visible {
+  background: var(--gp-bg-1);
+  color: var(--gp-text);
+}
+
+.gp-command__tip-note {
+  margin-left: auto;
+  color: var(--gp-text-muted);
+  white-space: nowrap;
 }
 
 .gp-command__list {
@@ -3159,7 +3250,7 @@ audio.gp-preview__media {
 
 .gp-command__row {
   display: grid;
-  grid-template-columns: 20px auto minmax(0, 1fr) auto auto;
+  grid-template-columns: 20px auto minmax(0, 1fr) auto auto auto 20px;
   gap: 8px;
   align-items: center;
   padding: 8px 10px;
@@ -3243,16 +3334,23 @@ audio.gp-preview__media {
   white-space: nowrap;
 }
 
-.gp-command__row--menued {
-  grid-template-columns: 20px auto minmax(0, 1fr) auto auto 28px;
+.gp-command__hint {
+  display: none;
+  color: var(--gp-text-muted);
+  font-size: 11px;
+  white-space: nowrap;
 }
 
-.gp-command__more {
+.gp-command__row[aria-selected="true"] .gp-command__hint {
+  display: inline;
+}
+
+.gp-command__chev {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border: 0;
   border-radius: var(--gp-radius);
@@ -3263,79 +3361,143 @@ audio.gp-preview__media {
   pointer-events: none;
 }
 
-.gp-command__more svg {
-  width: 16px;
-  height: 16px;
+.gp-command__chev svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 120ms ease;
 }
 
-.gp-command__row:hover .gp-command__more,
-.gp-command__row[aria-selected="true"] .gp-command__more,
-.gp-command__more:focus-visible {
+.gp-command__chev[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+.gp-command__row:hover .gp-command__chev,
+.gp-command__row[aria-selected="true"] .gp-command__chev,
+.gp-command__chev:focus-visible {
   opacity: 1;
   pointer-events: auto;
 }
 
-.gp-command__more:hover {
+.gp-command__chev:hover {
   background: var(--gp-bg-1);
   color: var(--gp-text);
 }
 
-.gp-command__detail {
-  flex: none;
-  max-height: 240px;
-  overflow-y: auto;
-  padding: 12px 14px;
-  border-top: 1px solid var(--gp-line);
+.gp-command__expansion {
+  margin: 0 12px 6px 44px;
+  padding: 10px 12px;
+  border-left: 2px solid var(--gp-accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--gp-bg-2);
 }
 
-.gp-command__detail[hidden] {
-  display: none;
+.gp-command__expansion .gp-detail__title {
+  margin-bottom: 4px;
+  font-size: 14px;
 }
 
-/* Thin themed scrollbars for the palette's two scroll areas. */
-.gp-command__list,
-.gp-command__detail {
+.gp-command__expansion .gp-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gp-command__expansion .gp-detail__action {
+  width: auto;
+  border-color: var(--gp-border);
+  background: var(--gp-bg-1);
+}
+
+.gp-command__expansion .gp-detail__action:hover {
+  border-color: var(--gp-accent);
+  background: var(--gp-bg-2);
+}
+
+/* Thin themed scrollbar for the result list. */
+.gp-command__list {
   scrollbar-width: thin;
   scrollbar-color: var(--gp-border) transparent;
 }
 
-.gp-command__list::-webkit-scrollbar,
-.gp-command__detail::-webkit-scrollbar {
+.gp-command__list::-webkit-scrollbar {
   width: 10px;
 }
 
-.gp-command__list::-webkit-scrollbar-track,
-.gp-command__detail::-webkit-scrollbar-track {
+.gp-command__list::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.gp-command__list::-webkit-scrollbar-thumb,
-.gp-command__detail::-webkit-scrollbar-thumb {
+.gp-command__list::-webkit-scrollbar-thumb {
   border: 3px solid transparent;
   border-radius: 999px;
   background: var(--gp-border);
   background-clip: content-box;
 }
 
-.gp-command__list::-webkit-scrollbar-thumb:hover,
-.gp-command__detail::-webkit-scrollbar-thumb:hover {
+.gp-command__list::-webkit-scrollbar-thumb:hover {
   background: var(--gp-text-muted);
   background-clip: content-box;
 }
 
-.gp-command__no-selection {
-  margin: 0;
-  color: var(--gp-text-muted);
+.gp-command__help {
+  position: absolute;
+  top: 52px;
+  right: 14px;
+  left: 14px;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius-lg);
+  background: var(--gp-bg-1);
+  box-shadow: var(--gp-shadow-float);
+  color: var(--gp-text);
   font-size: 13px;
 }
 
-.gp-command__foot {
+.gp-command__help-title {
+  margin-bottom: 4px;
+  color: var(--gp-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gp-command__help-prefix {
+  color: var(--gp-text);
+  font-family: var(--gp-mono);
+  font-size: 12px;
+}
+
+.gp-command__help-row {
   display: flex;
-  flex: none;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 14px;
+  gap: 8px;
+}
+
+.gp-command__help-key {
+  min-width: 44px;
+  padding: 1px 6px;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-2);
+  color: var(--gp-text-muted);
+  font-family: var(--gp-mono);
+  font-size: 11px;
+  text-align: center;
+}
+
+.gp-command__help-label {
+  color: var(--gp-text);
+}
+
+.gp-command__help-keys {
+  margin-top: 6px;
+  padding-top: 8px;
   border-top: 1px solid var(--gp-line);
   color: var(--gp-text-muted);
   font-size: 12px;
@@ -3524,7 +3686,7 @@ audio.gp-preview__media {
 }
 
 @media (max-width: 760px) {
-  .gp-command__detail {
+  .gp-command__hint {
     display: none;
   }
 }

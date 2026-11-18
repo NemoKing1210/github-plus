@@ -1,4 +1,4 @@
-/** Presentation helpers shared by the palette shell and its details pane. */
+/** Presentation helpers shared by the palette rows and their expansion blocks. */
 
 /** Compact counts: plain below a thousand, one decimal above (`1.2k`, `12.3k`, `1.2M`). */
 export function formatCount(value) {
