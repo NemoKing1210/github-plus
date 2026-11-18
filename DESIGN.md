@@ -447,7 +447,8 @@ className)` is the only builder — pass a tone class, never restyle ad hoc.
 
 | Class | Rules |
 |---|---|
-| `.gp-grid` | `display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; padding: 12px 14px` |
+| `.gp-grid` | `display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; padding: 12px 16px` |
+| `.gp-grid--stack` | One full-width tile per row (`grid-template-columns: 1fr`); the palette's source card uses it, because its six labels and hints are long enough to wrap badly in three columns |
 | `.gp-grid__cell` | The cell is a `<label>`: flex, `align-items: flex-start`, `gap: 10px`, `padding: 10px 12px`, `1px var(--gp-line)`, `var(--gp-radius)`, `var(--gp-bg-2)` |
 | `.gp-grid__text` | Column, `gap: 2px`, `min-width: 0`, reusing `.gp-row__label` / `.gp-row__hint` for its two lines |
 
@@ -900,10 +901,14 @@ glyph, and a failed avatar borrows the glyph back rather than leaving a gap.
 | `.gp-command__empty` | Centered empty state (`32px 16px`): muted glyph, a `14px`/600 `var(--gp-text)` title and a `13px` hint |
 | `.gp-command__announcer` | Visually hidden `aria-live="polite"` region for the result count; never styled into the layout |
 
-Motion is one 120 ms fade for the scrim and a 120 ms fade plus a `-2px` rise
-for the card; closing fades the overlay for 120 ms before it is removed. Under
+Motion is a 160 ms fade for the scrim and a 200 ms settle for the card: it
+drops in from the page's top edge (`translateY(-10px) scale(0.985)` → rest,
+origin at `50% 0`) on `cubic-bezier(0.16, 1, 0.3, 1)`. Closing is a 140 ms
+exit — the scrim fades while the card lifts `-6px` and shrinks to `0.99` — and
+the overlay is removed after it. Under
 `prefers-reduced-motion: reduce` the overlay, card and progress sweep drop
-their animations, so the palette still opens and closes, it just appears. Below `760px` the row hints are hidden; below `520px`
+their animations and the closing transition, so the palette still opens and
+closes, it just appears. Below `760px` the row hints are hidden; below `520px`
 the card moves to `6vh` and keeps an 8px gutter
 (`calc(100% - 16px)`).
 
@@ -967,7 +972,7 @@ each is a per-instance value that CSS cannot know).
 | Controls | Border/fill changes on select, input, textarea, button, panel close, source tiles and the page download button take `0.12s` |
 | Viewer spinner | `gp-viewer-spin` — one rotation per `0.8s`, linear, infinite |
 | Hold ring | `gp-hold-fill` — `stroke-dashoffset: 100 → 0`, linear, duration from the inline `--gp-hold-duration` (the hold time minus the appearance delay) |
-| Command palette | `gp-command-fade` on the scrim and `gp-command-in` (fade + `translateY(-2px)` → rest) on the card, both `0.12s ease-out`; closing fades the overlay `0.12s ease-in` before removal |
+| Command palette | `gp-command-fade` on the scrim (`0.16s ease-out`) and `gp-command-in` on the card — fade + `translateY(-10px) scale(0.985)` → rest from a `50% 0` origin, `0.2s cubic-bezier(0.16, 1, 0.3, 1)`; closing fades the scrim and lifts the card `-6px` to `scale(0.99)` over `0.14s ease-in` before removal |
 | Palette progress | `gp-command-progress` — a 40%-wide accent gradient sweeping the 2px bar once per `1s`, linear, only while a source loads |
 
 - Hover on elements placed into GitHub's own chrome (the header button and the
@@ -1032,7 +1037,8 @@ Everything else is fluid by construction and must stay that way:
 - The panel is `min(900px, 100%)` wide and `min(86vh, 720px)` tall, so it
   shrinks before the breakpoint and only changes shape at it.
 - The sources grid reflows on its own (`repeat(auto-fit, minmax(180px, 1fr))`);
-  no media query is needed for new tiles.
+  no media query is needed for new tiles. A grid whose tiles carry long labels
+  takes `.gp-grid--stack` and keeps one full-width tile per row instead.
 - Toasts are `min(340px, calc(100% - 32px))` wide and pinned 16px from the
   corner.
 - The context menu sizes between `min(208px, calc(100% - 16px))` and

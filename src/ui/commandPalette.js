@@ -11,7 +11,7 @@ import { lockPageScroll, unlockPageScroll } from '../utils/scrollLock.js';
 import { PALETTE_ICONS } from './icons.js';
 import { closeContextMenu } from './contextMenu.js';
 
-const CLOSE_MS = 120;
+const CLOSE_MS = 140;
 const DEBOUNCE_MS = 80;
 
 let state = null;

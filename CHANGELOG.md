@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.3] - 2026-11-18
+
+### Changed
+
+- The palette has a softer entrance and exit: the card drops in from the page's
+  top edge and settles over 200 ms, and closing lifts it away with the scrim
+  instead of only fading
+
+[0.27.3]: https://github.com/NemoKing1210/github-plus/compare/v0.27.2...v0.27.3
+
+## [0.27.2] - 2026-11-18
+
+### Changed
+
+- The palette's source switches take the full width, one per row, so their
+  labels and hints stay on one or two lines instead of wrapping in three narrow
+  columns
+
+[0.27.2]: https://github.com/NemoKing1210/github-plus/compare/v0.27.1...v0.27.2
+
 ## [0.27.1] - 2026-11-18
 
 ### Changed

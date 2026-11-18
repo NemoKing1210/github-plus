@@ -224,7 +224,7 @@ function sourcesSection(draft) {
     hint: t('palette.sourcesDesc'),
   });
   const grid = document.createElement('div');
-  grid.className = 'gp-grid';
+  grid.className = 'gp-grid gp-grid--stack';
   for (const id of SOURCE_IDS) {
     grid.appendChild(createSwitchCell({
       checked: draft.commandPalette.sources[id] !== false,

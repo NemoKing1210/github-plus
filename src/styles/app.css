@@ -880,6 +880,11 @@ html.gp-modal-open body {
   gap: 8px;
   padding: 12px 16px;
 }
+/* The palette's source tiles carry two lines each, so they take the full width
+ * instead of splitting the row into three cramped columns. */
+.gp-grid--stack {
+  grid-template-columns: 1fr;
+}
 .gp-grid__cell {
   display: flex;
   align-items: flex-start;
@@ -3074,7 +3079,7 @@ audio.gp-preview__media {
   place-items: start center;
   padding-top: 12vh;
   background: var(--gp-scrim);
-  animation: gp-command-fade 120ms ease-out;
+  animation: gp-command-fade 160ms ease-out;
 }
 
 .gp-command {
@@ -3090,13 +3095,22 @@ audio.gp-preview__media {
   box-shadow: var(--gp-shadow-float);
   color: var(--gp-text);
   font-family: var(--gp-font);
-  animation: gp-command-in 120ms ease-out;
+  /* The card drops out of the page's top edge and settles: the origin sits on
+   * that edge, so the scale never grows it past the scrim's edges. */
+  transform-origin: 50% 0;
+  animation: gp-command-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .gp-command-overlay.is-closing {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 120ms ease-in;
+  transition: opacity 140ms ease-in;
+}
+
+.gp-command-overlay.is-closing .gp-command {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.99);
+  transition: opacity 140ms ease-in, transform 140ms ease-in;
 }
 
 .gp-command__field {
@@ -3508,7 +3522,7 @@ audio.gp-preview__media {
 @keyframes gp-command-in {
   from {
     opacity: 0;
-    transform: translateY(-2px);
+    transform: translateY(-10px) scale(0.985);
   }
 }
 
@@ -3526,6 +3540,11 @@ audio.gp-preview__media {
   .gp-command,
   .gp-command__bar.is-loading {
     animation: none;
+  }
+
+  .gp-command-overlay.is-closing,
+  .gp-command-overlay.is-closing .gp-command {
+    transition: none;
   }
 }
 
