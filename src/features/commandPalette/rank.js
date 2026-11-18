@@ -6,12 +6,13 @@
 
 const PREFIX_MODES = {
   '>': 'commands',
+  '#': 'issues',
+  '/': 'files',
   '@': 'repos',
-  '#': 'files',
-  '?': 'search',
 };
 
 const BROWSE_ORDER = ['repository', 'issues', 'github', 'plus', 'repos', 'starred', 'search'];
+const SCOPED_BROWSE_ORDER = ['repository', 'files', 'issues', 'github', 'plus', 'repos', 'starred', 'search'];
 const GROUP_LIMIT = 8;
 const BOUNDARY = /[\s/\-_.@:]/;
 
@@ -76,10 +77,24 @@ export function scoreText(query, text) {
 
 function modeAllows(candidate, mode) {
   if (mode === 'commands') return candidate.kind === 'command';
-  if (mode === 'repos') return candidate.kind === 'repo';
+  if (mode === 'issues') return candidate.kind === 'issue';
   if (mode === 'files') return candidate.kind === 'file';
-  if (mode === 'search') return candidate.kind === 'command' && candidate.groupId === 'search';
+  if (mode === 'repos') return candidate.kind === 'repo';
   return true;
+}
+
+function candidateRepo(candidate) {
+  return candidate?.data?.fullName || candidate?.data?.repo || '';
+}
+
+function inScope(candidate, scope) {
+  if (!scope?.repo) return true;
+  if (candidate.kind === 'command') return true;
+  return candidateRepo(candidate) === scope.repo;
+}
+
+function browseOrder(options) {
+  return options.browseOrder || (options.scope?.repo ? SCOPED_BROWSE_ORDER : BROWSE_ORDER);
 }
 
 function bestFieldScore(term, fields) {
@@ -152,11 +167,12 @@ function emptyQuery(candidates, options, titles) {
 
   const structural = new Map();
   for (const candidate of candidates) {
-    if (seen.has(candidate.key) || candidate.kind === 'file' || candidate.groupId === 'files') continue;
+    if (seen.has(candidate.key)) continue;
+    if (!options.scope?.repo && (candidate.kind === 'file' || candidate.groupId === 'files')) continue;
     if (!structural.has(candidate.groupId)) structural.set(candidate.groupId, []);
     structural.get(candidate.groupId).push(candidate);
   }
-  const order = options.browseOrder || BROWSE_ORDER;
+  const order = browseOrder(options);
   const rankOf = (id) => {
     const index = order.indexOf(id);
     return index === -1 ? order.length : index;
@@ -197,7 +213,8 @@ export function markPinned(candidates, pinnedKeys) {
  */
 export function rankCandidates(candidates, rawQuery, options = {}) {
   const parsed = parseQuery(rawQuery);
-  const all = Array.isArray(candidates) ? candidates : [];
+  const all = (Array.isArray(candidates) ? candidates : [])
+    .filter((candidate) => inScope(candidate, options.scope));
   const titles = options.titles || { pinned: 'Pinned', recent: 'Recent' };
 
   if (!parsed.text) return emptyQuery(all, options, titles);
@@ -220,11 +237,13 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
       total += best;
     }
     if (!matched) continue;
+    const relevance = total;
     if (pinned.has(candidate.key)) total += 1000;
     else if (recent.has(candidate.key)) total += 100;
     scored.push({
       ...candidate,
       score: total,
+      relevance,
       highlight: highlightRanges(candidate.title, terms),
     });
   }
@@ -233,8 +252,18 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
     if (right.score !== left.score) return right.score - left.score;
     return (left.sortKey ?? 0) - (right.sortKey ?? 0);
   };
-  const pinnedItems = scored.filter((item) => pinned.has(item.key)).sort(byScore);
-  const rest = scored.filter((item) => !pinned.has(item.key));
+
+  let promoted = null;
+  if (parsed.mode === 'all') {
+    for (const item of scored) {
+      if (item.groupId === 'search') continue;
+      if (!promoted || item.relevance > promoted.relevance) promoted = item;
+    }
+    if (promoted && !(promoted.relevance > 0)) promoted = null;
+  }
+  const isPromoted = (item) => Boolean(promoted) && item.key === promoted.key;
+  const pinnedItems = scored.filter((item) => pinned.has(item.key) && !isPromoted(item)).sort(byScore);
+  const rest = scored.filter((item) => !pinned.has(item.key) && !isPromoted(item));
 
   const groupCaps = options.groupCaps || { command: 8, file: 12, repo: 15 };
   const byGroup = new Map();
@@ -243,7 +272,7 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
     byGroup.get(item.groupId).push(item);
   }
 
-  const order = options.browseOrder || BROWSE_ORDER;
+  const order = browseOrder(options);
   const rankOf = (id) => {
     const index = order.indexOf(id);
     return index === -1 ? order.length : index;
@@ -269,5 +298,8 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
     ? { id: 'pinned', title: titles.pinned, items: pinnedItems.slice(0, GROUP_LIMIT) }
     : null;
   const capped = applyTotalCap(pinnedGroup ? [pinnedGroup, ...groups] : groups, options.maxResults ?? 30);
-  return { groups: capped.filter((group) => group.items.length), total: scored.length };
+  const withTop = promoted
+    ? [{ id: 'top', title: titles.top || 'Top result', items: [promoted] }, ...capped]
+    : capped;
+  return { groups: withTop.filter((group) => group.items.length), total: scored.length };
 }

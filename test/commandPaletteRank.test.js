@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseQuery, scoreText, rankCandidates, markPinned } from '../src/features/commandPalette/rank.js';
 
-test('prefixes split mode and text', () => {
+test('prefixes match GitHub meanings', () => {
   assert.deepEqual(parseQuery('> open'), { mode: 'commands', text: 'open' });
+  assert.deepEqual(parseQuery('#1'), { mode: 'issues', text: '1' });
+  assert.deepEqual(parseQuery('/src'), { mode: 'files', text: 'src' });
   assert.deepEqual(parseQuery('@react'), { mode: 'repos', text: 'react' });
-  assert.deepEqual(parseQuery('#src/main'), { mode: 'files', text: 'src/main' });
-  assert.deepEqual(parseQuery('?issue'), { mode: 'search', text: 'issue' });
+  assert.deepEqual(parseQuery('?help'), { mode: 'all', text: '?help' });
   assert.deepEqual(parseQuery('  open  '), { mode: 'all', text: 'open' });
 });
 
@@ -43,35 +44,42 @@ test('empty query builds pinned and recent groups without duplicates', () => {
 });
 
 test('a mode keeps only its kind', () => {
-  assert.equal(rankCandidates(candidates, '#react', { pinnedKeys: [], recentKeys: [] }).groups[0].items[0].key,
+  assert.equal(rankCandidates(candidates, '/react', { pinnedKeys: [], recentKeys: [] }).groups[0].items[0].key,
     'file:o/r@main:src/react.js');
+  const issue = {
+    key: 'issue:o/r#42', kind: 'issue', groupId: 'issues', groupTitle: 'Issues',
+    title: '#42 react bug', rankFields: [{ text: 'react bug', weight: 3 }, { text: '#42', weight: 2 }],
+  };
+  assert.equal(rankCandidates([...candidates, issue], '#42', { pinnedKeys: [], recentKeys: [] })
+    .groups[0].items[0].key, 'issue:o/r#42');
   assert.equal(rankCandidates(candidates, '> rea', { pinnedKeys: [], recentKeys: [] }).groups
     .flatMap((group) => group.items).length, 0);
 });
 
-test('the total cap trims groups in order', () => {
+test('the total cap trims groups in order and exempts the top result', () => {
   const many = Array.from({ length: 40 }, (_, index) => ({
     key: `repo:o/r${index}`, kind: 'repo', groupId: 'repos', groupTitle: 'Repositories',
     title: `Repo ${index}`, rankFields: [{ text: `Repo ${index}`, weight: 3 }], sortKey: index,
   }));
   const { groups } = rankCandidates(many, 'repo', { pinnedKeys: [], recentKeys: [], maxResults: 10 });
-  assert.equal(groups.flatMap((group) => group.items).length, 10);
+  assert.equal(groups[0].id, 'top');
+  assert.equal(groups.slice(1).flatMap((group) => group.items).length, 10);
 });
 
-test('a typed query lists favorites first and only once', () => {
+test('a typed query promotes the best match above favorites', () => {
   const candidates = [
     { key: 'repo:a', kind: 'repo', groupId: 'repos', title: 'alpha', rankFields: [{ text: 'alpha', weight: 3 }] },
     { key: 'repo:b', kind: 'repo', groupId: 'repos', title: 'alphabet', rankFields: [{ text: 'alphabet', weight: 3 }] },
   ];
   const result = rankCandidates(candidates, 'alpha', {
     pinnedKeys: ['repo:a'],
-    titles: { pinned: 'Favorites', recent: 'Recent' },
+    titles: { top: 'Top result', pinned: 'Favorites', recent: 'Recent' },
   });
-  assert.equal(result.groups[0].id, 'pinned');
+  assert.equal(result.groups[0].id, 'top');
   assert.deepEqual(result.groups[0].items.map((item) => item.key), ['repo:a']);
   const rest = result.groups.flatMap((group) => group.items.map((item) => item.key));
   assert.equal(rest.filter((key) => key === 'repo:a').length, 1);
-  assert.deepEqual(result.groups[1].items.map((item) => item.key), ['repo:b']);
+  assert.deepEqual(result.groups.find((group) => group.id === 'repos').items.map((item) => item.key), ['repo:b']);
 });
 
 test('markPinned adds the badge once and keeps the rest intact', () => {
@@ -89,7 +97,7 @@ test('a prefix mode keeps only favorites of that kind', () => {
     { key: 'repo:a', kind: 'repo', groupId: 'repos', title: 'alpha', rankFields: [{ text: 'alpha', weight: 3 }] },
     { key: 'file:a.js', kind: 'file', groupId: 'files', title: 'a.js', rankFields: [{ text: 'a.js', weight: 3 }] },
   ];
-  const result = rankCandidates(candidates, '#a', {
+  const result = rankCandidates(candidates, '/a', {
     pinnedKeys: ['repo:a', 'file:a.js'],
     titles: { pinned: 'Favorites', recent: 'Recent' },
   });
@@ -103,4 +111,51 @@ test('issues browse directly under this repository', () => {
     { key: 'repo:o/r', kind: 'repo', groupId: 'repos', title: 'o/r', rankFields: [{ text: 'o/r', weight: 3 }] },
   ], '', { titles: { pinned: 'Favorites', recent: 'Recent' } });
   assert.deepEqual(result.groups.map((group) => group.id), ['repository', 'issues', 'repos']);
+});
+
+function scopedCandidates() {
+  return [
+    { key: 'cmd:settings', kind: 'command', groupId: 'plus', groupTitle: 'Plus',
+      title: 'Settings', rankFields: [{ text: 'Settings', weight: 4 }] },
+    { key: 'repo:o/a', kind: 'repo', groupId: 'repos', groupTitle: 'Repositories',
+      title: 'o/a', data: { fullName: 'o/a' }, rankFields: [{ text: 'o/a', weight: 3 }] },
+    { key: 'repo:o/b', kind: 'repo', groupId: 'repos', groupTitle: 'Repositories',
+      title: 'o/b', data: { fullName: 'o/b' }, rankFields: [{ text: 'o/b', weight: 3 }] },
+    { key: 'file:o/a@HEAD:x.js', kind: 'file', groupId: 'files', groupTitle: 'Files',
+      title: 'x.js', data: { repo: 'o/a' }, rankFields: [{ text: 'x.js', weight: 3 }] },
+    { key: 'issue:o/b#2', kind: 'issue', groupId: 'issues', groupTitle: 'Issues',
+      title: '#2 Bug', data: { repo: 'o/b' }, rankFields: [{ text: 'Bug', weight: 3 }] },
+  ];
+}
+
+test('a scope keeps commands and only the scoped repository resources', () => {
+  const keys = (query) => rankCandidates(scopedCandidates(), query, {
+    scope: { repo: 'o/a' }, titles: { top: 'Top result' },
+  }).groups.flatMap((group) => group.items.map((item) => item.key)).sort();
+  assert.deepEqual(keys(''), ['cmd:settings', 'file:o/a@HEAD:x.js', 'repo:o/a']);
+  assert.deepEqual(keys('a'), ['repo:o/a']);
+});
+
+test('the best match is promoted to a Top result group and not repeated', () => {
+  const result = rankCandidates(scopedCandidates(), 'o/a', {
+    titles: { top: 'Top result', pinned: 'Favorites', recent: 'Recent' },
+  });
+  assert.equal(result.groups[0].id, 'top');
+  assert.deepEqual(result.groups[0].items.map((item) => item.key), ['repo:o/a']);
+  const all = result.groups.flatMap((group) => group.items.map((item) => item.key));
+  assert.equal(all.filter((key) => key === 'repo:o/a').length, 1);
+});
+
+test('a pinned best match moves to Top result instead of Favorites', () => {
+  const result = rankCandidates(scopedCandidates(), 'o/a', {
+    pinnedKeys: ['repo:o/a'],
+    titles: { top: 'Top result', pinned: 'Favorites', recent: 'Recent' },
+  });
+  assert.equal(result.groups[0].id, 'top');
+  assert.equal(result.groups.some((group) => group.id === 'pinned'), false);
+});
+
+test('an empty query has no Top result group', () => {
+  const result = rankCandidates(scopedCandidates(), '', { titles: { top: 'Top result' } });
+  assert.equal(result.groups.some((group) => group.id === 'top'), false);
 });
