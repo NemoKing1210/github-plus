@@ -257,6 +257,13 @@ const DEFAULT_FILE_PREVIEW = {
   longPressRing: true,
 };
 
+/** Commit badges: Conventional Commit types and scopes on commit subjects. */
+const DEFAULT_COMMIT_BADGES = {
+  enabled: true,
+  unknownTypes: true,
+  breaking: true,
+};
+
 /**
  * Translation: block-level translation of markdown, commit messages and
  * titles. The `providerConfig` keys are the provider whitelist and the
@@ -319,6 +326,7 @@ export const DEFAULT_SETTINGS = {
   fileMeta: DEFAULT_FILE_META,
   fileMenu: DEFAULT_FILE_MENU,
   filePreview: DEFAULT_FILE_PREVIEW,
+  commitBadges: DEFAULT_COMMIT_BADGES,
   translate: DEFAULT_TRANSLATE,
   commandPalette: DEFAULT_COMMAND_PALETTE,
 };

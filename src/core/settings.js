@@ -172,6 +172,15 @@ function normalizeFilePreview(raw, fallback) {
   };
 }
 
+function normalizeCommitBadges(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+    unknownTypes: normalizeBoolean(source.unknownTypes, fallback.unknownTypes),
+    breaking: normalizeBoolean(source.breaking, fallback.breaking),
+  };
+}
+
 function normalizeProviderId(value, fallback) {
   return Object.keys(fallback.providerConfig).includes(value)
     ? value
@@ -280,6 +289,7 @@ function normalizeSettings(raw) {
     fileMeta: normalizeFileMeta(source.fileMeta, defaults.fileMeta),
     fileMenu: normalizeFileMenu(source.fileMenu, defaults.fileMenu),
     filePreview: normalizeFilePreview(source.filePreview, defaults.filePreview),
+    commitBadges: normalizeCommitBadges(source.commitBadges, defaults.commitBadges),
     translate: normalizeTranslate(source.translate, defaults.translate),
     commandPalette: normalizeCommandPalette(source.commandPalette, defaults.commandPalette),
   };
@@ -326,6 +336,10 @@ export function getFileMenuSettings() {
 
 export function getFilePreviewSettings() {
   return settings.filePreview;
+}
+
+export function getCommitBadgesSettings() {
+  return settings.commitBadges;
 }
 
 export function getTranslateSettings() {
