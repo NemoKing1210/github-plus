@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -14,7 +14,7 @@ Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
 Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.24.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.25.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
@@ -266,38 +266,38 @@ Commit-Nachrichten, einen Titel oder die Markdown-Datei in der Schnellvorschau:
 Drücke auf jeder GitHub-Seite `Ctrl/⌘+K` für ein Suchfeld über alles, was du dort
 tust:
 
-- **Aus der Kopfzeile** — die Paletten-Schaltfläche steht am Anfang von GitHubs
-  eigenen Kopfzeilen-Aktionen, öffnet sie von jeder Seite und zeigt die aktuell
-  gültige Tastenkombination.
-- **Ein Repository nach dem anderen** — drücke `Tab` auf einer Repository-Zeile,
-  um die Palette darauf zu beschränken: Dateien und Issues zeigen nur noch dieses
-  Repository, die Suchzeile sucht darin, und `Backspace`, die Plakette oder
-  `Escape` heben die Beschränkung auf.
+- **Startet am aktuellen Ort** — auf einer Repository-Seite öffnet sich die
+  Palette mit diesem Repository im Pfad, die erste Liste sind also seine Seiten.
+- **Mit `Tab` tiefer gehen** — das Feld ist ein Pfad (`owner / repo / Abfrage`).
+  `Tab` auf einer Repository-Zeile fügt es hinzu: die Liste wird zu den Seiten
+  dieses Repositories, `/` zeigt seine Dateien, `#` seine offenen Issues und Pull
+  Requests, und die Suchzeile sucht darin. `Backspace` entfernt die letzte Ebene,
+  `Ctrl/⌘+Backspace` leert Pfad und Abfrage, und ein Klick auf ein Pfadsegment
+  verwirft alles darunter.
 - **Deine Repositories** — alle Repositories, die dir gehören, eigene zuerst, mit
-  Sternen, Sprache, letztem Push und Sichtbarkeit in der aufgeklappten Zeile.
-  Tippe `@`, um nur Repositories zu durchsuchen.
+  Sternen, Sprache, letztem Push und Sichtbarkeit an der Zeile. Tippe `@`, um nur
+  Repositories zu durchsuchen.
 - **Mit Stern markierte Repositories** — die Projekte, zu denen du immer wieder
   zurückkehrst; sie folgen deinen eigenen und tragen einen Stern.
-- **Dateien im aktuellen Repository** — `/` zeigt jeden Pfad des aktuellen
-  (oder gewählten) Repositories oder eine passende Abfrage; eine Datei öffnet
-  sich auf GitHub bei der Revision, die du gerade ansiehst.
-- **Offene Issues und Pull Requests** — die offenen Issues und Pull Requests des
-  aktuellen Repositories, mit Issue- oder Pull-Request-Kennzeichnung und in der
-  aufgeklappten Zeile mit Autor, Aktualisierungszeit und Kommentarzahl; suche
-  nach Titel, Nummer oder Autor.
-- **GitHub-Seiten und GitHub-Plus-Aktionen** — öffne deine Issues, Pull
-  Requests, Benachrichtigungen oder Einstellungen; öffne das GitHub-Plus-Panel;
-  schalte seine Funktionen um; aktualisiere den Cache. `>` für Befehle, `#` für
-  Issues und Pull Requests, `/` für Dateien, `@` für Repositories; eine
-  GitHub-Suchzeile schließt jede Abfrage ab und sucht innerhalb der
-  Beschränkung.
+- **Dateien des Repositories im Pfad** — `/` zeigt jeden Pfad darin oder eine
+  passende Abfrage; eine Datei öffnet sich auf GitHub bei der Revision, die du
+  gerade ansiehst.
+- **Offene Issues und Pull Requests** — `#` zeigt die offenen Issues und Pull
+  Requests des Repositories mit Issue- oder Pull-Request-Kennzeichnung, Autor und
+  Aktualisierungszeit; suche nach Titel, Nummer oder Autor.
+- **Seiten als Zeilen** — die eigenen Seiten des Repositories im Pfad (Code,
+  Issues, Pull requests, Actions, Projects, Discussions, Releases, Wiki, Security,
+  Insights und Settings, wenn es dir gehört) oder auf oberster Ebene die Seiten
+  deines Kontos (Profil, Repositories, Sterne, Benachrichtigungen, Gists,
+  GitHub-Einstellungen, Dashboard), jeweils eine Zeile entfernt; eine
+  Repository-Zeile ist mit `Springen zu` beschriftet, und eine GitHub-Suchzeile
+  schließt jede Abfrage ab und sucht im Pfad, wenn einer gesetzt ist.
+- **GitHub-Plus-Aktionen** — öffne das Panel, schalte seine Funktionen um oder
+  aktualisiere den Cache; `>` für Befehle.
 - **Favoriten und Zuletzt verwendet** — hefte an, was du ständig brauchst
   (`Alt+P`); angeheftete Zeilen tragen einen Stern und stehen zuerst — in der
   leeren Liste wie in Suchergebnissen. Zuletzt geöffnete Zeilen stehen beim
   nächsten Öffnen wieder oben, getrennt pro GitHub-Konto.
-- **Details an Ort und Stelle** — `→` oder der Pfeil einer Zeile klappt ihre
-  Details und Aktionen direkt darunter auf, `←` oder `Escape` schließt sie, und
-  `?` zeigt alle Tasten und Präfixe.
 - **Aktionen für jede Zeile** — Rechtsklick auf eine Zeile oder `Shift+F10`
   öffnet sie, öffnet sie in einem neuen Tab, kopiert Link, Pfad, Clone-Adresse
   oder Issue-Nummer und heftet sie an oder löst sie.
@@ -307,19 +307,19 @@ tust:
   Palette verbraucht also kein API-Kontingent; ohne Token liest sie öffentliche
   Daten, und alle Befehle funktionieren trotzdem.
 - **Optionales GitHub-Token** — füge es auf der Einstellungsseite der Palette
-  hinzu, um private Repositories und vollständige Listen zu sehen (5 000
-  Anfragen pro Stunde statt 60). Das Token wird vor der Nutzung geprüft, nur in
-  diesem Browser gespeichert, nie in eine Sicherung geschrieben und nur an
-  `api.github.com` gesendet; der Cache gehört zu je einem Konto, ein
-  Kontowechsel zeigt also nie fremde Repositories.
+  hinzu, um private Repositories und vollständige Listen zu sehen (5 000 Anfragen
+  pro Stunde statt 60). Das Token wird vor der Nutzung geprüft, nur in diesem
+  Browser gespeichert, nie in eine Sicherung geschrieben und nur an
+  `api.github.com` gesendet; der Cache gehört zu je einem Konto, ein Kontowechsel
+  zeigt also nie fremde Repositories.
 - **Tastatur zuerst** — `↑`/`↓` bewegen die Auswahl, `Enter` öffnet,
-  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `→` klappt die aktive Zeile auf,
-  `Tab` beschränkt auf ein Repository, `Alt+P` heftet an, `Ctrl/⌘+C` kopiert die
-  Zeile, und `Esc` nimmt Hilfe, Aufklappung, Abfrage und Beschränkung
-  nacheinander zurück, bevor es schließt; in einem Kommentar- oder
-  README-Editor bleibt die Palette aus dem Weg und schließt sich bei Navigation
-  selbst. Die Tastenkombination ist eine Voreinstellung oder eine beliebige
-  Kombination, die du auf der Einstellungsseite der Palette aufzeichnest.
+  `Ctrl/⌘+Enter` öffnet in einem neuen Tab, `Tab` geht in ein Repository,
+  `Backspace` verlässt eine Pfadebene, `Alt+P` heftet an, `Ctrl/⌘+C` kopiert die
+  Zeile, `?` zeigt alle Tasten und Präfixe, und `Esc` schließt (zuerst die
+  Hilfe); in einem Kommentar- oder README-Editor bleibt die Palette aus dem Weg
+  und schließt sich bei Navigation selbst. Die Tastenkombination ist eine
+  Voreinstellung oder eine beliebige Kombination, die du auf der
+  Einstellungsseite der Palette aufzeichnest.
 
 ### Einstellungsfenster
 

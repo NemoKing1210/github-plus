@@ -29,29 +29,29 @@ export const TOGGLE_LABEL_KEYS = {
 };
 
 const REPO_COMMANDS = [
-  { id: 'code', suffix: '', labelKey: 'palette.cmd.code' },
-  { id: 'issues', suffix: '/issues', labelKey: 'palette.cmd.issues' },
-  { id: 'pulls', suffix: '/pulls', labelKey: 'palette.cmd.pulls' },
-  { id: 'actions', suffix: '/actions', labelKey: 'palette.cmd.actions' },
-  { id: 'projects', suffix: '/projects', labelKey: 'palette.cmd.projects' },
-  { id: 'discussions', suffix: '/discussions', labelKey: 'palette.cmd.discussions' },
-  { id: 'releases', suffix: '/releases', labelKey: 'palette.cmd.releases' },
-  { id: 'wiki', suffix: '/wiki', labelKey: 'palette.cmd.wiki' },
-  { id: 'security', suffix: '/security', labelKey: 'palette.cmd.security' },
-  { id: 'insights', suffix: '/pulse', labelKey: 'palette.cmd.insights' },
+  { id: 'code', suffix: '', labelKey: 'palette.cmd.code', icon: 'repo' },
+  { id: 'issues', suffix: '/issues', labelKey: 'palette.cmd.issues', icon: 'issueOpened' },
+  { id: 'pulls', suffix: '/pulls', labelKey: 'palette.cmd.pulls', icon: 'pullRequest' },
+  { id: 'actions', suffix: '/actions', labelKey: 'palette.cmd.actions', icon: 'terminal' },
+  { id: 'projects', suffix: '/projects', labelKey: 'palette.cmd.projects', icon: 'folder' },
+  { id: 'discussions', suffix: '/discussions', labelKey: 'palette.cmd.discussions', icon: 'comment' },
+  { id: 'releases', suffix: '/releases', labelKey: 'palette.cmd.releases', icon: 'star' },
+  { id: 'wiki', suffix: '/wiki', labelKey: 'palette.cmd.wiki', icon: 'file' },
+  { id: 'security', suffix: '/security', labelKey: 'palette.cmd.security', icon: 'shield' },
+  { id: 'insights', suffix: '/pulse', labelKey: 'palette.cmd.insights', icon: 'graph' },
 ];
 
 const USER_COMMANDS = [
-  { id: 'profile', path: '', labelKey: 'palette.cmd.profile' },
-  { id: 'repos', path: '?tab=repositories', labelKey: 'palette.cmd.repos' },
-  { id: 'stars', path: '?tab=stars', labelKey: 'palette.cmd.stars' },
-  { id: 'notifications', url: 'https://github.com/notifications', labelKey: 'palette.cmd.notifications' },
-  { id: 'gists', url: 'https://gist.github.com/', labelKey: 'palette.cmd.gists' },
-  { id: 'githubSettings', url: 'https://github.com/settings/profile', labelKey: 'palette.cmd.githubSettings' },
-  { id: 'dashboard', url: 'https://github.com/dashboard', labelKey: 'palette.cmd.dashboard' },
+  { id: 'profile', path: '', labelKey: 'palette.cmd.profile', icon: 'repo' },
+  { id: 'repos', path: '?tab=repositories', labelKey: 'palette.cmd.repos', icon: 'repo' },
+  { id: 'stars', path: '?tab=stars', labelKey: 'palette.cmd.stars', icon: 'star' },
+  { id: 'notifications', url: 'https://github.com/notifications', labelKey: 'palette.cmd.notifications', icon: 'bell' },
+  { id: 'gists', url: 'https://gist.github.com/', labelKey: 'palette.cmd.gists', icon: 'file' },
+  { id: 'githubSettings', url: 'https://github.com/settings/profile', labelKey: 'palette.cmd.githubSettings', icon: 'gear' },
+  { id: 'dashboard', url: 'https://github.com/dashboard', labelKey: 'palette.cmd.dashboard', icon: 'home' },
 ];
 
-function buildCandidate({ id, label, groupId, groupTitle, icon, run, sortKey, description = '', shortcut = '' }) {
+function buildCandidate({ id, label, groupId, groupTitle, icon, run, sortKey, hint = '', description = '', shortcut = '' }) {
   return {
     key: `cmd:${id}`,
     kind: 'command',
@@ -66,6 +66,7 @@ function buildCandidate({ id, label, groupId, groupTitle, icon, run, sortKey, de
       { text: description, weight: 1 },
     ],
     sortKey,
+    hint,
     data: { run },
     detail: { id, label, description, shortcut },
   };
@@ -87,24 +88,38 @@ function repositoryCommands(state, startIndex) {
   const commands = REPO_COMMANDS.map((command) => ({
     id: `repo.${command.id}`,
     label: t(command.labelKey),
+    icon: command.icon,
     url: `https://github.com/${repo}${command.suffix}`,
   }));
   if (ownsRepository(state, repo)) {
     commands.push({
       id: 'repo.settings',
       label: t('palette.cmd.repoSettings'),
+      icon: 'gear',
       url: `https://github.com/${repo}/settings`,
     });
   }
-  return commands.map((command, offset) => buildCandidate({
+  const rows = commands.map((command, offset) => buildCandidate({
     id: command.id,
     label: command.label,
-    groupId: 'repository',
-    groupTitle: t('palette.group.repository'),
-    icon: 'repo',
+    groupId: 'pages',
+    groupTitle: t('palette.group.pages'),
+    icon: command.icon,
     run: { type: 'navigate', url: command.url },
-    sortKey: startIndex + offset,
+    sortKey: startIndex + offset + 1,
   }));
+  // GitHub's first row inside a repository is the repository page itself.
+  rows.unshift(buildCandidate({
+    id: 'repo.home',
+    label: repo,
+    groupId: 'pages',
+    groupTitle: t('palette.group.pages'),
+    icon: 'repo',
+    run: { type: 'navigate', url: `https://github.com/${repo}` },
+    sortKey: startIndex,
+    hint: t('palette.hint.jump'),
+  }));
+  return rows;
 }
 
 function userCommands(state, startIndex) {
@@ -114,9 +129,9 @@ function userCommands(state, startIndex) {
     return buildCandidate({
       id: `user.${command.id}`,
       label: t(command.labelKey),
-      groupId: 'github',
-      groupTitle: t('palette.group.github'),
-      icon: 'gear',
+      groupId: 'pages',
+      groupTitle: t('palette.group.pages'),
+      icon: command.icon,
       run: { type: 'navigate', url: `${base}${command.path || ''}` },
       sortKey: startIndex + offset,
     });
@@ -170,8 +185,8 @@ function plusCommands(state, startIndex) {
 export function commandCandidates(state) {
   if (state?.settings?.sources?.commands === false) return [];
   const commands = [];
-  if (state.context.repo || state.scope?.repo) commands.push(...repositoryCommands(state, commands.length + 100));
-  if (state.context.login) commands.push(...userCommands(state, commands.length + 200));
+  if (state.scope?.repo) commands.push(...repositoryCommands(state, commands.length + 100));
+  else if (state.context.login) commands.push(...userCommands(state, commands.length + 200));
   commands.push(...plusCommands(state, commands.length + 300));
   return commands;
 }

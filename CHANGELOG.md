@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-11-18
+
+### Added
+
+- A repository scope path in the palette's own input field, as in GitHub's
+  palette: the field reads `owner / repo / query`, each level is a clickable
+  segment, and the list always shows the level you are on
+- A `Pages` group inside a scope with the repository's own pages, led by a
+  `Jump to` row for the repository itself; at the root the same group lists the
+  account's pages
+- The palette opens scoped to the repository of the page you opened it on
+
+### Changed
+
+- `Tab` on a repository row now drills into that repository; `Backspace` on an
+  empty query leaves one level, and `Ctrl/⌘+Backspace` or a click on a path
+  segment returns to the root
+- Files and issues are listed only inside a scope, behind `/` and `#`, exactly
+  as GitHub's palette does; the empty browse list stays pages, repositories,
+  favorites, recents and GitHub Plus commands
+- The scope is part of the field instead of a separate chip, so it needs no
+  close control and the results keep the full card width
+
+### Removed
+
+- Inline row expansion: `→`, the row chevron and the `←` collapse are gone
+  along with the details module, because a scope level is a full list again
+  and a row's actions stay in its context menu
+
+[0.25.0]: https://github.com/NemoKing1210/github-plus/compare/v0.24.0...v0.25.0
+
 ## [0.24.0] - 2026-11-18
 
 ### Added

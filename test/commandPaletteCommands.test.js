@@ -15,15 +15,18 @@ const settings = {
   shortcuts: {},
 };
 
-test('repository commands appear only on a repository page', () => {
-  const withRepo = commandCandidates({ context: { repo: 'o/r', login: 'alice' }, settings, cache: null });
-  const keys = withRepo.map((item) => item.key);
+test('repository pages replace the account pages inside a repository scope', () => {
+  const scoped = commandCandidates({
+    context: { repo: 'o/r', login: 'alice' }, scope: { repo: 'o/r' }, settings, cache: null,
+  });
+  const keys = scoped.map((item) => item.key);
+  assert.ok(keys.includes('cmd:repo.home'));
   assert.ok(keys.includes('cmd:repo.code'));
   assert.ok(keys.includes('cmd:repo.issues'));
-  assert.ok(keys.includes('cmd:user.profile'));
-  const withoutRepo = commandCandidates({ context: { repo: null, login: 'alice' }, settings, cache: null });
-  assert.equal(withoutRepo.some((item) => item.key === 'cmd:repo.code'), false);
-  assert.ok(withoutRepo.some((item) => item.key === 'cmd:user.profile'));
+  assert.equal(keys.includes('cmd:user.profile'), false);
+  const root = commandCandidates({ context: { repo: 'o/r', login: 'alice' }, scope: null, settings, cache: null });
+  assert.equal(root.some((item) => item.key === 'cmd:repo.code'), false);
+  assert.ok(root.some((item) => item.key === 'cmd:user.profile'));
 });
 
 test('repository commands follow the palette scope', () => {
@@ -34,7 +37,7 @@ test('repository commands follow the palette scope', () => {
     cache: null,
   };
   const urls = commandCandidates(state)
-    .filter((item) => item.groupId === 'repository')
+    .filter((item) => item.groupId === 'pages')
     .map((item) => item.data.run.url);
   assert.ok(urls.length > 0);
   assert.ok(urls.every((url) => url.startsWith('https://github.com/vuejs/core')));

@@ -11,8 +11,8 @@ const PREFIX_MODES = {
   '@': 'repos',
 };
 
-const BROWSE_ORDER = ['repository', 'issues', 'github', 'plus', 'repos', 'starred', 'search'];
-const SCOPED_BROWSE_ORDER = ['repository', 'files', 'issues', 'github', 'plus', 'repos', 'starred', 'search'];
+const BROWSE_ORDER = ['pages', 'repos', 'starred', 'plus', 'search'];
+const SCOPED_BROWSE_ORDER = ['pages', 'files', 'issues', 'plus', 'search'];
 const GROUP_LIMIT = 8;
 const BOUNDARY = /[\s/\-_.@:]/;
 
@@ -144,7 +144,7 @@ function applyTotalCap(groups, maxResults) {
   return groups.map((group, index) => ({ ...group, items: group.items.slice(0, counts[index]) }));
 }
 
-function emptyQuery(candidates, options, titles) {
+function emptyQuery(candidates, options, titles, mode = 'all') {
   const byKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
   const seen = new Set();
   const take = (keys) => {
@@ -168,7 +168,10 @@ function emptyQuery(candidates, options, titles) {
   const structural = new Map();
   for (const candidate of candidates) {
     if (seen.has(candidate.key)) continue;
-    if (!options.scope?.repo && (candidate.kind === 'file' || candidate.groupId === 'files')) continue;
+    // GitHub lists no files or issues until a prefix or a query asks for them.
+    if (mode !== 'files' && (candidate.kind === 'file' || candidate.groupId === 'files')) continue;
+    if (mode !== 'issues' && (candidate.kind === 'issue' || candidate.groupId === 'issues')) continue;
+    if (options.scope?.repo && mode === 'all' && candidate.groupId === 'plus') continue;
     if (!structural.has(candidate.groupId)) structural.set(candidate.groupId, []);
     structural.get(candidate.groupId).push(candidate);
   }
@@ -218,7 +221,7 @@ export function rankCandidates(candidates, rawQuery, options = {}) {
     .filter((candidate) => favorites.has(candidate.key) || inScope(candidate, options.scope));
   const titles = options.titles || { pinned: 'Pinned', recent: 'Recent' };
 
-  if (!parsed.text) return emptyQuery(all, options, titles);
+  if (!parsed.text) return emptyQuery(all, options, titles, parsed.mode);
 
   const terms = parsed.text.split(/\s+/).filter(Boolean);
   const pinned = new Set(options.pinnedKeys || []);

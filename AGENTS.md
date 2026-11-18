@@ -129,7 +129,6 @@ github-plus/
 │   │       ├── api.js      # GitHub REST client (ETags, pagination, rate limits)
 │   │       ├── store.js    # Cache record, recents/pins, freshness, rate-limit state
 │   │       ├── hotkey.js   # shortcutMatches, isEditableTarget, shouldOpenPalette
-│   │       ├── detail.js   # Details pane content per row kind
 │   │       └── format.js   # formatCount, relativeTime
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
@@ -140,7 +139,7 @@ github-plus/
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)
 │   │   ├── filePreview.js  # Quick preview modal shell (header actions, footer, loading, keyboard)
-│   │   ├── commandPalette.js # Palette shell: combobox, grouped listbox, expansion
+│   │   ├── commandPalette.js # Palette shell: scope path, combobox, grouped listbox
 │   │   └── viewer.js       # Fullscreen image viewer (zoom, pan, rotate, gallery)
 │   └── utils/
 │       ├── dom.js          # el, append, debounce, eachNode, toArray, escapeHtml, isOwnUi
@@ -157,7 +156,7 @@ github-plus/
 │   ├── copy-dist.mjs       # dist/ → root artifact copy
 │   └── verify-artifacts.mjs# dist/ ↔ root byte-identity check
 ├── test/                   # Node test runner (match, age, fileMeta, fileMenu, filePreview,
-│                           #   translate*, logger*, commandPalette* incl. issues/rowMenu/detail,
+│                           #   translate*, logger*, commandPalette* incl. issues/rowMenu,
 │                           #   headerActions, contextMenu, shortcut, locales, download)
 ├── dist/                   # Build output (gitignored)
 ├── github-plus.user.js     # Generated bundle (do not hand-edit)
@@ -1162,13 +1161,16 @@ classes.
 
 A modal search surface on `Ctrl/⌘+K` (a preset or any recorded combination, or
 off), opened from that hotkey, the palette button in the GitHub header or the
-manager's menu: the user's repositories, starred repositories, the current
-repository's open issues and pull requests, its files, GitHub pages, GitHub
-Plus controls and a GitHub search fallback, with favorites (pins), recents, a
-per-row context menu, an inline row expansion and a repository scope that
-narrows the palette to one repository. Without a token it reads public data and
-commands still work; with a verified token it also sees private
-repositories.
+manager's menu. It follows GitHub's own palette model: the field carries an
+editable scope path, the palette opens at the page's repository, `Tab` on a
+repository row drills into it, `Backspace` leaves one level and
+`Ctrl/⌘+Backspace` clears the path. The root level lists the account's pages
+and the user's repositories; inside a repository the same list becomes that
+repository's pages, with its files (`/`), open issues and pull requests (`#`)
+one query away. GitHub Plus controls (`>`), favorites (pins), recents, a
+per-row context menu and a GitHub search fallback complete it. Without a token
+it reads public data and commands still work; with a verified token it also
+sees private repositories.
 
 - `index.js` — the only module that assembles display state: reads
   `readPaletteState()`, builds candidates through `commandCandidates`,
@@ -1176,23 +1178,29 @@ repositories.
   `snapshotCandidates`, opens `ui/commandPalette.js`, installs the document
   hotkey, registers the header entry through `ui/headerActions.js` (`order: 10`,
   label `t('palette.title')` plus the current shortcut) and owns the load
-  lifecycle. `state.scope` is `{ repo }` or null: when set, `buildCandidates`
-  reads that repository's tree at the literal `HEAD` and its issues, and a
-  scope-chip Tab (`handleScope`) sets it, clears the query, refreshes the view
-  and kicks the scoped loads; `clearScope` drops it. `kickLoads()` starts
+  lifecycle. `state.scope` is `{ repo }` or null and is the palette's one path
+  level: `openPalette` starts it at `state.context.repo`, so a repository page
+  opens already scoped, and `pathSegments()` turns it into the owner and
+  repository segments the field renders. `handleScope(item)` runs on `Tab` over
+  a repository row: it sets the scope, swaps the path, clears the query,
+  refreshes and kicks the scoped loads. `clearPath()` runs on `Backspace`,
+  `Ctrl/⌘+Backspace` and a path-segment click: it drops the scope, clears the
+  sticky failure note and refreshes to the root list. `buildCandidates` reads
+  repository rows at the root and, when scoped, that repository's pages, its
+  tree at the literal `HEAD` and its issues. `kickLoads()` starts
   `ensureRepositories()`, `ensureTree()` and `ensureIssues()` without awaiting
-  them, flips `state.status` to `loading` and refreshes the shell over the
-  cached rows; each load settles into `refreshView()`, and a failure is sticky
-  for the cycle (`state.loadError`) so a parallel success cannot erase its
-  note. Every source is attempted once per page session (`sessionRefreshes`,
-  trees keyed by `tree:<repo@ref>`, issues by `issues:<repo>`), a manual refresh
-  bypasses that, and an idle-time refresh runs only when the cache is warm and
-  stale. `openPalette` wires `onPin`, `onContextMenu` (a `layer: 'palette'`
-  menu built by `rowMenu.js`), `renderExpansion`, `onScope`, `onClearScope`,
-  `onCopy`, the help map and `handle.setScope`; `handleRowAction` maps every row
-  action to `onSelect`, `onPin` or a copy `runAction`. The palette rebuilds
-  candidates from storage on every open, so a settings change or a manual
-  refresh never needs a stale in-memory list.
+  them (trees and issues only when scoped), flips `state.status` to `loading`
+  and refreshes the shell over the cached rows; each load settles into
+  `refreshView()`, and a failure is sticky for the cycle (`state.loadError`) so
+  a parallel success cannot erase its note. Every source is attempted once per
+  page session (`sessionRefreshes`, trees keyed by `tree:<repo@ref>`, issues by
+  `issues:<repo>`), a manual refresh bypasses that, and an idle-time refresh
+  runs only when the cache is warm and stale. `openPalette` wires `onPin`,
+  `onContextMenu` (a `layer: 'palette'` menu built by `rowMenu.js`), `onScope`,
+  `onPathPop`, `onPathClick`, `onClearPath`, `onCopy` and the help map;
+  `handleRowAction` maps every row action to `onSelect`, `onPin` or a copy
+  `runAction`. The palette rebuilds candidates from storage on every open, so a
+  settings change or a manual refresh never needs a stale in-memory list.
 - `store.js` — all persistence. Cache record
   `{ version, login, tokenLogin, tokenFingerprint, sources, trees, issues,
   rateLimit }` under `gp_palette_cache_v1`; `readPaletteState()` returns the page
@@ -1255,26 +1263,31 @@ repositories.
   highlight ranges, pinned (+1000) and recent (+100) boosts, per-group caps
   (command 8, file 12, repo 15) and the `maxResults` total cap. `options.scope`
   (`{ repo }` or null) keeps only that repository's repo, file and issue rows
-  while commands stay global. The best-scoring non-search row is promoted into
-  a leading `top` group (title from `options.titles.top`), removed from its own
-  group, and exempt from the total cap. The empty query builds the favorites and
-  recent groups, then the browse order
-  (`repository, issues, github, plus, repos, starred, search` — files join right
-  after the repository group when a scope is set) and never lists files
-  unscoped. On a typed query `markPinned`-flagged candidates form their own
-  first `pinned` group (cap 8) and are removed from their kind's group; the
-  synthetic group titles (`palette.group.pinned` / `.recent` / `.top`) arrive
-  through `options.titles`, so `rank.js` stays free of i18n.
+  while commands stay global; favorites and recents stay global too. The
+  best-scoring non-search row is promoted into a leading `top` group (title
+  from `options.titles.top`), removed from its own group, and exempt from the
+  total cap. The empty query builds the favorites and recent groups, then the
+  browse order (`pages, repos, starred, plus, search`; scoped:
+  `pages, files, issues, plus, search`), lists files only in a file query and
+  issues only in an issues query (GitHub's rule), and hides the Plus group from
+  a scoped empty list. On a typed query `markPinned`-flagged candidates form
+  their own first `pinned` group (cap 8) and are removed from their kind's
+  group; the synthetic group titles (`palette.group.pinned` / `.recent` /
+  `.top`) arrive through `options.titles`, so `rank.js` stays free of i18n.
 - `search.js` — `searchPalette(state, query)`: passes the scope to the ranker
   and appends the GitHub search handoff as the last group of every query with
   text, scoped to the repository (`repo:<name>` code search) or global — a
   search is never a dead end even when other results match.
-- `commands.js` — repository commands (only on a repository page; Settings only
-  when the repository appears in the cached owned list), user commands, and
-  GitHub Plus controls (open settings, seven feature toggles, refresh
+- `commands.js` — the `pages` group: inside a scope the repository's own pages
+  (a leading `repo.home` row labeled with the repository path and hinted
+  `Jump to`, then Code, Issues, Pull requests, Actions, Projects, Discussions,
+  Releases, Wiki, Security, Insights and — when the repository appears in the
+  cached owned list — Settings), otherwise the account's pages (profile,
+  repositories, stars, notifications, gists, GitHub settings, dashboard); plus
+  the GitHub Plus controls (open settings, seven feature toggles, refresh
   repositories/tree, clear palette/translation cache). Every candidate carries
-  `data.run` and `detail { id, label, description, shortcut }`; `TOGGLE_LABEL_KEYS`
-  maps a section to the locale key that names it.
+  `data.run` and `detail { id, label, description, shortcut }`;
+  `TOGGLE_LABEL_KEYS` maps a section to the locale key that names it.
 - `actions.js` — the action descriptors and `runAction()`: navigate, settings,
   toggle (`saveSettings` + the matching bus event + toast), refresh (the
   `ensure*({ force: true })` call), clear caches, copy, search. Feature edges
@@ -1286,49 +1299,37 @@ repositories.
   (input, textarea, select, contenteditable), `otherOverlayOpen` (settings,
   confirm, viewer, preview — never the palette itself) and `shouldOpenPalette`
   (also ignores handled, composing and repeated keys).
-- `detail.js` — `renderExpansion(item, { labels, pinned, onAction })`, the
-  content of a row's inline expansion, still built from the `.gp-detail*`
-  blocks: a repo (description, language, stars, forks, updated, visibility
-  badges, Open / New tab / Copy link / Pin), a file (path, repository, ref,
-  size, Open / Copy path), an issue or pull request (author, update time,
-  comment count, open-state and kind tags, Open / New tab / Copy link / Copy
-  number) or a command (label, description, shortcut, Run). Every string comes
-  from the caller's `labels`.
 - `format.js` — `formatCount` (compact `k`/`M`) and `relativeTime`
   (`Intl.RelativeTimeFormat`, so no new translation keys).
 
 `src/ui/commandPalette.js` is the generic shell: it imports only utils, the
 scroll lock, `ui/contextMenu.js` and `ui/icons.js`, never a feature.
-`openCommandPalette({ labels, search, renderExpansion, scope, help, onSelect,
-onPin, onContextMenu, onClose, onScope, onClearScope, onCopy })` mounts the
-overlay, locks the page, focuses the combobox and returns
-`{ refresh, close, focus, setQuery, setScope }`. The list is a single
+`openCommandPalette({ labels, search, path, tip, help, onSelect, onPin,
+onContextMenu, onClose, onScope, onPathPop, onPathClick, onClearPath, onCopy })`
+mounts the overlay, locks the page, focuses the combobox and returns
+`{ refresh, close, focus, setQuery, setPath }`. The list is a single
 `role="listbox"` with group titles and `role="option"` rows; the active row is
 tracked by key (so a refresh keeps the selection) and mirrored to
 `aria-activedescendant`. A favorite's row draws a star inside
-`.gp-command__title`, an expandable row carries a trailing chevron and its key
-hints (`.gp-command__hint`, shown only on the active row), and the open row
-gets a sibling `.gp-command__expansion` block from `renderExpansion` —
-`aria-expanded` on the row, a `Tab` that moves focus into the block, a further
-`Tab` that cycles its controls, and a `Shift+Tab` that returns; collapsing a
-block that holds focus (arrows, `Escape` or a refresh) puts focus back in the
-field, and `Enter` inside the block activates the focused action instead of the
-row. `scope` is `{ label, tip? }`: the field renders a
-removable chip, the tip strip shows `scope.tip` in place of `labels.tip`, and
-`setScope` swaps it without reopening. `help` is `{ title, prefixes, keys,
-close }` behind `?` (empty query) and the tip strip's help pill.
+`.gp-command__title`, and the active row shows its key hints
+(`.gp-command__hint`): `Tab <hintScope> · ↵ <item.hint || hintOpen>`.
+`path` is an array of `{ label }` segments rendered ahead of the input as
+`.gp-command__seg` buttons separated by `/`; each is focus-safe (a pointerdown
+is prevented) and clicking one calls `onPathClick(index)`, while `setPath`
+swaps the segments and the tip without reopening. `tip` replaces
+`labels.tip` in the tip strip. `help` is `{ title, prefixes, keys, close }`
+behind `?` (empty query) and the tip strip's help pill.
 `onContextMenu(item, { x, y, anchor, keyboard })` fires from a right-click on a
 row (the pointer position) or `Shift+F10`/`ContextMenu` on the active row.
 Keys:
-arrows with wrap, `→` expands the active row and `←` collapses it, Home/End,
-Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin, `Ctrl/⌘+C` copies the active
-row when no text is selected, `Tab` scopes a collapsed repository row (else
-enters an open expansion, cycles inside it, or traps focus), `Backspace` pops
-an empty-input scope, `?` toggles help, and `Escape` walks back help →
-expansion → query → scope before it closes; the shortcut closes. An outside
-pointerdown closes; closing marks the palette closed synchronously, restores
-focus, unlocks the page, closes any open row menu and removes the overlay
-after 120 ms. Items with
+arrows with wrap, Home/End, Enter (Ctrl/⌘ opens in a new tab), `Alt+P` to pin,
+`Ctrl/⌘+C` copies the active row when no text is selected, `Tab` drills into a
+repository row (else traps focus), `Backspace`/`Delete` on an empty query pops
+the path (`onPathPop`), `Ctrl/⌘+Backspace`/`Delete` clears the query and the
+path (`onClearPath`), `?` toggles help, `Escape` closes help first and then
+the palette, and the shortcut closes. An outside pointerdown closes; closing
+marks the palette closed synchronously, restores focus, unlocks the page,
+closes any open row menu and removes the overlay after 120 ms. Items with
 `highlight` ranges render marks from text nodes, never `innerHTML`;
 `labels.badges` names the badge ids (including `issue` and `pullRequest`).
 
@@ -1355,7 +1356,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 430
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 417
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1523,28 +1524,29 @@ hover reveal) restores the exact source.
 hotkey, header entry or menu command → `shouldOpenPalette` guards (feature on,
 shortcut match, not editable, no other overlay, not handled/repeated) →
 `openPalette` → `readPaletteState()` (page context, settings, identity, that
-identity's cache) → `buildCandidates` over cache-backed `commandCandidates`,
-`repoCandidates`, `fileCandidates`, `issueCandidates` and the cold-source
-snapshots from recents
-and pins, then `markPinned` → `openCommandPalette({ search: searchPalette, ... })`
-renders the
-warm list immediately, with a top result, favorites starred and in their own
-first group → `kickLoads()` starts `ensureRepositories()` /
-`ensureTree()` / `ensureIssues()` without awaiting → each settles and calls
-`refreshView()`,
-which reruns `buildCandidates` from storage and `palette.refresh()` keeps the
-active row by key → Enter (or click) records a recent, closes the palette and
-runs the action: `navigate` for a URL, `saveSettings` + the matching bus event
-+ toast for a toggle, `ensure*({ force: true })` for a refresh; `→` or the
-chevron opens the row's expansion in place, and `Tab` on a repository row
-scopes the palette to it (`ensureTree({ repo, ref: 'HEAD' })`,
-`ensureIssues({ repo })`), with the chip, `Backspace` or `Escape` leaving the
-scope. A row's right-click or `Shift+F10` opens the palette-layer context menu,
-whose entries run the same select path, toggle the pin or copy a link, path,
-clone address or issue number. Settings Save
-emits `settings:commandPalette`, which closes an open palette, relabels the
-header entry and installs or
-removes the document hotkey.
+identity's cache) → the scope starts at the page's repository →
+`buildCandidates` over cache-backed `commandCandidates` (the account's pages at
+the root, the repository's pages inside a scope), root-only `repoCandidates`,
+scoped-only `fileCandidates` / `issueCandidates` and the cold-source snapshots
+from recents and pins, then `markPinned` →
+`openCommandPalette({ search: searchPalette, path, tip, ... })` renders the warm
+list immediately, with the repository path in the field, a top result and
+favorites starred in their own first group → `kickLoads()` starts
+`ensureRepositories()` / `ensureTree()` / `ensureIssues()` without awaiting →
+each settles and calls `refreshView()`, which reruns `buildCandidates` from
+storage and `palette.refresh()` keeps the active row by key → Enter (or click)
+records a recent, closes the palette and runs the action: `navigate` for a URL,
+`saveSettings` + the matching bus event + toast for a toggle,
+`ensure*({ force: true })` for a refresh. `Tab` on a repository row is the
+drill-down: `handleScope` sets the scope, `setPath` swaps the field's segments,
+the query clears and `ensureTree({ repo, ref: 'HEAD' })` / `ensureIssues({ repo })`
+start; `Backspace`, a path-segment click or `Ctrl/⌘+Backspace` runs `clearPath`
+to the root. Files and issues stay behind their `/` and `#` prefixes. A row's
+right-click or `Shift+F10` opens the palette-layer context menu, whose entries
+run the same select path, toggle the pin or copy a link, path, clone address or
+issue number. Settings Save emits `settings:commandPalette`, which closes an
+open palette, relabels the header entry and installs or removes the document
+hotkey.
 
 ## GitHub DOM notes
 
@@ -1885,18 +1887,26 @@ and check diagnostics for edited files.
   reinstalls the hotkey through `settings:commandPalette`, so a save that went
   through is never the reason it stops firing; the header button and
   `GM_registerMenuCommand` open the same palette as fallbacks.
+- Palette path does not change: `Tab` drills in only from a repository row
+  (`kind: 'repo'`, the `repos` / `starred` groups); inside a scope the rows are
+  the repository's pages, so there is nothing left to drill into. `Backspace`
+  leaves a level only while the query is empty — GitHub keeps it for editing
+  text otherwise — and `Ctrl/⌘+Backspace` clears both. A palette opened on a
+  page without a repository (dashboard, notifications, search) starts at the
+  root, and `clearPath()` is a no-op there.
 - Palette row menu not opening: right-click must land on a row, and
   `Shift+F10`/the menu key needs an active row. The menu is the shared
   `#gp-context-menu` with `layer: 'palette'` — if it renders behind the
   palette, the layer was lost (it must not be `default`).
-- Issues missing from the palette: the **Issues** source switch must be on and
-  the page must be a repository (the source reads the repository the page
-  shows); the row appears only after `ensureIssues()` has written a record —
-  `GP-1701` in the console means the request failed. A pull request carries the
-  pull-request badge because GitHub's issue endpoint returned its
-  `pull_request` field; a row without a badge is an issue. The list is capped at
-  3 pages with a token and 1 without, so a repository with many open items
-  shows the most recently updated ones.
+- Issues missing from the palette: the **Issues** source switch must be on, the
+  palette must be scoped to a repository (a repository page opens that way, or
+  `Tab` on a repository row), and the `#` prefix is what lists them — GitHub
+  keeps issues out of the empty browse list. The row appears only after
+  `ensureIssues()` has written a record; `GP-1701` in the console means the
+  request failed. A pull request carries the pull-request badge because
+  GitHub's issue endpoint returned its `pull_request` field; a row without a
+  badge is an issue. The list is capped at 3 pages with a token and 1 without,
+  so a repository with many open items shows the most recently updated ones.
 - Palette opens with no repositories: a token that has not been verified
   yields no identity and reads public data only until **Check token**
   succeeds; an identity-mismatch hint means the cache belongs to another
@@ -1904,13 +1914,12 @@ and check diagnostics for edited files.
   hits 60 requests/h — an exhausted limit shows the rate-limit note and
   cached rows. `GP-1701` marks a failed source; the API layer itself never
   logs.
-- Files missing in the palette: the file group needs the current repository
-  and ref (`readContext()` — embedded payload, URL, default-branch meta, then
-  `HEAD`), the **Files** source switch on, and a tree under
-  `gp_palette_cache_v1.trees`; a tree over 20 000 entries is truncated and the
-  footer says so. Files never appear in the empty-query browse list — type
-  `#` or a query. A cache entry is dropped when its identity no longer matches
-  the current one.
+- Files missing in the palette: the file group needs a scoped repository (a
+  repository page opens that way, or `Tab` on a repository row), the **Files**
+  source switch on, and a tree at `HEAD` under `gp_palette_cache_v1.trees`; a
+  tree over 20 000 entries is truncated and the footer says so. Files never
+  appear in the empty-query browse list — type `/` or a query. A cache entry is
+  dropped when its identity no longer matches the current one.
 - Token rejected: **Check token** calls `GET /user`; a 401 means the token is
   expired or lacks `repo`, and nothing is written. Verifying a token wipes
   data that belonged to another account and stores `login`, `tokenLogin` and

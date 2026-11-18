@@ -1,9 +1,9 @@
 /**
- * Command palette shell: a modal search field, a grouped listbox and an
- * expansion block under the active row. It knows nothing about what it lists —
- * `search(query)` supplies groups, `renderExpansion(item)` supplies the block,
- * and the caller's callbacks run the selection — so the feature owns data and
- * this module owns interaction.
+ * Command palette shell: a modal search field with an editable scope path, a
+ * grouped listbox and a tip strip. It knows nothing about what it lists —
+ * `search(query)` supplies groups for the current path, `path` supplies the
+ * breadcrumb segments, and the caller's callbacks run the selection — so the
+ * feature owns data and this module owns interaction.
  */
 
 import { el } from '../utils/dom.js';
@@ -13,7 +13,6 @@ import { closeContextMenu } from './contextMenu.js';
 
 const CLOSE_MS = 120;
 const DEBOUNCE_MS = 80;
-const EXPANDABLE_KINDS = new Set(['repo', 'file', 'issue', 'command']);
 
 let state = null;
 let closeTimer = null;
@@ -44,8 +43,9 @@ function buildShell(labels) {
   input.setAttribute('aria-expanded', 'true');
   input.setAttribute('aria-controls', 'gp-command-list');
 
+  const path = el('span', 'gp-command__path');
   const hint = el('kbd', 'gp-command__kbd', 'Esc');
-  field.append(glyph, input, hint);
+  field.append(glyph, path, input, hint);
   top.append(field);
 
   const main = el('div', 'gp-command__main');
@@ -78,29 +78,28 @@ function buildShell(labels) {
 
   dialog.append(top, main, tip, empty);
   root.append(dialog, announcer);
-  return { root, dialog, field, input, list, tip, tipText, tipHelp, note, empty, announcer, bar };
+  // `tipBox`, not `tip`: `state.tip` is the tip string and the spread must not
+  // overwrite it with the strip element.
+  return { root, dialog, field, path, input, list, tipBox: tip, tipText, tipHelp, note, empty, announcer, bar };
 }
 
-function renderScope(current) {
-  const existing = current.field.querySelector('.gp-command__scope');
-  if (existing) existing.remove();
-  current.tipText.textContent = current.scope?.tip || current.labels.tip || '';
-  if (!current.scope) return;
-  const chip = el('button', 'gp-command__scope');
-  chip.type = 'button';
-  chip.setAttribute('aria-label', String(current.labels.scopeRemove || '')
-    .replace('{repo}', String(current.scope.label || '')));
-  chip.append(el('span', 'gp-command__scope-label', current.scope.label || ''));
-  const clear = el('span', 'gp-command__scope-close');
-  clear.innerHTML = PALETTE_ICONS.close;
-  clear.setAttribute('aria-hidden', 'true');
-  chip.appendChild(clear);
-  chip.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    current.onClearScope?.();
-  });
-  current.field.insertBefore(chip, current.input);
+function renderPath(current) {
+  current.path.replaceChildren();
+  current.tipText.textContent = current.tip || current.labels.tip || '';
+  for (const [index, segment] of current.pathSegments.entries()) {
+    const button = el('button', 'gp-command__seg', segment.label || '');
+    button.type = 'button';
+    // Keep the caret in the field: a segment click must not blur the combobox.
+    button.addEventListener('pointerdown', (event) => event.preventDefault());
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      current.onPathClick?.(index);
+    });
+    current.path.appendChild(button);
+    current.path.appendChild(el('span', 'gp-command__sep', '/'));
+  }
+  current.field.classList.toggle('is-scoped', current.pathSegments.length > 0);
 }
 
 function toggleHelp(current) {
@@ -131,10 +130,11 @@ function toggleHelp(current) {
   current.helpNode = help;
 }
 
-function setScope(scope) {
+function setPath(pathSegments, tip) {
   if (!state) return;
-  state.scope = scope || null;
-  renderScope(state);
+  state.pathSegments = Array.isArray(pathSegments) ? pathSegments : [];
+  if (tip !== undefined) state.tip = tip;
+  renderPath(state);
 }
 
 function activeItem() {
@@ -160,9 +160,8 @@ function appendHighlighted(parent, text, ranges) {
 
 function hintText(item, labels) {
   const parts = [];
-  if (item.kind === 'repo') parts.push(`Tab ${labels.hintScope || ''}`);
-  parts.push(`↵ ${labels.hintOpen || ''}`);
-  if (EXPANDABLE_KINDS.has(item.kind)) parts.push(`→ ${labels.hintExpand || ''}`);
+  if (item.scopeable) parts.push(`Tab ${labels.hintScope || ''}`);
+  parts.push(`↵ ${item.hint || labels.hintOpen || ''}`);
   return parts.join(' · ');
 }
 
@@ -197,22 +196,6 @@ function buildRow(current, item) {
   const hint = el('span', 'gp-command__hint', hintText(item, current.labels));
 
   row.append(icon, muted, title, badges, meta, hint);
-  if (current.renderExpansion && EXPANDABLE_KINDS.has(item.kind)) {
-    row.setAttribute('aria-expanded', 'false');
-    const chev = el('button', 'gp-command__chev');
-    chev.type = 'button';
-    chev.tabIndex = -1;
-    chev.setAttribute('aria-label', current.labels.hintExpand || '');
-    chev.setAttribute('aria-expanded', 'false');
-    chev.innerHTML = PALETTE_ICONS.chevronRight;
-    chev.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      toggleExpansion(item);
-    });
-    row.classList.add('gp-command__row--expandable');
-    row.appendChild(chev);
-  }
   current.rowByKey.set(item.key, row);
   return row;
 }
@@ -229,50 +212,6 @@ function renderGroups(current, groups) {
     for (const item of items) current.list.appendChild(buildRow(current, item));
   }
   current.empty.hidden = current.list.childElementCount > 0;
-}
-
-function clearExpansion(current) {
-  const block = current.expansion;
-  const hadFocus = Boolean(block) && block.contains(document.activeElement);
-  if (block) block.remove();
-  current.expansion = null;
-  const row = current.expandedKey ? current.rowByKey.get(current.expandedKey) : null;
-  if (row) {
-    row.setAttribute('aria-expanded', 'false');
-    row.querySelector('.gp-command__chev')?.setAttribute('aria-expanded', 'false');
-  }
-  current.expandedKey = null;
-  if (hadFocus) current.input.focus();
-}
-
-function expand(current) {
-  const item = activeItem();
-  if (!item || !current.renderExpansion || !EXPANDABLE_KINDS.has(item.kind)) return;
-  clearExpansion(current);
-  const row = current.rowByKey.get(item.key);
-  if (!row) return;
-  const content = current.renderExpansion(item);
-  if (!content) return;
-  const block = el('div', 'gp-command__expansion');
-  block.appendChild(content);
-  row.parentNode.insertBefore(block, row.nextSibling);
-  row.setAttribute('aria-expanded', 'true');
-  row.querySelector('.gp-command__chev')?.setAttribute('aria-expanded', 'true');
-  current.expansion = block;
-  current.expandedKey = item.key;
-}
-
-function toggleExpansion(item) {
-  if (!state) return;
-  if (state.expandedKey === item.key) {
-    clearExpansion(state);
-    return;
-  }
-  if (item.key !== state.activeKey) {
-    state.activeKey = item.key;
-    applyActive(state, item);
-  }
-  expand(state);
 }
 
 function applyActive(current, item) {
@@ -306,21 +245,14 @@ function refresh() {
   current.itemsByKey = new Map(items.map((item) => [item.key, item]));
   const active = (previousKey && current.itemsByKey.get(previousKey)) || items[0] || null;
   current.activeKey = active ? active.key : null;
-  const previousExpanded = current.expandedKey;
-  const focusInside = Boolean(current.expansion) && current.expansion.contains(document.activeElement);
-  current.expansion = null;
-  current.expandedKey = null;
   renderGroups(current, groups);
   applyActive(current, active);
-  if (previousExpanded && previousExpanded === current.activeKey) expand(current);
-  if (focusInside) current.input.focus();
   renderStatus(current, result, items.length);
 }
 
 function selectKey(key) {
   const item = state?.itemsByKey.get(key);
   if (!item || item.key === state.activeKey) return;
-  if (state.expandedKey) clearExpansion(state);
   state.activeKey = item.key;
   applyActive(state, item);
 }
@@ -404,18 +336,6 @@ function onKeyDown(event) {
     state.onContextMenu(item, { anchor: state.rowByKey.get(item.key) || null, keyboard: true });
     return;
   }
-  if (key === 'ArrowRight') {
-    event.preventDefault();
-    const item = activeItem();
-    if (item) toggleExpansion(item);
-    return;
-  }
-  if (key === 'ArrowLeft') {
-    if (!state.expandedKey) return;
-    event.preventDefault();
-    clearExpansion(state);
-    return;
-  }
   if (key === 'ArrowDown' || key === 'ArrowUp') {
     event.preventDefault();
     move(key === 'ArrowDown' ? 1 : -1);
@@ -427,16 +347,21 @@ function onKeyDown(event) {
     return;
   }
   if (key === 'Enter') {
-    if (state.expansion?.contains(document.activeElement)) return;
     event.preventDefault();
     const item = activeItem();
     if (item) choose(item, ctrlKey || metaKey);
     return;
   }
-  if (key === 'Backspace' && state.scope
-    && (state.input.value === '' || state.input.selectionStart === 0)) {
+  if ((ctrlKey || metaKey) && (key === 'Backspace' || key === 'Delete')) {
     event.preventDefault();
-    state.onClearScope?.();
+    state.input.value = '';
+    state.onClearPath?.();
+    refresh();
+    return;
+  }
+  if ((key === 'Backspace' || key === 'Delete') && state.pathSegments.length && state.input.value === '') {
+    event.preventDefault();
+    state.onPathPop?.();
     return;
   }
   if (key === 'Escape') {
@@ -445,43 +370,12 @@ function onKeyDown(event) {
       toggleHelp(state);
       return;
     }
-    if (state.expandedKey) {
-      clearExpansion(state);
-      return;
-    }
-    if (state.input.value) {
-      state.input.value = '';
-      refresh();
-      return;
-    }
-    if (state.scope) {
-      state.onClearScope?.();
-      return;
-    }
     closeCommandPalette();
     return;
   }
   if (key === 'Tab') {
-    const block = state.expansion;
-    if (block && block.contains(document.activeElement)) {
-      if (event.shiftKey) {
-        event.preventDefault();
-        state.input.focus();
-      } else {
-        trapFocus(event);
-      }
-      return;
-    }
-    if (block && !event.shiftKey) {
-      const target = block.querySelector('button, a[href], [tabindex]:not([tabindex="-1"])');
-      if (target) {
-        event.preventDefault();
-        target.focus();
-        return;
-      }
-    }
-    const scopeItem = activeItem();
-    if (!state.expandedKey && scopeItem?.kind === 'repo' && state.onScope?.(scopeItem)) {
+    const item = activeItem();
+    if (item?.kind === 'repo' && state.onScope?.(item)) {
       event.preventDefault();
       return;
     }
@@ -533,27 +427,30 @@ function onInput() {
 /**
  * Open the palette over the current page.
  * @param {{labels: object, search: (query: string) => object,
- *   renderExpansion?: (item: object) => Node | null, scope?: {label: string}|null,
- *   help?: object|null, onSelect?: (item: object, options: {newTab: boolean}) => void,
+ *   path?: Array<{label: string}>, tip?: string, help?: object|null,
+ *   onSelect?: (item: object, options: {newTab: boolean}) => void,
  *   onPin?: (item: object) => void, onClose?: () => void,
- *   onScope?: (item: object) => void, onClearScope?: () => void,
+ *   onScope?: (item: object) => void, onPathPop?: () => void,
+ *   onPathClick?: (index: number) => void, onClearPath?: () => void,
  *   onCopy?: (item: object) => void,
  *   onContextMenu?: (item: object, position: {x?: number, y?: number, anchor: Element|null, keyboard: boolean}) => void}} options
  * @returns {{refresh: () => void, close: () => void, focus: () => void,
- *   setQuery: (value: string) => void, setScope: (scope: object|null) => void}}
+ *   setQuery: (value: string) => void, setPath: (path: Array<{label: string}>, tip?: string) => void}}
  */
 export function openCommandPalette({
   labels = {},
   search,
-  renderExpansion,
-  scope = null,
+  path = [],
+  tip = '',
   help = null,
   onSelect,
   onPin,
   onContextMenu,
   onClose,
   onScope,
-  onClearScope,
+  onPathPop,
+  onPathClick,
+  onClearPath,
   onCopy,
 }) {
   // A previous palette may still be fading out; its own timer removes it, so
@@ -565,22 +462,22 @@ export function openCommandPalette({
   state = {
     labels,
     search,
-    renderExpansion,
-    scope,
+    pathSegments: Array.isArray(path) ? path : [],
+    tip,
     help,
     onSelect,
     onPin,
     onContextMenu,
     onClose,
     onScope,
-    onClearScope,
+    onPathPop,
+    onPathClick,
+    onClearPath,
     onCopy,
     ...node,
     itemsByKey: new Map(),
     rowByKey: new Map(),
     activeKey: null,
-    expandedKey: null,
-    expansion: null,
     helpNode: null,
     focusReturn: document.activeElement instanceof HTMLElement ? document.activeElement : null,
     debounceTimer: null,
@@ -596,7 +493,7 @@ export function openCommandPalette({
   node.root.addEventListener('pointerdown', onPointerDown);
   node.dialog.addEventListener('keydown', onKeyDown);
   lockPageScroll();
-  renderScope(state);
+  renderPath(state);
   refresh();
   node.input.focus();
 
@@ -612,8 +509,8 @@ export function openCommandPalette({
       refresh();
       node.input.focus();
     },
-    setScope(scope) {
-      setScope(scope);
+    setPath(pathSegments, nextTip) {
+      setPath(pathSegments, nextTip);
     },
   };
 }

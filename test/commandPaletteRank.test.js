@@ -104,13 +104,13 @@ test('a prefix mode keeps only favorites of that kind', () => {
   assert.deepEqual(result.groups[0].items.map((item) => item.key), ['file:a.js']);
 });
 
-test('issues browse directly under this repository', () => {
+test('the empty query browses pages and repositories but not files or issues', () => {
   const result = rankCandidates([
-    { key: 'repo.ctx', kind: 'command', groupId: 'repository', title: 'Code', rankFields: [{ text: 'Code', weight: 3 }] },
+    { key: 'cmd:home', kind: 'command', groupId: 'pages', title: 'Code', rankFields: [{ text: 'Code', weight: 3 }] },
     { key: 'issue:1', kind: 'issue', groupId: 'issues', title: '#1 Bug', rankFields: [{ text: '#1 Bug', weight: 3 }] },
     { key: 'repo:o/r', kind: 'repo', groupId: 'repos', title: 'o/r', rankFields: [{ text: 'o/r', weight: 3 }] },
   ], '', { titles: { pinned: 'Favorites', recent: 'Recent' } });
-  assert.deepEqual(result.groups.map((group) => group.id), ['repository', 'issues', 'repos']);
+  assert.deepEqual(result.groups.map((group) => group.id), ['pages', 'repos']);
 });
 
 function scopedCandidates() {
@@ -128,11 +128,15 @@ function scopedCandidates() {
   ];
 }
 
-test('a scope keeps commands and only the scoped repository resources', () => {
+test('a scope keeps only the scoped rows and asks for files by prefix', () => {
   const keys = (query) => rankCandidates(scopedCandidates(), query, {
     scope: { repo: 'o/a' }, titles: { top: 'Top result' },
   }).groups.flatMap((group) => group.items.map((item) => item.key)).sort();
-  assert.deepEqual(keys(''), ['cmd:settings', 'file:o/a@HEAD:x.js', 'repo:o/a']);
+  // The empty scoped list is the repository's pages; the candidate builder
+  // leaves repository rows out of a scope, so only this fixture's row is left.
+  // Plus, files and issues stay one prefix away.
+  assert.deepEqual(keys(''), ['repo:o/a']);
+  assert.deepEqual(keys('/x'), ['file:o/a@HEAD:x.js']);
   assert.deepEqual(keys('a'), ['repo:o/a']);
 });
 

@@ -117,6 +117,10 @@ function buildRepoCandidate(repo, groupId, groupTitle) {
   return {
     key: `repo:${repo.fullName}`,
     kind: 'repo',
+    // Tab drills into the repository, and Enter opens it: the two hints a
+    // repository row carries in GitHub's own palette.
+    scopeable: true,
+    hint: t('palette.hint.jump'),
     groupId,
     groupTitle,
     title: repo.name || repo.fullName,

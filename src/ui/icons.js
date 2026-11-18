@@ -149,4 +149,22 @@ export const PALETTE_ICONS = {
     + '<path d="M6.5 4.5V3h3v1.5"/>'
     + '<path d="m4.5 4.5.5 8.5h6l.5-8.5"/>',
   ),
+  home: svg(
+    '<path d="M2.5 7.5 8 2.5l5.5 5"/>'
+    + '<path d="M4.5 6.5v7h7v-7"/>',
+  ),
+  bell: svg(
+    '<path d="M4.5 11.5V7a3.5 3.5 0 0 1 7 0v4.5"/>'
+    + '<path d="M3 11.5h10"/>'
+    + '<path d="M6.75 13a1.25 1.25 0 0 0 2.5 0"/>',
+  ),
+  comment: svg(
+    '<path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2Z"/>',
+  ),
+  shield: svg(
+    '<path d="M8 2.5 13 4v4c0 2.8-2.1 4.7-5 5.5-2.9-.8-5-2.7-5-5.5V4Z"/>',
+  ),
+  graph: svg(
+    '<path d="M2.5 13.5v-4M6.5 13.5v-7M10.5 13.5v-3M14 13.5V4"/>',
+  ),
 };

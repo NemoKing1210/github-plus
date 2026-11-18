@@ -23,7 +23,6 @@ import { commandCandidates } from './commands.js';
 import { ensureRepositories, repoCandidates } from './repos.js';
 import { ensureTree, fileCandidates, forgetTrees, treeKey } from './files.js';
 import { ensureIssues, forgetIssues, issueCandidates } from './issues.js';
-import { renderExpansion } from './detail.js';
 import { navigate, runAction } from './actions.js';
 import {
   clearDataCache, isFresh, isRateBlocked, readPaletteState, readPins, readRecents, recordRecent,
@@ -59,8 +58,6 @@ function paletteLabels() {
     tipHelp: t('palette.tipHelp'),
     hintOpen: t('palette.hint.open'),
     hintScope: t('palette.hint.scope'),
-    hintExpand: t('palette.hint.expand'),
-    scopeRemove: t('palette.scope.remove'),
     rowMenu: t('palette.rowMenu'),
     badges: {
       pinned: t('palette.badge.pinned'),
@@ -89,17 +86,9 @@ function paletteHelpLabels() {
   };
 }
 
-function detailLabels() {
+function rowMenuLabels() {
   return {
     ...paletteLabels(),
-    locale: getLocale(),
-    updated: t('palette.details.updated'),
-    stars: t('palette.details.stars'),
-    forks: t('palette.details.forks'),
-    private: t('palette.details.private'),
-    owned: t('palette.details.owned'),
-    starred: t('palette.details.starred'),
-    org: t('palette.details.org'),
     open: t('palette.details.open'),
     openNewTab: t('palette.details.openNewTab'),
     copyLink: t('palette.details.copyLink'),
@@ -109,10 +98,6 @@ function detailLabels() {
     pin: t('palette.details.pin'),
     unpin: t('palette.details.unpin'),
     run: t('palette.details.run'),
-    ref: t('palette.details.ref'),
-    author: t('palette.details.author'),
-    comments: t('palette.details.comments'),
-    stateOpen: t('palette.details.stateOpen'),
   };
 }
 
@@ -189,11 +174,28 @@ function buildCandidates(state) {
   const scoped = state.scope?.repo;
   return markPinned(dedupe([
     ...commandCandidates(state),
-    ...repoCandidates(state),
-    ...fileCandidates(state, scoped ? { repo: scoped, ref: 'HEAD' } : {}),
-    ...issueCandidates(state, scoped ? { repo: scoped } : {}),
+    ...(scoped ? [] : repoCandidates(state)),
+    ...(scoped ? fileCandidates(state, { repo: scoped, ref: 'HEAD' }) : []),
+    ...(scoped ? issueCandidates(state, { repo: scoped }) : []),
     ...snapshotCandidates(state),
   ]), state.pinnedKeys);
+}
+
+/** The scope path rendered in the field: owner and repository as two segments. */
+function pathSegments(state) {
+  const repo = state.scope?.repo;
+  if (!repo) return [];
+  const [owner, name] = repo.split('/');
+  return name ? [{ label: owner }, { label: name }] : [{ label: repo }];
+}
+
+function scopedTip(repo) {
+  return repo ? t('palette.tipScoped', { repo }) : t('palette.tip');
+}
+
+function syncPath() {
+  if (!paletteState) return;
+  handle?.setPath(pathSegments(paletteState), scopedTip(paletteState.scope?.repo));
 }
 
 function repositoriesEnabled(settings) {
@@ -263,21 +265,21 @@ function kickLoads() {
     sessionRefreshes.add('repos');
     tasks.push(ensureRepositories());
   }
+  // Only a scoped repository has files and issues to list; the root level is
+  // the account's pages and repositories, as in GitHub's own palette.
   const scoped = state.scope?.repo;
-  const treeRepo = scoped || state.context.repo;
-  const treeRef = scoped ? 'HEAD' : state.context.ref;
-  if (state.settings.sources.files !== false && treeRepo && treeRef) {
-    const key = `tree:${treeKey(treeRepo, treeRef)}`;
+  if (state.settings.sources.files !== false && scoped) {
+    const key = `tree:${treeKey(scoped, 'HEAD')}`;
     if (!sessionRefreshes.has(key)) {
       sessionRefreshes.add(key);
-      tasks.push(ensureTree({ repo: treeRepo, ref: treeRef }));
+      tasks.push(ensureTree({ repo: scoped, ref: 'HEAD' }));
     }
   }
-  if (state.settings.sources.issues !== false && treeRepo) {
-    const key = `issues:${treeRepo}`;
+  if (state.settings.sources.issues !== false && scoped) {
+    const key = `issues:${scoped}`;
     if (!sessionRefreshes.has(key)) {
       sessionRefreshes.add(key);
-      tasks.push(ensureIssues({ repo: treeRepo }));
+      tasks.push(ensureIssues({ repo: scoped }));
     }
   }
   if (!tasks.length) return;
@@ -367,22 +369,20 @@ function handleScope(item) {
   if (!paletteState || item?.kind !== 'repo') return false;
   const repo = item.data?.fullName || item.title || '';
   if (!repo) return false;
-  const [owner, name] = repo.split('/');
-  const label = name ? `${owner} / ${name}` : repo;
   paletteState.scope = { repo };
-  handle?.setScope({ label, tip: t('palette.tipScoped', { repo }) });
+  syncPath();
   handle?.setQuery('');
   refreshView();
   kickLoads();
   return true;
 }
 
-function clearScope() {
+function clearPath() {
   if (!paletteState?.scope) return;
   paletteState.scope = null;
   paletteState.loadError = null;
   paletteState.status = isRateBlocked(paletteState.cache) ? 'rateLimited' : 'ready';
-  handle?.setScope(null);
+  syncPath();
   refreshView();
 }
 
@@ -407,13 +407,16 @@ export function openPalette() {
   state.status = isRateBlocked(state.cache) ? 'rateLimited' : 'ready';
   state.treeIncomplete = false;
   state.loadError = null;
-  state.scope = null;
+  // GitHub opens the palette at the visitor's current location, so a
+  // repository page starts with that repository already in the path.
+  state.scope = state.context.repo ? { repo: state.context.repo } : null;
   state.candidates = buildCandidates(state);
   paletteState = state;
 
   handle = openCommandPalette({
     labels: paletteLabels(),
-    scope: null,
+    path: pathSegments(state),
+    tip: scopedTip(state.scope?.repo),
     help: paletteHelpLabels(),
     search: (query) => ({
       ...searchPalette(state, query, {
@@ -424,15 +427,12 @@ export function openPalette() {
       status: state.status === 'loading' ? 'loading' : 'ready',
       note: noteFor(state),
     }),
-    renderExpansion: (item) => renderExpansion(item, {
-      labels: detailLabels(),
-      pinned: Boolean(paletteState?.pinnedKeys.includes(item.key)),
-      onAction: handleRowAction,
-    }),
     onSelect,
     onPin,
     onScope: handleScope,
-    onClearScope: clearScope,
+    onPathPop: clearPath,
+    onPathClick: clearPath,
+    onClearPath: clearPath,
     onCopy: copyActive,
     onContextMenu: (item, position) => openContextMenu({
       ...position,
@@ -442,7 +442,7 @@ export function openPalette() {
       // the palette would stay open but stop receiving keys.
       onClose: () => handle?.focus(),
       items: rowMenuItems(item, {
-        labels: detailLabels(),
+        labels: rowMenuLabels(),
         pinned: Boolean(paletteState?.pinnedKeys.includes(item.key)),
         onAction: (actionId) => handleRowAction(actionId, item),
       }),

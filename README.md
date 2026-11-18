@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,7 +13,7 @@ wherever GitHub lists files, blame-style age colors for those files, file sizes
 with one-click downloads, a context menu for file actions, a quick preview for
 any file, and on-page translation of markdown, comments, commits and titles.
 
-> **Status:** early (`0.24.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.25.0`). Settings panel with instant search (General ·
 > Gallery · Files · Translation · Palette · Backup · About), a `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, file sizes with download buttons, a file context menu, a
@@ -244,35 +244,36 @@ the markdown file open in the quick preview:
 Press `Ctrl/⌘+K` anywhere on GitHub for one search field over everything you do
 there:
 
-- **From the header** — the palette button leads GitHub's own header actions
-  and opens it from any page while showing the shortcut currently in effect.
-- **One repository at a time** — press `Tab` on a repository row to scope the
-  palette to it: files and issues narrow to that repository, the search row
-  searches inside it, and `Backspace`, the chip or `Escape` leaves the scope.
+- **Starts where you are** — on a repository page the palette opens with that
+  repository already in its path, so the first list is that repository's pages.
+- **Drill down with `Tab`** — the field is a path (`owner / repo / query`).
+  Press `Tab` on a repository row to add it: the list becomes that repository's
+  pages, `/` lists its files and `#` its open issues and pull requests, and the
+  search row searches inside it. `Backspace` removes the last level,
+  `Ctrl/⌘+Backspace` clears the path and the query, and clicking a path segment
+  leaves everything below it.
 - **Your repositories** — every repository you own, owned ones first, with
-  stars, language, last push and visibility in the row's expansion. Type `@` to
-  search repositories only.
+  stars, language, last push and visibility on the row. Type `@` to search
+  repositories only.
 - **Starred repositories** — the projects you keep coming back to, merged after
   your own and marked with a star.
-- **Files in this repository** — type `/` for every path in the current (or
-  scoped) repository, or a query that matches one; a file opens on GitHub at
-  the ref you are browsing.
-- **Open issues and pull requests** — the current repository's open issues and
-  pull requests, marked with an issue or pull-request badge and carrying the
-  author, update time and comment count in the row's expansion; search them by
-  title, number or author.
-- **GitHub pages and GitHub Plus actions** — open your issues, pulls,
-  notifications or settings; open the GitHub Plus panel; toggle its features;
-  refresh the cache. Type `>` for commands, `#` for issues and pull requests,
-  `/` for files or `@` for repositories; a GitHub search row closes every
-  query, searching inside the scope when one is active.
+- **Files in the repository in the path** — type `/` for every path there, or a
+  query that matches one; a file opens on GitHub at the ref you are browsing.
+- **Open issues and pull requests** — type `#` for the repository's open issues
+  and pull requests, marked with an issue or pull-request badge and carrying the
+  author and update time; search them by title, number or author.
+- **Pages as rows** — the scoped repository's own pages (Code, Issues, Pull
+  requests, Actions, Projects, Discussions, Releases, Wiki, Security, Insights
+  and Settings when you own it) or, at the root, your account's pages (profile,
+  repositories, stars, notifications, gists, GitHub settings, dashboard), each
+  one row away; a repository row is hinted `Jump to`, and a GitHub search row
+  closes every query, searching inside the path when one is set.
+- **GitHub Plus actions** — open the panel, toggle its features or refresh the
+  cache; type `>` for commands.
 - **Favorites and recents** — pin what you use constantly (`Alt+P`); pinned
   rows carry a star and come first, on the empty list and on typed queries, and
   recently opened rows come back to the top on the next open, per GitHub
   account.
-- **Details in place** — press `→` or the row's chevron to open its details
-  and actions right under it, `←` or `Escape` to close them, and `?` for the
-  full key and prefix guide.
 - **Actions on any row** — right-click a row or press `Shift+F10` to open it,
   open it in a new tab, copy its link, path, clone address or issue number, and
   pin or unpin it.
@@ -288,9 +289,9 @@ there:
   kept per account, so switching accounts never shows another account's
   repositories.
 - **Keyboard first** — `↑`/`↓` move, `Enter` opens, `Ctrl/⌘+Enter` opens in a
-  new tab, `→` expands the active row, `Tab` scopes a repository, `Alt+P` pins,
-  `Ctrl/⌘+C` copies the row and `Esc` walks back through help, expansion, query
-  and scope before closing; the palette stays out of the way while you type in
+  new tab, `Tab` drills into a repository, `Backspace` leaves a path level,
+  `Alt+P` pins, `Ctrl/⌘+C` copies the row, `?` shows every key and prefix, and
+  `Esc` closes (help first); the palette stays out of the way while you type in
   a comment or README editor, and closes itself on navigation. The shortcut is
   a preset or any combination you record on the palette's settings page.
 

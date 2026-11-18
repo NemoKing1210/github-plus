@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 파일 크기와 원클릭 다운로드, 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, 페이지 번역을 제공합니다.
 
-> **상태:** 초기(`0.24.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
+> **상태:** 초기(`0.25.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 번역 ·
 > 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리, 컬러 파일
 > 아이콘, blame 스타일 나이 색상, 다운로드 버튼이 있는 파일 크기, 파일 컨텍스트 메뉴,
 > 파일 빠른 미리보기, 페이지 번역. 더 많은 GitHub 개선이 예정되어 있습니다.
@@ -223,29 +223,33 @@ GitHub 자체 메뉴에는 그런 작업이 없습니다. GitHub Plus는 파일�
 GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 모든 일을 검색하는 하나의
 필드가 열립니다:
 
-- **헤더 버튼** — 팔레트 버튼은 GitHub 헤더 작업의 맨 앞에 있으며 어느 페이지에서든
-  팔레트를 열 수 있고 현재 단축키가 표시됩니다.
-- **한 번에 한 저장소** — 저장소 행에서 `Tab`을 누르면 팔레트가 그 저장소로
-  좁혀집니다. 파일과 issue가 해당 저장소만 보여 주고 검색 행도 그 안에서
-  검색하며, `Backspace`, 칩 또는 `Esc`로 해제합니다.
-- **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 펼친 행에 스타, 언어, 최근
-  push, 공개 범위가 표시됩니다. `@`를 입력하면 저장소만 검색합니다.
+- **현재 위치에서 시작** — 저장소 페이지에서는 해당 저장소가 이미 경로에 들어간
+  채로 팔레트가 열리므로 첫 목록은 그 저장소의 페이지입니다.
+- **`Tab`으로 깊이 들어가기** — 입력 필드는 경로(`owner / repo / 검색어`)입니다.
+  저장소 행에서 `Tab`을 누르면 경로에 추가되어 목록이 그 저장소의 페이지가 되고,
+  `/`는 파일을, `#`는 열린 issue와 pull request를 보여 주며 검색 행은 그 안에서
+  검색합니다. `Backspace`는 마지막 단계를 지우고, `Ctrl/⌘+Backspace`는 경로와
+  검색어를 비우며, 경로 세그먼트를 클릭하면 그 아래를 모두 버립니다.
+- **내 저장소** — 소유한 모든 저장소가 먼저 나오고, 행에 스타, 언어, 최근 push,
+  공개 범위가 표시됩니다. `@`를 입력하면 저장소만 검색합니다.
 - **스타 표시한 저장소** — 자주 돌아오는 프로젝트로, 내 저장소 다음에 오며 별표로
   표시됩니다.
-- **현재 저장소의 파일** — `/`는 현재(또는 선택한) 저장소의 모든 경로나 일치하는
-  검색어를 보여 줍니다. 파일은 보고 있는 ref에서 GitHub로 열립니다.
-- **열린 issue와 pull request** — 현재 저장소의 열린 issue와 pull request로, issue
-  또는 pull request 배지가 붙고 펼친 행에 작성자, 업데이트 시간, 댓글 수가
-  표시됩니다. 제목, 번호, 작성자로 검색합니다.
-- **GitHub 페이지와 GitHub Plus 작업** — issue, pull request, 알림, 설정을 엽니다.
-  GitHub Plus 패널을 엽니다. 기능을 켜고 끕니다. 캐시를 새로 고칩니다. `>`는 명령,
-  `#`는 issue와 pull request, `/`는 파일, `@`는 저장소만 표시합니다. GitHub 검색
-  행이 모든 검색어의 마지막에 오며, 범위가 있으면 그 저장소 안에서 검색합니다.
+- **경로에 있는 저장소의 파일** — `/`는 그 안의 모든 경로나 일치하는 검색어를
+  보여 줍니다. 파일은 보고 있는 ref에서 GitHub로 열립니다.
+- **열린 issue와 pull request** — `#`는 해당 저장소의 열린 issue와 pull request를
+  보여 주며 issue 또는 pull request 배지, 작성자, 업데이트 시간이 붙습니다. 제목,
+  번호, 작성자로 검색합니다.
+- **행으로 표시되는 페이지** — 경로에 있는 저장소 자체의 페이지(Code, Issues, Pull
+  requests, Actions, Projects, Discussions, Releases, Wiki, Security, Insights,
+  소유한 경우 Settings) 또는 루트에서는 계정 페이지(프로필, 저장소, 스타, 알림,
+  gists, GitHub 설정, 대시보드)가 한 행씩 나옵니다. 저장소 행에는 `이동` 힌트가
+  붙고, GitHub 검색 행이 모든 검색어의 마지막에 오며 경로가 있으면 그 안에서
+  검색합니다.
+- **GitHub Plus 작업** — 패널 열기, 기능 전환, 캐시 새로 고침. `>`는 명령만
+  표시합니다.
 - **즐겨찾기와 최근 항목** — 자주 쓰는 항목은 `Alt+P`로 고정합니다. 고정한 행은
   별표가 붙어 맨 앞에 오며, 빈 목록과 검색 결과 모두 그렇습니다. 최근에 연 행은
   다음에 열 때 맨 위로 돌아옵니다(GitHub 계정별).
-- **그 자리에서 세부 정보** — `→` 또는 행의 화살표로 세부 정보와 작업이 바로
-  아래에 열리고, `←` 또는 `Esc`로 닫으며, `?`로 모든 키와 접두사를 봅니다.
 - **모든 행의 작업** — 행을 마우스 오른쪽 버튼으로 클릭하거나 `Shift+F10`을 누르면
   열기, 새 탭에서 열기, 링크·경로·클론 주소·issue 번호 복사, 고정 및 해제를 할 수
   있습니다.
@@ -258,10 +262,10 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
   브라우저에만 저장되며, 백업에 절대 기록되지 않고 `api.github.com`으로만 전송됩니다.
   캐시는 계정별로 분리되므로 계정을 바꿔도 다른 사람의 저장소가 표시되지 않습니다.
 - **키보드 우선** — `↑`/`↓`로 이동, `Enter`로 열기, `Ctrl/⌘+Enter`로 새 탭에서 열기,
-  `→`로 현재 행 펼치기, `Tab`으로 저장소 범위 지정, `Alt+P`로 고정, `Ctrl/⌘+C`로
-  행 복사, `Esc`로 도움말·펼침·검색어·범위를 차례로 되돌린 뒤 닫습니다. 댓글이나
-  README 편집기에서 입력하는 동안에는 방해하지 않고, 탐색 시 스스로 닫힙니다.
-  단축키는 프리셋이거나 팔레트 설정 페이지에서 기록한 임의의 조합입니다.
+  `Tab`으로 저장소에 들어가기, `Backspace`로 경로 한 단계 나가기, `Alt+P`로 고정,
+  `Ctrl/⌘+C`로 행 복사, `?`로 모든 키와 접두사 보기, `Esc`로 닫기(도움말 먼저).
+  댓글이나 README 편집기에서 입력하는 동안에는 방해하지 않고, 탐색 시 스스로
+  닫힙니다. 단축키는 프리셋이거나 팔레트 설정 페이지에서 기록한 임의의 조합입니다.
 
 ### 설정 패널
 

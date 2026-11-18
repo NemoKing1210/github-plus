@@ -20,12 +20,10 @@ function labels() {
     newTab: 'new tab',
     close: 'close',
     tip: 'Tip: press ? for every shortcut',
+    tipScoped: 'Tip: Backspace leaves {repo}',
     tipHelp: 'shortcuts',
     hintOpen: 'open',
     hintScope: 'scope',
-    hintExpand: 'actions',
-    scopeRemove: 'remove scope',
-    help: { title: 'Keyboard shortcuts', prefixes: [], keys: [], close: 'close' },
     rowMenu: 'Actions',
     badges: { pinned: 'pinned', recent: 'recent', private: 'private', fork: 'fork', archived: 'archived' },
   };
@@ -33,11 +31,11 @@ function labels() {
 
 function makeGroups() {
   return [{
-    id: 'github',
-    title: 'GitHub',
+    id: 'pages',
+    title: 'Pages',
     items: [
-      { key: 'cmd:one', kind: 'command', icon: 'terminal', title: 'Open issues', groupTitle: 'GitHub' },
-      { key: 'cmd:two', kind: 'command', icon: 'terminal', title: 'Open pulls', groupTitle: 'GitHub' },
+      { key: 'cmd:one', kind: 'command', icon: 'terminal', title: 'Open issues', groupTitle: 'Pages' },
+      { key: 'cmd:two', kind: 'command', icon: 'terminal', title: 'Open pulls', groupTitle: 'Pages' },
     ],
   }];
 }
@@ -64,153 +62,16 @@ afterEach(() => {
   dom.window.close();
 });
 
-function open() {
+function open(extra = {}) {
   return shell.openCommandPalette({
     labels: labels(),
     search: () => ({ groups: makeGroups(), status: 'ready' }),
-    renderExpansion: (item) => {
-      const node = document.createElement('div');
-      node.textContent = `details:${item.title}`;
-      node.appendChild(Object.assign(document.createElement('button'), { textContent: 'Open' }));
-      return node;
-    },
     onSelect: (item, options) => seen.push([item.key, options.newTab]),
     onPin: (item) => seen.push(['pin', item.key]),
     onClose: () => {},
+    ...extra,
   });
 }
-
-test('ArrowRight expands the active row and ArrowLeft collapses it', () => {
-  open();
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  const row = document.querySelector('.gp-command__row[aria-selected="true"]');
-  assert.equal(row.getAttribute('aria-expanded'), 'true');
-  assert.match(document.querySelector('.gp-command__expansion').textContent, /details:Open issues/);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__expansion'), null);
-  assert.equal(
-    document.querySelector('.gp-command__row[aria-selected="true"]').getAttribute('aria-expanded'),
-    'false',
-  );
-});
-
-test('moving the selection collapses the expansion', () => {
-  open();
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__expansion'), null);
-});
-
-test('Tab moves focus into the expanded actions and Shift+Tab returns', () => {
-  open();
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  assert.equal(document.activeElement, document.querySelector('.gp-command__expansion button'));
-  document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true }));
-  assert.equal(document.activeElement, input);
-});
-
-test('Tab scopes a repository row and the chip clears it', () => {
-  const scopes = [];
-  shell.openCommandPalette({
-    labels: labels(),
-    scope: null,
-    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [
-      { key: 'repo:o/a', kind: 'repo', title: 'o/a' },
-      { key: 'cmd:x', kind: 'command', title: 'Run' },
-    ] }] }),
-    onScope: (item) => { scopes.push(item.key); return item.kind === 'repo'; },
-    onClearScope: () => scopes.push('clear'),
-  });
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  assert.deepEqual(scopes, ['repo:o/a']);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  assert.deepEqual(scopes, ['repo:o/a']);
-});
-
-test('the scope chip renders and clears the scope', () => {
-  let handle;
-  handle = shell.openCommandPalette({
-    labels: labels(), scope: { label: 'vuejs / core' }, search: () => ({ groups: [] }),
-    onClearScope: () => handle.setScope(null),
-  });
-  const chip = document.querySelector('.gp-command__scope');
-  assert.match(chip.textContent, /vuejs \/ core/);
-  chip.click();
-  assert.equal(document.querySelector('.gp-command__scope'), null);
-});
-
-test('Backspace pops the scope before it edits text', () => {
-  let cleared = 0;
-  shell.openCommandPalette({
-    labels: labels(), scope: { label: 'o/a' }, search: () => ({ groups: [] }),
-    onClearScope: () => { cleared += 1; },
-  });
-  document.querySelector('.gp-command__input')
-    .dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
-  assert.equal(cleared, 1);
-});
-
-test('Escape walks back help, expansion, query, scope, then closes', () => {
-  let cleared = 0;
-  let handle;
-  handle = shell.openCommandPalette({
-    labels: labels(), scope: { label: 'o/a' }, search: () => ({ groups: makeGroups() }),
-    renderExpansion: () => { const n = document.createElement('div'); n.appendChild(document.createElement('button')); return n; },
-    onClearScope: () => { cleared += 1; handle.setScope(null); },
-  });
-  const input = document.querySelector('.gp-command__input');
-  input.value = 'x'; handle.refresh();
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__expansion'), null);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(input.value, '');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(cleared, 1);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(shell.isCommandPaletteOpen(), false);
-});
-
-test('Ctrl+C copies the active row only when no text is selected', () => {
-  const copied = [];
-  shell.openCommandPalette({
-    labels: labels(), search: () => ({ groups: makeGroups() }),
-    onCopy: (item) => copied.push(item.key),
-  });
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true }));
-  assert.deepEqual(copied, ['cmd:one']);
-  input.value = 'abc';
-  input.setSelectionRange(0, 3);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true }));
-  assert.deepEqual(copied, ['cmd:one']);
-});
-
-test('? opens the help popover when the query is empty', () => {
-  shell.openCommandPalette({
-    labels: labels(), search: () => ({ groups: [] }),
-    help: { title: 'Keys', prefixes: [{ key: '>', label: 'commands' }], keys: [{ key: 'Tab', label: 'inside' }], close: 'Esc' },
-  });
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: '?', bubbles: true }));
-  assert.match(document.querySelector('.gp-command__help').textContent, /commands/);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__help'), null);
-});
-
-test('the chevron toggles the expansion without selecting the row', () => {
-  open();
-  const chev = document.querySelector('.gp-command__chev');
-  chev.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__expansion') !== null, true);
-  assert.deepEqual(seen, []);
-});
 
 test('opening mounts the dialog, focuses the input and marks the first result', () => {
   open();
@@ -224,7 +85,118 @@ test('opening mounts the dialog, focuses the input and marks the first result', 
   assert.equal(input.getAttribute('aria-activedescendant'), active.id);
 });
 
-test('arrows move the selection, Enter opens and closes', async () => {
+test('the path renders one segment per level with separators', () => {
+  open({ path: [{ label: 'vuejs' }, { label: 'core' }], tip: 'Tip: Backspace leaves vuejs/core' });
+  const segments = document.querySelectorAll('.gp-command__path .gp-command__seg');
+  assert.deepEqual([...segments].map((node) => node.textContent), ['vuejs', 'core']);
+  assert.equal(document.querySelectorAll('.gp-command__path .gp-command__sep').length, 2);
+  assert.match(document.querySelector('.gp-command__tip-text').textContent, /vuejs\/core/);
+  assert.equal(document.querySelector('.gp-command__field').classList.contains('is-scoped'), true);
+});
+
+test('clicking a path segment reports its level without blurring the field', () => {
+  const clicks = [];
+  open({ path: [{ label: 'vuejs' }, { label: 'core' }], onPathClick: (index) => clicks.push(index) });
+  const input = document.querySelector('.gp-command__input');
+  const segment = document.querySelectorAll('.gp-command__seg')[0];
+  segment.dispatchEvent(new dom.window.MouseEvent('pointerdown', { bubbles: true, cancelable: true }));
+  segment.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.deepEqual(clicks, [0]);
+  assert.equal(document.activeElement, input);
+});
+
+test('setPath swaps the levels and the tip in place', () => {
+  const handle = open();
+  assert.equal(document.querySelectorAll('.gp-command__seg').length, 0);
+  handle.setPath([{ label: 'o' }, { label: 'a' }], 'Tip: inside o/a');
+  assert.deepEqual(
+    [...document.querySelectorAll('.gp-command__seg')].map((node) => node.textContent),
+    ['o', 'a'],
+  );
+  assert.match(document.querySelector('.gp-command__tip-text').textContent, /o\/a/);
+  handle.setPath([], 'Tip: press ? for every shortcut');
+  assert.equal(document.querySelectorAll('.gp-command__seg').length, 0);
+  assert.equal(document.querySelector('.gp-command__field').classList.contains('is-scoped'), false);
+});
+
+test('Tab on a repository row drills into it instead of moving focus', () => {
+  const scopes = [];
+  open({
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [
+      { key: 'repo:o/a', kind: 'repo', title: 'o/a', scopeable: true },
+    ] }] }),
+    onScope: (item) => { scopes.push(item.key); return true; },
+  });
+  const input = document.querySelector('.gp-command__input');
+  const event = new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+  input.dispatchEvent(event);
+  assert.deepEqual(scopes, ['repo:o/a']);
+  assert.equal(event.defaultPrevented, true);
+  assert.equal(document.activeElement, input);
+});
+
+test('Tab moves focus for a row that cannot be scoped', () => {
+  const scopes = [];
+  open({ onScope: (item) => { scopes.push(item.key); return true; } });
+  const input = document.querySelector('.gp-command__input');
+  const event = new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+  input.dispatchEvent(event);
+  assert.deepEqual(scopes, []);
+  assert.equal(event.defaultPrevented, false);
+});
+
+test('Backspace with an empty query pops the last path level', () => {
+  let pops = 0;
+  open({ path: [{ label: 'o' }, { label: 'a' }], onPathPop: () => { pops += 1; } });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+  assert.equal(pops, 1);
+  input.value = 'src';
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', bubbles: true }));
+  assert.equal(pops, 1);
+});
+
+test('Ctrl/⌘+Backspace clears the query and the path', () => {
+  let clears = 0;
+  open({ path: [{ label: 'o' }, { label: 'a' }], onClearPath: () => { clears += 1; } });
+  const input = document.querySelector('.gp-command__input');
+  input.value = 'src';
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Backspace', ctrlKey: true, bubbles: true }));
+  assert.equal(clears, 1);
+  assert.equal(input.value, '');
+  assert.equal(shell.isCommandPaletteOpen(), true);
+});
+
+test('Escape closes the palette even with a query', () => {
+  open();
+  const input = document.querySelector('.gp-command__input');
+  input.value = 'rea';
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(shell.isCommandPaletteOpen(), false);
+});
+
+test('Ctrl+C copies the active row only when no text is selected', () => {
+  const copied = [];
+  open({ onCopy: (item) => copied.push(item.key) });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true }));
+  assert.deepEqual(copied, ['cmd:one']);
+  input.value = 'abc';
+  input.setSelectionRange(0, 3);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'c', ctrlKey: true, bubbles: true }));
+  assert.deepEqual(copied, ['cmd:one']);
+});
+
+test('? opens the help popover when the query is empty', () => {
+  open({ help: { title: 'Keys', prefixes: [{ key: '>', label: 'commands' }], keys: [{ key: 'Tab', label: 'inside' }], close: 'Esc' } });
+  const input = document.querySelector('.gp-command__input');
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: '?', bubbles: true }));
+  assert.match(document.querySelector('.gp-command__help').textContent, /commands/);
+  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  assert.equal(document.querySelector('.gp-command__help'), null);
+});
+
+test('arrows move the selection, Enter opens and closes', () => {
   open();
   const input = document.querySelector('.gp-command__input');
   input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
@@ -238,19 +210,6 @@ test('Ctrl/⌘+Enter opens in a new tab', () => {
   const input = document.querySelector('.gp-command__input');
   input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }));
   assert.deepEqual(seen, [['cmd:one', true]]);
-});
-
-test('Escape clears the query before it closes', async () => {
-  open();
-  const input = document.querySelector('.gp-command__input');
-  input.value = 'rea';
-  input.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 120));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(input.value, '');
-  assert.equal(shell.isCommandPaletteOpen(), true);
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(shell.isCommandPaletteOpen(), false);
 });
 
 test('an outside pointer closes and focus returns to the opener', () => {
@@ -270,11 +229,21 @@ test('the tip strip replaces the footer hints', () => {
   assert.equal(document.querySelector('.gp-command__detail'), null);
 });
 
-test('the active row shows key hints', () => {
+test('the active row shows what Enter does', () => {
   open();
   const active = document.querySelector('.gp-command__row[aria-selected="true"]');
   assert.match(active.querySelector('.gp-command__hint').textContent, /open/);
-  assert.match(active.querySelector('.gp-command__hint').textContent, /actions/);
+});
+
+test('a repository row hints at scoping and jumping', () => {
+  open({
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [
+      { key: 'repo:a', kind: 'repo', title: 'alpha', scopeable: true, hint: 'Jump to' },
+    ] }] }),
+  });
+  const hint = document.querySelector('.gp-command__hint').textContent;
+  assert.match(hint, /scope/);
+  assert.match(hint, /Jump to/);
 });
 
 test('clicking a row opens it and Ctrl/⌘+click opens a new tab', () => {
@@ -314,29 +283,17 @@ test('refresh keeps the selected key and Alt+P pins it', () => {
 });
 
 test('a pinned row shows a star before its title', () => {
-  shell.openCommandPalette({
-    labels: labels(),
+  open({
     search: () => ({
       groups: [{ id: 'pinned', title: 'Favorites', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha', pinned: true }] }],
     }),
-    onSelect: () => {},
-    onPin: () => {},
   });
   assert.ok(document.querySelector('.gp-command__row .gp-command__pin'));
 });
 
-test('a repository row hints at scoping', () => {
-  shell.openCommandPalette({
-    labels: labels(),
-    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
-  });
-  assert.match(document.querySelector('.gp-command__hint').textContent, /scope/);
-});
-
 test('the row menu opens from a right-click and the keyboard', () => {
   const calls = [];
-  shell.openCommandPalette({
-    labels: labels(),
+  open({
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: (item, position) => calls.push([item.key, position.keyboard]),
   });
@@ -346,8 +303,7 @@ test('the row menu opens from a right-click and the keyboard', () => {
 });
 
 test('a press inside an open row menu does not close the palette', () => {
-  shell.openCommandPalette({
-    labels: labels(),
+  open({
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: () => contextMenu.openContextMenu({ x: 20, y: 20, label: 'Actions', layer: 'palette', items: [{ label: 'Open', onSelect() {} }] }),
   });
@@ -358,10 +314,9 @@ test('a press inside an open row menu does not close the palette', () => {
 });
 
 test('focus stays inside the palette after a keyboard-opened row menu closes', () => {
-  shell.openCommandPalette({
-    labels: labels(),
+  open({
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
-    onContextMenu: (item) => {
+    onContextMenu: () => {
       contextMenu.openContextMenu({
         anchor: document.querySelector('.gp-command__row'),
         keyboard: true,
@@ -381,8 +336,7 @@ test('focus stays inside the palette after a keyboard-opened row menu closes', (
 });
 
 test('the palette can take focus back after its row menu closes', () => {
-  const handle = shell.openCommandPalette({
-    labels: labels(),
+  const handle = open({
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: () => {},
   });
@@ -392,74 +346,4 @@ test('the palette can take focus back after its row menu closes', () => {
   handle.focus();
   assert.equal(document.activeElement, document.querySelector('.gp-command__input'));
   outside.remove();
-});
-
-test('Enter inside an expansion activates the focused action, not the row', () => {
-  open();
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  const action = document.querySelector('.gp-command__expansion button');
-  assert.equal(document.activeElement, action);
-  action.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-  assert.deepEqual(seen, []);
-  assert.equal(shell.isCommandPaletteOpen(), true);
-});
-
-test('collapsing an expansion that holds focus returns focus to the field', () => {
-  open();
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__expansion'), null);
-  assert.equal(document.activeElement, input);
-});
-
-test('a background refresh rebuilds the expansion and keeps focus in the palette', () => {
-  const handle = open();
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  assert.notEqual(document.activeElement, input);
-  handle.refresh();
-  assert.equal(document.querySelector('.gp-command__expansion') !== null, true);
-  assert.equal(document.activeElement, input);
-});
-
-test('Tab inside a repository expansion never scopes the repository', () => {
-  const scopes = [];
-  shell.openCommandPalette({
-    labels: labels(),
-    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:o/a', kind: 'repo', title: 'o/a' }] }] }),
-    renderExpansion: () => {
-      const node = document.createElement('div');
-      node.innerHTML = '<button type="button">One</button><button type="button">Two</button>';
-      return node;
-    },
-    onScope: (item) => { scopes.push(item.key); return true; },
-  });
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  document.activeElement.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
-  assert.deepEqual(scopes, []);
-});
-
-test('Escape closes help before the expansion', () => {
-  shell.openCommandPalette({
-    labels: labels(),
-    search: () => ({ groups: makeGroups() }),
-    renderExpansion: () => { const node = document.createElement('div'); node.appendChild(document.createElement('button')); return node; },
-    help: { title: 'Keys', prefixes: [{ key: '>', label: 'commands' }], keys: [{ key: 'Tab', label: 'inside' }], close: 'Esc' },
-  });
-  const input = document.querySelector('.gp-command__input');
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: '?', bubbles: true }));
-  assert.ok(document.querySelector('.gp-command__help'));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__help'), null);
-  assert.ok(document.querySelector('.gp-command__expansion'));
-  input.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-  assert.equal(document.querySelector('.gp-command__expansion'), null);
 });

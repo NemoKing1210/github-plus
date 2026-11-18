@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
@@ -14,7 +14,7 @@ blame, rozmiary plików i pobieranie jednym kliknięciem, menu kontekstowe
 operacji na plikach, szybki podgląd dowolnego pliku i tłumaczenie treści na
 stronie.
 
-> **Status:** wczesny etap (`0.24.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.25.0`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Tłumaczenie · Paleta · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozmiary plików
@@ -255,36 +255,37 @@ w szybkim podglądzie:
 Naciśnij `Ctrl/⌘+K` na dowolnej stronie GitHuba, aby otworzyć jedno pole
 wyszukiwania obejmujące wszystko, co tam robisz:
 
-- **Przycisk w nagłówku** — przycisk palety stoi na początku akcji nagłówka
-  GitHuba, otwiera ją z dowolnej strony i pokazuje aktualny skrót.
-- **Jedno repozytorium naraz** — naciśnij `Tab` na wierszu repozytorium, aby
-  zawęzić paletę do niego: pliki i issue ograniczą się do tego repozytorium,
-  wiersz wyszukiwania szuka w nim, a `Backspace`, plakietka lub `Esc` opuszczają
-  zakres.
+- **Zaczyna tam, gdzie jesteś** — na stronie repozytorium paleta otwiera się z
+  tym repozytorium już w ścieżce, więc pierwsza lista to jego strony.
+- **Zagłębiaj się klawiszem `Tab`** — pole to ścieżka (`owner / repo / zapytanie`).
+  Naciśnij `Tab` na wierszu repozytorium, aby je dodać: lista staje się stronami
+  tego repozytorium, `/` pokazuje jego pliki, `#` otwarte issue i pull requesty,
+  a wiersz wyszukiwania szuka w nim. `Backspace` usuwa ostatni poziom,
+  `Ctrl/⌘+Backspace` czyści ścieżkę i zapytanie, a kliknięcie segmentu ścieżki
+  odrzuca wszystko poniżej.
 - **Twoje repozytoria** — wszystkie, których jesteś właścicielem, własne
-  najpierw, z gwiazdkami, językiem, ostatnim push i widocznością w rozwiniętym
-  wierszu. Wpisz `@`, aby szukać tylko repozytoriów.
+  najpierw, z gwiazdkami, językiem, ostatnim push i widocznością w wierszu.
+  Wpisz `@`, aby szukać tylko repozytoriów.
 - **Repozytoria z gwiazdką** — projekty, do których wracasz; są po twoich
   własnych i oznaczone gwiazdką.
-- **Pliki bieżącego repozytorium** — `/` pokazuje wszystkie ścieżki bieżącego
-  (lub wybranego) repozytorium lub pasujące zapytanie; plik otwiera się w
-  GitHubie na wersji, którą przeglądasz.
-- **Otwarte issue i pull requesty** — otwarte issue i pull requesty bieżącego
-  repozytorium, oznaczone plakietką issue lub pull requesta, z autorem, datą
-  aktualizacji i liczbą komentarzy w rozwiniętym wierszu; szukaj po tytule,
-  numerze lub autorze.
-- **Strony GitHuba i akcje GitHub Plus** — otwórz swoje issue, pull requesty,
-  powiadomienia lub ustawienia; otwórz panel GitHub Plus; przełącz jego funkcje;
-  odśwież pamięć podręczną. `>` zawęża do poleceń, `#` do issue i pull
-  requestów, `/` do plików, a `@` do repozytoriów; wiersz wyszukiwania GitHuba
-  kończy każde zapytanie i w zakresie szuka w nim.
+- **Pliki repozytorium ze ścieżki** — `/` pokazuje wszystkie jego ścieżki lub
+  pasujące zapytanie; plik otwiera się w GitHubie na wersji, którą przeglądasz.
+- **Otwarte issue i pull requesty** — `#` pokazuje otwarte issue i pull requesty
+  repozytorium, oznaczone plakietką issue lub pull requesta, z autorem i datą
+  aktualizacji; szukaj po tytule, numerze lub autorze.
+- **Strony jako wiersze** — własne strony repozytorium ze ścieżki (Code, Issues,
+  Pull requests, Actions, Projects, Discussions, Releases, Wiki, Security,
+  Insights i Settings, jeśli należy do ciebie) albo, na najwyższym poziomie,
+  strony konta (profil, repozytoria, gwiazdki, powiadomienia, gists, ustawienia
+  GitHuba, panel), każda o jeden wiersz dalej; wiersz repozytorium ma podpowiedź
+  `Przejdź`, a wiersz wyszukiwania GitHuba kończy każde zapytanie i w ścieżce
+  szuka w niej.
+- **Akcje GitHub Plus** — otwórz panel, przełącz jego funkcje lub odśwież pamięć
+  podręczną; `>` zawęża do poleceń.
 - **Ulubione i ostatnie** — przypnij to, czego używasz stale (`Alt+P`);
   przypięte wiersze mają gwiazdkę i idą pierwsze, zarówno na pustej liście, jak
   i w wynikach wyszukiwania. Ostatnio otwarte wiersze wrócą na górę przy
   następnym otwarciu, osobno dla każdego konta GitHuba.
-- **Szczegóły na miejscu** — `→` lub strzałka wiersza rozwija jego szczegóły i
-  akcje tuż pod nim, `←` lub `Esc` zamyka, a `?` pokazuje wszystkie klawisze i
-  prefiksy.
 - **Akcje dla każdego wiersza** — kliknij wiersz prawym przyciskiem lub naciśnij
   `Shift+F10`, aby go otworzyć, otworzyć w nowej karcie, skopiować link, ścieżkę,
   adres do klonowania lub numer issue, a także przypiąć go lub odpiąć.
@@ -299,12 +300,12 @@ wyszukiwania obejmujące wszystko, co tam robisz:
   podręczna należy do każdego konta, więc zmiana konta nigdy nie pokazuje cudzych
   repozytoriów.
 - **Najpierw klawiatura** — `↑`/`↓` przesuwają zaznaczenie, `Enter` otwiera,
-  `Ctrl/⌘+Enter` otwiera w nowej karcie, `→` rozwija aktywny wiersz, `Tab`
-  zawęża do repozytorium, `Alt+P` przypina, `Ctrl/⌘+C` kopiuje wiersz, a `Esc`
-  cofa pomoc, rozwinięcie, zapytanie i zakres, po czym zamyka; paleta nie
-  przeszkadza podczas pisania w edytorze komentarza lub README i sama zamyka się
-  przy nawigacji. Skrót to ustawienie wstępne lub dowolna kombinacja nagrana na
-  stronie ustawień palety.
+  `Ctrl/⌘+Enter` otwiera w nowej karcie, `Tab` wchodzi do repozytorium,
+  `Backspace` opuszcza poziom ścieżki, `Alt+P` przypina, `Ctrl/⌘+C` kopiuje
+  wiersz, `?` pokazuje wszystkie klawisze i prefiksy, a `Esc` zamyka (najpierw
+  pomoc); paleta nie przeszkadza podczas pisania w edytorze komentarza lub
+  README i sama zamyka się przy nawigacji. Skrót to ustawienie wstępne lub
+  dowolna kombinacja nagrana na stronie ustawień palety.
 
 ### Panel ustawień
 

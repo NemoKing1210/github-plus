@@ -5,14 +5,14 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.24.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.25.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
 文件大小与一键下载，用于文件操作的上下文菜单、任意文件的快速预览，以及页面内容的
 翻译。
 
-> **状态：** 早期（`0.24.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
+> **状态：** 早期（`0.25.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 翻译 ·
 > 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件图标、
 > blame 风格的年龄着色、带下载按钮的文件大小、文件上下文菜单、快速文件预览，以及
 > 页面翻译。计划加入更多 GitHub 改进。
@@ -195,40 +195,43 @@ GitHub Plus 把两者直接加到文件行上：
 
 在任意 GitHub 页面按下 `Ctrl/⌘+K`，即可用一个搜索框覆盖你在 GitHub 上的一切操作：
 
-- **头部按钮** —— 命令面板按钮位于 GitHub 头部操作区的最前面，可从任意页面打开面板，
-  并显示当前快捷键。
-- **一次限定一个仓库** —— 在仓库行上按 `Tab` 可将面板限定到该仓库：文件与 issue
-  只显示该仓库的内容，搜索行在其中搜索，`Backspace`、标签或 `Esc` 退出限定。
-- **你的仓库** —— 你拥有的所有仓库，自己的排在前面，展开的行内显示星标、语言、
-  最近推送和可见性。输入 `@` 只搜索仓库。
-- **星标仓库** —— 你反复回访的项目，排在自有仓库之后并带有星标。
-- **当前仓库的文件** —— `/` 列出当前（或限定）仓库的所有路径，或与之匹配的查询；
-  文件会在 GitHub 上按你正在浏览的版本打开。
-- **打开的 issue 和 pull request** —— 当前仓库中打开的 issue 和 pull request，
-  带有 issue 或 pull request 标记；展开的行内显示作者、更新时间和评论数，可按标题、
+- **从当前位置开始** — 在仓库页面打开时，路径中已经包含该仓库，因此第一个列表
+  就是它的各个页面。
+- **用 `Tab` 逐层深入** — 输入框是一条路径（`owner / repo / 查询`）。在仓库行上
+  按 `Tab` 会把它加入路径：列表变为该仓库的页面，`/` 列出它的文件，`#` 列出
+  打开的 issue 和 pull request，搜索行则在其中搜索。`Backspace` 移除最后一层，
+  `Ctrl/⌘+Backspace` 清空路径和查询，点击某个路径片段会丢弃它下面的所有层级。
+- **你的仓库** — 你拥有的所有仓库，自己的排在最前，行内显示星数、语言、最近
+  推送和可见性。输入 `@` 只搜索仓库。
+- **星标仓库** — 你经常回访的项目，排在自己的仓库之后并带星标。
+- **路径中仓库的文件** — 输入 `/` 查看其中的所有路径或匹配的查询；文件会在你
+  正在浏览的 ref 上于 GitHub 打开。
+- **打开的 issue 和 pull request** — 输入 `#` 查看该仓库打开的 issue 和 pull
+  request，带 issue 或 pull request 标记，并显示作者和更新时间；可按标题、
   编号或作者搜索。
-- **GitHub 页面和 GitHub Plus 操作** —— 打开你的 issue、pull request、通知或设置；
-  打开 GitHub Plus 面板；切换它的功能；刷新缓存。`>` 只列命令，`#` 只列 issue 和
-  pull request，`/` 只列文件，`@` 只列仓库；GitHub 搜索行会作为每个查询的最后一行，
-  限定仓库时在该仓库内搜索。
-- **收藏与最近** —— 用 `Alt+P` 固定常用条目；固定行带有星标并排在最前，空列表和
-  搜索结果都是如此。最近打开的行会在下次打开时回到顶部，并按 GitHub 账号分别记录。
-- **就地展开详情** —— 按 `→` 或行尾箭头可展开该行的详情和操作，`←` 或 `Esc`
-  收起，`?` 显示全部按键和前缀。
-- **任意行的操作** —— 右键单击一行或按 `Shift+F10`，即可打开、在新标签页打开、
+- **页面即行** — 路径中仓库自己的页面（Code、Issues、Pull requests、Actions、
+  Projects、Discussions、Releases、Wiki、Security、Insights，以及你拥有时的
+  Settings），或在根层级显示账户页面（个人资料、仓库、星标、通知、gists、
+  GitHub 设置、仪表板），各自只差一行；仓库行标注 `跳转到`，GitHub 搜索行会
+  结束每个查询，并在设置了路径时在其中搜索。
+- **GitHub Plus 操作** — 打开面板、切换其功能或刷新缓存；`>` 只显示命令。
+- **收藏和最近** — 用 `Alt+P` 固定常用项；固定的行带星标并排在最前，空列表和
+  搜索结果中都是如此。最近打开的行会在下次打开时回到顶部，按 GitHub 账户
+  分别记录。
+- **任意行的操作** — 右键单击一行或按 `Shift+F10`，可以打开、在新标签页打开、
   复制链接、路径、克隆地址或 issue 编号，以及固定或取消固定。
-- **快速且安静** —— 命令面板立即渲染缓存列表，在后台刷新，并保持当前选中行。结果
-  在本次会话和多次刷新之间都带 ETag 缓存，因此不会消耗 API 配额；没有令牌时读取
-  公开数据，所有命令依然可用。
-- **可选的 GitHub 令牌** —— 在命令面板的设置页添加后，可查看私有仓库和完整列表
-  （每小时 5 000 次请求，而非 60 次）。令牌在使用前会先验证，只保存在此浏览器中，
-  永远不会写入备份，并且只发送到 `api.github.com`；缓存按账号隔离，切换账号绝不会
-  显示他人的仓库。
-- **键盘优先** —— `↑`/`↓` 移动，`Enter` 打开，`Ctrl/⌘+Enter` 在新标签页打开，
-  `→` 展开当前行，`Tab` 限定到某个仓库，`Alt+P` 固定，`Ctrl/⌘+C` 复制当前行，
-  `Esc` 依次退出帮助、展开、查询和限定后再关闭；在评论或 README 编辑器中输入时
-  命令面板不会打扰，导航时会自动关闭。快捷键可以是预设，也可以是在命令面板设置页
-  录制的任意组合。
+- **快速而安静** — 面板立即渲染缓存列表，在后台刷新并保持你的选择。结果会带
+  ETag 在会话中和重新加载后缓存，因此浏览面板不会消耗 API 配额；没有令牌时
+  读取公开数据，所有命令仍然可用。
+- **可选的 GitHub 令牌** — 在面板的设置页添加后，可查看私有仓库和完整列表
+  （每小时 5,000 次请求而非 60 次）。令牌在使用前会验证，只存储在此浏览器中，
+  绝不会写入备份导出，只发送到 `api.github.com`；缓存按账户分别保存，因此切换
+  账户绝不会显示其他账户的仓库。
+- **键盘优先** — `↑`/`↓` 移动，`Enter` 打开，`Ctrl/⌘+Enter` 在新标签页打开，
+  `Tab` 进入仓库，`Backspace` 离开一层路径，`Alt+P` 固定，`Ctrl/⌘+C` 复制该行，
+  `?` 显示所有按键和前缀，`Esc` 关闭（先关闭帮助）；在评论或 README 编辑器中
+  输入时面板不会打扰，导航时会自行关闭。快捷键是预设，或你在面板设置页录制的
+  任意组合。
 
 ### 设置面板
 

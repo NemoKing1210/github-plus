@@ -29,8 +29,8 @@ function makeState() {
     pinnedKeys: [],
     recentKeys: [],
     candidates: [
-      command('cmd:repo.code', 'repository', 'This repository', 'Code'),
-      command('cmd:user.profile', 'github', 'GitHub', 'Profile'),
+      command('cmd:repo.code', 'pages', 'Pages', 'Code'),
+      command('cmd:user.profile', 'pages', 'Pages', 'Profile'),
       command('cmd:plus.settings', 'plus', 'GitHub Plus', 'Open settings'),
       repo('repo:o/a', 'repos', 'Repositories', 'alpha'),
       repo('repo:o/s', 'starred', 'Starred', 'sigma'),
@@ -41,7 +41,7 @@ function makeState() {
 
 test('the empty query follows the browse order and hides files', () => {
   const { groups } = searchPalette(makeState(), '');
-  assert.deepEqual(groups.map((group) => group.id), ['repository', 'github', 'plus', 'repos', 'starred']);
+  assert.deepEqual(groups.map((group) => group.id), ['pages', 'repos', 'starred', 'plus']);
 });
 
 test('prefixes restrict the result kinds', () => {
