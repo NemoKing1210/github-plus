@@ -67,7 +67,7 @@ test('a cold open shows the loaded repositories, files and the truncated-tree no
   await new Promise((resolve) => setTimeout(resolve, 50));
 
   assert.ok(document.querySelector('.gp-command__row[data-key="repo:alice/repo"]'));
-  assert.equal(document.querySelector('.gp-command__note').textContent, t('palette.status.incomplete'));
+  assert.equal(document.querySelector('.gp-command__tip-note').textContent, t('palette.status.incomplete'));
 
   const input = document.querySelector('.gp-command__input');
   input.value = '/a';
@@ -111,7 +111,7 @@ test('an empty cached issue list produces no rows and no failure note', async ()
   assert.equal(document.querySelectorAll('.gp-command__row[data-key^="issue:"]').length, 0);
   // This fixture's tree is truncated, so the incomplete note is real; only a
   // failed load may add one of the failure notes.
-  const note = document.querySelector('.gp-command__note')?.textContent || '';
+  const note = document.querySelector('.gp-command__tip-note')?.textContent || '';
   for (const key of ['palette.status.offline', 'palette.status.rateLimited', 'palette.status.invalidToken']) {
     assert.notEqual(note, t(key));
   }

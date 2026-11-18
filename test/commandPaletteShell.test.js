@@ -19,7 +19,13 @@ function labels() {
     open: 'open',
     newTab: 'new tab',
     close: 'close',
-    noSelection: 'Select a result',
+    tip: 'Tip: press ? for every shortcut',
+    tipHelp: 'shortcuts',
+    hintOpen: 'open',
+    hintScope: 'scope',
+    hintExpand: 'actions',
+    scopeRemove: 'remove scope',
+    help: { title: 'Keyboard shortcuts', prefixes: [], keys: [], close: 'close' },
     rowMenu: 'Actions',
     badges: { pinned: 'pinned', recent: 'recent', private: 'private', fork: 'fork', archived: 'archived' },
   };
@@ -61,13 +67,7 @@ afterEach(() => {
 function open() {
   return shell.openCommandPalette({
     labels: labels(),
-    showDetails: true,
     search: () => ({ groups: makeGroups(), status: 'ready' }),
-    renderDetail: (item) => {
-      const node = document.createElement('div');
-      node.textContent = `details:${item.title}`;
-      return node;
-    },
     onSelect: (item, options) => seen.push([item.key, options.newTab]),
     onPin: (item) => seen.push(['pin', item.key]),
     onClose: () => {},
@@ -84,7 +84,6 @@ test('opening mounts the dialog, focuses the input and marks the first result', 
   const active = document.querySelector('.gp-command__row[aria-selected="true"]');
   assert.ok(active);
   assert.equal(input.getAttribute('aria-activedescendant'), active.id);
-  assert.match(document.querySelector('.gp-command__detail').textContent, /details:Open issues/);
 });
 
 test('arrows move the selection, Enter opens and closes', async () => {
@@ -124,10 +123,20 @@ test('an outside pointer closes and focus returns to the opener', () => {
   assert.equal(document.activeElement, document.getElementById('opener'));
 });
 
-test('the footer lists the keyboard hints', () => {
+test('the tip strip replaces the footer hints', () => {
   open();
-  const hints = document.querySelector('.gp-command__hints').textContent;
-  for (const label of ['navigate', 'open', 'new tab', 'close']) assert.match(hints, new RegExp(label));
+  const tip = document.querySelector('.gp-command__tip');
+  assert.ok(tip);
+  assert.match(tip.textContent, /Tip/);
+  assert.equal(document.querySelector('.gp-command__foot'), null);
+  assert.equal(document.querySelector('.gp-command__detail'), null);
+});
+
+test('the active row shows key hints', () => {
+  open();
+  const active = document.querySelector('.gp-command__row[aria-selected="true"]');
+  assert.match(active.querySelector('.gp-command__hint').textContent, /open/);
+  assert.match(active.querySelector('.gp-command__hint').textContent, /actions/);
 });
 
 test('clicking a row opens it and Ctrl/⌘+click opens a new tab', () => {
@@ -169,39 +178,42 @@ test('refresh keeps the selected key and Alt+P pins it', () => {
 test('a pinned row shows a star before its title', () => {
   shell.openCommandPalette({
     labels: labels(),
-    showDetails: false,
     search: () => ({
       groups: [{ id: 'pinned', title: 'Favorites', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha', pinned: true }] }],
     }),
-    renderDetail: () => document.createElement('div'),
     onSelect: () => {},
     onPin: () => {},
   });
   assert.ok(document.querySelector('.gp-command__row .gp-command__pin'));
 });
 
-test('the row menu opens from the button, a right-click and the keyboard', () => {
+test('a repository row hints at scoping', () => {
+  shell.openCommandPalette({
+    labels: labels(),
+    search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
+  });
+  assert.match(document.querySelector('.gp-command__hint').textContent, /scope/);
+});
+
+test('the row menu opens from a right-click and the keyboard', () => {
   const calls = [];
   shell.openCommandPalette({
     labels: labels(),
-    showDetails: false,
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: (item, position) => calls.push([item.key, position.keyboard]),
   });
-  document.querySelector('.gp-command__more').click();
   document.querySelector('.gp-command__row').dispatchEvent(new dom.window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 60 }));
   document.querySelector('.gp-command__input').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'F10', shiftKey: true, bubbles: true }));
-  assert.deepEqual(calls, [['repo:a', true], ['repo:a', false], ['repo:a', true]]);
+  assert.deepEqual(calls, [['repo:a', false], ['repo:a', true]]);
 });
 
 test('a press inside an open row menu does not close the palette', () => {
   shell.openCommandPalette({
     labels: labels(),
-    showDetails: false,
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: () => contextMenu.openContextMenu({ x: 20, y: 20, label: 'Actions', layer: 'palette', items: [{ label: 'Open', onSelect() {} }] }),
   });
-  document.querySelector('.gp-command__more').click();
+  document.querySelector('.gp-command__row').dispatchEvent(new dom.window.MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 60 }));
   const menu = document.querySelector('.gp-context-menu');
   menu.dispatchEvent(new dom.window.MouseEvent('pointerdown', { bubbles: true }));
   assert.equal(shell.isCommandPaletteOpen(), true);
@@ -210,7 +222,6 @@ test('a press inside an open row menu does not close the palette', () => {
 test('focus stays inside the palette after a keyboard-opened row menu closes', () => {
   shell.openCommandPalette({
     labels: labels(),
-    showDetails: false,
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: (item) => {
       contextMenu.openContextMenu({
@@ -234,7 +245,6 @@ test('focus stays inside the palette after a keyboard-opened row menu closes', (
 test('the palette can take focus back after its row menu closes', () => {
   const handle = shell.openCommandPalette({
     labels: labels(),
-    showDetails: false,
     search: () => ({ groups: [{ id: 'repos', title: 'Repos', items: [{ key: 'repo:a', kind: 'repo', title: 'alpha' }] }] }),
     onContextMenu: () => {},
   });

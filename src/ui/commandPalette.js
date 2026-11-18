@@ -1,8 +1,9 @@
 /**
- * Command palette shell: a modal search field, a grouped listbox and a details
- * pane. It knows nothing about what it lists — `search(query)` supplies groups,
- * `renderDetail(item)` supplies the aside, and the caller's callbacks run the
- * selection — so the feature owns data and this module owns interaction.
+ * Command palette shell: a modal search field, a grouped listbox and an
+ * expansion block under the active row. It knows nothing about what it lists —
+ * `search(query)` supplies groups, `renderExpansion(item)` supplies the block,
+ * and the caller's callbacks run the selection — so the feature owns data and
+ * this module owns interaction.
  */
 
 import { el } from '../utils/dom.js';
@@ -12,15 +13,11 @@ import { closeContextMenu } from './contextMenu.js';
 
 const CLOSE_MS = 120;
 const DEBOUNCE_MS = 80;
-const COMPACT_QUERY = '(max-width: 760px)';
+const EXPANDABLE_KINDS = new Set(['repo', 'file', 'issue', 'command']);
 
 let state = null;
 let closeTimer = null;
 let optionSeq = 0;
-
-function isCompactViewport() {
-  return typeof window.matchMedia === 'function' && window.matchMedia(COMPACT_QUERY).matches;
-}
 
 function buildShell(labels) {
   const root = el('div', 'gp-command-overlay');
@@ -49,26 +46,19 @@ function buildShell(labels) {
 
   const hint = el('kbd', 'gp-command__kbd', 'Esc');
   field.append(glyph, input, hint);
-  const bar = el('div', 'gp-command__bar');
-  top.append(field, bar);
+  top.append(field);
 
   const main = el('div', 'gp-command__main');
   const list = el('div', 'gp-command__list');
   list.id = 'gp-command-list';
   list.setAttribute('role', 'listbox');
-  const detail = el('aside', 'gp-command__detail');
-  detail.setAttribute('aria-live', 'off');
-  main.append(list, detail);
+  main.append(list);
 
-  const foot = el('footer', 'gp-command__foot');
-  const hints = el('span', 'gp-command__hints', [
-    `↑↓ ${labels.navigate || ''}`,
-    `↵ ${labels.open || ''}`,
-    `⌘↵ ${labels.newTab || ''}`,
-    `Esc ${labels.close || ''}`,
-  ].join(' · '));
-  const note = el('span', 'gp-command__note');
-  foot.append(hints, note);
+  const tip = el('div', 'gp-command__tip');
+  const tipText = el('span', 'gp-command__tip-text', labels.tip || '');
+  const note = el('span', 'gp-command__tip-note');
+  const bar = el('div', 'gp-command__bar');
+  tip.append(tipText, note, bar);
 
   const empty = el('div', 'gp-command__empty');
   empty.hidden = true;
@@ -83,9 +73,9 @@ function buildShell(labels) {
   const announcer = el('div', 'gp-command__announcer');
   announcer.setAttribute('aria-live', 'polite');
 
-  dialog.append(top, main, foot, empty);
+  dialog.append(top, main, tip, empty);
   root.append(dialog, announcer);
-  return { root, dialog, input, list, detail, foot, hints, note, empty, announcer, bar };
+  return { root, dialog, input, list, tip, note, empty, announcer, bar };
 }
 
 function activeItem() {
@@ -107,6 +97,14 @@ function appendHighlighted(parent, text, ranges) {
     cursor = Math.max(cursor, to);
   }
   if (cursor < text.length) parent.appendChild(document.createTextNode(text.slice(cursor)));
+}
+
+function hintText(item, labels) {
+  const parts = [];
+  if (item.kind === 'repo') parts.push(`Tab ${labels.hintScope || ''}`);
+  parts.push(`↵ ${labels.hintOpen || ''}`);
+  if (EXPANDABLE_KINDS.has(item.kind)) parts.push(`→ ${labels.hintExpand || ''}`);
+  return parts.join(' · ');
 }
 
 function buildRow(current, item) {
@@ -137,23 +135,9 @@ function buildRow(current, item) {
     if (label) badges.appendChild(el('span', 'gp-command__badge', label));
   }
   const meta = el('span', 'gp-command__meta', item.meta || '');
+  const hint = el('span', 'gp-command__hint', hintText(item, current.labels));
 
-  row.append(icon, muted, title, badges, meta);
-  if (current.onContextMenu) {
-    const more = el('button', 'gp-command__more');
-    more.type = 'button';
-    more.tabIndex = -1;
-    more.setAttribute('aria-haspopup', 'menu');
-    more.setAttribute('aria-label', current.labels.rowMenu || '');
-    more.innerHTML = PALETTE_ICONS.more;
-    more.addEventListener('click', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      current.onContextMenu(item, { anchor: more, keyboard: true });
-    });
-    row.classList.add('gp-command__row--menued');
-    row.appendChild(more);
-  }
+  row.append(icon, muted, title, badges, meta, hint);
   current.rowByKey.set(item.key, row);
   return row;
 }
@@ -187,17 +171,6 @@ function applyActive(current, item) {
   }
 }
 
-function renderDetailPane(current, item) {
-  const compact = !current.showDetails || isCompactViewport();
-  current.dialog.classList.toggle('gp-command--compact', compact);
-  current.detail.hidden = compact;
-  current.detail.replaceChildren();
-  if (compact) return;
-  const node = item && current.renderDetail ? current.renderDetail(item) : null;
-  if (node) current.detail.appendChild(node);
-  else current.detail.appendChild(el('p', 'gp-command__no-selection', current.labels.noSelection || ''));
-}
-
 function renderStatus(current, result, count) {
   current.bar.classList.toggle('is-loading', result.status === 'loading');
   current.note.textContent = result.note || (result.status === 'loading' ? current.labels.loading || '' : '');
@@ -216,7 +189,6 @@ function refresh() {
   current.activeKey = active ? active.key : null;
   renderGroups(current, groups);
   applyActive(current, active);
-  renderDetailPane(current, active);
   renderStatus(current, result, items.length);
 }
 
@@ -225,7 +197,6 @@ function selectKey(key) {
   if (!item || item.key === state.activeKey) return;
   state.activeKey = item.key;
   applyActive(state, item);
-  renderDetailPane(state, item);
 }
 
 function move(delta) {
@@ -367,22 +338,27 @@ function onInput() {
 /**
  * Open the palette over the current page.
  * @param {{labels: object, search: (query: string) => object,
- *   renderDetail?: (item: object) => Node | null,
- *   onSelect?: (item: object, options: {newTab: boolean}) => void,
+ *   renderExpansion?: (item: object) => Node | null, scope?: {label: string}|null,
+ *   help?: object|null, onSelect?: (item: object, options: {newTab: boolean}) => void,
  *   onPin?: (item: object) => void, onClose?: () => void,
- *   onContextMenu?: (item: object, position: {x?: number, y?: number, anchor: Element|null, keyboard: boolean}) => void,
- *   showDetails?: boolean}} options
+ *   onScope?: (item: object) => void, onClearScope?: () => void,
+ *   onCopy?: (item: object) => void,
+ *   onContextMenu?: (item: object, position: {x?: number, y?: number, anchor: Element|null, keyboard: boolean}) => void}} options
  * @returns {{refresh: () => void, close: () => void, setQuery: (value: string) => void}}
  */
 export function openCommandPalette({
   labels = {},
   search,
-  renderDetail,
+  renderExpansion,
+  scope = null,
+  help = null,
   onSelect,
   onPin,
   onContextMenu,
   onClose,
-  showDetails = true,
+  onScope,
+  onClearScope,
+  onCopy,
 }) {
   // A previous palette may still be fading out; its own timer removes it, so
   // clearing that timer here would strand a full-screen overlay over the page.
@@ -393,12 +369,16 @@ export function openCommandPalette({
   state = {
     labels,
     search,
-    renderDetail,
+    renderExpansion,
+    scope,
+    help,
     onSelect,
     onPin,
     onContextMenu,
     onClose,
-    showDetails,
+    onScope,
+    onClearScope,
+    onCopy,
     ...node,
     itemsByKey: new Map(),
     rowByKey: new Map(),
