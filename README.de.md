@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.23.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -14,7 +14,7 @@ Blame-Stil für diese Dateien, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Dateiaktionen, eine Schnellvorschau für jede Datei und die
 Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.23.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.23.1`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Übersetzung · Palette · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, Dateigrößen mit
@@ -369,7 +369,7 @@ Gespeichert unter `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Offene Issues und Pull Requests des aktuellen Repositories |
 | `commandPalette.hideForks` | `false` | Forks von Repositories ausblenden |
 | `commandPalette.hideArchived` | `false` | Archivierte Repositories ausblenden |
-| `commandPalette.showDetails` | `true` | Detailbereich neben der Liste (unter 760 px ohnehin ausgeblendet) |
+| `commandPalette.showDetails` | `true` | Detailbereich unter der Liste (unter 760 px ohnehin ausgeblendet) |
 | `commandPalette.cacheHours` | `6` | Lebensdauer des Repository- und Dateibaum-Caches in Stunden (0 schaltet ihn aus) |
 | `commandPalette.maxResults` | `30` | Maximale Zeilenzahl je Ergebnisgruppe (10–100) |
 

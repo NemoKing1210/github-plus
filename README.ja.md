@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.23.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -14,7 +14,7 @@ blame 風の経過日数カラー、ファイルサイズとワンクリック �
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、ページ内テキストの
 翻訳を提供します。
 
-> **ステータス:** 初期段階（`0.23.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.23.1`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · 翻訳 · パレット · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、ファイルサイズとダウンロード ボタン、ファイルの
@@ -333,7 +333,7 @@ GitHub Plus はその両方をファイルの行に追加します:
 | `commandPalette.sources.issues` | `true` | 現在のリポジトリのオープンな issue と pull request |
 | `commandPalette.hideForks` | `false` | リポジトリのフォークを隠す |
 | `commandPalette.hideArchived` | `false` | アーカイブ済みリポジトリを隠す |
-| `commandPalette.showDetails` | `true` | 一覧の横の詳細ペイン（760 px 未満では常に非表示） |
+| `commandPalette.showDetails` | `true` | 一覧の下の詳細ペイン（760 px 未満では常に非表示） |
 | `commandPalette.cacheHours` | `6` | リポジトリとファイル ツリーのキャッシュ保持時間（時間、0 で無効） |
 | `commandPalette.maxResults` | `30` | 結果セットあたりの最大行数（10–100） |
 

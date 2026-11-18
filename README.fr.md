@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.23.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -14,7 +14,7 @@ couleurs d'âge façon blame pour ces fichiers, la taille des fichiers avec
 téléchargement en un clic, un menu contextuel pour les actions sur les fichiers,
 un aperçu rapide de tout fichier et la traduction du contenu des pages.
 
-> **Statut :** début (`0.23.0`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.23.1`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Traduction · Palette · Sauvegarde · À propos),
 > une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du markdown, des
 > icônes de fichiers colorées, des couleurs d'âge façon blame, la taille des
@@ -367,7 +367,7 @@ Stockés sous `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Issues et pull requests ouvertes du dépôt courant |
 | `commandPalette.hideForks` | `false` | Masquer les forks de dépôts |
 | `commandPalette.hideArchived` | `false` | Masquer les dépôts archivés |
-| `commandPalette.showDetails` | `true` | Panneau de détails à côté de la liste (masqué sous 760 px de toute façon) |
+| `commandPalette.showDetails` | `true` | Panneau de détails sous la liste (masqué sous 760 px de toute façon) |
 | `commandPalette.cacheHours` | `6` | Durée du cache des dépôts et arborescences en heures (0 le désactive) |
 | `commandPalette.maxResults` | `30` | Nombre maximal de lignes par jeu de résultats (10–100) |
 

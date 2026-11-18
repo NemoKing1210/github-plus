@@ -1604,7 +1604,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `commandPalette.sources.issues` | `true` | Open issues and pull requests of the repository the page shows |
 | `commandPalette.hideForks` | `false` | Hide forked repositories from the repository groups |
 | `commandPalette.hideArchived` | `false` | Hide archived repositories |
-| `commandPalette.showDetails` | `true` | Details pane beside the list (the shell hides it below 760px regardless) |
+| `commandPalette.showDetails` | `true` | Details pane below the list (the shell hides it below 760px regardless) |
 | `commandPalette.cacheHours` | `6` | Repository, tree and issue cache lifetime in hours (`0` disables it), clamped to 0…`COMMAND_PALETTE_CACHE_HOURS_MAX` |
 | `commandPalette.maxResults` | `30` | Row cap per result set, clamped to `COMMAND_PALETTE_MAX_RESULTS_MIN`…`_MAX` |
 

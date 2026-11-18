@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.23.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.23.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 paleta de comandos com `Ctrl/⌘+K`, uma galeria de imagens para markdown
@@ -14,7 +14,7 @@ coloridas no estilo blame para esses arquivos, tamanhos de arquivo com downloads
 em um clique, um menu de contexto para ações de arquivo, uma pré-visualização
 rápida de qualquer arquivo e tradução do conteúdo da página.
 
-> **Status:** inicial (`0.23.0`). Painel de configurações com busca instantânea
+> **Status:** inicial (`0.23.1`). Painel de configurações com busca instantânea
 > (Geral · Galeria · Arquivos · Tradução · Paleta · Backup · Sobre), uma paleta
 > de comandos com `Ctrl/⌘+K`, a galeria de imagens de markdown, ícones de
 > arquivo coloridos, idades coloridas no estilo blame, tamanhos de arquivo com
@@ -363,7 +363,7 @@ Armazenadas em `gp_settings_v1`.
 | `commandPalette.sources.issues` | `true` | Issues e pull requests abertos do repositório atual |
 | `commandPalette.hideForks` | `false` | Ocultar forks de repositórios |
 | `commandPalette.hideArchived` | `false` | Ocultar repositórios arquivados |
-| `commandPalette.showDetails` | `true` | Painel de detalhes ao lado da lista (oculto abaixo de 760 px de qualquer forma) |
+| `commandPalette.showDetails` | `true` | Painel de detalhes abaixo da lista (oculto abaixo de 760 px de qualquer forma) |
 | `commandPalette.cacheHours` | `6` | Validade do cache de repositórios e árvores de arquivos em horas (0 desativa) |
 | `commandPalette.maxResults` | `30` | Número máximo de linhas por conjunto de resultados (10–100) |
 

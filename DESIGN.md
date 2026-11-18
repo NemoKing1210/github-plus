@@ -851,13 +851,13 @@ scrolls inside the card while the footer stays put. Everything is
 |---|---|
 | `.gp-command-overlay` | Fixed inset, `display: grid`, `place-items: start center`, `padding-top: 12vh`, `var(--gp-scrim)`, `z-index: 1000005`, `gp-command-fade` |
 | `.gp-command` | Column flex, `min(760px, calc(100vw - 32px))`, `max-height: 72vh`, `overflow: hidden`, `var(--gp-bg-1)`, 1px `var(--gp-border)`, `var(--gp-radius-lg)`, `var(--gp-shadow-float)`, `gp-command-in` |
-| `.gp-command--compact` | `min(560px, calc(100vw - 24px))` and a single-column body — used when the details pane is off at open time |
+| `.gp-command--compact` | `min(560px, calc(100vw - 24px))` — used when the details pane is off at open time |
 | `.gp-command__field` | Input row: `12px 14px`, 8px gap, bottom border on `var(--gp-line)`; a 16px muted search glyph, the input and the shortcut chips |
 | `.gp-command__input` | Borderless, transparent, `font-size: 16px` (so iOS does not zoom), accent-colored caret inherited from the page; its `:focus-visible` outline is suppressed because the whole row is the field |
 | `.gp-command__kbd` | Shortcut chip: `11px` mono `var(--gp-text-muted)` on `var(--gp-bg-2)` with a `var(--gp-border)` edge |
 | `.gp-command__bar` | A `2px` progress strip under the field, transparent when idle; `.is-loading` paints an accent gradient that sweeps (`gp-command-progress`), the only motion while a source refreshes |
-| `.gp-command__main` | The two-column body: `minmax(0, 1fr) 246px`; the list and the details pane scroll independently |
-| `.gp-command__list` | `overflow-y: auto`, `6px` padding |
+| `.gp-command__main` | The stacked body: column flex — the list on top, the details pane under it; both scroll independently |
+| `.gp-command__list` | `flex: 1`, `min-height: 0`, `overflow-y: auto`, `6px` padding — it takes whatever the details pane leaves |
 | `.gp-command__group-title` | Group heading: `11px`/600 uppercase, `0.04em` tracking, `var(--gp-text-muted)` |
 | `.gp-command__row` | One result: grid `20px auto minmax(0, 1fr) auto auto` (icon, muted prefix, title, badges, meta), 8px gaps, `8px 10px`, `var(--gp-radius)`, pointer cursor |
 | `.gp-command__row[aria-selected="true"]`, `.is-active` | The active row fills with `var(--gp-accent-soft)` and its icon and title take `var(--gp-accent)`; no border or outline is drawn, so a moving selection never shifts the list |
@@ -869,7 +869,8 @@ scrolls inside the card while the footer stays put. Everything is
 | `.gp-command__meta` | Right-hand metadata (stars, size, shortcut) in `12px` tabular `var(--gp-text-muted)` |
 | `.gp-command__row--menued` | The row grid plus a `28px` trailing column for the row-menu button |
 | `.gp-command__more` | `24×24` icon-only `⋯` button in that column: transparent, `var(--gp-text-muted)`, `24px` radius `var(--gp-radius)`; invisible and untargetable until the row is hovered, active or the button is focus-visible, so it never changes the row's height and an untouched row cannot hit it by accident |
-| `.gp-command__detail` | The details pane: `14px` padding, left border on `var(--gp-line)`, own scroll; `[hidden]` when the pane is off |
+| `.gp-command__detail` | The details pane under the list: `flex: none`, `max-height: 240px`, `12px 14px` padding, top border on `var(--gp-line)`, own scroll; `[hidden]` when the pane is off |
+| `.gp-command__list` / `__detail` scrollbars | Thin and themed: `scrollbar-width: thin` with a `var(--gp-border)` thumb on a transparent track (Firefox); a 10px WebKit scrollbar whose rounded thumb is `var(--gp-border)` inside a 3px transparent inset, `var(--gp-text-muted)` on hover |
 | `.gp-detail__title` / `__desc` | `15px`/600 title with `overflow-wrap: anywhere`, then a `13px`/1.45 muted description |
 | `.gp-detail__facts` / `__fact` / `__dot` | Fact rows (`12px` muted with a 14px glyph); the language dot is an 8px `var(--gp-accent)` circle |
 | `.gp-detail__tags` / `__tag` | Visibility and state tags as `11px` pills on `var(--gp-bg-2)`, wrapping |
@@ -883,8 +884,8 @@ Motion is one 120 ms fade for the scrim and a 120 ms fade plus a `-2px` rise
 for the card; closing fades the overlay for 120 ms before it is removed. Under
 `prefers-reduced-motion: reduce` the overlay, card and progress sweep drop
 their animations, so the palette still opens and closes, it just appears.
-Below `760px` the body collapses to one column and the details pane is hidden
-regardless of the setting; below `520px` the card moves to `6vh` and keeps an
+Below `760px` the details pane is hidden regardless of the setting; below
+`520px` the card moves to `6vh` and keeps an
 8px gutter (`calc(100vw - 16px)`).
 
 ## 7. States
@@ -1003,8 +1004,7 @@ rather than a dialog:
 
 | Selector | Change |
 |---|---|
-| `.gp-command__main` (≤760px) | One column — the details pane would leave the list too narrow to read |
-| `.gp-command__detail` (≤760px) | `display: none`, regardless of `commandPalette.showDetails` |
+| `.gp-command__detail` (≤760px) | `display: none`, regardless of `commandPalette.showDetails` — a stacked pane would crowd the list out of the card |
 | `.gp-command-overlay` (≤520px) | `padding-top: 6vh` — a short viewport cannot spare 12% above the card |
 | `.gp-command` (≤520px) | `calc(100vw - 16px)` — an 8px gutter instead of 16px |
 

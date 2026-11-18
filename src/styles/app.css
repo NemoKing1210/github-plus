@@ -3135,17 +3135,15 @@ audio.gp-preview__media {
 }
 
 .gp-command__main {
-  display: grid;
+  display: flex;
   flex: 1;
-  grid-template-columns: minmax(0, 1fr) 246px;
+  flex-direction: column;
   min-height: 0;
 }
 
-.gp-command--compact .gp-command__main {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .gp-command__list {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 6px;
 }
@@ -3283,13 +3281,46 @@ audio.gp-preview__media {
 }
 
 .gp-command__detail {
+  flex: none;
+  max-height: 240px;
   overflow-y: auto;
-  padding: 14px;
-  border-left: 1px solid var(--gp-line);
+  padding: 12px 14px;
+  border-top: 1px solid var(--gp-line);
 }
 
 .gp-command__detail[hidden] {
   display: none;
+}
+
+/* Thin themed scrollbars for the palette's two scroll areas. */
+.gp-command__list,
+.gp-command__detail {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gp-border) transparent;
+}
+
+.gp-command__list::-webkit-scrollbar,
+.gp-command__detail::-webkit-scrollbar {
+  width: 10px;
+}
+
+.gp-command__list::-webkit-scrollbar-track,
+.gp-command__detail::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gp-command__list::-webkit-scrollbar-thumb,
+.gp-command__detail::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: var(--gp-border);
+  background-clip: content-box;
+}
+
+.gp-command__list::-webkit-scrollbar-thumb:hover,
+.gp-command__detail::-webkit-scrollbar-thumb:hover {
+  background: var(--gp-text-muted);
+  background-clip: content-box;
 }
 
 .gp-command__no-selection {
@@ -3493,10 +3524,6 @@ audio.gp-preview__media {
 }
 
 @media (max-width: 760px) {
-  .gp-command__main {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .gp-command__detail {
     display: none;
   }

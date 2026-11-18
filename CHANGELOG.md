@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-11-18
+
+### Changed
+
+- The palette's details pane now sits below the results list instead of
+  beside it, capped at 240px so the list keeps the card
+- The palette's results list and details pane draw thin themed scrollbars:
+  a rounded thumb on a transparent track, brighter on hover
+
+[0.23.1]: https://github.com/NemoKing1210/github-plus/compare/v0.23.0...v0.23.1
+
 ## [0.23.0] - 2026-11-18
 
 ### Added
