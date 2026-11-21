@@ -19,16 +19,97 @@ managers.
 - Docs: `README.md` plus its translations `README.<locale>.md` in the ten UI
   locales, `CHANGELOG.md` (Keep a Changelog + SemVer), and `DESIGN.md` (visual
   rules for all injected UI — see Design below)
+- Task backlog: `TODO.md` (see Tasks and planning below)
 - License: MIT
 
 Edit files under `src/`. Never hand-edit generated `.user.js` / `.meta.js`
 files; regenerate them with `npm run build`.
+
+## Tasks and planning
+
+`TODO.md` is the single backlog. Every non-trivial change starts as a task
+there, and an agent reads it before choosing work. A small, obvious fix may go
+straight to code; anything that touches more than one module, changes a
+default, or needs a product decision is planned first.
+
+### Write the task as a mini-plan
+
+When you add a task to `TODO.md`, write it for the person who will execute it
+weeks later, not as a reminder for the person who filed it. Capture the context
+that would otherwise be lost: what the code does today, why the change is
+needed, the intended approach, and how to prove it worked. Prefer the full
+block in [TODO.md's task format](TODO.md#task-format); a one-line entry is
+acceptable only for a trivial, self-contained chore.
+
+A well-filed task answers:
+
+- **Context:** the surface, module and current behavior, with the page, test or
+  commit that shows it. Link the issue or spec that motivated the task.
+- **Plan:** the numbered steps, naming the module and the change in each; the
+  registry, helper or data flow to extend; rejected alternatives and why. Call
+  out new settings, storage keys, strings and migrations the change implies.
+- **Scope:** what is explicitly out of scope, so the executor does not widen
+  the change.
+- **Done when:** observable acceptance criteria per surface.
+- **Verify:** the unit/DOM tests to add or update, the manual checks on live
+  `github.com`, and the localization, design and build follow-ups.
+- **Risks / open questions:** GitHub markup assumptions, performance,
+  compatibility with other features, and decisions that still need an answer.
+
+If the task depends on a decision that has not been made, record the options
+and the question in the entry instead of leaving a vague title. A task written
+this way still gets its own execution plan when work starts — the filed
+mini-plan is preserved context, not a substitute for the steps below.
+
+### Plan before you edit
+
+1. **Read the task and its context.** Open the entry in `TODO.md`, then the
+   parts of this file it names (module reference, DOM notes, settings,
+   debugging, design). Read the code and the existing tests before proposing a
+   change; do not plan from the task title.
+2. **Reproduce the gap.** Confirm the current behavior on a live GitHub page or
+   in a failing test. A task whose premise is already fixed is closed as stale,
+   not implemented.
+3. **Write the plan.** A numbered list of steps; for each step the files and
+   modules it touches, the test that proves it, and the risk. Include the
+   localization, settings, migration and documentation consequences. In an
+   interactive session, present the plan and wait for approval before editing;
+   a long task may keep its plan under `docs/superpowers/plans/` (git-ignored,
+   never committed).
+4. **Resolve decisions before coding.** Defaults, labels, storage keys and
+   layout are product decisions. Ask when the task or the repo rules do not
+   answer them; never invent a setting or a migration silently.
+5. **Mark the task in progress.** Move the entry to **In progress** in
+   `TODO.md` when work starts, so two agents do not pick it up.
+
+### Execute in small, verifiable steps
+
+- One task per branch and commit series, following the prefix convention in
+  [CONTRIBUTING.md](CONTRIBUTING.md#branching). Do not fold unrelated
+  refactors into it.
+- Keep the import direction and the registry/delegated-listener patterns
+  described in this file: a new surface extends a registry, it never adds a
+  document-wide observer or a scan loop.
+- Add or update a test with the behavior, not after it: pure logic in
+  `test/*.test.js`, DOM shells in the matching suite. Run `npm test` while
+  iterating, not only at the end.
+- Run `npm run build` after every source, style, metadata or version change and
+  `npm run ci` before claiming the task is done.
+- Update `TODO.md` in the same change: tick the box only when every item in
+  [its definition of done](TODO.md#definition-of-done) is true, move the entry
+  to **Done** with the released version and date, or record why it was dropped.
+- `CHANGELOG.md` records shipped behavior; `TODO.md` records planned and
+  in-flight work. Never use one as the other.
+- If a task is blocked, leave it in **In progress** with a dated note naming
+  the blocker, or move it back to **Backlog** with the reason. Do not silently
+  abandon it.
 
 ## Repository layout
 
 ```text
 github-plus/
 ├── AGENTS.md               # This file: architecture and repo conventions
+├── TODO.md                 # Task backlog: format, priorities, in-flight work
 ├── DESIGN.md               # Visual rules for every injected UI element
 ├── THIRD_PARTY_LICENSES    # Attribution for the bundled Material Icon Theme
 ├── src/
@@ -2325,3 +2406,10 @@ and check diagnostics for edited files.
 - Break GitHub's header, navigation, or responsive layout — injected UI must
   never restyle page markup outside the gallery's own affordance stylesheet.
 - Imply affiliation with GitHub, Inc. in docs or UI copy.
+- Start a multi-module task without a written plan (see Tasks and planning).
+- File a task in `TODO.md` as a bare title when it spans modules or needs a
+  decision; write the context, approach, scope and verification into the entry.
+- Mark a `TODO.md` task done without a green `npm run ci` and its definition of
+  done, or leave a finished task in **Next up**.
+- Record shipped work in `TODO.md` instead of `CHANGELOG.md`, or reuse a task
+  ID after the entry was finished or dropped.
