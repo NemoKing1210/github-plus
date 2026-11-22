@@ -32,6 +32,13 @@ there, and an agent reads it before choosing work. A small, obvious fix may go
 straight to code; anything that touches more than one module, changes a
 default, or needs a product decision is planned first.
 
+When the user says "add a task", "add it to the backlog", "note this for
+later" or anything equivalent, the deliverable is a new entry in `TODO.md` —
+not a code change and not a note that exists only in the reply. File it in
+**Backlog**, or in **Next up** when the user says it is scheduled, using the
+mini-plan format below, and name the task ID in the reply. Unless the same
+message also asks to implement it, adding a task does not start work.
+
 ### Write the task as a mini-plan
 
 When you add a task to `TODO.md`, write it for the person who will execute it
@@ -2409,6 +2416,8 @@ and check diagnostics for edited files.
 - Start a multi-module task without a written plan (see Tasks and planning).
 - File a task in `TODO.md` as a bare title when it spans modules or needs a
   decision; write the context, approach, scope and verification into the entry.
+- Answer an "add a task" request with code or a chat-only note: the task goes
+  into `TODO.md` and is reported there by its ID.
 - Mark a `TODO.md` task done without a green `npm run ci` and its definition of
   done, or leave a finished task in **Next up**.
 - Record shipped work in `TODO.md` instead of `CHANGELOG.md`, or reuse a task
