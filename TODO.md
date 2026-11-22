@@ -39,8 +39,8 @@ Priority:
 | `P2` | Should be scheduled after the current release |
 | `P3` | Nice to have; no promise |
 
-Area tags: `core`, `gallery`, `settings`, `files`, `palette`, `translate`,
-`commits`, `ui`, `i18n`, `test`, `docs`, `build`.
+Area tags: `core`, `gallery`, `settings`, `files`, `discovery`, `palette`,
+`translate`, `commits`, `ui`, `i18n`, `test`, `docs`, `build`.
 
 ## Task format
 
@@ -116,6 +116,61 @@ _Nothing is scheduled for the next release._
     entries in `AGENTS.md`.
   - **Risks / open questions:** the checklist can drift from the code; prefer
     stable entry-point names and link `AGENTS.md` for the selectors.
+
+- [ ] **T-003 · Add a similar-repositories panel to repository pages** —
+  `discovery`, `P2`
+  - **Context:** the SimRepo extension
+    ([store](https://chromewebstore.google.com/detail/simrepo/jieoogmcigenidbkgnkaakagdnlnieap),
+    [source](https://github.com/Mubelotix/SimRepo)) adds a **Similar
+    repositories** section to the sidebar of a GitHub repository page. Each row
+    shows owner/name, description, language with its color, stars, forks, an
+    archived label and a similarity percentage; **View more** appends further
+    pages. It is token-free, serves repository names from a prebuilt dataset,
+    and requires starring the SimRepo repository for pagination and full
+    batches. The store listing names public repositories with more than 100
+    stars as the target. GitHub Plus has no discovery surface today, so this
+    would be its first feature that recommends content instead of decorating
+    GitHub's own.
+  - **Plan:** 1. Add `features/similarRepos/` with `surfaces.js` (the sidebar
+    container and its resolve function), `index.js` (surface observer, shell
+    watchers, bounded settle wait, settings reaction, per-repository cache),
+    `render.js` (panel, rows and states in the `gp-` style) and a provider
+    module behind a small interface; 2. fetch only on a public repository page,
+    for its `owner/repo`, and render loading, empty/not-in-dataset, private,
+    rate-limited and network-failure states; 3. link each row to
+    `/<owner>/<repo>`, its stargazers and its forks, and append further pages
+    from **View more**; 4. add a settings card (master switch, result count,
+    data source, cache lifetime) plus the ten locale key sets; 5. add a bus
+    event and store the switches in `DEFAULT_SETTINGS` with normalizers.
+  - **Scope:** repository pages only. No star-history charts, leaderboards,
+    the SimRepo website, private or internal repositories, or other GitHub
+    pages. Do not copy SimRepo code, CSS, assets or its dataset: its extension
+    is GPL-3.0-only, while this project is MIT.
+  - **Done when:** on a public repository with recommendations the sidebar
+    shows the panel with the fields above and working pagination; a repository
+    outside the dataset, a private repository, a rate limit and a network
+    failure each show an honest localized state without breaking the sidebar;
+    the panel follows soft navigation to another repository and disappears on
+    pages without one; turning the feature off removes the panel and its
+    observers and leaves GitHub's markup byte-identical; no request is made
+    while the feature is off or on a private repository.
+  - **Verify:** unit tests for response normalization (missing fields, archived
+    rows, empty list), row and API URL building, cache keys and TTL, and the
+    sidebar resolver; a DOM test for the panel states if the shell grows beyond
+    markup; manual checks on a popular repository, a repository outside the
+    dataset, a private repository, a soft navigation between repositories and
+    the off switch; `npm test`, `npm run build` and `npm run ci`.
+  - **Risks / open questions:** decide the data source before coding —
+    (a) call SimRepo's public endpoint
+    (`GET https://simrepo.dera.page/similar-repos?repo=…&page=…`, no token but
+    undocumented, IP rate-limited, and it sends the repository name to a third
+    party), (b) derive candidates from GitHub topics and primary language with
+    the palette's token and API client, or (c) ship no remote dependency and
+    leave the feature out for now. Confirm the endpoint's terms and add
+    attribution if it is used. Treat GitHub's sidebar heading text
+    (Releases/Contributors/Languages) as fragile and degrade to no-op if it
+    changes. Add an `@connect` grant and a privacy note only for the chosen
+    source, and cap results and cache lifetime through new constants.
 
 ## Ideas
 
