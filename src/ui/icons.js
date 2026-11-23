@@ -174,3 +174,17 @@ export const PALETTE_ICONS = {
     '<path d="M2.5 13.5v-4M6.5 13.5v-7M10.5 13.5v-3M14 13.5V4"/>',
   ),
 };
+
+/** Similar-repositories panel glyphs, in the same stroke style and scale. */
+export const SIMILAR_ICONS = {
+  stars: svg(
+    '<path d="m8 2.25 1.75 3.55 3.9.57-2.82 2.75.66 3.88L8 11.17l-3.49 1.83.66-3.88L2.35 6.37l3.9-.57Z"/>',
+  ),
+  forks: svg(
+    '<circle cx="4.25" cy="3.5" r="1.5"/>'
+    + '<circle cx="11.75" cy="3.5" r="1.5"/>'
+    + '<circle cx="8" cy="12.5" r="1.5"/>'
+    + '<path d="M4.25 5v1.5a2 2 0 0 0 2 2h3.5a2 2 0 0 0 2-2V5"/>'
+    + '<path d="M8 8.5v2.5"/>',
+  ),
+};

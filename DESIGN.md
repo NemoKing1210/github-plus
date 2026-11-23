@@ -3,8 +3,8 @@
 This file is the single source of truth for how GitHub Plus looks and behaves.
 Follow it for every change that adds, moves or restyles an injected element:
 the palette header entry, the settings panel (sidebar, pages) and its controls, the confirm
-dialog, toasts, the context menu, the image viewer, the quick file preview and the command
-palette. Every rule below is derived from the
+dialog, toasts, the context menu, the image viewer, the quick file preview, the command
+palette and the similar-repositories sidebar panel. Every rule below is derived from the
 shipped `src/styles/tokens.css`, `src/styles/app.css` and the components that
 build the markup, so the document and the stylesheet move together.
 
@@ -37,7 +37,8 @@ timestamps and its settings-page legend, the `.gp-commit-*` type/scope token on
 GitHub's commit subjects, the `.gp-file-meta` size column added
 to file rows, the `.gp-preview` quick preview and its `.gp-hold-ring`, the
 `.gp-translate-*` action, status bar and translated-result boxes, the
-`.gp-command` palette, and the gallery's page-level cursor/hover affordances
+`.gp-command` palette, the `.gp-similar` sidebar panel, and the gallery's
+page-level cursor/hover affordances
 (§11). Anything GitHub already renders is out of scope except through those
 affordances: no other rule may target page markup.
 
@@ -51,7 +52,7 @@ Two invariants hold for every selector:
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-header-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
   .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-command-overlay,
-  .gp-translate-btn, .gp-translate-bar, .gp-translate-result`).
+  .gp-translate-btn, .gp-translate-bar, .gp-translate-result, .gp-similar`).
   Rename a root class and that list must change with it.
 
 The `.gp-commit-*` token is deliberately **not** in `isOwnUi()`: it lives
@@ -98,6 +99,7 @@ All `--gp-*` tokens, in declaration order.
 | `--gp-age-8` | — | `#7e6746` | Age scale 8 |
 | `--gp-age-9` | — | `#876739` | Age scale 9 |
 | `--gp-age-10` | — | `#9a6700` | Age scale 10: newest commit, GitHub's attention gold |
+| `--gp-lang-*` | — | GitHub Linguist's language colours (`--gp-lang-javascript: #f1e05a`, `--gp-lang-typescript: #3178c6`, …) | The language swatch on a similar-repository row, read inline by `render.js` with a `var(--gp-text-muted)` fallback; a language is data, so the values stay literal in every theme |
 | `--gp-commit-ink` | `--fgColor-onEmphasis` | `#ffffff` | Ink on a commit-type fill; Primer's own on-emphasis ink |
 | `--gp-commit-feat` | `--bgColor-success-emphasis` | `#1f883d` | `feat` type fill |
 | `--gp-commit-fix` | `--bgColor-danger-emphasis` | `#cf222e` | `fix` type fill |
@@ -1000,12 +1002,78 @@ closes, it just appears. Below `760px` the row hints are hidden; below `520px`
 the card moves to `6vh` and keeps an 8px gutter
 (`calc(100% - 16px)`).
 
+### Similar repositories (`.gp-similar`)
+
+A sidebar section appended after the repository sidebar's own sections. It is
+built like GitHub's own sidebar lists — Contributors, Releases, Packages —
+rather than as a block of cards: borderless rows, a small round owner avatar,
+the name in the accent colour and the facts in muted text. Two facts stay
+visible on every row without opening it: the description (two lines at most)
+and the match percentage. The section is our own node under the sidebar's
+shared parent, and GitHub's headings and children are never restyled or moved.
+The language fill is the one data-driven colour, set inline from `render.js`'s
+`languageColor()` to `var(--gp-lang-<slug>, var(--gp-text-muted))`; the
+linguist swatches themselves live in `tokens.css`. Motion is a 120 ms change
+of the background only — no lift, no scale, no border — so the row reads exactly
+like a hovered item in GitHub's own sidebar.
+
+| Class | Rules |
+|---|---|
+| `.gp-similar` | Column flex, 8px gap, `margin-top: 16px`, 12px base size — no border, fill or padding of its own |
+| `.gp-similar__title` | The panel heading as an `h2`: 16px/600 `var(--gp-text)`, 1.25 line height, matching GitHub's sidebar headings |
+| `.gp-similar__list` | Column flex, 2px gap, no list marker or padding |
+| `.gp-similar__row` | One recommendation, `min-width: 0`; it exists only to give the list its item semantics |
+| `.gp-similar__card` | The whole-row link: grid `20px minmax(0, 1fr)`, 8px gap, `4px 6px` padding, `var(--gp-radius)`, transparent at rest; hover and `:active` take the neutral `var(--gp-highlight)` fill and underline the name; `:focus-visible` draws the `var(--gp-focus)` ring inside the row |
+| `.gp-similar__avatar` | A 20×20 round owner avatar, aligned to the first text line, `var(--gp-bg-2)` behind a loading image; it carries a monogram fallback |
+| `.gp-similar__avatar-img` | The `github.com/<owner>.png` avatar, `object-fit: cover`, lazy, `alt=""` and `aria-hidden` because the row's name already speaks |
+| `.gp-similar__avatar-fallback` | The repository's initial in 10px/600 `var(--gp-text-muted)`, hidden under a loading image and shown only after `.is-broken` (a missing owner, a blocked image) |
+| `.gp-similar__body` | Name, description and meta stacked with 2px gaps, `min-width: 0` |
+| `.gp-similar__head` | Name row: flex, 6px gap, `min-width: 0` |
+| `.gp-similar__name-text` | `owner/name` at 14px/600 in `var(--gp-accent)`, one ellipsized line, underlined on row hover |
+| `.gp-similar__owner` | The owner half in `var(--gp-text-muted)` at normal weight, so the repository name carries the emphasis |
+| `.gp-similar__archived` | A 12px chip on a `999px` radius in `var(--gp-text-muted)` with a `var(--gp-border)` edge — GitHub's neutral `Label`, not an attention colour; it never shrinks or wraps |
+| `.gp-similar__desc` | The description in `var(--gp-text-muted)`, 1.45 line height, clamped to two lines with `-webkit-line-clamp` and `overflow-wrap: anywhere` so a long word cannot widen the sidebar |
+| `.gp-similar__meta` | Wrapping flex row, `2px 8px` gaps, 12px `var(--gp-text-muted)` |
+| `.gp-similar__lang` | Inline-flex, 4px gap around the dot; the name ellipsizes |
+| `.gp-similar__lang-dot` | An `8×8` `50%` dot whose fill comes inline from the repository's language — the same swatch GitHub prints beside a language |
+| `.gp-similar__count` | A star or fork count: inline glyph plus a tabular-numeral value; its `aria-label` names the metric from a locale string, so `1.2k` is not read bare |
+| `.gp-similar__glyph` | The 12px stroke glyph in `var(--gp-text-muted)`, `aria-hidden` inside the labelled count |
+| `.gp-similar__match` | The relative match percentage in 12px `var(--gp-text-muted)` with tabular numerals, pushed to the meta row's trailing edge — a quiet fact, not an accent pill |
+| `.gp-similar__state` | One state message (empty, rate limited, star required, not in the dataset, failed) in muted 12px text; plain text, never a card or an error banner |
+| `.gp-similar__skeleton` | A placeholder row in the result's shape: `pointer-events: none`, its item `aria-hidden`; bars are `10px` `var(--gp-highlight)` at 4px radius, pulsing between full and 45% opacity with a stagger per row |
+| `.gp-similar__skeleton-avatar` | A 20×20 `50%` bar standing in for the avatar |
+| `.gp-similar__skeleton-name` / `-desc` / `-desc-short` / `-meta` | The name bar at 52%/12px, the two description bars at 92% and 64%, and the meta bar at 44%/9px |
+| `.gp-similar__announcer` | The visually hidden loading line (`aria-busy` on the panel speaks for the skeleton), announced to assistive tech, never drawn |
+| `.gp-similar__more` | **View more** as a full-width secondary button: `var(--gp-bg-2)` fill, `var(--gp-border)` edge, `var(--gp-radius)`, 28px minimum height; hover and `:active` take the `var(--gp-highlight)` fill, like GitHub's own secondary buttons; while its page loads it is `disabled` with `aria-busy="true"`, drops to the muted label on the base fill, and a skeleton row marks where the next result will land |
+
+**View more** appends the next page to the rows already shown (de-duplicated by
+repository) and disables itself until that page settles; a failed deeper page
+keeps the rows the reader already has and drops the button instead of replacing
+the list with an error. When the panel opened without rows, a failure renders
+its state message, with the reset time filled in when the provider reported
+one and a time-less variant of the message otherwise.
+
+The first page paints **skeleton rows** in the shape of a result — a round
+avatar bar, a name bar, two description bars and a meta bar — so the sidebar
+has its final height when the data lands instead of jumping. The skeleton
+carries `aria-hidden` on each placeholder row and the panel is
+`aria-busy="true"`; the localized loading line is announced from a
+visually hidden `.gp-similar__announcer` instead of being drawn. Bars pulse
+between full and 45% opacity with a stagger down the list. **View more**
+appends one placeholder row after the rows already shown while its page is in
+flight, so the list grows where the next result will appear. Below the
+sidebar's own breakpoint GitHub hides the sidebar, and the panel hides with
+it; the rows never reflow into the main column. Under
+`prefers-reduced-motion: reduce` the skeleton stops pulsing and holds a steady
+70% opacity, and the row and button keep their hover colours without the
+120 ms transitions.
+
 ## 7. States
 
 | State | Selector / form | Effect |
 |---|---|---|
-| Hover | `:hover` on `.gp-header-btn`, `.gp-user-menu-item__btn`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__zoom`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-viewer__help-close`, `.gp-viewer__status-link`, `.gp-about__value a` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools, the zoom pill and help close take the highlight fill with a strong glyph, the thumbnail border moves to the muted text color, and the status link underlines |
-| Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items, the header button, the user-menu row, viewer tools and viewer nav; the context menu rows draw it through their own `:focus-visible`, since a menu row is focused as a whole |
+| Hover | `:hover` on `.gp-header-btn`, `.gp-user-menu-item__btn`, `.gp-button`, `.gp-toast__action`, `.gp-toast__close`, `.gp-viewer__tool`, `.gp-viewer__zoom`, `.gp-viewer__nav:not([disabled])`, `.gp-viewer__thumb`, `.gp-viewer__help-close`, `.gp-viewer__status-link`, `.gp-about__value a`, `.gp-similar__card`, `.gp-similar__more` | Fill moves to `var(--gp-highlight)` or the border/text moves to the accent; viewer tools, the zoom pill and help close take the highlight fill with a strong glyph, the thumbnail border moves to the muted text color, the status link underlines, the similar-repository row and its button take the neutral highlight fill, like GitHub's own list items |
+| Focus | `:focus-visible` | `outline: 2px solid var(--gp-focus)` on controls, buttons, nav items, the header button, the user-menu row, viewer tools, viewer nav, `.gp-similar__card` and `.gp-similar__more`; the context menu rows draw it through their own `:focus-visible`, since a menu row is focused as a whole |
 | Focus offset | `outline-offset` | `1px` on buttons/nav/header/entry/viewer controls, `2px` on the switch track, `-1px` on select/input/textarea (inside the box), and `-2px` on `.gp-user-menu-item__btn` and `.gp-context-menu__item` (inside the row, so it stays inside GitHub's menu and our menu) |
 | Disabled | `.gp-button[disabled]` | `opacity: 0.55`, `cursor: default` |
 | Disabled | `.gp-viewer__nav[disabled]` | `opacity: 0.5`, `cursor: default`, hover suppressed |
@@ -1028,6 +1096,11 @@ the card moves to `6vh` and keeps an 8px gutter
 | Loading image | `.gp-viewer__image.is-loading` | `opacity: 0.25` while the source loads (also during an in-place full-size upgrade) |
 | Dragging | `.gp-viewer.is-dragging` | Stage cursor becomes `grabbing` for the duration of a pan |
 | Custom settings | `.gp-user-menu-item--custom` | Dot in `var(--gp-accent)` at the trailing edge of the user-menu row while settings differ from defaults; `display: none` until the modifier is set |
+| Similar panel button hover | `.gp-similar__more:hover` | The neutral `var(--gp-highlight)` fill, like GitHub's own secondary buttons |
+| Similar panel button busy | `.gp-similar__more[disabled]` | The muted label on the base fill, with `aria-busy="true"`, while the next page is in flight |
+| Similar panel loading | `.gp-similar__skeleton-bar` | Placeholder bars pulse between full and 45% opacity (no pulse under reduced motion, steady 70%); the panel carries `aria-busy="true"` and the loading line is announced from `.gp-similar__announcer` |
+| Similar panel row active | `.gp-similar__card:active` | The same neutral highlight fill the hover shows, so a press reads as a press |
+| Similar avatar broken | `.gp-similar__avatar.is-broken` | The owner avatar is hidden and the repository initial shows in its place |
 | Palette loading | `.gp-command__bar.is-loading` | A 2px accent sweep under the input while a source refreshes; the bar is transparent at rest |
 | Palette active row | `.gp-command__row[aria-selected="true"]`, `.gp-command__row.is-active` | `var(--gp-accent-soft)` fill with an accent icon and title; the same row is mirrored to `aria-activedescendant` |
 | Palette empty | `.gp-command__empty:not([hidden])` | Centered glyph, `var(--gp-text)` title and muted hint; `[hidden]` is declared explicitly |

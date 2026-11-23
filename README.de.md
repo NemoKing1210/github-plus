@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -15,8 +15,8 @@ Repository-Auflistung, Dateigrößen mit Ein-Klick-Downloads, ein
 Kontextmenü für Datei- und Ordneraktionen, eine Schnellvorschau für jede Datei,
 Commit-Badges nach Conventional Commits und die Übersetzung von Seiteninhalten.
 
-> **Status:** früh (`0.32.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
-> Galerie · Dateien · Commits · Übersetzung · Palette · Sicherung · Info), eine
+> **Status:** früh (`0.33.1`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> Galerie · Dateien · Commits · Übersetzung · Palette · Entdecken · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, aufklappbare Ordner,
 > Dateigrößen mit
@@ -398,6 +398,35 @@ tust:
   Tastenkombination ist eine Voreinstellung oder eine beliebige Kombination, die
   du auf der Einstellungsseite der Palette aufzeichnest.
 
+### Ähnliche Repositories
+
+Jede öffentliche Repository-Seite erhält in der Seitenleiste einen Abschnitt
+**Ähnliche Repositories** mit Projekten, die dem geöffneten nahestehen:
+
+- **Zwei Datenquellen zur Wahl** — **GitHub** (Standard) sucht über
+  `api.github.com` nach Themen und Hauptsprache des Repositorys und ordnet die
+  Treffer nach gemeinsamen Themen, gleicher Sprache und vergleichbarer
+  Sternenzahl. **SimRepo** zeigt vorbereitete Ähnlichkeitsdaten; es ist ein
+  Drittanbieter, daher sendet die Seitenleiste ihm den Namen des geöffneten
+  Repositorys, und weitere Seiten erfordern einen Stern für das SimRepo-Projekt —
+  die Einstellungskarte sagt das ausdrücklich.
+- **Eine Zeile auf einen Blick** — Eigentümer/Name, Beschreibung, Hauptsprache
+  mit ihrer Farbe, Sterne, Forks, eine Archiv-Markierung und ein relativer
+  Übereinstimmungsprozentsatz; die stärkste Übereinstimmung im Satz liest sich
+  als 100 %.
+- **Seitenweise** — **Mehr anzeigen** hängt die nächsten Ergebnisse an, wenn die
+  Quelle welche hat.
+- **Ehrliche Zustände** — Laden, keine Treffer, ein Repository außerhalb des
+  Datensatzes, ein erreichtes Abfragelimit mit seiner Rücksetzzeit und ein
+  fehlgeschlagener Abruf bekommen jeweils ihre eigene Zeile, sodass die
+  Seitenleiste nie einen leeren Kasten zeigt.
+- **Nur öffentlich** — die Seitenleiste wird nur für ein Repository abgerufen,
+  das GitHub als öffentlich markiert; ein privates, internes oder Repository mit
+  unbekannter Sichtbarkeit sendet nie eine Anfrage, und die Seitenleiste
+  erscheint dort gar nicht.
+- **Ihre Einstellungen** — Hauptschalter, Datenquelle, Ergebnisse pro Seite und
+  Cache-Lebensdauer liegen auf der Seite **Entdecken**.
+
 ### Einstellungsfenster
 
 Öffne es über die Zeile **GitHub Plus-Einstellungen** im Avatar-Menü (direkt
@@ -463,6 +492,10 @@ Gespeichert unter `gp_settings_v1`.
 | `commandPalette.hideArchived` | `false` | Archivierte Repositories ausblenden |
 | `commandPalette.cacheHours` | `6` | Lebensdauer des Repository- und Dateibaum-Caches in Stunden (0 schaltet ihn aus) |
 | `commandPalette.maxResults` | `30` | Maximale Zeilenzahl je Ergebnisgruppe (10–100) |
+| `similarRepos.enabled` | `true` | Hauptschalter für die Seitenleiste **Ähnliche Repositories** |
+| `similarRepos.provider` | `'github'` | Datenquelle: `github` (eigene Suche) oder `simrepo` (Drittanbieter) |
+| `similarRepos.results` | `5` | Ergebnisse pro Seite (3–20) |
+| `similarRepos.cacheHours` | `24` | Cache-Lebensdauer in Stunden (0 deaktiviert den Cache) |
 
 ## Wie die Galerie aufgebaut ist
 

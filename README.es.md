@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
@@ -14,11 +14,11 @@ antigüedad al estilo blame para esos archivos, carpetas expandibles en la lista
 del repositorio, tamaños de archivo con descargas
 en un clic, un menú contextual para acciones de archivo y carpeta, una vista
 rápida de
-cualquier archivo, insignias de Conventional Commits y traducción del contenido
-de la página.
+cualquier archivo, insignias de Conventional Commits traducción del contenido
+de la página y un panel de repositorios similares en la barra lateral.
 
-> **Estado:** temprano (`0.32.0`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Archivos · Commits · Traducción · Paleta · Copia de
+> **Estado:** temprano (`0.33.1`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Archivos · Commits · Traducción · Paleta · Descubrir · Copia de
 > seguridad · Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, las carpetas expandibles, los tamaños de archivo
@@ -396,6 +396,34 @@ búsqueda sobre todo lo que haces allí:
   cierra sola al navegar. El atajo es una opción predefinida o cualquier
   combinación que grabes en la página de ajustes de la paleta.
 
+### Repositorios similares
+
+Cada página de repositorio público gana en la barra lateral una sección
+**Repositorios similares** con proyectos cercanos al que estás leyendo:
+
+- **Dos orígenes de datos a elegir** — **GitHub** (el predeterminado) busca por
+  los temas y el lenguaje principal del repositorio en `api.github.com` y
+  ordena los resultados por temas compartidos, el mismo lenguaje y un número de
+  estrellas comparable. **SimRepo** muestra datos de similitud precalculados; es
+  un tercero, así que el panel le envía el nombre del repositorio que abriste y
+  sus páginas siguientes exigen una estrella en el proyecto SimRepo, algo que la
+  tarjeta de ajustes dice con claridad.
+- **Una fila que se juzga de un vistazo** — propietario/nombre, la descripción,
+  el lenguaje principal con su color, estrellas, forks, una etiqueta de
+  archivado y un porcentaje de coincidencia relativo; la mejor coincidencia del
+  conjunto se lee como 100%.
+- **Paginación** — **Ver más** añade los siguientes resultados cuando el origen
+  los tiene.
+- **Estados honestos** — cargando, sin resultados, un repositorio fuera del
+  conjunto de datos, un límite de consultas alcanzado con su hora de
+  restablecimiento y una solicitud fallida tienen cada uno su propia línea, así
+  que la barra lateral nunca muestra una caja vacía.
+- **Solo públicos** — el panel solo se pide en un repositorio que GitHub marca
+  como público; un repositorio privado, interno o de visibilidad desconocida
+  nunca envía una solicitud, y allí no aparece el panel.
+- **Tus ajustes** — el interruptor principal, el origen de datos, los resultados
+  por página y la vida de la caché están en la página **Descubrir**.
+
 ### Panel de ajustes
 
 Ábrelo con la fila **Ajustes de GitHub Plus** del menú del avatar (justo debajo
@@ -461,6 +489,10 @@ Se guardan en `gp_settings_v1`.
 | `commandPalette.hideArchived` | `false` | Ocultar repositorios archivados |
 | `commandPalette.cacheHours` | `6` | Duración de la caché de repositorios y árboles de archivos en horas (0 la desactiva) |
 | `commandPalette.maxResults` | `30` | Número máximo de filas por conjunto de resultados (10–100) |
+| `similarRepos.enabled` | `true` | Interruptor principal de la barra lateral **Repositorios similares** |
+| `similarRepos.provider` | `'github'` | Origen de datos: `github` (búsqueda propia) o `simrepo` (tercero) |
+| `similarRepos.results` | `5` | Resultados por página (3–20) |
+| `similarRepos.cacheHours` | `24` | Vida de la caché en horas (0 la desactiva) |
 
 ## Cómo está construida la galería
 

@@ -156,6 +156,8 @@ github-plus/
 │   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu, preview
 │   │   │       ├── commits.js   # Commit badges: master switch, refinements, type legend
 │   │   │       ├── translate.js # Translation trigger, places, provider, cache
+│   │   │       ├── commandPalette.js # Activation, token, sources, cache
+│   │   │       ├── discovery.js # Similar repositories: provider, results, cache
 │   │   │       ├── backup.js    # Settings export (file/clipboard) + validated import
 │   │   │       └── about.js     # Version, author, repository, license
 │   │   ├── fileIcons/
@@ -215,25 +217,34 @@ github-plus/
 │   │   │       ├── request.js  # GM_xmlhttpRequest / fetch transport
 │   │   │       └── google.js deepl.js microsoft.js yandex.js openai.js libretranslate.js
 │   │   └── commandPalette/
-│   │       ├── index.js    # Lifecycle: hotkey, header entry, candidate assembly, loads, shell wiring
-│   │       ├── context.js  # Page login/repo/ref and the effective identity (pure/DOM)
-│   │       ├── rank.js     # parseQuery, scoreText, rankCandidates, markPinned (pure)
-│   │       ├── search.js   # searchPalette: query → groups, the GitHub search fallback
-│   │       ├── commands.js # Navigation, toggle and maintenance commands
-│   │       ├── actions.js  # Action descriptors, runAction, navigate, searchUrl
-│   │       ├── repos.js    # Repo normalization/merge, repoCandidates, ensureRepositories
-│   │       ├── files.js    # Tree normalization, fileCandidates, ensureTree
-│   │       ├── issues.js   # Open issues/PRs of the current repo: candidates, ensureIssues
-│   │       ├── rowMenu.js  # Per-row action list for the palette context menu
-│   │       ├── api.js      # GitHub REST client (ETags, pagination, rate limits)
-│   │       ├── store.js    # Cache record, recents/pins, freshness, rate-limit state
-│   │       ├── hotkey.js   # shortcutMatches, isEditableTarget, shouldOpenPalette
-│   │       └── format.js   # formatCount, relativeTime
+│   │   │   ├── index.js    # Lifecycle: hotkey, header entry, candidate assembly, loads, shell wiring
+│   │   │   ├── context.js  # Page login/repo/ref and the effective identity (pure/DOM)
+│   │   │   ├── rank.js     # parseQuery, scoreText, rankCandidates, markPinned (pure)
+│   │   │   ├── search.js   # searchPalette: query → groups, the GitHub search fallback
+│   │   │   ├── commands.js # Navigation, toggle and maintenance commands
+│   │   │   ├── actions.js  # Action descriptors, runAction, navigate, searchUrl
+│   │   │   ├── repos.js    # Repo normalization/merge, repoCandidates, ensureRepositories
+│   │   │   ├── files.js    # Tree normalization, fileCandidates, ensureTree
+│   │   │   ├── issues.js   # Open issues/PRs of the current repo: candidates, ensureIssues
+│   │   │   ├── rowMenu.js  # Per-row action list for the palette context menu
+│   │   │   ├── api.js      # GitHub REST client (ETags, pagination, rate limits)
+│   │   │   ├── store.js    # Cache record, recents/pins, freshness, rate-limit state
+│   │   │   ├── hotkey.js   # shortcutMatches, isEditableTarget, shouldOpenPalette
+│   │   │   └── format.js   # formatCount, relativeTime
+│   │   └── similarRepos/
+│   │       ├── index.js    # Lifecycle: observers, cache, paging, settings reaction
+│   │       ├── api.js      # Provider dispatch, ApiError normalization
+│   │       ├── github.js   # First-party provider: repo metadata + search
+│   │       ├── simrepo.js  # Opt-in third-party provider
+│   │       ├── score.js    # Pure normalization, query building, scoring
+│   │       ├── surfaces.js # Sidebar resolution, public-repo check, current repo
+│   │       ├── render.js   # Panel markup and its states
+│   │       └── errors.js   # ApiError, abort detection, rate-limit reset
 │   ├── styles/
 │   │   ├── tokens.css      # :root design tokens (--gp-* palette — DESIGN.md)
 │   │   └── app.css         # Injected styles, gp- prefix (GM_addStyle via build)
 │   ├── ui/
-│   │   ├── icons.js        # 16×16 glyphs: stroked set + the filled palette Octicon
+│   │   ├── icons.js        # 16×16 glyphs: stroke sets + the filled palette Octicon
 │   │   ├── headerActions.js# One registry for GitHub header entries (mount/sync/remove)
 │   │   ├── toast.js        # Toast notifications (positions, dedup, actions)
 │   │   ├── contextMenu.js  # Reusable fixed-position menu (items, keyboard, dismissal)
@@ -280,7 +291,8 @@ github-plus/
 `applyFolderTreeSettings()` → `initTranslateFeature()` +
 `applyTranslateSettings()` → `initCommitBadgesFeature()` +
 `applyCommitBadgesSettings()` → `initCommandPaletteFeature()` +
-`applyCommandPaletteSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
+`applyCommandPaletteSettings()` → `initSimilarReposFeature()` +
+`applySimilarReposSettings()` → `watchNavigation(resetOverlaysOnNavigation)`.
 
 This project deliberately has **no global DOM scan loop and no
 document-wide MutationObserver**: the gallery is CSS plus one delegated click
@@ -361,9 +373,15 @@ Single place for magic values.
   `COMMAND_PALETTE_MAX_RESULTS_MIN` / `_MAX` (10…100). The issues source's
   pagination caps (`PER_PAGE` 100, 3 pages with a token, 1 without, 5
   repositories and 300 KB per record) live in `features/commandPalette/issues.js`.
+- Similar repositories: `SIMILAR_REPOS_PROVIDERS` (`github`, `simrepo`),
+  `SIMILAR_REPOS_RESULTS_MIN` / `_MAX` (3…20),
+  `SIMILAR_REPOS_CACHE_HOURS_MAX` (168),
+  `SIMILAR_REPOS_SIMREPO_URL`, `GITHUB_API_URL`, `SIMILAR_REPOS_TIMEOUT_MS`
+  (15 s per request) and the surface timings `SIMILAR_REPOS_SETTLE_MS` (250) ×
+  `SIMILAR_REPOS_SETTLE_TRIES` (12).
 - `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
   `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `folderTree`,
-  `commitBadges`, `translate`, `commandPalette`) plus
+  `commitBadges`, `translate`, `commandPalette`, `similarRepos`) plus
   `getDefaults()`, which returns a deep clone — never mutate the shared
   constants. `DEFAULT_LOGGING` is `{ enabled: false }`; `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
@@ -375,7 +393,8 @@ Single place for magic values.
   `DEFAULT_TRANSLATE` is `{ enabled, provider, providerConfig, targetLang, mode,
   display, reveal, linkLabels, surfaces, cacheHours }`;
   `DEFAULT_COMMAND_PALETTE` is `{ enabled, shortcut, token, sources, hideForks,
-  hideArchived, cacheHours, maxResults }`.
+  hideArchived, cacheHours, maxResults }` and `DEFAULT_SIMILAR_REPOS` is
+  `{ enabled, provider, results, cacheHours }`.
 
 ### `src/core/settings.js`
 
@@ -386,8 +405,8 @@ Public API: `loadSettings`, `getSettings`, `getLoggingSettings`, `getGallerySett
 `getFileMenuSettings`, `getFilePreviewSettings`, `getFolderTreeSettings`,
 `getCommitBadgesSettings`,
 `getTranslateSettings`,
-`getCommandPaletteSettings`, `saveSettings`, `toExportableSettings`,
-`normalizeImportedSettings`, `hasCustomSettings`.
+`getCommandPaletteSettings`, `getSimilarReposSettings`, `saveSettings`,
+`toExportableSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
 
 Key facts that must survive refactors:
 
@@ -418,6 +437,9 @@ Key facts that must survive refactors:
   leaves the browser**: `toExportableSettings()` blanks it for a backup and
   `normalizeImportedSettings()` blanks it on import, because a token pasted
   into a backup file is a leak.
+- The `similarRepos` section normalizes its provider id against
+  `SIMILAR_REPOS_PROVIDERS`, `results` clamped to 3…20 and `cacheHours` to
+  0…`SIMILAR_REPOS_CACHE_HOURS_MAX`.
 - `normalizeImportedSettings(payload)` returns a normalized settings object or
   `null` (not an object) *without* persisting — the caller decides.
 - GM storage is wrapped in try/catch — a userscript sandbox without storage
@@ -472,6 +494,10 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
   its header entry and reinstalls or
   removes its document hotkey. The settings page also writes palette data (a verified token) on its
   own, outside Save, because verification is an immediate network check.
+- `settings:similarRepos` — emitted by the same Save and by a backup import;
+  the similar-repositories feature forgets its session cache (a provider or
+  page-size change must not reuse another source's rows), tears the panel down
+  and, when enabled, re-applies and settles.
 - The same Save also emits `settings:language`, which the preview feature
   listens to for repainting its header, footer and card labels, and the
   translate feature for its button labels.
@@ -518,7 +544,8 @@ listener, no `window.__GP_LOG__`.
   surface, `GP-1303` file-meta surface, `GP-1401` file-menu action, `GP-1501`
   file-preview load, `GP-1601` translation run, `GP-1602` translation cache,
   `GP-1701` palette load/action, `GP-1702` palette cache, `GP-1801` commit-badges
-  surface, `GP-1901` folder-tree expand, `GP-9001` uncaught
+  surface, `GP-1901` folder-tree expand, `GP-2001` similar-repositories load,
+  `GP-9001` uncaught
   error, `GP-9002` unhandled rejection. Rules: log once per
   user-visible failure at the outermost point; layers below only throw, they
   never log.
@@ -796,6 +823,10 @@ without a reload. Nothing else in the feature layer touches the logger.
   cache lifetime with a stats line and **Clear cache**. Verification is an immediate `GET /user`, so this page writes the
   cache record outside the draft; the token itself is saved only by the footer
   Save (`palette.*` keys).
+- `tabs/discovery.js`: the **Discovery** page — master switch, provider
+  select (the hint names the third party when SimRepo is chosen), results per
+  page and cache lifetime, plus the public-repositories-only privacy note
+  (`similarRepos.*` keys).
 - `tabs/backup.js`: export to file (`Blob` + `<a download>`) or clipboard,
   import from a textarea through `normalizeImportedSettings` +
   `applyExternalSettings`, with an inline invalid-payload message.
@@ -1273,6 +1304,73 @@ subject byte for byte.
   `translate:restored`, applies on `watchNavigation` and boots. The settings
   page imports `TYPE_ORDER` from `parse.js` for its legend.
 
+### `src/features/similarRepos/` — similar-repositories sidebar
+
+Adds a **Similar repositories** panel to the sidebar of a public repository
+page: owner/name, description, language with its color, stars, forks, an
+archived label and a relative match percentage, with **View more** paging. The
+data source is a setting; the panel never appears — and no request is sent — on
+a private, internal or unknown-visibility repository.
+
+- `score.js`: pure, unit-tested. `normalizeGithubItem(hit)` and
+  `normalizeSimrepoItem(item)` produce one row shape
+  (`{ repo, description, language, stars, forks, archived, score }`);
+  `buildSearchQuery(meta)` emits at most five operators (three topics plus the
+  language) and `''` when there is no signal; `scoreGithubCandidate(meta, hit)`
+  weights topic Jaccard 0.55, language match 0.25 and star proximity 0.20;
+  `relativePercentages(items)` makes the strongest row 100%.
+- `github.js` (default provider): `GET /repos/{owner}/{repo}` for the metadata,
+  then one `GET /search/repositories` ranked by `scoreGithubCandidate`; the
+  command palette's token is sent only when set. `simrepo.js` (opt-in): the
+  third party's `similar-repos` endpoint, three results per page, mapping
+  `not-in-dataset`, `star-required` and `rate-limited` to typed errors.
+  `api.js` dispatches and normalizes every failure into `ApiError.code`
+  (`invalid`, `not-in-dataset`, `star-required`, `rate-limited`, `private`,
+  `network`); an abort is never wrapped.
+- `surfaces.js`: `resolveSidebar()` finds the section headings GitHub prints
+  (`Releases`, `Contributors`, `Languages`) and their shared parent, falling
+  back to `.Layout-sidebar`; `isPublicRepo()` requires
+  `meta[name="octolytics-dimension-repository_public"]` to say `true`, so a
+  missing marker is treated as non-public; `currentRepo()` reads `owner/name`.
+- `render.js`: `renderPanel({ labels, rows, state, hasMore, moreBusy, onMore })`
+  builds `.gp-similar` markup only. Each row is one `a.gp-similar__card` (the
+  whole row is the link) laid out like GitHub's own sidebar list items, as grid
+  `20px minmax(0, 1fr)`: the owner avatar
+  (`github.com/<owner>.png?size=64`, `alt=""` and `aria-hidden`, with a
+  monogram fallback swapped in on `error`), then the body — `owner/name`, the
+  archived chip, a two-line description and the meta row (the language swatch
+  whose colour comes from the `--gp-lang-*` tokens, star and fork counts whose
+  `aria-label` names the metric through `similarRepos.stars` / `.forks`, and
+  the match percentage). A `loading` state paints three skeleton rows in the
+  shape of a result (avatar, name, two description bars, meta), `aria-hidden`
+  per row with `aria-busy` on the panel, and announces the localized loading
+  line from a visually hidden `.gp-similar__announcer`; a busy **View more**
+  appends one placeholder row after the rows already shown. Each other state
+  (`empty`, `not-in-dataset`, `rate-limited`, `star-required`, `failed`) is one
+  `.gp-similar__state` paragraph. The glyphs live in
+  `SIMILAR_ICONS` (`ui/icons.js`).
+- `index.js`: `applySimilarReposSettings()` is the single entry point
+  (teardown first, then observe and settle when enabled);
+  `initSimilarReposFeature({ fetchSimilar })` subscribes to
+  `settings:similarRepos` and `settings:language`, re-applies on navigation and
+  boots. One observer per resolved sidebar (disconnected once its container
+  leaves the DOM), a single pair of `<html>`/`<body>` direct-children watchers
+  (guarded so a re-apply cannot add a second pair) and a bounded settle wait
+  (`SIMILAR_REPOS_SETTLE_MS` × `SIMILAR_REPOS_SETTRIES`), never a
+  document-wide observer. A session cache is keyed `provider|repo|results|page`
+  with the `cacheHours` TTL; in-flight requests are deduplicated; a generation
+  counter drops a response that arrives after a navigation or a disable; each
+  request carries an `AbortController`. **View more** appends the next page to
+  the rows already shown (de-duplicated by repository), disables itself with
+  `aria-busy` until that page settles and restores focus to itself; a failed
+  deeper page keeps the rows already shown and drops the button. A provider or
+  page-size change clears the session cache (compared against the previously
+  applied section, since the panel Save has already persisted the new one).
+- `features/settings/tabs/discovery.js`: the **Discovery** page — master switch,
+  provider select (its hint names the third party when SimRepo is chosen),
+  results per page (3–20) and cache lifetime (0–168 hours), plus the
+  public-only privacy note.
+
 ### `src/features/translate/` — on-page translation
 
 Translates markdown bodies (READMEs, issues, pull requests, discussions,
@@ -1721,7 +1819,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 425
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 458
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1732,7 +1830,7 @@ select back to **Custom** on the next open.
   `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-header-btn`,
   `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
   `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`,
-  `.gp-command-overlay`) and
+  `.gp-command-overlay`, `.gp-similar`) and
   `isOwnUiChrome(node)` (the same check minus the repository content inside
   `.gp-preview__content`, whose images and file links must behave like page
   content). `eachNode`/`toArray` exist because DOM collections
@@ -1864,7 +1962,7 @@ footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 'settings:language' | 'settings:fileIcons' | 'settings:fileAges' |
 'settings:fileMeta' | 'settings:fileMenu' | 'settings:filePreview' |
 'settings:folderTree' | 'settings:translate' | 'settings:commitBadges' |
-'settings:commandPalette')` → gallery repaints its
+'settings:commandPalette' | 'settings:similarRepos')` → gallery repaints its
 stylesheet, the logger applies
 its switch, file and translate features rescan or tear down, the palette closes
 and reinstalls its hotkey, the palette entry relabels itself and the
@@ -2048,6 +2146,10 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `commandPalette.hideArchived` | `false` | Hide archived repositories |
 | `commandPalette.cacheHours` | `6` | Repository, tree and issue cache lifetime in hours (`0` disables it), clamped to 0…`COMMAND_PALETTE_CACHE_HOURS_MAX` |
 | `commandPalette.maxResults` | `30` | Row cap per result set, clamped to `COMMAND_PALETTE_MAX_RESULTS_MIN`…`_MAX` |
+| `similarRepos.enabled` | `true` | Master switch; off removes the panel and stops every request |
+| `similarRepos.provider` | `'github'` | Data source: `github` (first party) or `simrepo` (third party) |
+| `similarRepos.results` | `5` | Results per page, clamped to 3…20 |
+| `similarRepos.cacheHours` | `24` | Session cache lifetime in hours (0 disables it) |
 
 ## Localization
 
@@ -2076,9 +2178,9 @@ with English fallback.
 All injected UI (the palette header entry, panel, controls, confirm dialog, toasts,
 context menu, viewer, file icons, file-age dates, the folder-tree chevrons and
 nested rows, the file size column and
-download buttons, the quick file preview, the commit type/scope token, and the
+download buttons, the quick file preview, the commit type/scope token, the
 translation button, bar and
-result boxes)
+result boxes, and the similar-repositories sidebar panel)
 follows [DESIGN.md](DESIGN.md) — GitHub's
 own visual language through Primer tokens, `gp-`-prefixed classes, colors from
 `src/styles/tokens.css`. File icons are the documented exception: their
@@ -2303,6 +2405,17 @@ and check diagnostics for edited files.
   plain, and an unknown but lowercase type needs **Unknown types**. A badge
   that survives after the feature is turned off means the teardown or the
   `translate:restored` unwrap broke.
+- Similar repositories missing: check **Similar repositories** on the
+  **Discovery** page is on and the page is a repository GitHub marks public. A
+  missing `meta[name="octolytics-dimension-repository_public"]` or a value
+  other than `true` is treated as non-public on purpose, so no request is made
+  and no panel is shown. The sidebar must expose a `Releases`, `Contributors`
+  or `Languages` heading or a `.Layout-sidebar`; a GitHub redesign that drops
+  all of them turns the feature into a no-op — extend `resolveSidebar()`, never
+  add a document-wide observer. A `GP-2001` entry means the request failed; a
+  rate-limited line names its reset time. With **SimRepo** selected the third
+  party may answer "not in the dataset", or a further page may need a star on
+  the SimRepo repository — both are localized states, not failures.
 - No **Translate** button: check **Translation** is on and the matching switch
   on its **Places** card; the container must be one of the surfaces in
   `features/translate/surfaces.js` and carry text blocks (an image-only README

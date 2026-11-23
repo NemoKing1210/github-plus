@@ -60,6 +60,67 @@
   --gp-age-9: #876739;
   --gp-age-10: #9a6700;
 
+  /* Repository language swatches, GitHub Linguist's own colours. A language
+   * is data, like the age scale, so these stay literal in every theme; an
+   * unknown language falls back to the muted text colour. */
+  --gp-lang-javascript: #f1e05a;
+  --gp-lang-typescript: #3178c6;
+  --gp-lang-python: #3572a5;
+  --gp-lang-java: #b07219;
+  --gp-lang-cpp: #f34b7d;
+  --gp-lang-c: #555555;
+  --gp-lang-csharp: #178600;
+  --gp-lang-go: #00add8;
+  --gp-lang-rust: #dea584;
+  --gp-lang-ruby: #701516;
+  --gp-lang-php: #4f5d95;
+  --gp-lang-swift: #f05138;
+  --gp-lang-kotlin: #a97bff;
+  --gp-lang-dart: #00b4ab;
+  --gp-lang-html: #e34c26;
+  --gp-lang-css: #563d7c;
+  --gp-lang-scss: #c6538c;
+  --gp-lang-sass: #a53b70;
+  --gp-lang-less: #1d365d;
+  --gp-lang-shell: #89e051;
+  --gp-lang-vue: #41b883;
+  --gp-lang-svelte: #ff3e00;
+  --gp-lang-astro: #ff5a03;
+  --gp-lang-lua: #000080;
+  --gp-lang-haskell: #5e5086;
+  --gp-lang-elixir: #6e4a7e;
+  --gp-lang-erlang: #b83998;
+  --gp-lang-scala: #c22d40;
+  --gp-lang-r: #198ce7;
+  --gp-lang-objective-c: #438eff;
+  --gp-lang-objective-cpp: #6866fb;
+  --gp-lang-perl: #0298c3;
+  --gp-lang-zig: #ec915c;
+  --gp-lang-nix: #7e7eff;
+  --gp-lang-dockerfile: #384d54;
+  --gp-lang-makefile: #427819;
+  --gp-lang-jupyter: #da5b0b;
+  --gp-lang-powershell: #012456;
+  --gp-lang-clojure: #db5855;
+  --gp-lang-ocaml: #ef7a08;
+  --gp-lang-julia: #a270ba;
+  --gp-lang-solidity: #aa6746;
+  --gp-lang-assembly: #6e4c13;
+  --gp-lang-tex: #3d6117;
+  --gp-lang-vim-script: #199f4b;
+  --gp-lang-emacs-lisp: #c065db;
+  --gp-lang-common-lisp: #3fb68b;
+  --gp-lang-standard-ml: #dc566d;
+  --gp-lang-vbnet: #945db7;
+  --gp-lang-fsharp: #b845fc;
+  --gp-lang-cmake: #da3434;
+  --gp-lang-batchfile: #c1f12e;
+  --gp-lang-hcl: #844fba;
+  --gp-lang-groovy: #4298b8;
+  --gp-lang-matlab: #e16737;
+  --gp-lang-glsl: #5686a5;
+  --gp-lang-hlsl: #aace60;
+
   /* Conventional Commit fills: Primer's emphasis surfaces paired with its own
    * on-emphasis ink, so the type chip follows every GitHub theme. */
   --gp-commit-ink: var(--fgColor-onEmphasis, #ffffff);

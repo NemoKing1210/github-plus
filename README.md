@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -13,11 +13,11 @@ wherever GitHub lists files, blame-style age colors for those files, expandable
 folders in the repository listing, file sizes with one-click downloads, a
 context menu for file and folder actions, a quick preview for any file,
 Conventional
-Commit badges on commit subjects, and on-page translation of markdown, comments,
-commits and titles.
+Commit badges on commit subjects, on-page translation of markdown, comments and
+commits, and a sidebar panel recommending similar repositories.
 
-> **Status:** early (`0.32.0`). Settings panel with instant search (General ·
-> Gallery · Files · Commits · Translation · Palette · Backup · About), a
+> **Status:** early (`0.33.1`). Settings panel with instant search (General ·
+> Gallery · Files · Commits · Translation · Palette · Discovery · Backup · About), a
 > `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, expandable folder rows, file sizes with download buttons, a
@@ -366,6 +366,30 @@ there:
   a comment or README editor, and closes itself on navigation. The shortcut is
   a preset or any combination you record on the palette's settings page.
 
+### Similar repositories
+
+Every public repository page gains a **Similar repositories** section in its
+sidebar, recommending projects close to the one you are reading:
+
+- **Two data sources, your choice** — **GitHub** (the default) searches by the
+  repository's topics and primary language through `api.github.com` and ranks
+  the hits by shared topics, the same language and a comparable star count.
+  **SimRepo** shows prebuilt similarity data instead; it is a third party, so
+  the panel sends it the name of the repository you opened and its further pages
+  need a star on the SimRepo project, which the settings card says plainly.
+- **A row you can judge at a glance** — owner/name, the description, the
+  primary language with its color, stars, forks, an archived label and a
+  relative match percentage; the strongest match in the set reads 100%.
+- **Paging** — **View more** appends the next results when the source has any.
+- **Honest states** — loading, no results, a repository outside the dataset, a
+  reached lookup limit with its reset time, and a failed request each get their
+  own line, so the sidebar never shows an empty box.
+- **Public only** — the panel is fetched only on a repository GitHub marks
+  public; a private, internal or unknown-visibility repository never sends a
+  request, and the panel is not shown there at all.
+- **Your settings** — the master switch, the data source, the results per page
+  and the cache lifetime live on the **Discovery** settings page.
+
 ### Settings panel
 
 Open it from the **GitHub Plus settings** row in your avatar menu (right under
@@ -430,6 +454,10 @@ Stored under `gp_settings_v1`.
 | `commandPalette.hideArchived` | `false` | Hide archived repositories |
 | `commandPalette.cacheHours` | `6` | Repository and file-tree cache lifetime in hours (0 disables the cache) |
 | `commandPalette.maxResults` | `30` | Maximum number of rows in a result set (10–100) |
+| `similarRepos.enabled` | `true` | Master switch for the **Similar repositories** sidebar panel |
+| `similarRepos.provider` | `'github'` | Data source: `github` (first-party search) or `simrepo` (third party) |
+| `similarRepos.results` | `5` | Results per page (3–20) |
+| `similarRepos.cacheHours` | `24` | Cache lifetime in hours (0 disables the cache) |
 
 ## How the gallery is built
 

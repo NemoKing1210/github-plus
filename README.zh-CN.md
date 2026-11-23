@@ -5,15 +5,15 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
 可展开的文件夹、文件大小与一键下载，用于文件和文件夹操作的上下文菜单、任意文件的快速预览、Conventional
 Commits 提交徽章，以及页面内容的翻译。
 
-> **状态：** 早期（`0.32.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
-> 翻译 · 面板 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
+> **状态：** 早期（`0.33.1`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
+> 翻译 · 面板 · 发现 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
 > 图标、blame 风格的年龄着色、可展开的文件夹、带下载按钮的文件大小、文件和文件夹上下文
 > 菜单、快速文件预览、提交徽章，以及页面翻译。计划加入更多 GitHub 改进。
 
@@ -281,6 +281,23 @@ Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为�
   输入时面板不会打扰，导航时会自行关闭。快捷键是预设，或你在面板设置页录制的
   任意组合。
 
+### 相似仓库
+
+每个公开仓库页面的侧边栏都会新增 **相似仓库** 区块，推荐与你正在阅读的仓库相近的项目：
+
+- **两种数据来源可选** — **GitHub**（默认）通过 `api.github.com` 按仓库的主题和主要
+  语言搜索，并按共同主题、相同语言和相近的星标数排序。**SimRepo** 显示预计算的相似度
+  数据；它是第三方，因此面板会把��打开的仓库名称发送给它，后续页面需要给 SimRepo 项目
+  加星，设置卡片会明确说明这一点。
+- **一览即懂的条目** — 所有者/名称、描述、带颜色的主要语言、星标、分支、归档标签以及
+  相对匹配百分比；集合中最强的匹配显示为 100%。
+- **分页** — 来源还有结果时，**查看更多** 会追加下一页。
+- **诚实的状态** — 加载中、无结果、仓库不在数据集中、达到查询上限并附重置时间、请求
+  失败，各有自己的一行，侧边栏绝不会留下空框。
+- **仅公开仓库** — 面板只在 GitHub 标记为公开的仓库上获取；私有、内部或可见性未知的
+  仓库绝不会发送请求，也不会显示面板。
+- **你的设置** — 总开关、数据来源、每页结果数和缓存时间位于 **发现** 设置页。
+
 ### 设置面板
 
 可从头像菜单中的 **GitHub Plus 设置** 一行（就在 GitHub 自己的 **Settings**
@@ -344,6 +361,10 @@ Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为�
 | `commandPalette.hideArchived` | `false` | 隐藏已归档的仓库 |
 | `commandPalette.cacheHours` | `6` | 仓库和文件树缓存的时长（小时，0 表示关闭缓存） |
 | `commandPalette.maxResults` | `30` | 每组结果的最大行数（10–100） |
+| `similarRepos.enabled` | `true` | **相似仓库** 侧边栏面板的总开关 |
+| `similarRepos.provider` | `'github'` | 数据来源：`github`（第一方搜索）或 `simrepo`（第三方） |
+| `similarRepos.results` | `5` | 每页结果数（3–20） |
+| `similarRepos.cacheHours` | `24` | 缓存时间（小时，0 表示禁用缓存） |
 
 ## 画廊的构建方式
 

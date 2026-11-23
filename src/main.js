@@ -14,6 +14,7 @@ import { applyFolderTreeSettings, initFolderTreeFeature } from './features/folde
 import { applyTranslateSettings, initTranslateFeature } from './features/translate/index.js';
 import { applyCommitBadgesSettings, initCommitBadgesFeature } from './features/commitBadges/index.js';
 import { applyCommandPaletteSettings, initCommandPaletteFeature } from './features/commandPalette/index.js';
+import { applySimilarReposSettings, initSimilarReposFeature } from './features/similarRepos/index.js';
 import { applyGallerySettings, initGalleryFeature } from './gallery/index.js';
 import { closeFilePreview, isFilePreviewOpen } from './ui/filePreview.js';
 import { closeViewer, isViewerOpen } from './ui/viewer.js';
@@ -64,6 +65,8 @@ function init() {
   applyCommitBadgesSettings();
   initCommandPaletteFeature();
   applyCommandPaletteSettings();
+  initSimilarReposFeature();
+  applySimilarReposSettings();
   watchNavigation(resetOverlaysOnNavigation);
 }
 

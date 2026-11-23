@@ -5,18 +5,18 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Um userscript que melhora o GitHub com um painel de configurações completo, uma
 paleta de comandos com `Ctrl/⌘+K`, uma galeria de imagens para markdown
 renderizado, ícones de arquivo coloridos onde o GitHub lista arquivos, idades
 coloridas no estilo blame para esses arquivos, pastas expansíveis na listagem do
 repositório, tamanhos de arquivo com downloads em um clique, um menu de contexto para ações de arquivo e pasta, uma pré-visualização
-rápida de qualquer arquivo, emblemas de Conventional Commits e tradução do
-conteúdo da página.
+rápida de qualquer arquivo, emblemas de Conventional Commits, tradução do
+conteúdo da página e um painel de repositórios semelhantes na barra lateral.
 
-> **Status:** inicial (`0.32.0`). Painel de configurações com busca instantânea
-> (Geral · Galeria · Arquivos · Commits · Tradução · Paleta · Backup · Sobre),
+> **Status:** inicial (`0.33.1`). Painel de configurações com busca instantânea
+> (Geral · Galeria · Arquivos · Commits · Tradução · Paleta · Descoberta · Backup · Sobre),
 > uma paleta de comandos com `Ctrl/⌘+K`, a galeria de imagens de markdown, ícones
 > de arquivo coloridos, idades coloridas no estilo blame, pastas expansíveis,
 > tamanhos de arquivo com botões de download, um menu de contexto de arquivos e pastas, uma pré-visualização
@@ -380,6 +380,34 @@ busca sobre tudo o que você faz ali:
   sozinha na navegação. O atalho é uma predefinição ou qualquer combinação
   gravada na página de configurações da paleta.
 
+### Repositórios semelhantes
+
+Cada página de repositório público ganha na barra lateral uma seção
+**Repositórios semelhantes** com projetos próximos ao que você está lendo:
+
+- **Duas fontes de dados à escolha** — **GitHub** (o padrão) busca pelos tópicos
+  e pela linguagem principal do repositório em `api.github.com` e ordena os
+  resultados por tópicos em comum, mesma linguagem e número de estrelas
+  comparável. **SimRepo** mostra dados de similaridade prontos; é um terceiro,
+  então o painel envia a ele o nome do repositório que você abriu e suas páginas
+  seguintes exigem uma estrela no projeto SimRepo, o que o cartão de
+  configurações diz claramente.
+- **Uma linha que se avalia de relance** — dono/nome, a descrição, a linguagem
+  principal com sua cor, estrelas, forks, um rótulo de arquivado e uma
+  porcentagem de correspondência relativa; a melhor correspondência do conjunto
+  aparece como 100%.
+- **Paginação** — **Ver mais** acrescenta os próximos resultados quando a fonte
+  tem.
+- **Estados honestos** — carregando, nenhum resultado, um repositório fora do
+  conjunto de dados, um limite de consultas atingido com seu horário de
+  redefinição e uma solicitação falha têm cada um sua própria linha, então a
+  barra lateral nunca mostra uma caixa vazia.
+- **Somente públicos** — o painel só é buscado em um repositório que o GitHub
+  marca como público; um repositório privado, interno ou de visibilidade
+  desconhecida nunca envia uma solicitação, e o painel não aparece ali.
+- **Suas configurações** — o interruptor principal, a fonte de dados, os
+  resultados por página e a vida do cache ficam na página **Descoberta**.
+
 ### Painel de configurações
 
 Abra-o pela linha **Configurações do GitHub Plus** no menu do avatar (logo
@@ -445,6 +473,10 @@ Armazenadas em `gp_settings_v1`.
 | `commandPalette.hideArchived` | `false` | Ocultar repositórios arquivados |
 | `commandPalette.cacheHours` | `6` | Validade do cache de repositórios e árvores de arquivos em horas (0 desativa) |
 | `commandPalette.maxResults` | `30` | Número máximo de linhas por conjunto de resultados (10–100) |
+| `similarRepos.enabled` | `true` | Interruptor principal da barra lateral **Repositórios semelhantes** |
+| `similarRepos.provider` | `'github'` | Fonte de dados: `github` (busca própria) ou `simrepo` (terceiro) |
+| `similarRepos.results` | `5` | Resultados por página (3–20) |
+| `similarRepos.cacheHours` | `24` | Vida do cache em horas (0 desativa) |
 
 ## Como a galeria é construída
 

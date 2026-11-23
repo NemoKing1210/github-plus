@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -13,10 +13,10 @@ GitHub を改善するユーザースクリプトです。充実した設定パ�
 blame 風の経過日数カラー、リポジトリ一覧のフォルダー展開、ファイルサイズと
 ワンクリック ダウンロード、ファイル操作
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、Conventional
-Commits のコミット バッジ、ページ内テキストの翻訳を提供します。
+Commits のコミット バッジ、ページ内テキストの翻訳、サイドバーの類似リポジトリ パネルを提供します。
 
-> **ステータス:** 初期段階（`0.32.0`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル · コミット · 翻訳 · パレット · バックアップ · このアプリについて）、
+> **ステータス:** 初期段階（`0.33.1`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル · コミット · 翻訳 · パレット · 発見 · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、フォルダーの展開、ファイルサイズとダウンロード
 > ボタン、ファイルの
@@ -353,6 +353,26 @@ Conventional Commits 形式のコミット件名では、`type(scope):` プレ�
   せず、ナビゲーション時には自動で閉じます。ショートカットはプリセットか、
   パレットの設定ページで記録した任意の組み合わせです。
 
+### 類似リポジトリ
+
+公開リポジトリのページには、開いているリポジトリに近いプロジェクトを **類似リポジトリ**
+としてサイドバーに表示します：
+
+- **選べる 2 つのデータソース** — **GitHub**（既定）はリポジトリのトピックと主要言語で
+  `api.github.com` を検索し、共通トピック、同じ言語、近いスター数で並べます。**SimRepo**
+  は事前計算された類似度データを表示します。第三者であるため、パネルは開いたリポジトリの
+  名前を送信し、次のページには SimRepo プロジェクトへのスターが必要です。これは設定
+  カードに明記されています。
+- **ひと目で判断できる行** — オーナー/名前、説明、色付きの主要言語、スター、フォーク、
+  アーカイブのラベル、相対的な一致率。セット内で最も強い一致が 100% として表示されます。
+- **ページ送り** — 提供元に続きがある場合、**さらに表示** で次の結果を追加します。
+- **正直な状態** — 読み込み中、結果なし、データセットにないリポジトリ、リセット時刻付きの
+  照会上限、リクエスト失敗にそれぞれ専用の行があり、サイドバーに空の枠が残ることはありません。
+- **公開リポジトリのみ** — GitHub が公開と示すリポジトリでのみ取得します。プライベート、
+  内部、または可視性が不明なリポジトリではリクエストを送信せず、パネルも表示しません。
+- **設定** — マスター スイッチ、データソース、ページあたりの結果数、キャッシュ期間は
+  **発見** 設定ページにあります。
+
 ### 設定パネル
 
 アバター メニューの **GitHub Plus の設定** 行（GitHub 自身の **Settings** の
@@ -417,6 +437,10 @@ Conventional Commits 形式のコミット件名では、`type(scope):` プレ�
 | `commandPalette.hideArchived` | `false` | アーカイブ済みリポジトリを隠す |
 | `commandPalette.cacheHours` | `6` | リポジトリとファイル ツリーのキャッシュ保持時間（時間、0 で無効） |
 | `commandPalette.maxResults` | `30` | 結果セットあたりの最大行数（10–100） |
+| `similarRepos.enabled` | `true` | **類似リポジトリ** サイドバー パネルのマスター スイッチ |
+| `similarRepos.provider` | `'github'` | データ ソース: `github`（自前検索）または `simrepo`（第三者） |
+| `similarRepos.results` | `5` | ページあたりの結果数（3–20） |
+| `similarRepos.cacheHours` | `24` | キャッシュ期間（時間、0 で無効） |
 
 ## ギャラリーの仕組み
 

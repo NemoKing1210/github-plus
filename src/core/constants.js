@@ -306,8 +306,38 @@ const DEFAULT_TRANSLATE = {
   cacheHours: 24,
 };
 
-export const COMMAND_PALETTE_SHORTCUTS = ['mod+k', 'mod+shift+k', 'mod+space', 'alt+k', 'off'];
-export const COMMAND_PALETTE_CACHE_KEY = 'gp_palette_cache_v1';
+/** Similar repositories: providers offer the panel's data source. */
+export const SIMILAR_REPOS_PROVIDERS = ['github', 'simrepo'];
+
+/** Bounds for the results-per-page setting. */
+export const SIMILAR_REPOS_RESULTS_MIN = 3;
+export const SIMILAR_REPOS_RESULTS_MAX = 20;
+
+/** Longest cache lifetime, hours; 0 keeps nothing between page loads. */
+export const SIMILAR_REPOS_CACHE_HOURS_MAX = 168;
+
+/** Third-party endpoint behind the opt-in `simrepo` provider. */
+export const SIMILAR_REPOS_SIMREPO_URL = 'https://simrepo.dera.page/similar-repos';
+
+/** GitHub repository metadata and search endpoints. */
+export const GITHUB_API_URL = 'https://api.github.com';
+
+/** One similar-repositories request that takes longer is abandoned. */
+export const SIMILAR_REPOS_TIMEOUT_MS = 15000;
+
+/** Bounded wait for the repository sidebar to mount after navigation. */
+export const SIMILAR_REPOS_SETTLE_MS = 250;
+export const SIMILAR_REPOS_SETTLE_TRIES = 12;
+
+/** Similar repositories: a sidebar panel recommending related projects. */
+const DEFAULT_SIMILAR_REPOS = {
+  enabled: true,
+  provider: 'github',
+  results: 5,
+  cacheHours: 24,
+};
+
+export const COMMAND_PALETTE_SHORTCUTS = ['mod+k', 'mod+shift+k', 'mod+space', 'alt+k', 'off'];export const COMMAND_PALETTE_CACHE_KEY = 'gp_palette_cache_v1';
 export const COMMAND_PALETTE_RECENTS_KEY = 'gp_palette_recents_v1';
 export const COMMAND_PALETTE_PINS_KEY = 'gp_palette_pins_v1';
 export const COMMAND_PALETTE_CACHE_HOURS_MAX = 168;
@@ -347,6 +377,7 @@ export const DEFAULT_SETTINGS = {
   commitBadges: DEFAULT_COMMIT_BADGES,
   translate: DEFAULT_TRANSLATE,
   commandPalette: DEFAULT_COMMAND_PALETTE,
+  similarRepos: DEFAULT_SIMILAR_REPOS,
 };
 
 /** Deep-cloned defaults, used on reset. */

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
@@ -13,10 +13,10 @@ wszędzie tam, gdzie GitHub wyświetla pliki, kolory wieku tych plików w stylu
 blame, rozwijane foldery na liście repozytorium, rozmiary plików i pobieranie
 jednym kliknięciem, menu kontekstowe
 plików i folderów, szybki podgląd dowolnego pliku, odznaki Conventional Commits
-i tłumaczenie treści na stronie.
+tłumaczenie treści na stronie i panel podobnych repozytoriów na pasku bocznym.
 
-> **Status:** wczesny etap (`0.32.0`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Pliki · Commity · Tłumaczenie · Paleta · Kopia
+> **Status:** wczesny etap (`0.33.1`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Pliki · Commity · Tłumaczenie · Paleta · Odkrywanie · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozwijane foldery,
 > rozmiary plików z przyciskami pobierania, menu kontekstowe plików i folderów,
@@ -376,6 +376,30 @@ wyszukiwania obejmujące wszystko, co tam robisz:
   README i sama zamyka się przy nawigacji. Skrót to ustawienie wstępne lub
   dowolna kombinacja nagrana na stronie ustawień palety.
 
+### Podobne repozytoria
+
+Każda publiczna strona repozytorium zyskuje na pasku bocznym sekcję **Podobne
+repozytoria** z projektami bliskimi temu, który czytasz:
+
+- **Dwa źródła danych do wyboru** — **GitHub** (domyślnie) wyszukuje po tematach
+  i głównym języku repozytorium w `api.github.com` i porządkuje wyniki według
+  wspólnych tematów, tego samego języka i zbliżonej liczby gwiazdek. **SimRepo**
+  pokazuje gotowe dane o podobieństwie; to usługa zewnętrzna, więc panel wysyła
+  jej nazwę otwartego repozytorium, a kolejne strony wymagają gwiazdki dla
+  projektu SimRepo — mówi o tym wprost karta ustawień.
+- **Wiersz oceniany na pierwszy rzut oka** — właściciel/nazwa, opis, główny
+  język z kolorem, gwiazdki, forki, etykieta archiwum i względny procent
+  zgodności; najsilniejsze dopasowanie w zestawie czyta się jako 100%.
+- **Stronicowanie** — **Pokaż więcej** dokłada kolejne wyniki, gdy źródło je ma.
+- **Uczciwe stany** — ładowanie, brak wyników, repozytorium poza zestawem danych,
+  osiągnięty limit zapytań z czasem resetu i nieudane zapytanie mają własny
+  wiersz, więc pasek boczny nigdy nie pokazuje pustego pola.
+- **Tylko publiczne** — panel jest pobierany wyłącznie na repozytorium, które
+  GitHub oznacza jako publiczne; prywatne, wewnętrzne lub o nieznanej
+  widoczności nigdy nie wysyła zapytania, a panel się tam nie pojawia.
+- **Twoje ustawienia** — przełącznik główny, źródło danych, liczba wyników na
+  stronie i czas życia pamięci podręcznej są na stronie **Odkrywanie**.
+
 ### Panel ustawień
 
 Otwórz go wierszem **Ustawienia GitHub Plus** w menu awatara (tuż pod własnym
@@ -440,6 +464,10 @@ Przechowywane pod `gp_settings_v1`.
 | `commandPalette.hideArchived` | `false` | Ukrywaj zarchiwizowane repozytoria |
 | `commandPalette.cacheHours` | `6` | Czas życia pamięci podręcznej repozytoriów i drzew plików w godzinach (0 wyłącza) |
 | `commandPalette.maxResults` | `30` | Maksymalna liczba wierszy w zestawie wyników (10–100) |
+| `similarRepos.enabled` | `true` | Przełącznik główny panelu **Podobne repozytoria** na pasku bocznym |
+| `similarRepos.provider` | `'github'` | Źródło danych: `github` (własne wyszukiwanie) lub `simrepo` (usługa zewnętrzna) |
+| `similarRepos.results` | `5` | Wyników na stronę (3–20) |
+| `similarRepos.cacheHours` | `24` | Czas życia pamięci podręcznej w godzinach (0 wyłącza) |
 
 ## Jak zbudowana jest galeria
 

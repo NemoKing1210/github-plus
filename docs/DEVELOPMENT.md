@@ -11,7 +11,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 
 ## Requirements
 
-- Node.js 22 (see `.nvmrc`). `package.json` declares `"engines": { "node": ">=20" }`.
+- Node.js 22 (see `.nvmrc`). `package.json` declares `"engines": { "node": ">=22" }`.
 - npm (bundled with Node).
 - A userscript manager for manual testing: Violentmonkey (recommended, it can
   track a local file) or Tampermonkey.
@@ -26,7 +26,7 @@ source is vanilla-JS ESM under `src/`; the two `github-plus.user.js` /
 | `npm run verify:artifacts` | Hashes both root artifacts and the matching files in `dist/` (sha256) and fails when a pair differs — a byte-for-byte comparison. |
 | `npm run ci` | `npm run build && npm run verify:artifacts` — the exact gate GitHub Actions runs on every push and pull request to `main`. |
 | `npm run icons:build` | Regenerates `src/features/fileIcons/iconSet.generated.js` from the `material-icon-theme` dev dependency. Commit the result. |
-| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting), `test/fileTarget.test.js` (raw-address rewrite, file-target parsing), `test/fileMenu.test.js` (copyable-content check), `test/filePreview.test.js` (preview kinds, relative-link rewriting), `test/filePreviewMarkdown.test.js` (markdown sanitizing), `test/filePreviewShell.test.js` (preview modal layering and keys) and `test/download.test.js` (download filenames). |
+| `npm test` | Node test runner: `test/match.test.js` (icon matching), `test/age.test.js` (commit-age buckets), `test/fileMeta.test.js` (size formatting), `test/fileTarget.test.js` (raw-address rewrite, file-target parsing), `test/fileMenu.test.js` (copyable-content check), `test/filePreview.test.js` (preview kinds, relative-link rewriting), `test/filePreviewMarkdown.test.js` (markdown sanitizing), `test/filePreviewShell.test.js` (preview modal layering and keys) and `test/download.test.js` (download filenames); the similar-repositories feature adds `test/similarRepos.test.js` (scoring and normalization), `test/similarReposProviders.test.js` (provider response mapping), `test/similarReposSurfaces.test.js` (sidebar resolution and panel states) and `test/similarReposLifecycle.test.js` (observer, cache and navigation). |
 | `npm run preview` | `vite preview`: serves the built output locally. |
 
 `dist/` is git-ignored, but the two root userscript files are not, so a build
@@ -60,8 +60,9 @@ URLs produced by `vite.config.js` (`https://raw.githubusercontent.com/…`).
 ## Manual test checklist
 
 Run this before a release and after any change that touches the gallery, the
-viewer, the settings panel, the file features, the backup page or toasts. All
-checks are on `github.com` (the script also matches `gist.github.com`).
+viewer, the settings panel, the file features, commit badges, translation, the
+command palette, the backup page or toasts. All checks are on `github.com`
+(the script also matches `gist.github.com`).
 
 ### Entry point
 
@@ -108,14 +109,15 @@ checks are on `github.com` (the script also matches `gist.github.com`).
 
 ### Settings panel
 
-- [ ] The panel opens on the General page with the sidebar listing all five
-      pages under **Preferences** (General, Gallery, Files) and **More**
-      (Backup, About); switching pages (click and arrow keys) animates the
-      content; the language select relabels the panel after Save.
-- [ ] The Files page holds the five file enhancements as separate cards —
-      icons, ages, sizes and downloads, the context menu, and the quick
-      preview — each with its own master switch in the card header, and the
-      age-scale preview inside the ages card.
+- [ ] The panel opens on the General page with the sidebar listing all eight
+      pages under **Preferences** (General, Gallery, Files, Commits,
+      Translation, Command palette) and **More** (Backup, About); switching
+      pages (click and arrow keys) animates the content; the language select
+      relabels the panel after Save.
+- [ ] The Files page holds the six file enhancements as separate cards —
+      icons, ages, expandable folders, sizes and downloads, the context menu,
+      and the quick preview — each with its own master switch in the card
+      header, and the age-scale preview inside the ages card.
 - [ ] The search field (`/` or `Ctrl`/`Cmd`+`K`) finds settings across pages:
       results are grouped by page, matched text is highlighted, sidebar counts
       match, and choosing a result opens the page and spotlights the row.
@@ -281,6 +283,151 @@ checks are on `github.com` (the script also matches `gist.github.com`).
       long press still work; the **Quick file preview** card off removes every
       entry point (including the hold gesture) and closes an open preview.
 
+### Folder tree
+
+- [ ] A repository listing shows a chevron before every folder name, on both
+      the small- and large-screen name cells; a file row has none, and a
+      submodule row is left plain.
+- [ ] Clicking a folder name still navigates to the folder; clicking only the
+      chevron expands it in place, and the chevron flips to an open state with
+      `aria-expanded="true"`.
+- [ ] Expanded rows appear directly under their folder, indented one step per
+      level, and carry the same hooks the page uses: file icons, last-commit
+      age, the size column, the eye button and the context menu all decorate
+      them with no rerun.
+- [ ] Nested folders expand to a second level and deeper, each level indented
+      another step; expanding a parent keeps its already-open children open, and
+      collapsing a parent removes every descendant row.
+- [ ] A folder's children keep the current branch or tag; opening a child
+      navigates within that ref.
+- [ ] While a folder loads its chevron carries `aria-busy` and a loading
+      state; an empty folder shows an empty note, and a folder over 1 000
+      entries shows the truncation note instead of the rest.
+- [ ] A failed listing request leaves the folder collapsed with a toast and
+      logs `GP-1901`; a folder that expands with names but no dates means only
+      the `tree-commit-info` request failed, which is not an error.
+- [ ] The preview's prev/next stay inside the folder that owns the row: moving
+      across a nested boundary never jumps into the parent's files.
+- [ ] Expanding folders survive a GitHub re-render (the rows are restored from
+      the session cache without a refetch) and a hash-only change; a real
+      navigation to another page starts collapsed.
+- [ ] Turning **Expandable folders** off removes every chevron, slot and
+      nested row and leaves GitHub's listing byte-identical.
+
+### Commit badges
+
+- [ ] A Conventional Commit subject of the form `type(scope)!: description`
+      renders the type and scope as one colored two-tone token at the start of
+      the title, on the commit history list, the PR **Commits** tab, the
+      single-commit page, the repository home's latest-commit block and the
+      classic commit views.
+- [ ] Copying the subject selects the plain text, the text search still matches
+      the original string, and turning **Commit badges** off restores the
+      subject byte for byte.
+- [ ] An unknown but entirely lowercase type (`wip: …`) gets the unknown style
+      while **Unknown types** is on and stays plain when it is off; a
+      capitalized prose prefix such as `Note: …` is never treated as a type.
+- [ ] With **Breaking-change marker** on, a trailing `!` shows a red marker;
+      turning it off leaves the colon-only form.
+- [ ] A subject GitHub split across elements (a type in one node and the rest
+      in another) is intentionally left plain instead of being corrupted.
+- [ ] The badges follow client-side navigation and GitHub's recycled commit
+      rows: a row that changes commit swaps to the new type or scope instead of
+      keeping a stale one.
+
+### Translation
+
+- [ ] With the default **On click** trigger, a **Translate** button appears in
+      the page's own action row (comment header, file or release header, issue
+      or PR title row, description card) or, when no row is found, in a bar
+      above the container; the container is one of the enabled **Places**
+      (markdown, plain-text files, commit messages, titles, quick preview).
+- [ ] Clicking **Translate** translates block by block: inline links,
+      images, inline code and task-list checkboxes survive, the button shows a
+      filling progress ring while it works, and no count or status text is
+      printed.
+- [ ] **Show original** restores the exact source markup (or, with **On
+      hover**, pointing at the container peeks at the source while the pointer
+      or focus stays inside).
+- [ ] A second translation of the same text is instant while `cacheHours` has
+      not expired; **Clear cache** empties it and `0` hours disables it.
+- [ ] An unconfigured provider stops before any request with the localized
+      setup message; a failing provider logs `GP-1601`, shows a toast and
+      leaves the page untouched; a failed cache write logs `GP-1602` without
+      breaking the page.
+- [ ] Switching the provider, target language, mode or display in settings
+      tears every translated container down and rescans, so no stale output
+      survives a Save.
+- [ ] A plain-text license gets the below-the-source box and keeps its line
+      breaks; a syntax-highlighted file is left alone.
+- [ ] The quick preview's translate action appears in its header only while
+      the file resolves to rendered markdown, and the **Quick preview** place
+      switch gates it.
+- [ ] Turning **Translation** off restores every container and removes all
+      chrome and observers; reused page headers carry no button onto the next
+      page.
+
+### Similar repositories
+
+- [ ] On a public repository page the sidebar gains a **Similar repositories**
+      section after GitHub's own sections, with a row per recommendation:
+      owner/name, description, language with its color dot, stars, forks, an
+      archived label when the project is archived, and a match percentage; the
+      strongest row reads 100%.
+- [ ] With **Data source: GitHub** a request goes to api.github.com only: the
+      repository's metadata, then one search by its topics and primary
+      language; the rows are ranked by shared topics, the same language and a
+      comparable star count.
+- [ ] With **Data source: SimRepo** the panel reads simrepo.dera.page and
+      **View more** appends the next page; an anonymous visitor sees only the
+      first page, and a further page shows the star-required state instead of
+      failing silently.
+- [ ] An archived recommendation wears its label; a row with no description,
+      language or stars simply omits those parts without breaking the row.
+- [ ] The states are honest and localized: loading, no results, not in the
+      dataset (SimRepo), a rate limit with its reset time, and a failed request
+      each render their own line rather than an empty box.
+- [ ] A private or internal repository shows no panel at all and sends no
+      request; the console Network tab stays quiet on its page.
+- [ ] A soft navigation between two public repositories replaces the panel with
+      the new repository's rows and never shows the previous repository's rows;
+      a navigation to a page with no repository removes the panel.
+- [ ] **Discovery → Similar repositories** off removes the panel and stops every
+      request; changing the data source, the results count or the cache lifetime
+      and pressing Save applies on the next panel load.
+- [ ] Switching the interface language relabels the panel, its states and the
+      settings card without a reload.
+
+### Command palette
+- [ ] `Ctrl`/`⌘`+`K` (or the configured shortcut) opens the palette; the header
+      button and the manager's **Command palette** command open the same
+      palette, and the focus is not taken when it sits in an input, textarea,
+      select or `contenteditable`.
+- [ ] On a repository page the palette opens already scoped to that
+      repository: the field shows its path, the rows are its pages, and `Tab`
+      on a repository row drills into it; `Backspace` leaves one level and
+      `Ctrl`/`⌘`+`Backspace` clears the path to the root.
+- [ ] `Tab` on a folder row narrows to that folder, `Tab` on the Issues or
+      Pull requests page row opens that list as its own level, and `←` / `→`
+      do the same while the field is empty.
+- [ ] The `#` prefix lists open issues and pull requests (with their badges),
+      the `/` prefix lists files in the scoped repository and the `@` prefix
+      lists repositories; every typed query ends with the GitHub search
+      handoff as its last group.
+- [ ] The page ref is used for the page's own repository and `HEAD` for any
+      other; a tree over 20 000 entries is truncated and the footer says so.
+- [ ] Without a token the palette reads public data and commands still work; a
+      verified token adds private repositories, and an unverified token yields
+      no identity and no request is sent with it.
+- [ ] A row's context menu opens on right-click or `Shift`+`F10`, floats above
+      the palette and runs select, pin and copy actions.
+- [ ] Favorites star in their own first group, recents follow, and both are
+      per identity; switching accounts hides the other identity's rows.
+- [ ] Settings Save closes an open palette and reinstalls or removes the
+      hotkey; turning **Command palette** off removes the header entry, the
+      hotkey and the menu command; **Clear cache** refills the next open from
+      GitHub.
+
 ## Debugging
 
 Diagnostics are silent by default. Turn them on in **GitHub Plus settings →
@@ -324,6 +471,11 @@ code to jump to the throw site. The codes come from
 | `GP-1501` | `FILE_PREVIEW` | A preview could not fetch or render its file. |
 | `GP-1601` | `TRANSLATE` | A container could not be translated at all. |
 | `GP-1602` | `TRANSLATE_CACHE` | Reading or persisting the translation cache failed. |
+| `GP-1701` | `PALETTE_LOAD` | A palette source (repositories, tree, issues) failed to load. |
+| `GP-1702` | `PALETTE_CACHE` | Reading or persisting the palette cache, recents or pins failed. |
+| `GP-1801` | `COMMIT_BADGES` | A commit-badges surface or its selectors failed. |
+| `GP-1901` | `FOLDER_TREE` | A folder could not be expanded from a user click. |
+| `GP-2001` | `SIMILAR_REPOS` | The similar-repositories panel could not load its recommendations. |
 | `GP-9001` | `UNCAUGHT_ERROR` | An uncaught runtime error attributable to this script. |
 | `GP-9002` | `UNHANDLED_REJECTION` | An unhandled promise rejection attributable to this script. |
 
@@ -345,9 +497,13 @@ otherwise via `localStorage`. Delete that key for a cold start:
   `PREVIEW_HIGHLIGHT_MAX_CHARS`, `PREVIEW_MAX_SIBLINGS`,
   `PREVIEW_LONG_PRESS_MS`, the diagnostics limits `LOG_MAX_ENTRIES` (300),
   `LOG_STRING_MAX_CHARS` (2000), `LOG_DETAIL_DEPTH` (4), `LOG_MAX_ITEMS` (50),
-  and `DEFAULT_SETTINGS` / `getDefaults()` (including `DEFAULT_LOGGING`,
+  the similar-repositories limits `SIMILAR_REPOS_PROVIDERS`,
+  `SIMILAR_REPOS_RESULTS_MIN` / `_MAX` (3…20),
+  `SIMILAR_REPOS_CACHE_HOURS_MAX` (168), `SIMILAR_REPOS_SIMREPO_URL`,
+  `GITHUB_API_URL`, `SIMILAR_REPOS_TIMEOUT_MS` and the surface timings, and
+  `DEFAULT_SETTINGS` / `getDefaults()` (including `DEFAULT_LOGGING`,
   `DEFAULT_FILE_META`, `DEFAULT_FILE_ICONS`, `DEFAULT_FILE_AGES`,
-  `DEFAULT_FILE_MENU` and `DEFAULT_FILE_PREVIEW`).
+  `DEFAULT_FILE_MENU`, `DEFAULT_FILE_PREVIEW` and `DEFAULT_SIMILAR_REPOS`).
 - `src/features/fileIcons/iconSet.generated.js` is generated data, not source:
   change the allowlist in `scripts/build-file-icons.mjs` and run
   `npm run icons:build`. The package is a dev dependency; the shipped bundle

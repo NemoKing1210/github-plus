@@ -6,6 +6,7 @@ import { renderAbout } from './tabs/about.js';
 import { renderBackup } from './tabs/backup.js';
 import { renderCommandPalette } from './tabs/commandPalette.js';
 import { renderCommits } from './tabs/commits.js';
+import { renderDiscovery } from './tabs/discovery.js';
 import { renderFiles } from './tabs/files.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
@@ -79,6 +80,14 @@ function registerPages() {
     render: renderCommandPalette,
   });
   registerPage({
+    id: 'discovery',
+    group: 'preferences',
+    icon: 'discover',
+    labelKey: 'tab.discovery',
+    descKey: 'tab.discovery.desc',
+    render: renderDiscovery,
+  });
+  registerPage({
     id: 'backup',
     group: 'more',
     icon: 'backup',
@@ -119,4 +128,5 @@ export function initSettingsFeature() {
   on('settings:commitBadges', refreshUserMenuItem);
   on('settings:translate', refreshUserMenuItem);
   on('settings:language', refreshUserMenuItem);
+  on('settings:similarRepos', refreshUserMenuItem);
 }

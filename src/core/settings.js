@@ -7,6 +7,10 @@ import {
   PREVIEW_LONG_PRESS_MAX_MS,
   PREVIEW_LONG_PRESS_MIN_MS,
   SETTINGS_KEY,
+  SIMILAR_REPOS_CACHE_HOURS_MAX,
+  SIMILAR_REPOS_PROVIDERS,
+  SIMILAR_REPOS_RESULTS_MAX,
+  SIMILAR_REPOS_RESULTS_MIN,
   TOAST_MAX_DURATION_MS,
   TOAST_POSITIONS,
   TRANSLATE_CACHE_HOURS_MAX,
@@ -282,9 +286,32 @@ export function normalizeCommandPalette(raw, fallback) {
   };
 }
 
+/**
+ * Normalize the similar-repositories section: a known provider, a bounded
+ * result count and a bounded cache lifetime.
+ */
+export function normalizeSimilarRepos(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+    provider: normalizeEnum(source.provider, SIMILAR_REPOS_PROVIDERS, fallback.provider),
+    results: normalizeClamp(
+      source.results,
+      SIMILAR_REPOS_RESULTS_MIN,
+      SIMILAR_REPOS_RESULTS_MAX,
+      fallback.results,
+    ),
+    cacheHours: normalizeClamp(
+      source.cacheHours,
+      0,
+      SIMILAR_REPOS_CACHE_HOURS_MAX,
+      fallback.cacheHours,
+    ),
+  };
+}
+
 /** Normalize a whole settings payload against the shipped defaults. */
-function normalizeSettings(raw) {
-  const defaults = getDefaults();
+function normalizeSettings(raw) {  const defaults = getDefaults();
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
     language: normalizeLocale(source.language, defaults.language),
@@ -300,6 +327,7 @@ function normalizeSettings(raw) {
     commitBadges: normalizeCommitBadges(source.commitBadges, defaults.commitBadges),
     translate: normalizeTranslate(source.translate, defaults.translate),
     commandPalette: normalizeCommandPalette(source.commandPalette, defaults.commandPalette),
+    similarRepos: normalizeSimilarRepos(source.similarRepos, defaults.similarRepos),
   };
 }
 
@@ -360,6 +388,10 @@ export function getTranslateSettings() {
 
 export function getCommandPaletteSettings() {
   return settings.commandPalette;
+}
+
+export function getSimilarReposSettings() {
+  return settings.similarRepos;
 }
 
 /** Settings as they may leave the browser: a token never belongs in a backup. */

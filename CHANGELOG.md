@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.1] - 2026-11-23
+
+### Changed
+
+- The **Similar repositories** panel now reads like one of GitHub's own sidebar
+  lists — Contributors, Releases, Packages — instead of a stack of custom
+  cards: borderless rows with a 20px round owner avatar, `owner/name` in the
+  link colour, a description clamped to two lines, and a muted meta row with
+  the language swatch, star and fork counts labelled for assistive tech, the
+  match percentage and a neutral archived label. The hover is the same neutral
+  fill Primer uses for its list items, and **View more** is a standard
+  secondary button.
+- The similar-repositories panel now shows skeleton rows while a page loads —
+  in the shape of a result, so the sidebar keeps its height instead of jumping —
+  and appends one placeholder row while **View more** fetches the next page.
+  The loading line is announced to assistive tech instead of drawn.
+
+### Fixed
+
+- **View more** in the similar-repositories panel now appends the next page to
+  the rows already shown instead of replacing them, is disabled while that page
+  loads, and returns focus to itself. A failed deeper page keeps the rows the
+  reader already has and drops the button.
+- Changing **Results per page** (or the data source) now takes effect on the
+  next open instead of showing the previous page size from the session cache.
+- The rate-limited message no longer ends with an empty reset time when the
+  provider does not report one.
+- The language swatch of a similar repository used an undeclared token and
+  never rendered a color; the panel now carries GitHub Linguist's palette for
+  its known languages and falls back to muted text for any other.
+
+[0.33.1]: https://github.com/NemoKing1210/github-plus/compare/v0.33.0...v0.33.1
+
+## [0.33.0] - 2026-11-23
+
+### Added
+
+- A **Similar repositories** panel in the sidebar of every public repository
+  page, with owner/name, description, language color, stars, forks, an archived
+  label and a relative match percentage, plus **View more** paging. The data
+  source is selectable: **GitHub** (the default) searches by topics and primary
+  language through the API, while **SimRepo** shows a third party's prebuilt
+  similarity data. Loading, no results, not in the dataset, a reached lookup
+  limit and a failed request each render their own line, and a private or
+  unknown-visibility repository sends no request and shows no panel.
+- A **Discovery** settings page for the panel: master switch, data source,
+  results per page and cache lifetime.
+
+### Changed
+
+- The development guide asks for Node.js 22, matching `package.json` and
+  `.nvmrc`, and its manual test checklist now covers the folder tree, commit
+  badges, translation and the command palette.
+
+[0.33.0]: https://github.com/NemoKing1210/github-plus/compare/v0.32.0...v0.33.0
+
 ## [0.32.0] - 2026-11-18
 
 ### Added

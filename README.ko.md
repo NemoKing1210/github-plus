@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.32.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 저장소 목록의 폴더 펼치기, 파일 크기와 원클릭 다운로드,
 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, Conventional Commits 커밋 배지, 페이지
-번역을 제공합니다.
+번역, 사이드바의 유사한 리포지토리 패널을 제공합니다.
 
-> **상태:** 초기(`0.32.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
-> 번역 · 팔레트 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
+> **상태:** 초기(`0.33.1`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
+> 번역 · 팔레트 · 탐색 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
 > 컬러 파일 아이콘, blame 스타일 나이 색상, 폴더 펼치기, 다운로드 버튼이 있는
 > 파일 크기, 파일
 > 컨텍스트 메뉴, 파일 빠른 미리보기, 커밋 배지, 페이지 번역. 더 많은 GitHub 개선이
@@ -330,6 +330,28 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
   댓글이나 README 편집기에서 입력하는 동안에는 방해하지 않고, 탐색 시 스스로
   닫힙니다. 단축키는 프리셋이거나 팔레트 설정 페이지에서 기록한 임의의 조합입니다.
 
+### 유사한 리포지토리
+
+모든 공개 리포지토리 페이지의 사이드바에 보고 있는 리포지토리에 가까운 프로젝트를
+**유사한 리포지토리**로 표시합니다:
+
+- **선택할 수 있는 두 가지 데이터 소스** — **GitHub**(기본값)는 리포지토리의 주제와 기본
+  언어로 `api.github.com`을 검색하고 공통 주제, 같은 언어, 비슷한 별표 수로 정렬합니다.
+  **SimRepo**는 미리 계산된 유사도 데이터를 보여 줍니다. 타사이므로 패널이 열어 본
+  리포지토리 이름을 전송하며, 다음 페이지에는 SimRepo 프로젝트에 별표가 필요합니다.
+  설정 카드에 이 점이 분명히 적혀 있습니다.
+- **한눈에 판단하는 행** — 소유자/이름, 설명, 색이 있는 기본 언어, 별표, 포크, 보관됨
+  라벨, 상대적 일치율. 집합에서 가장 강한 일치가 100%로 표시됩니다.
+- **페이지 나누기** — 소스에 다음 결과가 있으면 **더 보기**가 추가합니다.
+- **정직한 상태** — 불러오는 중, 결과 없음, 데이터셋에 없는 리포지토리, 재설정 시간과
+  함께 표시되는 조회 한도, 실패한 요청에 각각 전용 줄이 있어 사이드바에 빈 상자가 남지
+  않습니다.
+- **공개 리포지토리만** — GitHub가 공개로 표시한 리포지토리에서만 가져옵니다. 비공개,
+  내부 또는 공개 여부를 알 수 없는 리포지토리는 요청을 보내지 않으며 패널도 표시하지
+  않습니다.
+- **설정** — 마스터 스위치, 데이터 소스, 페이지당 결과 수, 캐시 기간은 **탐색** 설정
+  페이지에 있습니다.
+
 ### 설정 패널
 
 아바타 메뉴의 **GitHub Plus 설정** 행(GitHub 자체 **Settings** 바로 아래), 팔레트의
@@ -393,6 +415,10 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 | `commandPalette.hideArchived` | `false` | 보관된 저장소 숨기기 |
 | `commandPalette.cacheHours` | `6` | 저장소 및 파일 트리 캐시 유지 시간(시간, 0이면 끔) |
 | `commandPalette.maxResults` | `30` | 결과 집합당 최대 행 수(10–100) |
+| `similarRepos.enabled` | `true` | **유사한 리포지토리** 사이드바 패널 마스터 스위치 |
+| `similarRepos.provider` | `'github'` | 데이터 소스: `github`(자체 검색) 또는 `simrepo`(타사) |
+| `similarRepos.results` | `5` | 페이지당 결과 수(3–20) |
+| `similarRepos.cacheHours` | `24` | 캐시 기간(시간, 0이면 비활성) |
 
 ## 갤러리 구조
 

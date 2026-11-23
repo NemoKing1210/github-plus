@@ -47,6 +47,8 @@ export const Codes = {
   COMMIT_BADGES: 'GP-1801',
   /** A folder listing or its commit info could not be loaded. */
   FOLDER_TREE: 'GP-1901',
+  /** The similar-repositories panel could not load its recommendations. */
+  SIMILAR_REPOS: 'GP-2001',
   /** Mounting the settings entry or panel failed. */
   UI_MOUNT: 'GP-1201',
   /** An uncaught runtime error attributable to this script. */

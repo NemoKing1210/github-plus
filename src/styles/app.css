@@ -1,3 +1,8 @@
+/* Hallmark · checked: 2026-11-23 · genre: app (inferred)
+ * floor: 0 FAIL · reflex: waived (24b, the project's own 2/6/10/14 spacing rhythm per DESIGN.md) · finish-review: subagent · 7 findings · 7 resolved (source-only: a userscript component has no render tier)
+ * built: the project · redesign: component rebuild · scope: component (similar-repositories panel) · v2.0.0
+ * waive: eight-state preview file — the project ships no page harness; the button's busy/disabled state and every panel state are pinned in the DOM suites instead
+ */
 /*
  * GitHub Plus — injected UI styles.
  *
@@ -3776,4 +3781,249 @@ audio.gp-preview__media {
 .gp-commit-legend__item {
   display: inline-flex;
   align-items: center;
+}
+
+/* == Similar repositories ================================================== */
+/* GitHub's own sidebar list, not a card stack: borderless rows with a small
+ * avatar, no surface of their own, and the neutral hover fill Primer uses for
+ * list items, so a recommendation reads like one of GitHub's contributor or
+ * release rows instead of an injected component. */
+.gp-similar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  font-family: var(--gp-font);
+  font-size: 12px;
+  color: var(--gp-text);
+}
+.gp-similar__title {
+  margin: 0;
+  color: var(--gp-text);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.gp-similar__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gp-similar__row { display: block; min-width: 0; }
+.gp-similar__card {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: var(--gp-radius);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.12s ease;
+}
+.gp-similar__card:hover,
+.gp-similar__card:active { background: var(--gp-highlight); }
+.gp-similar__card:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: -2px;
+}
+.gp-similar__avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-self: start;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--gp-bg-2);
+}
+.gp-similar__avatar-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gp-similar__avatar-fallback {
+  color: var(--gp-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+.gp-similar__avatar:not(.is-broken) .gp-similar__avatar-fallback { opacity: 0; }
+.gp-similar__avatar.is-broken .gp-similar__avatar-img { display: none; }
+.gp-similar__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.gp-similar__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.gp-similar__name-text {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--gp-accent);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gp-similar__card:hover .gp-similar__name-text { text-decoration: underline; }
+.gp-similar__owner {
+  color: var(--gp-text-muted);
+  font-weight: 400;
+}
+.gp-similar__archived {
+  flex: 0 0 auto;
+  padding: 0 7px;
+  border: 1px solid var(--gp-border);
+  border-radius: 999px;
+  color: var(--gp-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+}
+.gp-similar__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--gp-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.gp-similar__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  color: var(--gp-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.gp-similar__lang,
+.gp-similar__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.gp-similar__lang-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.gp-similar__lang-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gp-similar__glyph {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--gp-text-muted);
+}
+.gp-similar__glyph svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+.gp-similar__count-text { font-variant-numeric: tabular-nums; }
+.gp-similar__match {
+  margin-left: auto;
+  color: var(--gp-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.gp-similar__state {
+  margin: 0;
+  color: var(--gp-text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+/* The first page and every appended page arrive as rows in the shape of the
+ * result, so the sidebar never jumps when the data lands. */
+.gp-similar__announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.gp-similar__skeleton { pointer-events: none; }
+.gp-similar__skeleton-bar {
+  display: block;
+  height: 10px;
+  border-radius: 4px;
+  background: var(--gp-highlight);
+  animation: gp-similar-skeleton-pulse 1.4s ease-in-out infinite;
+}
+.gp-similar__skeleton-avatar {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+}
+.gp-similar__skeleton-name { width: 52%; height: 12px; }
+.gp-similar__skeleton-desc { width: 92%; }
+.gp-similar__skeleton-desc-short { width: 64%; }
+.gp-similar__skeleton-meta { width: 44%; height: 9px; }
+.gp-similar__row:nth-child(2) .gp-similar__skeleton-bar { animation-delay: 0.18s; }
+.gp-similar__row:nth-child(3) .gp-similar__skeleton-bar { animation-delay: 0.36s; }
+@keyframes gp-similar-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.gp-similar__more {
+  align-self: stretch;
+  min-height: 28px;
+  padding: 4px 12px;
+  border: 1px solid var(--gp-border);
+  border-radius: var(--gp-radius);
+  background: var(--gp-bg-2);
+  color: var(--gp-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.gp-similar__more:hover { background: var(--gp-highlight); }
+.gp-similar__more:active { background: var(--gp-border); }
+.gp-similar__more:focus-visible {
+  outline: 2px solid var(--gp-focus);
+  outline-offset: 1px;
+}
+.gp-similar__more[disabled] {
+  background: var(--gp-bg-2);
+  color: var(--gp-text-muted);
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gp-similar__card,
+  .gp-similar__more { transition: none; }
+  .gp-similar__skeleton-bar {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
 }

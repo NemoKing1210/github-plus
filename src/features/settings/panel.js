@@ -269,6 +269,7 @@ function persist() {
     emit('settings:translate', saved.translate);
     emit('settings:commitBadges', saved.commitBadges);
     emit('settings:commandPalette', saved.commandPalette);
+    emit('settings:similarRepos', saved.similarRepos);
     showToast({ type: 'success', title: t('toast.saved'), message: t('toast.savedDesc') });
   } catch (error) {
     log.error(Codes.SETTINGS_PERSIST, 'saving settings from the panel failed', { error });
@@ -296,6 +297,7 @@ export function applyExternalSettings(next) {
   emit('settings:translate', saved.translate);
   emit('settings:commitBadges', saved.commitBadges);
   emit('settings:commandPalette', saved.commandPalette);
+  emit('settings:similarRepos', saved.similarRepos);
   if (panelOpen) refreshPanelDraft();
   return saved;
 }
