@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -14,16 +14,18 @@ folders in the repository listing, file sizes with one-click downloads, a
 context menu for file and folder actions, a quick preview for any file,
 Conventional
 Commit badges on commit subjects, on-page translation of markdown, comments and
-commits, and a sidebar panel recommending similar repositories.
+commits, a sidebar panel recommending similar repositories, and author avatars in
+the issue and pull-request lists.
 
-> **Status:** early (`0.33.1`). Settings panel with instant search (General ·
-> Gallery · Files · Commits · Translation · Palette · Discovery · Backup · About), a
+> **Status:** early (`0.34.0`). Settings panel with instant search (General ·
+> Gallery · Files · Issues · Commits · Translation · Palette · Discovery · Backup · About), a
 > `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
 > file age colors, expandable folder rows, file sizes with download buttons, a
 > file and folder context menu, a quick file preview, Conventional Commit badges,
 > and
-> on-page translation. More GitHub improvements
+> on-page translation, and author avatars in issue and pull-request lists.
+> More GitHub improvements
 > planned.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
@@ -271,6 +273,20 @@ single token on the page:
   and translation behave exactly as before, and turning the feature off
   restores GitHub's own rendering.
 
+### Author avatars
+
+The author of every row in the Issues and Pull Requests lists gets their avatar
+back:
+
+- **A face beside the login** — each row shows the author's 16px round avatar
+  immediately before their name in GitHub's own metadata line, so a list reads
+  like a comment header instead of a column of bare logins.
+- **Both lists, one rule** — the repository's Issues and Pull Requests pages and
+  the account dashboards share GitHub's list view, so the avatar appears in
+  every one of them; clicking the name still filters the list exactly as before.
+- **Turn it off on the Issues page** — one switch restores GitHub's markup; a
+  bot or app account that has no avatar route simply keeps its plain login.
+
 ### Translation
 
 Translate the text a page shows without losing its markup — a README, an
@@ -278,8 +294,9 @@ issue or discussion, a pull request, a comment, commit messages, a title, or
 the markdown file open in the quick preview:
 
 - **A button where the text lives** — in the README file header, a comment's
-  action row, a commit or an issue title. Where GitHub has no header to host it,
-  a small bar appears above the text instead.
+  action row, a commit, an issue title, a release's header or a feed card's
+  header. Where GitHub has no header to host it, a small bar appears above the
+  text instead.
 - **Markup survives** — links, images, inline code, task-list checkboxes and
   emphasis keep working: translation replaces text blocks, never the structure
   around them.
@@ -435,6 +452,7 @@ Stored under `gp_settings_v1`.
 | `commitBadges.enabled` | `true` | Master switch for Conventional Commit badges |
 | `commitBadges.unknownTypes` | `true` | Style lowercase types outside the conventional set too |
 | `commitBadges.breaking` | `true` | Red marker for a `!` breaking-change prefix |
+| `listAvatars.enabled` | `true` | Master switch for author avatars in the issue and pull-request lists |
 | `translate.enabled` | `true` | Master switch for on-page translation |
 | `translate.provider` | `'google'` | `google` (free), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | per provider | Credentials and endpoint per provider (API key, region, folder, model, URL) |

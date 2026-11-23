@@ -183,6 +183,13 @@ function normalizeFolderTree(raw, fallback) {
   };
 }
 
+function normalizeListAvatars(raw, fallback) {
+  const source = raw && typeof raw === 'object' ? raw : {};
+  return {
+    enabled: normalizeBoolean(source.enabled, fallback.enabled),
+  };
+}
+
 function normalizeCommitBadges(raw, fallback) {
   const source = raw && typeof raw === 'object' ? raw : {};
   return {
@@ -324,6 +331,7 @@ function normalizeSettings(raw) {  const defaults = getDefaults();
     fileMenu: normalizeFileMenu(source.fileMenu, defaults.fileMenu),
     filePreview: normalizeFilePreview(source.filePreview, defaults.filePreview),
     folderTree: normalizeFolderTree(source.folderTree, defaults.folderTree),
+    listAvatars: normalizeListAvatars(source.listAvatars, defaults.listAvatars),
     commitBadges: normalizeCommitBadges(source.commitBadges, defaults.commitBadges),
     translate: normalizeTranslate(source.translate, defaults.translate),
     commandPalette: normalizeCommandPalette(source.commandPalette, defaults.commandPalette),
@@ -376,6 +384,10 @@ export function getFilePreviewSettings() {
 
 export function getFolderTreeSettings() {
   return settings.folderTree;
+}
+
+export function getListAvatarsSettings() {
+  return settings.listAvatars;
 }
 
 export function getCommitBadgesSettings() {

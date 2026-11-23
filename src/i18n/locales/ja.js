@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': 'GitHub が表示するファイルに、アイコン、コミット日時、展開できるフォルダー、サイズ、ダウンロード、コンテキストメニュー、クイックプレビューを追加します。',
   'tab.commits': 'コミット',
   'tab.commits.desc': 'コミット件名の Conventional Commits の型とスコープ。',
+  'tab.issues': 'Issue',
+  'tab.issues.desc': 'Issue とプルリクエストの一覧で、ログイン名の横に作成者のアバターを表示します。',
   'tab.backup.desc': '設定をファイルにエクスポートし、インポートして復元します。',
   'tab.about.desc': 'バージョン、作者、ソースコード。',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': '破壊的変更のマーカー',
   'commitBadges.breakingDesc': 'プレフィックスが「!」で終わるときに赤いマーカーを表示します。',
   'commitBadges.legend': '慣例的な型',
+  'listAvatars.enabled': '作成者のアバター',
+  'listAvatars.enabledDesc': 'Issue とプルリクエストの一覧で、名前の前に作成者のアバターを表示します。',
   'tab.translate': '翻訳',
   'tab.translate.desc': 'ページ上の Markdown、コメント、コミット、タイトルを翻訳します。',
   'translate.enabled': '翻訳',

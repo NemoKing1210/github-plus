@@ -20,6 +20,7 @@ globalThis.localStorage = dom.window.localStorage;
 const { ensureContainer, runContainer, toggleContainer, teardownAllContainers } = await import(
   '../src/features/translate/state.js'
 );
+const { createButton, ensureChrome } = await import('../src/features/translate/inject.js');
 const { listSurfaces } = await import('../src/features/translate/surfaces.js');
 const container = document.querySelector('.markdown-body');
 const surface = { id: 'markdown', labelKey: 'translate.surfaceMarkdown' };
@@ -103,6 +104,47 @@ test('a provider missing its API key is reported before any request', async () =
   assert.equal(document.querySelector('.gp-translate-status'), null);
   assert.match(document.querySelector('.gp-toasts').textContent, /API key/);
   teardownAllContainers();
+});
+
+test('a feed card translates every body with its one header action', async () => {
+  const card = document.createElement('article');
+  card.className = 'js-feed-item-component';
+  card.id = 'feed-item-7001';
+  card.innerHTML = '<header class="d-flex"><div class="flex-1"><h3 class="d-flex">'
+    + '<span>o/r published</span><div class="flex-self-center"><action-menu>'
+    + '<button class="feed-item-heading-menu-button">kebab</button></action-menu></div></h3>'
+    + '<div class="d-flex"><h4><relative-time>now</relative-time></h4></div>'
+    + '</div></header>'
+    + '<section class="comment-body markdown-body"><p>First release body.</p></section>'
+    + '<article class="js-feed-item-component" id="feed-item-7002">'
+    + '<section class="comment-body markdown-body"><p>Second release body.</p></section></article>';
+  document.body.appendChild(card);
+  const markdown = listSurfaces().find((item) => item.id === 'markdown');
+  const header = markdown.headerFor(card);
+  const button = createButton('Translate');
+  ensureChrome(card, { header, button });
+  const state = ensureContainer(card, markdown);
+
+  await runContainer(state, { translate: upper });
+  const bodies = card.querySelectorAll('.markdown-body');
+  assert.equal(bodies.length, 2);
+  assert.match(bodies[0].textContent, /FIRST RELEASE BODY\./);
+  assert.match(bodies[1].textContent, /SECOND RELEASE BODY\./);
+  assert.doesNotMatch(card.querySelector('header').textContent, /PUBLISHED/);
+  assert.equal(document.querySelectorAll('.gp-translate-bar').length, 0);
+  assert.equal(state.button.parentElement, header);
+  assert.equal(state.button.nextElementSibling, card.querySelector('.flex-self-center'));
+
+  card.querySelector('relative-time').textContent = '2 minutes ago';
+  const again = ensureContainer(card, markdown);
+  assert.equal(again, state);
+  assert.equal(again.button.parentElement, header);
+
+  toggleContainer(state);
+  assert.match(bodies[0].textContent, /First release body\./);
+  assert.match(bodies[1].textContent, /Second release body\./);
+  teardownAllContainers();
+  card.remove();
 });
 
 test('an automatic run does not move focus to the button', async () => {

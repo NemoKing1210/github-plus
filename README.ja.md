@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -13,15 +13,15 @@ GitHub を改善するユーザースクリプトです。充実した設定パ�
 blame 風の経過日数カラー、リポジトリ一覧のフォルダー展開、ファイルサイズと
 ワンクリック ダウンロード、ファイル操作
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、Conventional
-Commits のコミット バッジ、ページ内テキストの翻訳、サイドバーの類似リポジトリ パネルを提供します。
+Commits のコミット バッジ、ページ内テキストの翻訳、サイドバーの類似リポジトリ パネル、Issue とプルリクエスト一覧の作成者アバターを提供します。
 
-> **ステータス:** 初期段階（`0.33.1`）。インスタント検索付きの設定パネル（一般 ·
-> ギャラリー · ファイル · コミット · 翻訳 · パレット · 発見 · バックアップ · このアプリについて）、
+> **ステータス:** 初期段階（`0.34.0`）。インスタント検索付きの設定パネル（一般 ·
+> ギャラリー · ファイル · Issue · コミット · 翻訳 · パレット · 発見 · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、フォルダーの展開、ファイルサイズとダウンロード
 > ボタン、ファイルの
 > コンテキスト メニュー、ファイルのクイックプレビュー、コミット バッジ、ページ内
-> 翻訳。今後さらに GitHub の改善を追加予定です。
+> 翻訳、Issue とプルリクエスト一覧の作成者アバター。今後さらに GitHub の改善を追加予定です。
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
@@ -266,6 +266,20 @@ Conventional Commits 形式のコミット件名では、`type(scope):` プレ�
   検索、翻訳はこれまでどおりに機能し、機能をオフにすると GitHub 本来の表示に
   戻ります。
 
+### 作成者のアバター
+
+Issue とプルリクエストの一覧に並ぶ各行の作成者に、アバターが戻ります。
+
+- **ログイン名の横に顔を** — 各行は GitHub 自身のメタデータ行で、名前のすぐ
+  前に 16 px の丸いアバターを表示します。一覧がログイン名の列ではなく、コメント
+  のヘッダーのように読めます。
+- **2 つの一覧、1 つのルール** — リポジトリの Issue ページとプルリクエスト
+  ページ、アカウントのダッシュボードは同じ GitHub のリスト ビューを使うため、
+  どの一覧にもアバターが表示されます。名前をクリックしたときの絞り込みはこれまで
+  どおりです。
+- **Issue 設定ページでオフ** — スイッチひとつで GitHub のマークアップに戻ります。
+  アバターの取得先がないボットやアプリのアカウントは、ログイン名のままです。
+
 ### 翻訳
 
 ページのテキストをマークアップを壊さずに翻訳します — README、Issue や
@@ -273,8 +287,9 @@ Conventional Commits 形式のコミット件名では、`type(scope):` プレ�
 クイックプレビューで開いた Markdown ファイル:
 
 - **テキストのそばにボタン** — README のファイル ヘッダー、コメントのアクション
-  行、コミットや Issue のタイトル。GitHub にヘッダーがない場合は、テキストの
-  上に小さなバーが表示されます。
+  行、コミット、Issue のタイトル、リリースのヘッダー、フィード カードのヘッダー。
+  GitHub にヘッダーが
+  ない場合は、テキストの上に小さなバーが表示されます。
 - **マークアップはそのまま** — リンク、画像、インライン コード、タスクの
   チェックボックス、強調はそのまま機能します。翻訳が置き換えるのはテキスト
   ブロックだけで、周囲の構造には触れません。
@@ -418,6 +433,7 @@ Conventional Commits 形式のコミット件名では、`type(scope):` プレ�
 | `commitBadges.enabled` | `true` | Conventional Commits バッジのメイン スイッチ |
 | `commitBadges.unknownTypes` | `true` | 慣例的なセット以外の小文字の型にもスタイルを適用 |
 | `commitBadges.breaking` | `true` | `!` 付きの破壊的変更プレフィックスに赤いマーカーを表示 |
+| `listAvatars.enabled` | `true` | Issue とプルリクエスト一覧の作成者アバターのマスター スイッチ |
 | `translate.enabled` | `true` | ページ翻訳のマスター スイッチ |
 | `translate.provider` | `'google'` | `google`（無料）、`deepl`、`microsoft`、`yandex`、`openai`、`libretranslate` |
 | `translate.providerConfig.<id>` | プロバイダーごと | プロバイダー別の認証情報とエンドポイント（API キー、リージョン、フォルダー、モデル、URL） |

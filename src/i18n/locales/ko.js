@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': 'GitHub가 표시하는 파일에 아이콘, 커밋 시각, 펼칠 수 있는 폴더, 크기, 다운로드, 컨텍스트 메뉴, 빠른 미리보기를 제공합니다.',
   'tab.commits': '커밋',
   'tab.commits.desc': '커밋 제목의 Conventional Commits 유형과 범위.',
+  'tab.issues': '이슈',
+  'tab.issues.desc': '이슈 및 끌어오기 요청 목록에서 로그인 이름 옆에 작성자 아바타를 표시합니다.',
   'tab.backup.desc': '설정을 파일로 내보내고 다시 가져옵니다.',
   'tab.about.desc': '버전, 제작자와 소스 코드를 확인합니다.',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': '호환되지 않는 변경 표시',
   'commitBadges.breakingDesc': '접두사가 "!"로 끝나면 빨간 표시를 보여 줍니다.',
   'commitBadges.legend': '관례적인 유형',
+  'listAvatars.enabled': '작성자 아바타',
+  'listAvatars.enabledDesc': '이슈 및 끌어오기 요청 목록에서 이름 앞에 작성자 아바타를 표시합니다.',
   'tab.translate': '번역',
   'tab.translate.desc': '페이지의 마크다운, 댓글, 커밋, 제목을 번역합니다.',
   'translate.enabled': '번역',

@@ -109,9 +109,9 @@ command palette, the backup page or toasts. All checks are on `github.com`
 
 ### Settings panel
 
-- [ ] The panel opens on the General page with the sidebar listing all eight
-      pages under **Preferences** (General, Gallery, Files, Commits,
-      Translation, Command palette) and **More** (Backup, About); switching
+- [ ] The panel opens on the General page with the sidebar listing all its
+      pages under **Preferences** (General, Gallery, Files, Issues, Commits,
+      Translation, Command palette, Discovery) and **More** (Backup, About); switching
       pages (click and arrow keys) animates the content; the language select
       relabels the panel after Save.
 - [ ] The Files page holds the six file enhancements as separate cards —
@@ -314,6 +314,23 @@ command palette, the backup page or toasts. All checks are on `github.com`
 - [ ] Turning **Expandable folders** off removes every chevron, slot and
       nested row and leaves GitHub's listing byte-identical.
 
+### Issue and pull-request list avatars
+
+- [ ] Every row of `/owner/repo/issues` and `/owner/repo/pulls` shows the
+      author's round 16 px avatar immediately before the login; clicking the
+      login still filters the list by that author.
+- [ ] The same avatar appears on the global Issues and Pull requests
+      dashboards, which share GitHub's list view.
+- [ ] React re-renders and recycled rows keep exactly one avatar per row; a row
+      whose author changes swaps the image instead of keeping the old one.
+- [ ] A GitHub App row (`github-actions[bot]`) with no avatar route shows its
+      plain login and no broken image.
+- [ ] **Issues → Author avatars** off removes every injected image and leaves
+      GitHub's markup without trace; Save applies it without a reload, and the
+      switch survives a reload.
+- [ ] The avatars are correct in the light and the dark theme, and after a soft
+      navigation between two lists.
+
 ### Commit badges
 
 - [ ] A Conventional Commit subject of the form `type(scope)!: description`
@@ -363,6 +380,14 @@ command palette, the backup page or toasts. All checks are on `github.com`
 - [ ] The quick preview's translate action appears in its header only while
       the file resolves to rendered markdown, and the **Quick preview** place
       switch gates it.
+- [ ] A release card on the feed shows one translate icon in its own header
+      beside the kebab, and translating it translates every release body in the
+      card — grouped release cards included — while the actor line, timestamp
+      and reactions stay untouched.
+- [ ] A release page (`/releases/tag/<tag>`) shows the **Translate** button in
+      the title's action group in front of **Compare**, with no bar above the
+      notes: the same small labelled button shape as Compare, with a visible gap
+      between them. Translating still replaces and restores the notes in place.
 - [ ] Turning **Translation** off restores every container and removes all
       chrome and observers; reused page headers carry no button onto the next
       page.

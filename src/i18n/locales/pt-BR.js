@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': 'Ícones, idade dos commits, pastas expansíveis, tamanhos, downloads, menu de contexto e pré-visualização rápida para os arquivos listados pelo GitHub.',
   'tab.commits': 'Commits',
   'tab.commits.desc': 'Tipos e escopos do Conventional Commits nos títulos de commit.',
+  'tab.issues': 'Issues',
+  'tab.issues.desc': 'Avatares dos autores junto ao login nas listas de issues e pull requests.',
   'tab.backup.desc': 'Exporte as configurações para um arquivo e importe-as de volta.',
   'tab.about.desc': 'Versão, autor e código-fonte.',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': 'Marcador de mudança incompatível',
   'commitBadges.breakingDesc': 'Mostrar um marcador vermelho quando o prefixo termina em “!”.',
   'commitBadges.legend': 'Tipos convencionais',
+  'listAvatars.enabled': 'Avatares dos autores',
+  'listAvatars.enabledDesc': 'Mostrar o avatar do autor antes do nome nas listas de issues e pull requests.',
   'tab.translate': 'Tradução',
   'tab.translate.desc': 'Traduza markdown, comentários, commits e títulos da página.',
   'translate.enabled': 'Tradução',

@@ -11,6 +11,7 @@ import { applyFileMetaSettings, initFileMetaFeature } from './features/fileMeta/
 import { applyFileMenuSettings, initFileMenuFeature } from './features/fileMenu/index.js';
 import { applyFilePreviewSettings, initFilePreviewFeature } from './features/filePreview/index.js';
 import { applyFolderTreeSettings, initFolderTreeFeature } from './features/folderTree/index.js';
+import { applyListAvatarsSettings, initListAvatarsFeature } from './features/listAvatars/index.js';
 import { applyTranslateSettings, initTranslateFeature } from './features/translate/index.js';
 import { applyCommitBadgesSettings, initCommitBadgesFeature } from './features/commitBadges/index.js';
 import { applyCommandPaletteSettings, initCommandPaletteFeature } from './features/commandPalette/index.js';
@@ -59,6 +60,8 @@ function init() {
   applyFilePreviewSettings();
   initFolderTreeFeature();
   applyFolderTreeSettings();
+  initListAvatarsFeature();
+  applyListAvatarsSettings();
   initTranslateFeature();
   applyTranslateSettings();
   initCommitBadgesFeature();

@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-11-24
+
+### Added
+
+- Author avatars in the Issues and Pull Requests lists: every row now shows the
+  author's 16px round avatar immediately before their login, in GitHub's own
+  metadata line, on the repository lists and the account dashboards alike.
+  Clicking the name still filters the list by that author, and a bot or app
+  account with no avatar route keeps its plain login. The feature has its own
+  **Issues** settings page.
+
+[0.34.0]: https://github.com/NemoKing1210/github-plus/compare/v0.33.3...v0.34.0
+
+## [0.33.3] - 2026-11-24
+
+### Changed
+
+- On a release page, the **Translate** action now sits in the release's own
+  header — a small labelled button in the title's action group, in front of
+  **Compare**, with the same 28px height and a clear gap between them — instead
+  of an icon or a bar above the notes. Translating still replaces and restores
+  the notes in place; a page without that action group keeps the title row as
+  its host.
+
+[0.33.3]: https://github.com/NemoKing1210/github-plus/compare/v0.33.2...v0.33.3
+
+## [0.33.2] - 2026-11-23
+
+### Added
+
+- On the GitHub feed, a release card now carries the **Translate** action in its
+  own header, beside the kebab menu: one icon on the card translates every
+  release body in it — grouped releases included — and **Show original**
+  restores all of them. The actor line, timestamp and reaction footer are left
+  alone, and the card no longer gets a bar above the text.
+
+[0.33.2]: https://github.com/NemoKing1210/github-plus/compare/v0.33.1...v0.33.2
+
 ## [0.33.1] - 2026-11-23
 
 ### Changed

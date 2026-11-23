@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': 'Иконки, возраст коммитов, раскрываемые папки, размеры, загрузки, контекстное меню и быстрый просмотр для файлов, которые показывает GitHub.',
   'tab.commits': 'Коммиты',
   'tab.commits.desc': 'Типы и области Conventional Commits в заголовках коммитов.',
+  'tab.issues': 'Задачи',
+  'tab.issues.desc': 'Аватары авторов рядом с логином в списках задач и пул-реквестов.',
   'tab.backup.desc': 'Экспорт настроек в файл и импорт обратно.',
   'tab.about.desc': 'Версия, автор и исходный код.',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': 'Метка ломающего изменения',
   'commitBadges.breakingDesc': 'Показывать красную метку, когда префикс заканчивается на «!».',
   'commitBadges.legend': 'Конвенциональные типы',
+  'listAvatars.enabled': 'Аватары авторов',
+  'listAvatars.enabledDesc': 'Показывать аватар автора перед его именем в списках задач и пул-реквестов.',
   'tab.translate': 'Перевод',
   'tab.translate.desc': 'Переводите markdown, комментарии, коммиты и заголовки на странице.',
   'translate.enabled': 'Перевод',

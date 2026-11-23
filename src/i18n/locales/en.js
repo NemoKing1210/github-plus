@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': 'Icons, commit ages, expandable folders, sizes, downloads, a context menu and a quick preview for the files GitHub lists.',
   'tab.commits': 'Commits',
   'tab.commits.desc': 'Conventional Commit types and scopes on commit subjects.',
+  'tab.issues': 'Issues',
+  'tab.issues.desc': 'Author avatars beside the login in the issue and pull-request lists.',
   'tab.backup.desc': 'Export settings to a file and import them back.',
   'tab.about.desc': 'Version, author and source code.',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': 'Breaking-change marker',
   'commitBadges.breakingDesc': 'Show a red marker when the prefix ends with “!”.',
   'commitBadges.legend': 'Conventional types',
+  'listAvatars.enabled': 'Author avatars',
+  'listAvatars.enabledDesc': 'Show the author’s avatar before their name in issue and pull-request lists.',
   'tab.translate': 'Translation',
   'tab.translate.desc': 'Translate markdown, comments, commits and titles on the page.',
   'translate.enabled': 'Translation',

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript que mejora GitHub con un panel de ajustes completo, una paleta de
 comandos con `Ctrl/⌘+K`, una galería de imágenes para el markdown renderizado,
@@ -14,18 +14,19 @@ antigüedad al estilo blame para esos archivos, carpetas expandibles en la lista
 del repositorio, tamaños de archivo con descargas
 en un clic, un menú contextual para acciones de archivo y carpeta, una vista
 rápida de
-cualquier archivo, insignias de Conventional Commits traducción del contenido
-de la página y un panel de repositorios similares en la barra lateral.
+cualquier archivo, insignias de Conventional Commits, traducción del contenido
+de la página, un panel de repositorios similares en la barra lateral y avatares
+de autores en las listas de issues y pull requests.
 
-> **Estado:** temprano (`0.33.1`). Panel de ajustes con búsqueda instantánea
-> (General · Galería · Archivos · Commits · Traducción · Paleta · Descubrir · Copia de
+> **Estado:** temprano (`0.34.0`). Panel de ajustes con búsqueda instantánea
+> (General · Galería · Archivos · Issues · Commits · Traducción · Paleta · Descubrir · Copia de
 > seguridad · Acerca de), una paleta de comandos con `Ctrl/⌘+K`, la galería de
 > imágenes de markdown, los iconos de archivo en color, los colores de
 > antigüedad al estilo blame, las carpetas expandibles, los tamaños de archivo
 > con botones de descarga, un
 > menú contextual de archivos y carpetas, una vista rápida de archivos, insignias
-> de commit
-> y traducción de la página. Hay más mejoras de GitHub planificadas.
+> de commit, traducción de la página y avatares de autores en las listas de issues y
+> pull requests. Hay más mejoras de GitHub planificadas.
 
 > Las directivas `@updateURL` / `@downloadURL` del script apuntan a `main` en
 > GitHub: la URL de instalación de abajo siempre lleva a la compilación más
@@ -298,6 +299,23 @@ sola etiqueta en la página:
   de commits. El texto no cambia, así que copiar, buscar y traducir funcionan
   igual que antes, y desactivar la función restaura el aspecto propio de GitHub.
 
+### Avatares de autores
+
+El autor de cada fila de las listas de issues y pull requests recupera su
+avatar:
+
+- **Una cara junto al usuario** — cada fila muestra el avatar redondo de 16 px
+  justo antes del nombre en la propia línea de metadatos de GitHub, así que la
+  lista se lee como la cabecera de un comentario y no como una columna de
+  usuarios.
+- **Dos listas, una regla** — las páginas de Issues y Pull Requests del
+  repositorio y los paneles de la cuenta comparten la vista de lista de GitHub,
+  así que el avatar aparece en todas; hacer clic en el nombre sigue filtrando la
+  lista igual que antes.
+- **Se apaga en la página Issues** — un interruptor restaura el marcado de
+  GitHub; una cuenta de bot o de aplicación sin ruta de avatar conserva
+  simplemente su usuario.
+
 ### Traducción
 
 Traduce el texto de una página sin perder su marcado — un README, un issue o
@@ -305,8 +323,9 @@ debate, un pull request, un comentario, mensajes de commit, un título o el
 archivo markdown abierto en la vista rápida:
 
 - **Un botón donde está el texto** — en el encabezado del README, en la fila de
-  acciones de un comentario, en un commit o en el título de un issue. Cuando
-  GitHub no ofrece encabezado, aparece una pequeña barra sobre el texto.
+  acciones de un comentario, en un commit, en el título de un issue, en la
+  cabecera de un release o en la cabecera de una tarjeta del feed. Cuando GitHub
+  no ofrece encabezado, aparece una pequeña barra sobre el texto.
 - **El marcado se conserva** — enlaces, imágenes, código en línea, casillas de
   tareas y énfasis siguen funcionando: la traducción sustituye bloques de texto,
   nunca la estructura que los rodea.
@@ -470,6 +489,7 @@ Se guardan en `gp_settings_v1`.
 | `commitBadges.enabled` | `true` | Interruptor principal de las insignias de Conventional Commits |
 | `commitBadges.unknownTypes` | `true` | Dar estilo también a los tipos en minúsculas fuera del conjunto convencional |
 | `commitBadges.breaking` | `true` | Marcador rojo para un prefijo `!` de cambio incompatible |
+| `listAvatars.enabled` | `true` | Interruptor de los avatares de autores en las listas de issues y pull requests |
 | `translate.enabled` | `true` | Interruptor principal de la traducción en la página |
 | `translate.provider` | `'google'` | `google` (gratuito), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | según el proveedor | Credenciales y endpoint por proveedor (clave API, región, carpeta, modelo, URL) |

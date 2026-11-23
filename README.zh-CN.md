@@ -5,17 +5,17 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
 可展开的文件夹、文件大小与一键下载，用于文件和文件夹操作的上下文菜单、任意文件的快速预览、Conventional
-Commits 提交徽章，以及页面内容的翻译。
+Commits 提交徽章、页面内容的翻译，以及议题和拉取请求列表中的作者头像。
 
-> **状态：** 早期（`0.33.1`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 提交 ·
+> **状态：** 早期（`0.34.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 议题 · 提交 ·
 > 翻译 · 面板 · 发现 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
 > 图标、blame 风格的年龄着色、可展开的文件夹、带下载按钮的文件大小、文件和文件夹上下文
-> 菜单、快速文件预览、提交徽章，以及页面翻译。计划加入更多 GitHub 改进。
+> 菜单、快速文件预览、提交徽章、页面翻译，以及议题和拉取请求列表中的作者头像。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
@@ -213,13 +213,25 @@ Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为�
   单个提交页、仓库首页的最新提交块以及经典提交视图。文字保持不变，因此复制、
   搜索和翻译都与以前一样，关闭功能后恢复 GitHub 自己的显示。
 
+### 作者头像
+
+议题和拉取请求列表中每一行的作者重新有了头像：
+
+- **用户名旁的圆脸** — 每行都会在 GitHub 自己的元数据行中、作者名字前显示
+  16 px 的圆形头像，列表读起来像评论头部，而不是一列光秃秃的用户名。
+- **两个列表，一条规则** — 仓库的议题页、拉取请求页和账户面板共用 GitHub
+  的列表视图，因此它们都会显示头像；点击名字仍然像以前一样筛选列表。
+- **在“议题”页关闭** — 一个开关即可恢复 GitHub 的原样标记；没有头像路由的
+  机器人或应用账户只会保留用户名。
+
 ### 翻译
 
 在不破坏标记的前提下翻译页面文本——README、议题或讨论、拉取请求、评论、
 提交信息、标题，或快速预览中打开的 Markdown 文件：
 
-- **按钮就在文本旁** —— README 文件头、评论的操作栏、提交或议题标题处。GitHub
-  没有现成标题栏时，文本上方会出现一条小工具栏。
+- **按钮就在文本旁** —— README 文件头、评论的操作栏、提交、议题标题、发布页的
+  标题栏或信息流卡片的
+  标题栏处。GitHub 没有现成标题栏时，文本上方会出现一条小工具栏。
 - **标记保持不变** —— 链接、图片、行内代码、任务复选框和强调都能继续使用：翻译
   替换的是文本块，而不是它周围的结构。
 - **按钮或自动** —— 默认不点击就不会发送任何内容；自动模式会在区块进入视野时
@@ -342,6 +354,7 @@ Conventional Commits 风格的提交标题会把 `type(scope):` 前缀显示为�
 | `commitBadges.enabled` | `true` | Conventional Commits 徽章的总开关 |
 | `commitBadges.unknownTypes` | `true` | 也为常规集合之外的小写类型添加样式 |
 | `commitBadges.breaking` | `true` | 为带 `!` 的破坏性变更前缀显示红色标记 |
+| `listAvatars.enabled` | `true` | 议题和拉取请求列表中作者头像的总开关 |
 | `translate.enabled` | `true` | 页面翻译的总开关 |
 | `translate.provider` | `'google'` | `google`（免费）、`deepl`、`microsoft`、`yandex`、`openai`、`libretranslate` |
 | `translate.providerConfig.<id>` | 依服务而定 | 各服务的凭据与端点（API 密钥、区域、文件夹、模型、URL） |

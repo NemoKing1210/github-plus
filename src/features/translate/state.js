@@ -11,12 +11,24 @@ import {
 } from './inject.js';
 import { resolveTargetLang } from './languages.js';
 import { missingProviderFields } from './providers/registry.js';
-import { findContainers } from './surfaces.js';
+import { blocksFor, findContainers } from './surfaces.js';
 import { stripTokens } from './tokens.js';
 
 const log = createLogger('translate');
 
 const states = new Map();
+
+/**
+ * The text a state translates, not the whole container: a feed card's header
+ * clock must not invalidate a translation when GitHub rewrites it.
+ */
+function signatureOf(blocks) {
+  return blocks.reduce((total, block) => total + block.textContent.length, 0);
+}
+
+function contentSignature(container, surface) {
+  return signatureOf(blocksFor(container, surface));
+}
 
 function buttonLabel(status) {
   if (status === 'loading') return t('translate.translating');
@@ -48,7 +60,7 @@ function revealOnHover(state) {
     html: entry.box ? null : entry.el.innerHTML,
   }));
   restorePainted(state);
-  state.signature = state.container.textContent.length;
+  state.signature = contentSignature(state.container, state.surface);
 }
 
 /** Put the translated markup back when the pointer or focus leaves. */
@@ -60,7 +72,7 @@ function restoreAfterHover(state) {
     if (entry.el && entry.el.isConnected && html !== null) entry.el.innerHTML = html;
     state.painted.push(entry);
   });
-  state.signature = state.container.textContent.length;
+  state.signature = contentSignature(state.container, state.surface);
 }
 
 function pruneDetached() {
@@ -84,11 +96,11 @@ export function pruneDetachedContainers() {
 export function ensureContainer(container, surface, { button } = {}) {
   if (!container) return null;
   pruneDetached();
-  if (!collectBlocks(container).length) return null;
+  if (!blocksFor(container, surface).length) return null;
 
   const existing = states.get(container);
   if (existing) {
-    if (existing.signature === container.textContent.length) {
+    if (existing.signature === contentSignature(container, surface)) {
       // A React re-render can drop our control from a page header without
       // touching the container's content, so a dropped button is put back.
       if (!existing.button.isConnected) {
@@ -116,7 +128,7 @@ export function ensureContainer(container, surface, { button } = {}) {
     painted: [],
     revealed: null,
     runId: 0,
-    signature: container.textContent.length,
+    signature: contentSignature(container, surface),
   };
   // A caller-supplied control (the preview header action) owns its own handler;
   // binding here too would toggle twice per click.
@@ -150,7 +162,7 @@ export function stateFor(container) {
 export async function runContainer(state, { translate, focus = false } = {}) {
   if (!state || !state.container || state.status === 'loading') return;
 
-  const blocks = collectBlocks(state.container);
+  const blocks = blocksFor(state.container, state.surface);
   const rows = [];
   blocks.forEach((el) => {
     const data = extractBlock(el);
@@ -193,7 +205,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
   state.reveal = settings.reveal === 'hover' ? 'hover' : 'button';
   state.revealed = null;
   state.painted = [];
-  state.signature = state.container.textContent.length;
+  state.signature = contentSignature(state.container, state.surface);
 
   const segments = [];
   const records = [];
@@ -313,7 +325,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     restorePainted(state);
     state.status = 'idle';
     setButtonState(state.button, 'idle', { label: t('translate.button') });
-    state.signature = state.container.textContent.length;
+    state.signature = contentSignature(state.container, state.surface);
     return;
   }
 
@@ -337,7 +349,7 @@ export async function runContainer(state, { translate, focus = false } = {}) {
     setButtonState(state.button, 'shown', { label: t('translate.showOriginal') });
   }
 
-  state.signature = state.container.textContent.length;
+  state.signature = contentSignature(state.container, state.surface);
   if (focus && state.button && typeof state.button.focus === 'function') state.button.focus();
 }
 
@@ -374,7 +386,7 @@ export function toggleContainer(state) {
     state.revealed = null;
     restorePainted(state);
     state.status = 'idle';
-    state.signature = state.container.textContent.length;
+    state.signature = contentSignature(state.container, state.surface);
     setButtonState(state.button, 'idle', { label: t('translate.button') });
     return;
   }

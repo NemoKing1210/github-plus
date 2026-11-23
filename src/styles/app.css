@@ -3114,6 +3114,16 @@ audio.gp-preview__media {
   font: 500 12px/20px var(--gp-font);
 }
 
+/* A release action group holds GitHub's own small secondary buttons (Compare),
+ * so the action keeps its label and that button's filled look beside them. */
+.gp-translate-btn--button {
+  height: 28px;
+  gap: 4px;
+  padding: 0 12px;
+  margin-right: 8px;
+  font: 500 12px/20px var(--gp-font);
+}
+
 /* The issue/PR title action is a bare icon in the page header, beside GitHub's
  * copy-link control: the same 32px invisible icon button, with the label kept
  * for assistive tech. */
@@ -4026,4 +4036,17 @@ audio.gp-preview__media {
   }
 }
 
+/* == List avatars ========================================================= */
+/* The author's avatar in the issue and pull-request lists: a 16px round image
+ * with GitHub's own gap before the login, so the row reads like the avatar and
+ * name pair GitHub puts on a comment header. */
+.gp-list-avatar {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--gp-bg-2);
+  object-fit: cover;
+  vertical-align: -3px;
 }

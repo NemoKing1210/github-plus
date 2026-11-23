@@ -5,20 +5,20 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
 아이콘, 그 파일들의 blame 스타일 나이 색상, 저장소 목록의 폴더 펼치기, 파일 크기와 원클릭 다운로드,
 파일 작업용
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, Conventional Commits 커밋 배지, 페이지
-번역, 사이드바의 유사한 리포지토리 패널을 제공합니다.
+번역, 사이드바의 유사한 리포지토리 패널, 이슈 및 끌어오기 요청 목록의 작성자 아바타를 제공합니다.
 
-> **상태:** 초기(`0.33.1`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 커밋 ·
+> **상태:** 초기(`0.34.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 이슈 · 커밋 ·
 > 번역 · 팔레트 · 탐색 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
 > 컬러 파일 아이콘, blame 스타일 나이 색상, 폴더 펼치기, 다운로드 버튼이 있는
 > 파일 크기, 파일
-> 컨텍스트 메뉴, 파일 빠른 미리보기, 커밋 배지, 페이지 번역. 더 많은 GitHub 개선이
+> 컨텍스트 메뉴, 파일 빠른 미리보기, 커밋 배지, 페이지 번역, 이슈 및 끌어오기 요청 목록의 작성자 아바타. 더 많은 GitHub 개선이
 > 예정되어 있습니다.
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
@@ -248,13 +248,27 @@ Conventional Commits 형식의 커밋 제목은 `type(scope):` 접두사를 페�
   텍스트가 그대로이므로 복사, 검색, 번역이 이전과 똑같이 동작하고, 기능을 끄면
   GitHub의 원래 표시로 돌아갑니다.
 
+### 작성자 아바타
+
+이슈와 끌어오기 요청 목록의 각 행에 작성자의 아바타가 돌아옵니다.
+
+- **로그인 이름 옆의 얼굴** — 각 행은 GitHub 자체 메타데이터 줄에서 이름 바로
+  앞에 16px 둥근 아바타를 표시합니다. 목록이 로그인 이름만 늘어선 열이 아니라
+  댓글 헤더처럼 읽힙니다.
+- **두 목록, 하나의 규칙** — 저장소의 이슈 및 끌어오기 요청 페이지와 계정
+  대시보드는 같은 GitHub 목록 보기를 쓰므로 모든 곳에 아바타가 보입니다. 이름을
+  클릭할 때의 목록 필터링은 이전과 같습니다.
+- **이슈 설정 페이지에서 끄기** — 스위치 하나로 GitHub 마크업이 복원됩니다.
+  아바타 주소가 없는 봇이나 앱 계정은 로그인 이름만 유지합니다.
+
 ### 번역
 
 마크업을 망가뜨리지 않고 페이지 텍스트를 번역합니다 — README, 이슈나 토론,
 풀 리퀘스트, 댓글, 커밋 메시지, 제목 또는 빠른 미리보기에서 연 Markdown 파일:
 
-- **텍스트 옆의 버튼** — README 파일 헤더, 댓글의 작업 줄, 커밋이나 이슈 제목.
-  GitHub에 헤더가 없으면 텍스트 위에 작은 막대가 나타납니다.
+- **텍스트 옆의 버튼** — README 파일 헤더, 댓글의 작업 줄, 커밋, 이슈 제목,
+  릴리스 헤더 또는
+  피드 카드 헤더. GitHub에 헤더가 없으면 텍스트 위에 작은 막대가 나타납니다.
 - **마크업 유지** — 링크, 이미지, 인라인 코드, 작업 체크박스, 강조가 계속
   작동합니다. 번역은 텍스트 블록만 바꾸고 주변 구조는 건드리지 않습니다.
 - **버튼 또는 자동** — 기본적으로 클릭하기 전에는 아무것도 전송하지 않습니다.
@@ -396,6 +410,7 @@ GitHub 어느 페이지에서든 `Ctrl/⌘+K`를 누르면 그곳에서 하는 �
 | `commitBadges.enabled` | `true` | Conventional Commits 배지의 기본 스위치 |
 | `commitBadges.unknownTypes` | `true` | 관례적인 집합 밖의 소문자 유형도 꾸미기 |
 | `commitBadges.breaking` | `true` | `!` 가 붙은 호환되지 않는 변경 접두사에 빨간 표시 |
+| `listAvatars.enabled` | `true` | 이슈 및 끌어오기 요청 목록의 작성자 아바타 마스터 스위치 |
 | `translate.enabled` | `true` | 페이지 번역 마스터 스위치 |
 | `translate.provider` | `'google'` | `google`(무료), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | 제공업체별 | 제공업체별 자격 증명과 엔드포인트(API 키, 지역, 폴더, 모델, URL) |

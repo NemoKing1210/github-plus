@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': '为 GitHub 列出的文件提供图标、提交时间、可展开文件夹、大小、下载、右键菜单和快速预览。',
   'tab.commits': '提交',
   'tab.commits.desc': '提交标题中的 Conventional Commits 类型和范围。',
+  'tab.issues': '议题',
+  'tab.issues.desc': '在议题和拉取请求列表中，在用户名旁显示作者头像。',
   'tab.backup.desc': '将设置导出为文件并重新导入。',
   'tab.about.desc': '版本、作者和源代码。',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': '破坏性变更标记',
   'commitBadges.breakingDesc': '当前缀以“!”结尾时显示红色标记。',
   'commitBadges.legend': '常规类型',
+  'listAvatars.enabled': '作者头像',
+  'listAvatars.enabledDesc': '在议题和拉取请求列表中的用户名前显示作者头像。',
   'tab.translate': '翻译',
   'tab.translate.desc': '翻译页面上的 Markdown、评论、提交和标题。',
   'translate.enabled': '翻译',

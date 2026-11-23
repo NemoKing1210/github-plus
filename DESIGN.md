@@ -37,7 +37,8 @@ timestamps and its settings-page legend, the `.gp-commit-*` type/scope token on
 GitHub's commit subjects, the `.gp-file-meta` size column added
 to file rows, the `.gp-preview` quick preview and its `.gp-hold-ring`, the
 `.gp-translate-*` action, status bar and translated-result boxes, the
-`.gp-command` palette, the `.gp-similar` sidebar panel, and the gallery's
+`.gp-command` palette, the `.gp-similar` sidebar panel, the `.gp-list-avatar`
+author image in issue and pull-request lists, and the gallery's
 page-level cursor/hover affordances
 (§11). Anything GitHub already renders is out of scope except through those
 affordances: no other rule may target page markup.
@@ -52,7 +53,8 @@ Two invariants hold for every selector:
   (`.gp-panel-overlay, .gp-confirm-overlay, .gp-toasts, .gp-header-btn,
   .gp-user-menu-item, .gp-viewer-overlay, .gp-preview-overlay, .gp-download-btn,
   .gp-file-meta, .gp-context-menu, .gp-hold-ring, .gp-command-overlay,
-  .gp-translate-btn, .gp-translate-bar, .gp-translate-result, .gp-similar`).
+  .gp-translate-btn, .gp-translate-bar, .gp-translate-result, .gp-similar,
+  .gp-list-avatar`).
   Rename a root class and that list must change with it.
 
 The `.gp-commit-*` token is deliberately **not** in `isOwnUi()`: it lives
@@ -901,14 +903,25 @@ invisible buttons, so the action there takes
 An issue or pull request title has no row of its own, so the action joins the
 page header's regular actions, beside GitHub's copy-link control; the
 description's action joins the description card's header, in front of its kebab
-menu. `.gp-translate-btn--icon` takes those controls' shape: a
+menu. A release card on the feed puts the action in its own header too — the
+title row, immediately before the kebab menu, so the actor line, timestamp and
+reactions keep their layout and the menu stays the last control. A release page
+puts the action in the title's action group, in front of the Compare control, so
+the notes need no bar above them; that group holds GitHub's own small labelled
+buttons, so the action takes `.gp-translate-btn--button`: the same 28px height,
+`0 12px` padding and `12px`/500 label as Compare, its filled
+`var(--gp-bg-2)` surface, and an 8px gap to the group's first control. A
+`--button` action also keeps the `.gp-translate-btn--small` sizing, but never
+becomes an icon. `.gp-translate-btn--icon` takes the icon-only controls'
+shape: a
 `var(--gp-radius)` square with a transparent 1px edge and fill, a 16px
 `var(--gp-text-muted)` glyph, no padding and no visible label — the label stays
 in the DOM, visually hidden, so assistive tech still reads `Translate` and its
 working states. Hover takes `var(--gp-highlight)` and `var(--gp-text)`; the
 accent tint still marks translated content. The square follows the row it sits
 in: `32×32` beside the page header's medium buttons and `28×28` with the
-description header's compact ones (`.gp-translate-btn--icon.gp-translate-btn--small`).
+description header's compact ones
+(`.gp-translate-btn--icon.gp-translate-btn--small`).
 The ring and the state styling are the same as every other placement.
 
 Where GitHub exposes no header, the button lives alone in our own
@@ -1068,6 +1081,27 @@ it; the rows never reflow into the main column. Under
 70% opacity, and the row and button keep their hover colours without the
 120 ms transitions.
 
+### List avatars (`.gp-list-avatar`)
+
+The author's avatar in the Issues and Pull Requests lists, placed inside
+GitHub's own metadata line immediately before the login. It is one 16px round
+image — the size GitHub uses in a compact metadata row — with the login itself
+untouched: no container, no border, no background of its own once the image
+loads. The 4px gap matches the spacing Primer prints between an avatar and a
+name in a comment header, and the empty `alt` with `aria-hidden="true"` keeps
+the login, which is already in the page text, the only thing assistive tech
+reads. The `--gp-bg-2` fill shows only while the image loads. An avatar route
+that does not exist (a GitHub App account such as `github-actions[bot]`, a
+deleted account) removes the image instead of leaving a broken icon or a gap in
+the row.
+
+| Class | Rules |
+|---|---|
+| `.gp-list-avatar` | Inline-block, `16×16`, `50%` radius, `4px` right margin, `var(--gp-bg-2)` behind a loading image, `object-fit: cover`, `vertical-align: -3px` so the round image sits on the login's baseline |
+
+Nothing else in the row is styled or moved: GitHub's author control keeps its
+own look and its filter behavior, and the avatar is a sibling, not a wrapper.
+
 ## 7. States
 
 | State | Selector / form | Effect |
@@ -1101,6 +1135,7 @@ it; the rows never reflow into the main column. Under
 | Similar panel loading | `.gp-similar__skeleton-bar` | Placeholder bars pulse between full and 45% opacity (no pulse under reduced motion, steady 70%); the panel carries `aria-busy="true"` and the loading line is announced from `.gp-similar__announcer` |
 | Similar panel row active | `.gp-similar__card:active` | The same neutral highlight fill the hover shows, so a press reads as a press |
 | Similar avatar broken | `.gp-similar__avatar.is-broken` | The owner avatar is hidden and the repository initial shows in its place |
+| List avatar missing | `.gp-list-avatar` removed on `error` | An author with no avatar route (a GitHub App, a deleted account) drops the image, so the row keeps its login and gains no broken icon |
 | Palette loading | `.gp-command__bar.is-loading` | A 2px accent sweep under the input while a source refreshes; the bar is transparent at rest |
 | Palette active row | `.gp-command__row[aria-selected="true"]`, `.gp-command__row.is-active` | `var(--gp-accent-soft)` fill with an accent icon and title; the same row is mirrored to `aria-activedescendant` |
 | Palette empty | `.gp-command__empty:not([hidden])` | Centered glyph, `var(--gp-text)` title and muted hint; `[hidden]` is declared explicitly |

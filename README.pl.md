@@ -5,23 +5,25 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
 wszędzie tam, gdzie GitHub wyświetla pliki, kolory wieku tych plików w stylu
 blame, rozwijane foldery na liście repozytorium, rozmiary plików i pobieranie
 jednym kliknięciem, menu kontekstowe
-plików i folderów, szybki podgląd dowolnego pliku, odznaki Conventional Commits
-tłumaczenie treści na stronie i panel podobnych repozytoriów na pasku bocznym.
+plików i folderów, szybki podgląd dowolnego pliku, odznaki Conventional Commits,
+tłumaczenie treści na stronie, panel podobnych repozytoriów na pasku bocznym
+oraz awatary autorów na listach zgłoszeń i pull requestów.
 
-> **Status:** wczesny etap (`0.33.1`). Panel ustawień z natychmiastowym
-> wyszukiwaniem (Ogólne · Galeria · Pliki · Commity · Tłumaczenie · Paleta · Odkrywanie · Kopia
+> **Status:** wczesny etap (`0.34.0`). Panel ustawień z natychmiastowym
+> wyszukiwaniem (Ogólne · Galeria · Pliki · Zgłoszenia · Commity · Tłumaczenie · Paleta · Odkrywanie · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozwijane foldery,
 > rozmiary plików z przyciskami pobierania, menu kontekstowe plików i folderów,
 > szybki podgląd plików,
-> odznaki commitów i tłumaczenie treści strony. W planach kolejne ulepszenia
+> odznaki commitów, tłumaczenie treści strony i awatary autorów na listach zgłoszeń
+> i pull requestów. W planach kolejne ulepszenia
 > GitHuba.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
@@ -279,6 +281,20 @@ etykietę na stronie:
   pozostaje bez zmian, więc kopiowanie, wyszukiwanie i tłumaczenie działają jak
   dotąd, a wyłączenie funkcji przywraca wygląd GitHuba.
 
+### Awatary autorów
+
+Autor każdego wiersza na listach zgłoszeń i pull requestów odzyskuje swoją
+twarz:
+
+- **Twarz obok loginu** — każdy wiersz pokazuje okrągły awatar 16 px tuż przed
+  nazwą, w samej linii metadanych GitHuba, więc lista czyta się jak nagłówek
+  komentarza, a nie kolumna samych loginów.
+- **Dwie listy, jedna zasada** — strony zgłoszeń i pull requestów repozytorium
+  oraz panele konta korzystają z tego samego widoku listy GitHuba, więc awatar
+  pojawia się we wszystkich; kliknięcie nazwy nadal filtruje listę jak wcześniej.
+- **Wyłączanie na stronie zgłoszeń** — jeden przełącznik przywraca znaczniki
+  GitHuba; konto bota lub aplikacji bez adresu awatara zachowuje po prostu login.
+
 ### Tłumaczenie
 
 Tłumacz tekst strony bez utraty znaczników — README, zgłoszenie lub dyskusję,
@@ -286,8 +302,9 @@ pull request, komentarz, komunikaty commitów, tytuł albo plik Markdown otwarty
 w szybkim podglądzie:
 
 - **Przycisk tam, gdzie jest tekst** — w nagłówku pliku README, w wierszu akcji
-  komentarza, przy commicie lub tytule zgłoszenia. Gdy GitHub nie ma nagłówka,
-  nad tekstem pojawia się mały pasek.
+  komentarza, przy commicie, tytule zgłoszenia, w nagłówku wydania lub w nagłówku
+  karty w kanale
+  aktywności. Gdy GitHub nie ma nagłówka, nad tekstem pojawia się mały pasek.
 - **Znaczniki pozostają** — linki, obrazy, kod w linii, pola zadań i wyróżnienia
   nadal działają: tłumaczenie zastępuje bloki tekstu, nigdy otaczającej je
   struktury.
@@ -445,6 +462,7 @@ Przechowywane pod `gp_settings_v1`.
 | `commitBadges.enabled` | `true` | Główny przełącznik odznak Conventional Commits |
 | `commitBadges.unknownTypes` | `true` | Stylizuj także małe litery typów spoza konwencjonalnego zestawu |
 | `commitBadges.breaking` | `true` | Czerwony znacznik dla prefiksu `!` (zmiana niekompatybilna) |
+| `listAvatars.enabled` | `true` | Przełącznik awatarów autorów na listach zgłoszeń i pull requestów |
 | `translate.enabled` | `true` | Główny przełącznik tłumaczenia strony |
 | `translate.provider` | `'google'` | `google` (darmowy), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | zależnie od usługi | Dane dostępowe i punkt końcowy usługi (klucz API, region, folder, model, URL) |

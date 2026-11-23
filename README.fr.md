@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.33.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -14,17 +14,18 @@ couleurs d'âge façon blame pour ces fichiers, des dossiers dépliables dans la
 liste du dépôt, la taille des fichiers avec
 téléchargement en un clic, un menu contextuel pour les actions sur les fichiers et
 dossiers,
-un aperçu rapide de tout fichier, des badges Conventional Commits et la
-traduction du contenu des pages.
+un aperçu rapide de tout fichier, des badges Conventional Commits, la
+traduction du contenu des pages et les avatars des auteurs dans les listes
+d’issues et de pull requests.
 
-> **Statut :** début (`0.33.1`). Panneau de réglages avec recherche instantanée
-> (Général · Galerie · Fichiers · Commits · Traduction · Palette · Découverte · Sauvegarde ·
+> **Statut :** début (`0.34.0`). Panneau de réglages avec recherche instantanée
+> (Général · Galerie · Fichiers · Issues · Commits · Traduction · Palette · Découverte · Sauvegarde ·
 > À propos), une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du
 > markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame, la
 > taille des fichiers avec boutons de téléchargement, des dossiers dépliables,
 > un menu contextuel de
-> fichiers et dossiers, un aperçu rapide des fichiers, des badges de commit et la traduction
-> des pages. D'autres améliorations de GitHub sont prévues.
+> fichiers et dossiers, un aperçu rapide des fichiers, des badges de commit, la traduction
+> des pages et les avatars des auteurs dans les listes d’issues et de pull requests. D'autres améliorations de GitHub sont prévues.
 
 > Les `@updateURL` / `@downloadURL` du script pointent vers `main` sur GitHub —
 > l'URL d'installation ci-dessous mène toujours à la version la plus récente.
@@ -292,6 +293,21 @@ forme d'une pastille unique sur la page :
   change pas : copier, rechercher et traduire fonctionnent comme avant, et
   désactiver la fonction restaure le rendu propre à GitHub.
 
+### Avatars des auteurs
+
+L’auteur de chaque ligne des listes d’issues et de pull requests retrouve son
+avatar :
+
+- **Un visage à côté du login** — chaque ligne affiche l’avatar rond de 16 px
+  juste avant le nom, dans la propre ligne de métadonnées de GitHub : la liste
+  se lit comme un en-tête de commentaire, pas comme une colonne de logins.
+- **Deux listes, une règle** — les pages Issues et Pull requests du dépôt et les
+  tableaux de bord du compte partagent la vue de liste de GitHub, donc l’avatar
+  apparaît dans toutes ; cliquer sur le nom filtre toujours la liste comme avant.
+- **Désactivable sur la page Issues** — un interrupteur restaure le balisage de
+  GitHub ; un compte de bot ou d’application sans route d’avatar garde
+  simplement son login.
+
 ### Traduction
 
 Traduisez le texte d'une page sans perdre son balisage — un README, un ticket
@@ -299,8 +315,10 @@ ou une discussion, une pull request, un commentaire, des messages de commit, un
 titre ou le fichier markdown ouvert dans l'aperçu rapide :
 
 - **Un bouton là où se trouve le texte** — dans l'en-tête du README, la ligne
-  d'actions d'un commentaire, un commit ou le titre d'un ticket. Si GitHub
-  n'offre pas d'en-tête, une petite barre apparaît au-dessus du texte.
+  d'actions d'un commentaire, un commit, le titre d'un ticket, l'en-tête d'une
+  release ou d'une
+  carte du fil d'actualité. Si GitHub n'offre pas d'en-tête, une petite barre
+  apparaît au-dessus du texte.
 - **Le balisage survit** — liens, images, code en ligne, cases de tâches et
   emphases continuent de fonctionner : la traduction remplace des blocs de
   texte, jamais la structure qui les entoure.
@@ -466,6 +484,7 @@ Stockés sous `gp_settings_v1`.
 | `commitBadges.enabled` | `true` | Interrupteur principal des badges Conventional Commits |
 | `commitBadges.unknownTypes` | `true` | Styliser aussi les types en minuscules hors du jeu conventionnel |
 | `commitBadges.breaking` | `true` | Marqueur rouge pour un préfixe `!` de changement incompatible |
+| `listAvatars.enabled` | `true` | Interrupteur des avatars des auteurs dans les listes d’issues et de pull requests |
 | `translate.enabled` | `true` | Interrupteur principal de la traduction sur la page |
 | `translate.provider` | `'google'` | `google` (gratuit), `deepl`, `microsoft`, `yandex`, `openai`, `libretranslate` |
 | `translate.providerConfig.<id>` | selon le fournisseur | Identifiants et point de terminaison par fournisseur (clé API, région, dossier, modèle, URL) |

@@ -274,6 +274,11 @@ const DEFAULT_FOLDER_TREE = {
   enabled: true,
 };
 
+/** List avatars: the author's avatar beside the login in issue/PR lists. */
+const DEFAULT_LIST_AVATARS = {
+  enabled: true,
+};
+
 /** Commit badges: Conventional Commit types and scopes on commit subjects. */
 const DEFAULT_COMMIT_BADGES = {
   enabled: true,
@@ -374,6 +379,7 @@ export const DEFAULT_SETTINGS = {
   fileMenu: DEFAULT_FILE_MENU,
   filePreview: DEFAULT_FILE_PREVIEW,
   folderTree: DEFAULT_FOLDER_TREE,
+  listAvatars: DEFAULT_LIST_AVATARS,
   commitBadges: DEFAULT_COMMIT_BADGES,
   translate: DEFAULT_TRANSLATE,
   commandPalette: DEFAULT_COMMAND_PALETTE,

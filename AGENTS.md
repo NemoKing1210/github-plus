@@ -154,6 +154,7 @@ github-plus/
 │   │   │       ├── general.js   # Interface language, notifications, diagnostics
 │   │   │       ├── gallery.js   # Master switch, source switches, viewer behavior
 │   │   │       ├── files.js     # File icons, ages, sizes, downloads, context menu, preview
+│   │   │       ├── issues.js    # Author avatars in issue and pull-request lists
 │   │   │       ├── commits.js   # Commit badges: master switch, refinements, type legend
 │   │   │       ├── translate.js # Translation trigger, places, provider, cache
 │   │   │       ├── commandPalette.js # Activation, token, sources, cache
@@ -196,6 +197,10 @@ github-plus/
 │   │   │   ├── api.js      # Folder listing and commit-info fetches, session caches
 │   │   │   ├── surfaces.js # Listing rows, row targets, child addresses (DOM)
 │   │   │   └── render.js   # Chevron, nested row and note-row builders
+│   │   ├── listAvatars/
+│   │   │   ├── index.js    # List observers, settings reaction
+│   │   │   ├── surfaces.js # Issue/PR list rows, author login resolution (DOM)
+│   │   │   └── inject.js   # renderAvatar / placeAvatar / clearAvatars
 │   │   ├── commitBadges/
 │   │   │   ├── index.js    # Surface observers, signature check, settings reaction
 │   │   │   ├── parse.js    # parseCommitSubject(text): type, scope, breaking (pure)
@@ -288,7 +293,8 @@ github-plus/
 → `initFileMetaFeature()` + `applyFileMetaSettings()` → `initFileMenuFeature()`
 + `applyFileMenuSettings()` → `initFilePreviewFeature()` +
 `applyFilePreviewSettings()` → `initFolderTreeFeature()` +
-`applyFolderTreeSettings()` → `initTranslateFeature()` +
+`applyFolderTreeSettings()` → `initListAvatarsFeature()` +
+`applyListAvatarsSettings()` → `initTranslateFeature()` +
 `applyTranslateSettings()` → `initCommitBadgesFeature()` +
 `applyCommitBadgesSettings()` → `initCommandPaletteFeature()` +
 `applyCommandPaletteSettings()` → `initSimilarReposFeature()` +
@@ -381,15 +387,16 @@ Single place for magic values.
   `SIMILAR_REPOS_SETTLE_TRIES` (12).
 - `DEFAULT_SETTINGS` (`language`, `logging`, `gallery`, `toasts`, `fileIcons`,
   `fileAges`, `fileMeta`, `fileMenu`, `filePreview`, `folderTree`,
-  `commitBadges`, `translate`, `commandPalette`, `similarRepos`) plus
+  `listAvatars`, `commitBadges`, `translate`, `commandPalette`,
+  `similarRepos`) plus
   `getDefaults()`, which returns a deep clone — never mutate the shared
   constants. `DEFAULT_LOGGING` is `{ enabled: false }`; `DEFAULT_FILE_ICONS` is
   `{ enabled, folders, specialNames }`, `DEFAULT_FILE_AGES` is
   `{ enabled, folders }`, `DEFAULT_FILE_META` is `{ enabled, sizes, download }`,
   `DEFAULT_FILE_MENU` is `{ enabled }`, `DEFAULT_FILE_PREVIEW` is
   `{ enabled, rowButton, longPress, longPressMs, longPressRing }`,
-  `DEFAULT_FOLDER_TREE` is `{ enabled }`,
-  `DEFAULT_COMMIT_BADGES` is `{ enabled, unknownTypes, breaking }` and
+  `DEFAULT_FOLDER_TREE` is `{ enabled }`, `DEFAULT_LIST_AVATARS` is
+  `{ enabled }`, `DEFAULT_COMMIT_BADGES` is `{ enabled, unknownTypes, breaking }` and
   `DEFAULT_TRANSLATE` is `{ enabled, provider, providerConfig, targetLang, mode,
   display, reveal, linkLabels, surfaces, cacheHours }`;
   `DEFAULT_COMMAND_PALETTE` is `{ enabled, shortcut, token, sources, hideForks,
@@ -403,7 +410,7 @@ Module-level `settings` loaded once at import, normalizers per field,
 Public API: `loadSettings`, `getSettings`, `getLoggingSettings`, `getGallerySettings`,
 `getFileIconsSettings`, `getFileAgesSettings`, `getFileMetaSettings`,
 `getFileMenuSettings`, `getFilePreviewSettings`, `getFolderTreeSettings`,
-`getCommitBadgesSettings`,
+`getListAvatarsSettings`, `getCommitBadgesSettings`,
 `getTranslateSettings`,
 `getCommandPaletteSettings`, `getSimilarReposSettings`, `saveSettings`,
 `toExportableSettings`, `normalizeImportedSettings`, `hasCustomSettings`.
@@ -419,8 +426,8 @@ Key facts that must survive refactors:
   `TOAST_MAX_DURATION_MS`, zoom clamped to 2…`GALLERY_MAX_ZOOM`, source
   switches restricted to the keys present in the defaults (a source removed
   from the registry leaves no stale key), the `fileIcons` / `fileAges` /
-  `fileMeta` / `fileMenu` / `filePreview` / `folderTree` booleans, the three
-  `commitBadges` booleans, and the long-press time
+  `fileMeta` / `fileMenu` / `filePreview` / `folderTree` / `listAvatars`
+  booleans, the three `commitBadges` booleans, and the long-press time
   clamped to `PREVIEW_LONG_PRESS_MIN_MS`…`PREVIEW_LONG_PRESS_MAX_MS`. The
   `translate` section normalizes its enums (`mode`, `display`, `reveal`), the
   target-language whitelist, the provider id whitelist, the per-provider config
@@ -477,6 +484,9 @@ Minimal pub/sub: `on(event, fn)` (returns an unsubscribe fn), `off`,
 - `settings:folderTree` — emitted by the same Save; the folder-tree feature
   listens to tear down every chevron, slot and nested row (leaving GitHub's
   listing byte-identical) and, when enabled, resyncs its surfaces.
+- `settings:listAvatars` — emitted by the same Save and by a backup import;
+  the list-avatars feature removes every injected image and observer and, when
+  enabled, rescans the issue and pull-request lists.
 - `settings:translate` — emitted by the same Save; the translate feature tears
   every container down (painted text and chrome), then scans and re-attaches
   its observers when the feature is on, so a provider, target-language or mode
@@ -812,6 +822,9 @@ without a reload. Nothing else in the feature layer touches the logger.
   input and the progress-circle switch (`icons.*`, `ages.*`, `folderTree.*`,
   `files.*`, `fileMenu.*`, `preview.*` keys). The features stay independent, so
   the page has no switch of its own.
+- `tabs/issues.js`: the **Issues** page — one header-only card for author
+  avatars in the issue and pull-request lists (`listAvatars.*` keys), because
+  the feature has exactly one setting.
 - `tabs/commits.js`: the commit-badges card — the master switch in the card
   header, the unknown-types and breaking-marker switches in the body, and an
   11-chip legend built from `TYPE_ORDER` with the same `.gp-commit-*` classes
@@ -1245,6 +1258,39 @@ rule is that a preview's sibling set stays inside the folder that owns the row
   header-only switch (`folderTree.title` / `folderTree.enabledDesc`), because
   the feature has exactly one setting.
 
+### `src/features/listAvatars/` — author avatars in issue and pull-request lists
+
+Shows the author's avatar before the login in every row of GitHub's issue and
+pull-request lists. Both lists share one React list view, so one container
+selector covers the repository lists and the account dashboards. The image is
+a sibling of GitHub's author-filter control, inside GitHub's own metadata line,
+so the page text and the filter behavior stay exactly as GitHub rendered them.
+
+- `surfaces.js`: `CONTAINER_SELECTOR` (`[data-listview-component="items-list"]`)
+  and `resolveRowAuthor(row)` → `{ node, login }`. The author control is
+  `[data-testid="author-filter-link"]`; the login comes from its hovercard route
+  (`/users/<login>/hovercard`, the issue rows) or its `?q=… author:<login>`
+  query (the pull-request rows), then from the visible text — skipping the
+  visually hidden "Filter by author" label a button row carries.
+  `avatarUrlFor(login)` builds `https://github.com/<login>.png?size=40` and
+  strips the `[bot]` suffix, because GitHub serves those routes for users and
+  for bot accounts.
+- `inject.js`: `renderAvatar(login)` builds the 16×16 `img.gp-list-avatar`
+  (`alt=""`, `aria-hidden`, lazy) and removes itself on `error`, so a GitHub
+  App account with no avatar route leaves the plain login instead of a broken
+  image; `placeAvatar(author, login)` inserts it before the author control and
+  swaps it in place when a recycled row changes its login; `clearAvatars(root)`
+  removes every injected image.
+- `index.js`: one observer per list container (childList, subtree,
+  characterData, and `href`/`data-hovercard-url` attribute changes, since a
+  recycled row can change only the author control's address), the same
+  `<html>`/`<body>` shell watchers and bounded settle wait as the other page
+  features, debounced ~100 ms. `applyListAvatarsSettings()` is the single entry
+  point: teardown first, then sync and settle when enabled.
+  `settings:listAvatars` and `watchNavigation` trigger it.
+- `features/settings/tabs/issues.js`: the **Issues** page, a header-only card
+  (`listAvatars.enabled` / `listAvatars.enabledDesc`).
+
 ### `src/features/commitBadges/` — Conventional Commit badges
 
 Styles the type and scope of a Conventional Commit subject (`type(scope)!:
@@ -1395,31 +1441,49 @@ default `mode` is `button`; `auto` is opt-in.
   its kebab and reply controls), the `[data-testid="comment-header-actions"]`
   row, or the new shell's `[class*="ActionsButtonsContainer"]` row in a comment
   header — the
-  file/release header (the blob view uses its
+  file header (the blob view uses its
   `[class*="react-blob-header-edit-and-raw-actions"]:not([class*="-combined"])`
-  row of Raw/copy/download/edit actions), or
+  row of Raw/copy/download/edit actions), or the release page's action group
+  beside the title — the parent of its Compare `select-panel` in the Primer
+  `.Box`, marked with the `compact` look so the action keeps its label as a
+  small button placed in front of the control, with the title row as the
+  fallback when the group is absent — or
   the repository README's `readmeHeaderSlot`, the new issue/PR page's own
   actions row (`[data-component="PH_Actions"]`, where GitHub's copy-link icon
   button lives), or the description card's compact icon actions row
   (`[class*="actionsSection"]` inside `[data-testid="issue-body"]`, beside the
   kebab menu) — both remembered in a second `WeakMap` with their icon-button
   size so `iconActionSize()` can give the action the icon-only shape (32px in
-  the page header, 28px in the description header); a page whose markup has no
+  the page header, 28px in the description header); an action row marked
+  `compact` (the release page's Compare group) keeps the label instead, through
+  `.gp-translate-btn--button`; a page whose markup has no
   comment classes is resolved through the description's edit block
   (`[class*="editMetadata"]`, the row holding "Edited" and the edit pencil) or
   the edit control nearest the container (including
   `button[data-dd-action-name*=".edit"]`), and a header found that way is
   remembered in a `WeakSet` so `isActionRow()`
   can tell a real action row from a page header that merely contains an Edit
-  link) or null for the fallback bar) and `skip(node)`. A
+  link) or null for the fallback bar) and `skip(node)`. A feed card on the
+  feed is the one container that is not a matched node: `containerFor(node)`
+  maps a release body to the outermost `article.js-feed-item-component` (a
+  grouped card nests further cards inside the first), its `blocks(container)`
+  collects only the card's `.markdown-body` bodies — never the actor line,
+  timestamp or reaction footer — and the header is the card header's title row
+  immediately before the kebab `action-menu`, remembered with that menu as an
+  insertion anchor (`iconActionAnchor()`) so the action sits beside GitHub's
+  controls and the kebab stays last. One card is one translation unit, so one
+  button translates every release body in it. A
   `plain` surface can only be displayed below its source, never replace it. The
   preview surface can never be auto-translated (`roots: []`); its action lives
   in the preview header. `findContainers` returns live containers in document
-  order and keeps only the outermost of any nested matches (GitHub nests one
-  `.markdown-body` inside another on an issue/PR description, so decorating
-  both would stack two controls over one body);
+  order, resolving each through `containerFor` and keeping only the outermost
+  of any nested matches (GitHub nests one `.markdown-body` inside another on an
+  issue/PR description, so decorating both would stack two controls over one
+  body);
   `surfaceForContainer`, `previewSurface`, `previewContainer`, `enabledSurfaces`
-  and `surfaceRoots` are the rest of the API.
+  and `surfaceRoots` are the rest of the API. `blocksFor(container, surface)`
+  is what the state machine calls: the surface's own `blocks()` when it has
+  one, else `collectBlocks(container)`.
 - `blocks.js`: `collectBlocks(container)` walks to the leaf text blocks
   (`h1–h6`, `p`, `li`, `dt`, `dd`, `td`, `th`, `blockquote`, `figcaption`,
   `caption`, `summary`), skipping `pre`, code, our own UI and GitHub's heading
@@ -1486,20 +1550,31 @@ default `mode` is `button`; `auto` is opt-in.
   `.gp-translate-btn--header` look inside the repository README slot and the
   compact `.gp-translate-btn--small` shape (28px, 12px label) inside the new
   shell's `editMetadata` block, comment `ActionsButtonsContainer` row and the
-  blob file header actions row, and the bare-icon
+  blob file header actions row, keeps that label as a `.gp-translate-btn--button`
+  beside the release page's Compare control (a `compact` action row), and the
+  bare-icon
   `.gp-translate-btn--icon` shape (label visually hidden) in the page header's
   actions row of an issue or pull request title (32px) and in the description
   card's header (28px, prepended before the kebab menu), and
   creating no bar: `ensureChrome` returns `{ button, bar: null }` — otherwise
-  into our own `.gp-translate-bar` before the container), `createResultBox(html, { preformatted })` (a `plain` surface's box
-  keeps the source line breaks) and `removeChrome`.
+  into our own `.gp-translate-bar` before the container). A header registered
+  with an insertion anchor (the feed card's title row, anchored on the kebab
+  `action-menu`) puts the action immediately before that anchor even when it is
+  already in the header, so a React re-insert can never push the kebab out of
+  last place. `createResultBox(html, { preformatted })` (a `plain` surface's box
+  keeps the source line breaks) and `removeChrome` complete the module.
 - `state.js`: the per-container state machine (`idle`, `loading`, `shown`,
   `partial`, `error`) keyed by container in a `Map`. `ensureContainer` decorates
-  a container (returns the existing state when the content signature is
-  unchanged, re-inserting a control a React re-render dropped from its header),
-  `runContainer` translates every block (missing-config preflight
+  a container after `blocksFor(container, surface)` finds text (returns the
+  existing state when the content signature is unchanged, re-inserting a
+  control a React re-render dropped from its header), and `runContainer`
+  translates every block that same way, so a surface may narrow a container
+  (the feed card translates its release bodies, never its header) without
+  changing the state machine. The content signature is the combined text length
+  of those blocks, so GitHub rewriting a feed card's timestamp never
+  invalidates the translation. A run also handles the missing-config preflight
   before any request, button states, partial-failure handling,
-  unchanged-response detection, `GP-1601` and a toast on total failure). No
+  unchanged-response detection, `GP-1601` and a toast on total failure. No
   status text is attached to the button at all — no status line beside it and
   no `title` tooltip: the button label, its filled ring and its state carry the
   outcome, and failures report through a toast. The fallback bar holds only the
@@ -1819,7 +1894,7 @@ select back to **Custom** on the next open.
   `navigator.languages` through aliases with base-language fallback, else
   `'en'`; `t(key, vars)` falls back `active → en → key` and
   interpolates `{name}` placeholders.
-- `locales/*.js`: one `export default { … }` map per locale (same key set, 458
+- `locales/*.js`: one `export default { … }` map per locale (same key set, 462
   keys), all with **identical key order**; `locales/index.js` combines them
   into `TRANSLATIONS`.
 
@@ -1830,7 +1905,8 @@ select back to **Custom** on the next open.
   `.gp-panel-overlay`, `.gp-confirm-overlay`, `.gp-toasts`, `.gp-header-btn`,
   `.gp-user-menu-item`, `.gp-viewer-overlay`, `.gp-preview-overlay`,
   `.gp-download-btn`, `.gp-file-meta`, `.gp-context-menu`, `.gp-hold-ring`,
-  `.gp-command-overlay`, `.gp-similar`) and
+  `.gp-command-overlay`, `.gp-similar`,
+  `.gp-list-avatar`) and
   `isOwnUiChrome(node)` (the same check minus the repository content inside
   `.gp-preview__content`, whose images and file links must behave like page
   content). `eachNode`/`toArray` exist because DOM collections
@@ -1961,7 +2037,8 @@ footer Save → `saveSettings(draft)` → `configureLocale(language)` →
 `emit('settings:gallery' | 'settings:toasts' | 'settings:logging' |
 'settings:language' | 'settings:fileIcons' | 'settings:fileAges' |
 'settings:fileMeta' | 'settings:fileMenu' | 'settings:filePreview' |
-'settings:folderTree' | 'settings:translate' | 'settings:commitBadges' |
+'settings:folderTree' | 'settings:listAvatars' | 'settings:translate' |
+'settings:commitBadges' |
 'settings:commandPalette' | 'settings:similarRepos')` → gallery repaints its
 stylesheet, the logger applies
 its switch, file and translate features rescan or tear down, the palette closes
@@ -2124,6 +2201,7 @@ writes). UI language: `'auto'` (browser) or one of the ten `SUPPORTED_LOCALES`.
 | `filePreview.longPressMs` | `450` | Hold time in ms, clamped to 200…2000 |
 | `filePreview.longPressRing` | `true` | Progress circle at the pointer while holding |
 | `folderTree.enabled` | `true` | Master switch; disabling removes every chevron, slot and nested row, leaving GitHub's listing byte-identical |
+| `listAvatars.enabled` | `true` | Master switch for author avatars in the issue and pull-request lists; disabling removes every injected image and observer |
 | `commitBadges.enabled` | `true` | Master switch; disabling restores every commit subject and removes all observers |
 | `commitBadges.unknownTypes` | `true` | Style types outside the conventional set too |
 | `commitBadges.breaking` | `true` | Show a red marker when the prefix ends with `!` |
@@ -2269,7 +2347,8 @@ Build facts agents need to know:
   issues, commands, rank, rowMenu, detail, format, settings, index, shell,
   hotkey and search — plus `test/http.test.js` for the shared transport,
   `test/headerActions.test.js` for the header registry, `test/contextMenu.test.js`
-  for the menu layers and `test/shortcut.test.js` for shortcut parsing; a
+  for the menu layers and `test/shortcut.test.js` for shortcut parsing, and `test/listAvatars.test.js` /
+`test/listAvatarsLifecycle.test.js` for the author avatars; a
   palette change that touches ranking or identity rules
   belongs in one of them, not in a manual check.
 
@@ -2398,6 +2477,14 @@ and check diagnostics for edited files.
   show the too-large card, so a real hang means the request never settled. A
   preview left open after a soft navigation means `watchNavigation` stopped
   firing.
+- Avatars missing from an issue or pull-request list: check **Author avatars**
+  on the **Issues** page is on, the page uses GitHub's React list view
+  (`[data-listview-component="items-list"]`) and the row's metadata line has an
+  `[data-testid="author-filter-link"]` control — a classic table listing has
+  neither, and the feature is a no-op there. An author whose login has no
+  `<login>.png` route (a GitHub App, a deleted account) keeps its plain login by
+  design. A row that keeps a stale avatar after GitHub recycled it means the
+  container observer or its `href`/`data-hovercard-url` filter stopped firing.
 - Commit badges missing: check **Commit badges** on the **Commits** page is on
   and the title is one of the surfaces in `features/commitBadges/surfaces.js`.
   The prefix must sit on the first line and entirely inside the title's first
@@ -2422,7 +2509,16 @@ and check diagnostics for edited files.
   has none). A button inside a comment, description or file header means `headerFor`
   found GitHub's action row; a button in a bar above the container means it did
   not — extend `headerFor` (the fallback already looks for the edit control
-  nearest the container), never add a document-wide observer. The quick
+  nearest the container), never add a document-wide observer. On the feed a
+  release card gets its icon in the card header beside the kebab `action-menu`
+  and translates every release body in the card (grouped items included); a
+  bar there means the card header, its `header` element or the kebab menu was
+  renamed — check `feedHeader()` in `surfaces.js`. On a release page the action
+  is a small labelled button in the title's action group, in front of the
+  Compare `select-panel`; a bar there means `[data-test-selector="body-content"]`
+  no longer sits inside the `Box` holding the title `h1`, the Compare control
+  was renamed, or the release uses the legacy `.release` markup — check
+  `releaseHeader()` in `surfaces.js`. The quick
   preview's action
   needs the **Quick preview** place switch too. A plain-text file (a license or
   notice such as LICENSE) needs the **Plain-text files** switch; a

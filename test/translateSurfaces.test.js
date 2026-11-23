@@ -33,9 +33,53 @@ globalThis.location = dom.window.location;
 globalThis.localStorage = dom.window.localStorage;
 
 const {
-  enabledSurfaces, findContainers, headerFor, iconActionSize, isIconActionRow,
-  surfaceForContainer, previewContainer,
+  actionRowLook, enabledSurfaces, findContainers, headerFor, iconActionAnchor, iconActionSize,
+  isActionRow, isIconActionRow, surfaceForContainer, previewContainer,
 } = await import('../src/features/translate/surfaces.js');
+
+/** A feed release card; grouped releases nest a second card inside the first. */
+function createFeedCard() {
+  const card = document.createElement('article');
+  card.className = 'js-feed-item-component js-feed-item-view js-feed-item-next-component';
+  card.id = 'feed-item-9001';
+  card.innerHTML = '<div class="feed-item-content">'
+    + '<header class="d-flex flex-justify-between">'
+    + '<div class="mr-2"><a><img class="feed-item-user-avatar" alt=""></a></div>'
+    + '<div class="flex-1 tmp-ml-1">'
+    + '<h3 class="h5 text-normal d-flex flex-items-center flex-row flex-nowrap width-fit">'
+    + '<span class="flex-1"><a href="/o/r" class="Link--primary text-bold">o/r</a> published</span>'
+    + '<div class="flex-self-center"><action-menu>'
+    + '<button class="Button--invisible feed-item-heading-menu-button">kebab</button>'
+    + '</action-menu></div></h3>'
+    + '<div class="d-flex"><h4><relative-time datetime="2026-11-23T11:40:00Z">now</relative-time></h4></div>'
+    + '</div></header>'
+    + '<div class="mt-1 mb-1"><section class="comment-body markdown-body">'
+    + '<p>First release</p></section></div>'
+    + '<div><article class="js-feed-item-component" id="feed-item-9002">'
+    + '<div class="feed-item-content"><section class="comment-body markdown-body">'
+    + '<p>Second release</p></section></div></article></div>'
+    + '</div>';
+  return card;
+}
+
+/** A release page; the notes carry GitHub's `body-content` hook. */
+function createReleasePage() {
+  const page = document.createElement('div');
+  page.innerHTML = '<div class="Box"><div class="Box-body">'
+    + '<div class="d-flex flex-md-row flex-column">'
+    + '<div class="d-flex flex-row flex-1"><div class="flex-1">'
+    + '<h1>Hex Preview 0.2.2 (build 2325)</h1>'
+    + '<span><span class="Label Label--warning">Pre-release</span></span>'
+    + '</div></div>'
+    + '<div class="d-flex tmp-mb-3"><select-panel>'
+    + '<dialog-helper><button class="Button--secondary Button--small">Compare</button></dialog-helper>'
+    + '</select-panel></div>'
+    + '</div>'
+    + '<div class="tmp-mb-3"><relative-time>released</relative-time></div>'
+    + '<div data-test-selector="body-content" class="markdown-body"><p>Notes</p></div>'
+    + '</div></div>';
+  return page;
+}
 
 test('enabled surfaces come from settings', () => {
   const ids = enabledSurfaces().map((surface) => surface.id);
@@ -241,4 +285,68 @@ test('the description card header hosts a compact icon action', () => {
 test('the preview container is resolved separately', () => {
   assert.equal(previewContainer().textContent, 'Preview');
   assert.equal(surfaceForContainer(previewContainer()).id, 'preview');
+});
+
+test('a feed card is one markdown container, grouped items included', () => {
+  const card = createFeedCard();
+  document.querySelector('main').appendChild(card);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const containers = findContainers(markdown);
+  assert.ok(containers.includes(card));
+  assert.ok(!containers.includes(card.querySelector('.markdown-body')));
+  assert.equal(
+    containers.filter((node) => node.id && node.id.startsWith('feed-item-')).length,
+    1,
+  );
+  assert.equal(surfaceForContainer(card).id, 'markdown');
+  card.remove();
+});
+
+test('a feed card action sits in the card header before the kebab', () => {
+  const card = createFeedCard();
+  document.querySelector('main').appendChild(card);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const header = headerFor(card, markdown);
+  assert.equal(iconActionSize(header), 'medium');
+  assert.equal(isIconActionRow(header), true);
+  const menu = card.querySelector('.flex-self-center');
+  assert.equal(iconActionAnchor(header), menu);
+  assert.equal(header.lastElementChild, menu);
+  header.insertBefore(document.createElement('button'), menu);
+  assert.ok(header.textContent.includes('kebab'));
+  card.remove();
+});
+
+test('a feed card body resolves to its own card action', () => {
+  const card = createFeedCard();
+  document.querySelector('main').appendChild(card);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = card.querySelector('.markdown-body');
+  assert.equal(headerFor(body, markdown), headerFor(card, markdown));
+  card.remove();
+});
+
+test('a release page hosts the action in the title action group', () => {
+  const page = createReleasePage();
+  document.querySelector('main').appendChild(page);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = page.querySelector('.markdown-body');
+  const host = headerFor(body, markdown);
+  assert.equal(host, page.querySelector('select-panel').parentElement);
+  assert.equal(isActionRow(host), true);
+  assert.equal(actionRowLook(host), 'compact');
+  assert.equal(isIconActionRow(host), false);
+  page.remove();
+});
+
+test('a release page without the compare control keeps the title row', () => {
+  const page = createReleasePage();
+  page.querySelector('select-panel').parentElement.remove();
+  document.querySelector('main').appendChild(page);
+  const markdown = enabledSurfaces().find((surface) => surface.id === 'markdown');
+  const body = page.querySelector('.markdown-body');
+  const host = headerFor(body, markdown);
+  assert.equal(host, page.querySelector('.Box-body > .d-flex.flex-md-row'));
+  assert.equal(iconActionSize(host), 'medium');
+  page.remove();
 });

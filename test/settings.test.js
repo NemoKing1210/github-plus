@@ -31,6 +31,19 @@ test('the folder tree falls back to the default on junk', async () => {
   assert.equal(junk.folderTree.enabled, true);
 });
 
+test('list avatars are on by default and accept an explicit false', async () => {
+  const { normalizeImportedSettings } = await import('../src/core/settings.js');
+  assert.equal(normalizeImportedSettings({}).listAvatars.enabled, true);
+  assert.equal(
+    normalizeImportedSettings({ listAvatars: { enabled: false } }).listAvatars.enabled,
+    false,
+  );
+  assert.equal(
+    normalizeImportedSettings({ listAvatars: { enabled: 'yes' } }).listAvatars.enabled,
+    true,
+  );
+});
+
 test('the long-press time is clamped to its bounds and falls back on junk', async () => {
   const { normalizeImportedSettings } = await import('../src/core/settings.js');
   const low = normalizeImportedSettings({ filePreview: { longPressMs: 10, longPressRing: false } });

@@ -88,6 +88,39 @@ test('a compact icon header prepends the button before its kebab menu', () => {
   body.remove();
 });
 
+test('a release page action is a compact labelled button before the compare control', () => {
+  const page = document.createElement('div');
+  page.innerHTML = '<div class="Box"><div class="Box-body">'
+    + '<div class="d-flex flex-md-row flex-column">'
+    + '<div class="d-flex flex-row flex-1"><div class="flex-1"><h1>A release</h1></div></div>'
+    + '<div class="d-flex tmp-mb-3"><select-panel>'
+    + '<dialog-helper><button class="Button--secondary Button--small">Compare</button></dialog-helper>'
+    + '</select-panel></div>'
+    + '</div>'
+    + '<div data-test-selector="body-content" class="markdown-body"><p>Notes</p></div>'
+    + '</div></div>';
+  document.body.append(page);
+  const body = page.querySelector('.markdown-body');
+  const header = listSurfaces().find((surface) => surface.id === 'markdown').headerFor(body);
+  const button = createButton('Translate');
+  const chrome = ensureChrome(body, { header, button });
+  assert.equal(chrome.bar, null);
+  assert.equal(button.parentElement, header);
+  assert.equal(header.firstElementChild, button);
+  assert.equal(button.nextElementSibling.localName, 'select-panel');
+  // The Compare control is a small labelled button, so the action keeps its
+  // label and the compact button shape instead of becoming a bare icon.
+  assert.ok(button.classList.contains('gp-translate-btn--button'));
+  assert.ok(button.classList.contains('gp-translate-btn--small'));
+  assert.ok(!button.classList.contains('gp-translate-btn--icon'));
+  assert.ok(!button.classList.contains('gp-translate-btn--actions'));
+  assert.ok(!button.classList.contains('gp-translate-btn--header'));
+  const label = button.querySelector('.gp-translate-btn__label');
+  assert.equal(label.textContent, 'Translate');
+  button.remove();
+  page.remove();
+});
+
 test('a page header outside the README slot keeps the default look', () => {
   const header = document.createElement('header');
   const markdown = document.createElement('div');

@@ -1,7 +1,8 @@
 import { ACTION_ICONS } from '../../ui/icons.js';
 import { t } from '../../i18n/index.js';
 import {
-  COMPACT_ACTION_ROW, iconActionSize, isActionRow, README_HEADER_SLOT,
+  actionRowLook, COMPACT_ACTION_ROW, iconActionAnchor, iconActionSize, isActionRow,
+  README_HEADER_SLOT,
 } from './surfaces.js';
 
 const RING_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true">'
@@ -73,6 +74,9 @@ export function ensureChrome(container, { header, button } = {}) {
     if (stale) stale.remove();
     const actions = isActionRow(header);
     const iconSize = iconActionSize(header);
+    // A release action group holds GitHub's own small buttons, so the action
+    // there keeps its label as a compact button instead of shrinking to an icon.
+    const compact = actions && actionRowLook(header) === 'compact';
     if (control.parentElement !== header) {
       // In GitHub's own action row the button joins the row before the edit
       // control instead of trailing it. A compact icon row keeps its overflow
@@ -80,17 +84,25 @@ export function ensureChrome(container, { header, button } = {}) {
       if (actions || iconSize === 'small') header.insertBefore(control, header.firstChild);
       else header.appendChild(control);
     }
+    // A header that remembers an anchor keeps that element (the kebab menu) last.
+    const anchor = iconActionAnchor(header);
+    if (anchor && anchor.parentElement === header && control.nextElementSibling !== anchor) {
+      header.insertBefore(control, anchor);
+    }
     // The README header action sits among GitHub's own buttons and takes their look.
     control.classList.toggle(
       'gp-translate-btn--header',
-      actions || header.matches(README_HEADER_SLOT),
+      !compact && (actions || header.matches(README_HEADER_SLOT)),
     );
-    control.classList.toggle('gp-translate-btn--actions', actions);
+    control.classList.toggle('gp-translate-btn--actions', actions && !compact);
+    control.classList.toggle('gp-translate-btn--button', compact);
     // The issue/PR header actions are bare icons like GitHub's own controls.
     control.classList.toggle('gp-translate-btn--icon', Boolean(iconSize));
     control.classList.toggle(
       'gp-translate-btn--small',
-      iconSize ? iconSize === 'small' : header.matches(COMPACT_ACTION_ROW),
+      compact || (iconSize
+        ? iconSize === 'small'
+        : header.matches(COMPACT_ACTION_ROW)),
     );
     return { button: control, bar: null };
   }
@@ -106,6 +118,7 @@ export function ensureChrome(container, { header, button } = {}) {
   if (control.parentElement !== bar) bar.insertBefore(control, bar.firstChild);
   control.classList.remove('gp-translate-btn--header');
   control.classList.remove('gp-translate-btn--actions');
+  control.classList.remove('gp-translate-btn--button');
   control.classList.remove('gp-translate-btn--icon');
   control.classList.remove('gp-translate-btn--small');
   return { button: control, bar };

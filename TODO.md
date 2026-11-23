@@ -93,6 +93,25 @@ Newest first. Record the shipped version and date, for example
 `- [x] **T-003 · …** — shipped in 0.33.0 (2026-11-22)`. Remove entries older
 than the last two releases; `CHANGELOG.md` is the authoritative history.
 
+- [x] **T-006 · Show author avatars in issue and pull request lists** —
+  shipped in 0.34.0 (2026-11-24). Each row of the issue and pull-request lists
+  carries the author's 16px round avatar before the login, in GitHub's own
+  metadata line; the **Issues** settings page turns it off. Unit-covered by
+  `listAvatars` (resolution, URL building, idempotent placement, teardown) and
+  `listAvatarsLifecycle` (both lists, disable, re-render, recycled author);
+  login resolution was also checked against saved copies of the live
+  `/issues` and `/pulls` pages (25 of 25 rows each). The live theme and
+  soft-navigation check stays on the manual checklist.
+- [x] **T-005 · Host the release-page translate action in the release header** —
+  shipped in 0.33.3 (2026-11-24). The action is a small labelled button in the
+  release title's action group, in front of **Compare**, with the title row as
+  the fallback when that group is absent. Unit-covered by `translateSurfaces`
+  and `translateUi`; the live release-page check stays on the manual checklist.
+- [x] **T-004 · Host the feed translate action in the card header** — shipped in
+  0.33.2 (2026-11-23). A feed release card is one translation unit: the action
+  sits in the card header before the kebab and translates every release body in
+  it, grouped items included. Unit-covered by `translateSurfaces` and
+  `translateState`; the live feed check stays on the manual checklist.
 - [x] **T-003 · Add a similar-repositories panel to repository pages** — shipped
   in 0.33.0 (2026-11-23). Data source is a setting: `github` (default) or the
   opt-in `simrepo` third party; public repositories only.

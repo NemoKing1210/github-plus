@@ -10,6 +10,7 @@ import { renderDiscovery } from './tabs/discovery.js';
 import { renderFiles } from './tabs/files.js';
 import { renderGallery } from './tabs/gallery.js';
 import { renderGeneral } from './tabs/general.js';
+import { renderIssues } from './tabs/issues.js';
 import { renderTranslate } from './tabs/translate.js';
 import { ensureUserMenuItem, installUserMenuEntry, refreshUserMenuItem } from './userMenu.js';
 
@@ -54,6 +55,14 @@ function registerPages() {
     labelKey: 'tab.files',
     descKey: 'tab.files.desc',
     render: renderFiles,
+  });
+  registerPage({
+    id: 'issues',
+    group: 'preferences',
+    icon: 'issues',
+    labelKey: 'tab.issues',
+    descKey: 'tab.issues.desc',
+    render: renderIssues,
   });
   registerPage({
     id: 'commits',
@@ -125,6 +134,7 @@ export function initSettingsFeature() {
   on('settings:fileAges', refreshUserMenuItem);
   on('settings:fileMeta', refreshUserMenuItem);
   on('settings:fileMenu', refreshUserMenuItem);
+  on('settings:listAvatars', refreshUserMenuItem);
   on('settings:commitBadges', refreshUserMenuItem);
   on('settings:translate', refreshUserMenuItem);
   on('settings:language', refreshUserMenuItem);

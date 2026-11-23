@@ -30,6 +30,8 @@ export default {
   'tab.files.desc': 'Symbole, Commit-Alter, aufklappbare Ordner, Größen, Downloads, ein Kontextmenü und eine Schnellvorschau für die von GitHub gelisteten Dateien.',
   'tab.commits': 'Commits',
   'tab.commits.desc': 'Conventional-Commit-Typen und -Bereiche in Commit-Titeln.',
+  'tab.issues': 'Issues',
+  'tab.issues.desc': 'Avatare der Autorinnen und Autoren neben dem Login in Issue- und Pull-Request-Listen.',
   'tab.backup.desc': 'Einstellungen in eine Datei exportieren und wieder importieren.',
   'tab.about.desc': 'Version, Autor und Quellcode.',
 
@@ -191,6 +193,8 @@ export default {
   'commitBadges.breaking': 'Marker für Breaking Changes',
   'commitBadges.breakingDesc': 'Einen roten Marker anzeigen, wenn das Präfix mit „!“ endet.',
   'commitBadges.legend': 'Konventionelle Typen',
+  'listAvatars.enabled': 'Autor-Avatare',
+  'listAvatars.enabledDesc': 'Den Avatar der Autorin oder des Autors vor dem Namen in Issue- und Pull-Request-Listen anzeigen.',
   'tab.translate': 'Übersetzung',
   'tab.translate.desc': 'Markdown, Kommentare, Commits und Titel auf der Seite übersetzen.',
   'translate.enabled': 'Übersetzung',
