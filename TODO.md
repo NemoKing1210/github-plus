@@ -80,7 +80,42 @@ _Nothing is scheduled for the next release._
 
 ## Backlog
 
-_No open task._
+- [ ] **T-008 · Fix the similar-repositories panel never loading on boot** —
+  `similarRepos`, `P1`
+  - **Context:** on a fresh page load of a public repository the
+    **Similar repositories** panel does not appear, although the sidebar
+    resolves and the settings are on. `initSimilarReposFeature()` in
+    `src/features/similarRepos/index.js` already calls
+    `applySimilarReposSettings()`, and `src/main.js` calls it a second time
+    right after. The second apply tears the panel down and bumps the
+    generation counter while the first apply's `load()` request is still in
+    flight; the in-flight fetch then fails its generation check and discards
+    its result, and no later retry runs, because `ensure`/`load` returns early
+    on `inflight.has(key)`. A manual `history.pushState` (which fires
+    `watchNavigation`) re-applies cleanly and the panel renders, which is how
+    this was confirmed while capturing screenshots.
+  - **Plan:** 1) In `src/main.js`, drop the redundant
+    `applySimilarReposSettings()` call and let `initSimilarReposFeature()`
+    keep the single boot apply. 2) If a second apply can still arrive from the
+    bootstrap path, make `applySimilarReposSettings()` idempotent for unchanged
+    settings (compare against the previously applied section, as the provider
+    or page-size change path already does) so it does not bump the generation.
+    3) Add a regression test in `test/similarRepos*.test.js` that applies twice
+    in a row and asserts one request and one rendered panel.
+  - **Scope:** the similar-repos boot path only; other features' double-apply
+    call sites are out of scope unless they show the same symptom.
+  - **Done when:** on a cold load of a public repository with the feature on,
+    the panel appears without a navigation; toggling the provider or results
+    in settings still refetches; turning the feature off still leaves no
+    panel and no request.
+  - **Verify:** `npm test` with the new regression test; manual cold-load on a
+    public repository, a private repository (no panel, no request) and after a
+    soft navigation; `npm run build` and `npm run ci`.
+  - **Risks / open questions:** whether to remove the `main.js` call or make
+    the apply idempotent is a small design decision — prefer the idempotent
+    apply if other boot paths can also double-apply, otherwise the simpler
+    call-site removal. The double-apply pattern may exist for other features
+    (file icons, translate); check them for the same race before closing.
 
 ## Ideas
 
@@ -93,6 +128,13 @@ Newest first. Record the shipped version and date, for example
 `- [x] **T-003 · …** — shipped in 0.33.0 (2026-11-22)`. Remove entries older
 than the last two releases; `CHANGELOG.md` is the authoritative history.
 
+- [x] **T-007 · Add a Screenshots section to the READMEs** — shipped in 0.34.1
+  (2026-11-27). Ten captures of the userscript on live GitHub pages live under
+  `docs/screenshots/` and are shown in `README.md` and its nine translations,
+  in the layout used by the author's other project: one full-width image, then
+  2×2 tables with a caption under each. Each README keeps the localized
+  heading and captions and the same image order; the version badge and Status
+  line were bumped in all ten.
 - [x] **T-006 · Show author avatars in issue and pull request lists** —
   shipped in 0.34.0 (2026-11-24). Each row of the issue and pull-request lists
   carries the author's 16px round avatar before the login, in GitHub's own
@@ -102,23 +144,6 @@ than the last two releases; `CHANGELOG.md` is the authoritative history.
   login resolution was also checked against saved copies of the live
   `/issues` and `/pulls` pages (25 of 25 rows each). The live theme and
   soft-navigation check stays on the manual checklist.
-- [x] **T-005 · Host the release-page translate action in the release header** —
-  shipped in 0.33.3 (2026-11-24). The action is a small labelled button in the
-  release title's action group, in front of **Compare**, with the title row as
-  the fallback when that group is absent. Unit-covered by `translateSurfaces`
-  and `translateUi`; the live release-page check stays on the manual checklist.
-- [x] **T-004 · Host the feed translate action in the card header** — shipped in
-  0.33.2 (2026-11-23). A feed release card is one translation unit: the action
-  sits in the card header before the kebab and translates every release body in
-  it, grouped items included. Unit-covered by `translateSurfaces` and
-  `translateState`; the live feed check stays on the manual checklist.
-- [x] **T-003 · Add a similar-repositories panel to repository pages** — shipped
-  in 0.33.0 (2026-11-23). Data source is a setting: `github` (default) or the
-  opt-in `simrepo` third party; public repositories only.
-- [x] **T-002 · Cover the newer features in the manual test checklist** —
-  shipped in 0.33.0 (2026-11-23).
-- [x] **T-001 · Align the Node.js engine line in `docs/DEVELOPMENT.md`** —
-  shipped in 0.33.0 (2026-11-23).
 
 ## Definition of done
 

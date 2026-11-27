@@ -5,20 +5,39 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 一个改进 GitHub 的用户脚本：完整的设置面板、`Ctrl/⌘+K` 命令面板、渲染后 Markdown
 的图片画廊、GitHub 列出文件时显示的彩色文件图标、这些文件的 blame 风格年龄着色、
 可展开的文件夹、文件大小与一键下载，用于文件和文件夹操作的上下文菜单、任意文件的快速预览、Conventional
 Commits 提交徽章、页面内容的翻译，以及议题和拉取请求列表中的作者头像。
 
-> **状态：** 早期（`0.34.0`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 议题 · 提交 ·
+> **状态：** 早期（`0.34.1`）。带即时搜索的设置面板（通用 · 画廊 · 文件 · 议题 · 提交 ·
 > 翻译 · 面板 · 发现 · 备份 · 关于）、`Ctrl/⌘+K` 命令面板、Markdown 图片画廊、彩色文件
 > 图标、blame 风格的年龄着色、可展开的文件夹、带下载按钮的文件大小、文件和文件夹上下文
 > 菜单、快速文件预览、提交徽章、页面翻译，以及议题和拉取请求列表中的作者头像。计划加入更多 GitHub 改进。
 
 > 脚本的 `@updateURL` / `@downloadURL` 指向 GitHub 的 `main` 分支——下面的安装
 > 链接始终指向最新构建。
+
+## 截图
+
+真实运行在 GitHub 页面上的用户脚本。
+
+![打开“文件”页的设置面板](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**设置面板** — 十个设置分页、草稿式保存，以及对所有标签的即时搜索。
+
+| | |
+|---|---|
+| ![带图标、年龄颜色、大小和已展开文件夹的仓库文件列表](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**文件浏览** — 彩色图标、blame 风格的年龄颜色、可一键下载的大小、列表内展开文件夹，以及每一行的预览按钮 | ![在 README 上打开的全屏图片查看器](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**图片画廊** — 任意 markdown 图片都能以整个图集全屏打开，支持缩略图、缩放、平移和旋转 |
+| ![限定在当前仓库的命令面板](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**命令面板** — `Ctrl/⌘+K` 打开限定在当前仓库的面板：页面、文件、议题、命令、收藏和最近访问 | ![显示高亮源码的文件快速预览](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**快速预览** — 无需离开页面即可打开任意文件：渲染后的 markdown、高亮源码、图片、媒体和 PDF |
+| ![仓库行上的文件上下文菜单](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**文件上下文菜单** — 右键单击文件或文件夹即可打开、下载、复制内容、链接、路径或名称，并展开或折叠文件夹 | ![提交列表中的 Conventional Commit 徽章](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**提交徽章** — Conventional Commit 的类型和作用域在提交列表、提交页面和最新提交块中显示为彩色标记 |
+| ![议题列表中的作者头像](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**议题头像** — 作者头像回到议题和拉取请求列表的每一行 | ![原地翻译成德语的 README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**翻译** — 原地翻译 README、评论、提交或标题，链接、代码和图片保持原有标记 |
+
+![仓库侧栏中的相似仓库面板](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**相似仓库** — 侧栏面板按共同的话题、语言和星标推荐与你正在阅读的仓库相近的公开仓库。
 
 ## 快速安装
 

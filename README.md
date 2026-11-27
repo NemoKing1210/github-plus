@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 A userscript that improves GitHub with a full settings panel, a `Ctrl/⌘+K`
 command palette, an image gallery for rendered markdown, colored file icons
@@ -17,7 +17,7 @@ Commit badges on commit subjects, on-page translation of markdown, comments and
 commits, a sidebar panel recommending similar repositories, and author avatars in
 the issue and pull-request lists.
 
-> **Status:** early (`0.34.0`). Settings panel with instant search (General ·
+> **Status:** early (`0.34.1`). Settings panel with instant search (General ·
 > Gallery · Files · Issues · Commits · Translation · Palette · Discovery · Backup · About), a
 > `Ctrl/⌘+K`
 > command palette, the markdown image gallery, colored file icons, blame-style
@@ -30,6 +30,25 @@ the issue and pull-request lists.
 
 > The script's `@updateURL` / `@downloadURL` point at GitHub `main` — the raw
 > install URL below is always the newest build.
+
+## Screenshots
+
+The real userscript running on a live GitHub page.
+
+![Settings panel with the Files page open](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**Settings panel** — ten pages of settings, draft-based saving and instant search over every label.
+
+| | |
+|---|---|
+| ![Repository file listing with icons, age colors, sizes and expanded folders](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**File browser** — colored icons, blame-style age colors, sizes with one-click downloads, inline folder expansion and a preview button in every row | ![Fullscreen image viewer open over a README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**Image gallery** — any markdown image opens fullscreen with the whole set, thumbnails, zoom, pan and rotation |
+| ![Command palette scoped to a repository](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**Command palette** — `Ctrl/⌘+K` opens a palette scoped to the repository, with pages, files, issues, commands, favorites and recents | ![Quick file preview showing highlighted source](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**Quick preview** — any file opens without leaving the page: rendered markdown, highlighted source, images, media and PDFs |
+| ![File context menu on a repository row](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**File context menu** — right-click a file or folder to open it, download it, copy its contents, link, path or name, and expand or collapse a folder | ![Conventional Commit badges in the commit list](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**Commit badges** — Conventional Commit types and scopes become a colored token in the commit list, on the commit page and in the latest-commit block |
+| ![Author avatars in the issue list](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**Issue avatars** — the author's avatar returns to every row of the issue and pull-request lists | ![README translated to German in place](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**Translation** — translate a README, comments, commits or titles in place while links, code and images keep their markup |
+
+![Similar repositories panel in a repository sidebar](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**Similar repositories** — a sidebar panel recommends public repositories close to the one you are reading, ranked by shared topics, language and stars.
 
 ## Quick install
 

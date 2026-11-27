@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Userskrypt ulepszający GitHub: pełny panel ustawień, paleta poleceń pod
 `Ctrl/⌘+K`, galeria obrazów dla renderowanego Markdownu, kolorowe ikony plików
@@ -16,7 +16,7 @@ plików i folderów, szybki podgląd dowolnego pliku, odznaki Conventional Commi
 tłumaczenie treści na stronie, panel podobnych repozytoriów na pasku bocznym
 oraz awatary autorów na listach zgłoszeń i pull requestów.
 
-> **Status:** wczesny etap (`0.34.0`). Panel ustawień z natychmiastowym
+> **Status:** wczesny etap (`0.34.1`). Panel ustawień z natychmiastowym
 > wyszukiwaniem (Ogólne · Galeria · Pliki · Zgłoszenia · Commity · Tłumaczenie · Paleta · Odkrywanie · Kopia
 > zapasowa · Informacje), paleta poleceń pod `Ctrl/⌘+K`, galeria obrazów
 > Markdownu, kolorowe ikony plików, kolory wieku w stylu blame, rozwijane foldery,
@@ -28,6 +28,25 @@ oraz awatary autorów na listach zgłoszeń i pull requestów.
 
 > Dyrektywy `@updateURL` / `@downloadURL` skryptu wskazują na `main` w GitHubie —
 > link instalacyjny poniżej zawsze prowadzi do najnowszej kompilacji.
+
+## Zrzuty ekranu
+
+Prawdziwy userscript działający na prawdziwej stronie GitHub.
+
+![Panel ustawień z otwartą stroną „Pliki”](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**Panel ustawień** — dziesięć stron ustawień, zapis na podstawie szkicu i natychmiastowe wyszukiwanie po wszystkich etykietach.
+
+| | |
+|---|---|
+| ![Lista plików repozytorium z ikonami, kolorami wieku, rozmiarami i rozwiniętymi folderami](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**Pliki** — kolorowe ikony, kolory wieku w stylu blame, rozmiary z pobieraniem jednym kliknięciem, rozwijanie folderów w liście i przycisk podglądu w każdym wierszu | ![Przeglądarka obrazów na pełnym ekranie otwarta nad README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**Galeria obrazów** — dowolny obraz markdown otwiera się na pełnym ekranie z całym zestawem, miniaturami, powiększeniem, przesuwaniem i obrotem |
+| ![Paleta poleceń ograniczona do repozytorium](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**Paleta poleceń** — `Ctrl/⌘+K` otwiera paletę ograniczoną do repozytorium: strony, pliki, issues, polecenia, ulubione i ostatnie | ![Szybki podgląd pliku z podświetlonym kodem](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**Szybki podgląd** — dowolny plik otwiera się bez opuszczania strony: wyrenderowany markdown, podświetlony kod, obrazy, multimedia i pliki PDF |
+| ![Menu kontekstowe pliku na wierszu repozytorium](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**Menu kontekstowe pliku** — kliknij prawym przyciskiem plik lub folder, aby go otworzyć, pobrać, skopiować zawartość, link, ścieżkę lub nazwę oraz rozwinąć albo zwinąć folder | ![Odznaki Conventional Commits na liście commitów](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**Odznaki commitów** — typy i zakresy Conventional Commits stają się kolorowym znacznikiem na liście commitów, stronie commita i w bloku ostatniego commita |
+| ![Awatary autorów na liście issues](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**Awatary autorów** — awatar autora wraca do każdego wiersza list issues i pull requestów | ![README przetłumaczony na niemiecki w miejscu](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**Tłumaczenie** — tłumacz README, komentarze, commity lub tytuły w miejscu, a linki, kod i obrazy zachowują swoje znaczniki |
+
+![Panel podobnych repozytoriów w pasku bocznym](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**Podobne repozytoria** — panel boczny poleca publiczne repozytoria bliskie temu, które czytasz, uszeregowane według wspólnych tematów, języka i gwiazdek.
 
 ## Szybka instalacja
 

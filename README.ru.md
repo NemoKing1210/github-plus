@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Юзерскрипт, который улучшает GitHub: полная панель настроек, командная палитра
 по `Ctrl/⌘+K`, галерея изображений для отрендеренного markdown, цветные иконки
@@ -17,7 +17,7 @@ Conventional
 Commits, перевод текста прямо на странице, раздел похожих репозиториев в боковой
 панели и аватары авторов в списках задач и пул-реквестов.
 
-> **Статус:** ранняя стадия (`0.34.0`). Панель настроек с мгновенным поиском
+> **Статус:** ранняя стадия (`0.34.1`). Панель настроек с мгновенным поиском
 > (Общие · Галерея · Файлы · Задачи · Коммиты · Перевод · Палитра · Обзор · Резервная копия ·
 > О программе),
 > командная палитра по `Ctrl/⌘+K`, галерея изображений markdown, цветные иконки
@@ -29,6 +29,25 @@ Commits, перевод текста прямо на странице, разд�
 
 > `@updateURL` / `@downloadURL` скрипта указывают на ветку `main` в GitHub —
 > ссылка для установки ниже всегда ведёт на самую свежую сборку.
+
+## Скриншоты
+
+Настоящий скрипт, работающий на живой странице GitHub.
+
+![Панель настроек с открытой страницей «Файлы»](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**Панель настроек** — десять страниц настроек, сохранение черновика и мгновенный поиск по всем подписям.
+
+| | |
+|---|---|
+| ![Список файлов репозитория с иконками, цветами возраста, размерами и раскрытыми папками](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**Файлы** — цветные иконки, цвета возраста в стиле blame, размеры с загрузкой в один клик, раскрытие папок прямо в списке и кнопка предпросмотра в каждой строке | ![Полноэкранный просмотр изображений поверх README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**Галерея изображений** — любое изображение в markdown открывается на весь экран вместе со всем набором, миниатюрами, масштабом, панорамированием и поворотом |
+| ![Палитра команд с областью репозитория](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**Палитра команд** — `Ctrl/⌘+K` открывает палитру с областью репозитория: страницы, файлы, задачи, команды, избранное и недавние | ![Быстрый предпросмотр файла с подсвеченным исходником](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**Быстрый предпросмотр** — любой файл открывается без ухода со страницы: отрисованный markdown, подсвеченный исходник, изображения, медиа и PDF |
+| ![Контекстное меню файла в строке репозитория](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**Контекстное меню** — правый клик по файлу или папке: открыть, скачать, скопировать содержимое, ссылку, путь или имя, а также раскрыть или свернуть папку | ![Значки Conventional Commits в списке коммитов](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**Значки коммитов** — типы и области Conventional Commits превращаются в цветной жетон в списке коммитов, на странице коммита и в блоке последнего коммита |
+| ![Аватары авторов в списке задач](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**Аватары авторов** — аватар автора возвращается в каждую строку списков задач и пул-реквестов | ![README, переведённый на немецкий прямо на месте](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**Перевод** — переводите README, комментарии, коммиты и заголовки прямо на месте, а ссылки, код и изображения сохраняют разметку |
+
+![Панель похожих репозиториев в боковой панели](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**Похожие репозитории** — панель в боковой колонке рекомендует публичные репозитории, близкие к открытому, по общим темам, языку и звёздам.
 
 ## Быстрая установка
 

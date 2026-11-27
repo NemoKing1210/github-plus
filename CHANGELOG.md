@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.1] - 2026-11-27
+
+### Documentation
+
+- Added a **Screenshots** section to the README and its nine translations: ten
+  captures of the userscript running on live GitHub pages (settings panel, file
+  listing, image gallery, command palette, quick preview, file context menu,
+  commit badges, issue-list avatars, translation and similar repositories),
+  stored under `docs/screenshots/`.
+
+[0.34.1]: https://github.com/NemoKing1210/github-plus/compare/v0.34.0...v0.34.1
+
 ## [0.34.0] - 2026-11-24
 
 ### Added

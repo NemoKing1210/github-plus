@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Ein Userscript, das GitHub verbessert: ein vollständiges Einstellungsfenster,
 eine Befehlspalette mit `Ctrl/⌘+K`, eine Bildergalerie für gerendertes Markdown,
@@ -16,7 +16,7 @@ Kontextmenü für Datei- und Ordneraktionen, eine Schnellvorschau für jede Date
 Commit-Badges nach Conventional Commits, die Übersetzung von Seiteninhalten und
 Avatare der Autorinnen und Autoren in Issue- und Pull-Request-Listen.
 
-> **Status:** früh (`0.34.0`). Einstellungsfenster mit Sofortsuche (Allgemein ·
+> **Status:** früh (`0.34.1`). Einstellungsfenster mit Sofortsuche (Allgemein ·
 > Galerie · Dateien · Issues · Commits · Übersetzung · Palette · Entdecken · Sicherung · Info), eine
 > Befehlspalette mit `Ctrl/⌘+K`, die Markdown-Bildergalerie, farbige
 > Dateisymbole, Altersfarben im Blame-Stil, aufklappbare Ordner,
@@ -29,6 +29,25 @@ Avatare der Autorinnen und Autoren in Issue- und Pull-Request-Listen.
 
 > Die `@updateURL` / `@downloadURL` des Skripts zeigen auf `main` bei GitHub —
 > die Installations-URL unten führt immer zur neuesten Version.
+
+## Screenshots
+
+Das echte Userscript auf einer echten GitHub-Seite.
+
+![Einstellungsfenster mit geöffneter Seite „Dateien“](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**Einstellungsfenster** — zehn Seiten mit Einstellungen, Entwurfsspeicherung und Sofortsuche über jede Beschriftung.
+
+| | |
+|---|---|
+| ![Dateiliste eines Repositorys mit Symbolen, Altersfarben, Größen und aufgeklappten Ordnern](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**Dateien** — farbige Symbole, Altersfarben im Blame-Stil, Größen mit Ein-Klick-Downloads, Ordner aufklappen direkt in der Liste und eine Vorschau-Schaltfläche in jeder Zeile | ![Vollbild-Bildbetrachter über einer README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**Bildergalerie** — jedes Markdown-Bild öffnet im Vollbild mit der ganzen Gruppe, Miniaturansichten, Zoom, Verschieben und Drehen |
+| ![Befehlspalette mit Repository-Pfad](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**Befehlspalette** — `Ctrl/⌘+K` öffnet eine Palette für das Repository: Seiten, Dateien, Issues, Befehle, Favoriten und Zuletzt verwendet | ![Schnelle Dateivorschau mit hervorgehobenem Quelltext](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**Schnellvorschau** — jede Datei öffnet sich, ohne die Seite zu verlassen: gerendertes Markdown, hervorgehobener Quelltext, Bilder, Medien und PDFs |
+| ![Datei-Kontextmenü in einer Repository-Zeile](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**Datei-Kontextmenü** — Rechtsklick auf Datei oder Ordner: öffnen, herunterladen, Inhalt, Link, Pfad oder Namen kopieren sowie Ordner auf- oder zuklappen | ![Conventional-Commit-Abzeichen in der Commit-Liste](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**Commit-Abzeichen** — Typen und Bereiche von Conventional Commits werden in der Commit-Liste, auf der Commit-Seite und im Block des letzten Commits zu einem farbigen Token |
+| ![Autoren-Avatare in der Issue-Liste](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**Autoren-Avatare** — das Avatar der Autorin oder des Autors kehrt in jede Zeile der Issue- und Pull-Request-Listen zurück | ![README direkt an Ort und Stelle ins Deutsche übersetzt](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**Übersetzung** — README, Kommentare, Commits und Titel direkt übersetzen, während Links, Code und Bilder ihre Auszeichnung behalten |
+
+![Seitenleiste mit ähnlichen Repositorys](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**Ähnliche Repositorys** — eine Seitenleiste empfiehlt öffentliche Repositorys, die dem geöffneten ähneln, sortiert nach gemeinsamen Themen, Sprache und Sternen.
 
 ## Schnellinstallation
 

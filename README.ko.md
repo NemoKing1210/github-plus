@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널, `Ctrl/⌘+K` 명령 팔레트,
 렌더링된 Markdown용 이미지 갤러리, GitHub가 파일을 나열하는 모든 곳의 컬러 파일
@@ -14,7 +14,7 @@ GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널,
 컨텍스트 메뉴, 모든 파일의 빠른 미리보기, Conventional Commits 커밋 배지, 페이지
 번역, 사이드바의 유사한 리포지토리 패널, 이슈 및 끌어오기 요청 목록의 작성자 아바타를 제공합니다.
 
-> **상태:** 초기(`0.34.0`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 이슈 · 커밋 ·
+> **상태:** 초기(`0.34.1`). 즉시 검색이 있는 설정 패널(일반 · 갤러리 · 파일 · 이슈 · 커밋 ·
 > 번역 · 팔레트 · 탐색 · 백업 · 정보), `Ctrl/⌘+K` 명령 팔레트, Markdown 이미지 갤러리,
 > 컬러 파일 아이콘, blame 스타일 나이 색상, 폴더 펼치기, 다운로드 버튼이 있는
 > 파일 크기, 파일
@@ -23,6 +23,25 @@ GitHub를 개선하는 사용자 스크립트입니다. 완전한 설정 패널,
 
 > 스크립트의 `@updateURL` / `@downloadURL`은 GitHub의 `main`을 가리키므로 아래
 > 설치 URL은 항상 최신 빌드로 연결됩니다.
+
+## 스크린샷
+
+실제 GitHub 페이지에서 실행 중인 사용자 스크립트입니다.
+
+![«파일» 페이지가 열린 설정 패널](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**설정 패널** — 열 개의 설정 페이지, 초안 기반 저장, 모든 레이블에 대한 즉시 검색.
+
+| | |
+|---|---|
+| ![아이콘, 기간 색상, 크기, 펼쳐진 폴더가 있는 저장소 파일 목록](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**파일 브라우저** — 색상 아이콘, blame 스타일 기간 색상, 한 번의 클릭으로 내려받는 크기, 목록 안에서 펼치는 폴더, 각 행의 미리보기 버튼 | ![README 위에 열린 전체 화면 이미지 뷰어](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**이미지 갤러리** — 모든 markdown 이미지를 전체 세트와 함께 전체 화면으로 열며, 썸네일, 확대/축소, 이동, 회전을 지원합니다 |
+| ![저장소 범위로 열린 명령 팔레트](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**명령 팔레트** — `Ctrl/⌘+K`로 저장소 범위의 팔레트를 엽니다. 페이지, 파일, 이슈, 명령, 즐겨찾기, 최근 항목 | ![강조 표시된 소스를 보여주는 파일 빠른 미리보기](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**빠른 미리보기** — 페이지를 떠나지 않고 어떤 파일이든 엽니다. 렌더링된 markdown, 강조 표시된 소스, 이미지, 미디어, PDF |
+| ![저장소 행에서 열린 파일 컨텍스트 메뉴](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**파일 컨텍스트 메뉴** — 파일이나 폴더를 마우스 오른쪽 버튼으로 클릭해 열기, 내려받기, 내용·링크·경로·이름 복사, 폴더 펼치기/접기 | ![커밋 목록의 Conventional Commit 배지](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**커밋 배지** — Conventional Commit의 유형과 범위가 커밋 목록, 커밋 페이지, 최신 커밋 블록에서 색상 토큰이 됩니다 |
+| ![이슈 목록의 작성자 아바타](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**작성자 아바타** — 이슈와 풀 리퀘스트 목록의 모든 행에 작성자 아바타가 돌아옵니다 | ![독일어로 번역된 README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**번역** — README, 댓글, 커밋, 제목을 제자리에서 번역하며 링크, 코드, 이미지는 원래 마크업을 유지합니다 |
+
+![저장소 사이드바의 유사 저장소 패널](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**유사 저장소** — 사이드바 패널이 공통 주제, 언어, 별표를 기준으로 보고 있는 저장소와 가까운 공개 저장소를 추천합니다.
 
 ## 빠른 설치
 

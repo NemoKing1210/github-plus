@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 GitHub を改善するユーザースクリプトです。充実した設定パネル、`Ctrl/⌘+K` の
 コマンドパレット、レンダリングされた Markdown の画像ギャラリー、GitHub が
@@ -15,7 +15,7 @@ blame 風の経過日数カラー、リポジトリ一覧のフォルダー展�
 用のコンテキスト メニュー、任意のファイルのクイックプレビュー、Conventional
 Commits のコミット バッジ、ページ内テキストの翻訳、サイドバーの類似リポジトリ パネル、Issue とプルリクエスト一覧の作成者アバターを提供します。
 
-> **ステータス:** 初期段階（`0.34.0`）。インスタント検索付きの設定パネル（一般 ·
+> **ステータス:** 初期段階（`0.34.1`）。インスタント検索付きの設定パネル（一般 ·
 > ギャラリー · ファイル · Issue · コミット · 翻訳 · パレット · 発見 · バックアップ · このアプリについて）、
 > `Ctrl/⌘+K` のコマンドパレット、Markdown 画像ギャラリー、カラー ファイル アイコン、
 > blame 風の経過日数カラー、フォルダーの展開、ファイルサイズとダウンロード
@@ -25,6 +25,25 @@ Commits のコミット バッジ、ページ内テキストの翻訳、サイ�
 
 > スクリプトの `@updateURL` / `@downloadURL` は GitHub の `main` を指している
 > ため、下のインストール URL は常に最新ビルドにつながります。
+
+## スクリーンショット
+
+実際の GitHub ページで動くユーザースクリプトです。
+
+![「ファイル」ページを開いた設定パネル](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**設定パネル** — 10 ページの設定、下書きベースの保存、すべてのラベルを対象にした即時検索。
+
+| | |
+|---|---|
+| ![アイコン、経過時間の色、サイズ、展開されたフォルダーを備えたリポジトリのファイル一覧](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**ファイルブラウザー** — 色付きアイコン、blame 風の経過時間カラー、ワンクリックでダウンロードできるサイズ、一覧内でのフォルダー展開、各行のプレビューボタン | ![README 上で開いた全画面画像ビューアー](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**画像ギャラリー** — markdown の画像をセット全体とともに全画面で開き、サムネイル、ズーム、パン、回転を利用できます |
+| ![リポジトリをスコープにしたコマンドパレット](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**コマンドパレット** — `Ctrl/⌘+K` でリポジトリをスコープにしたパレットを開きます。ページ、ファイル、イシュー、コマンド、お気に入り、最近使った項目 | ![ハイライトされたソースを表示するファイルのクイックプレビュー](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**クイックプレビュー** — ページを離れずに任意のファイルを開けます。レンダリングされた markdown、ハイライトされたソース、画像、メディア、PDF |
+| ![リポジトリの行で開いたファイルのコンテキストメニュー](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**ファイルのコンテキストメニュー** — ファイルやフォルダーを右クリックして開く、ダウンロード、内容・リンク・パス・名前のコピー、フォルダーの展開・折りたたみ | ![コミット一覧の Conventional Commit バッジ](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**コミットバッジ** — Conventional Commit のタイプとスコープが、コミット一覧、コミットページ、最新コミットのブロックで色付きのトークンになります |
+| ![イシュー一覧の作成者アバター](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**作成者アバター** — イシューとプルリクエストの一覧のすべての行に作成者のアバターが戻ります | ![その場でドイツ語に翻訳された README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**翻訳** — README、コメント、コミット、タイトルをその場で翻訳し、リンク・コード・画像は元のマークアップを保ちます |
+
+![リポジトリのサイドバーにある類似リポジトリパネル](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**類似リポジトリ** — サイドバーのパネルが、共通のトピック・言語・スターに基づいて、閲覧中のリポジトリに近い公開リポジトリを提案します。
 
 ## クイック インストール
 

@@ -5,7 +5,7 @@
 [![CI](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/NemoKing1210/github-plus/actions/workflows/ci.yml)
 [![Install userscript](https://img.shields.io/badge/Install-userscript-1f6feb?style=for-the-badge&labelColor=0d1117)](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/github-plus.user.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/version-0.34.0-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.34.1-green?style=for-the-badge)](https://github.com/NemoKing1210/github-plus/blob/main/CHANGELOG.md)
 
 Un userscript qui améliore GitHub avec un panneau de réglages complet, une
 palette de commandes avec `Ctrl/⌘+K`, une galerie d'images pour le markdown
@@ -18,7 +18,7 @@ un aperçu rapide de tout fichier, des badges Conventional Commits, la
 traduction du contenu des pages et les avatars des auteurs dans les listes
 d’issues et de pull requests.
 
-> **Statut :** début (`0.34.0`). Panneau de réglages avec recherche instantanée
+> **Statut :** début (`0.34.1`). Panneau de réglages avec recherche instantanée
 > (Général · Galerie · Fichiers · Issues · Commits · Traduction · Palette · Découverte · Sauvegarde ·
 > À propos), une palette de commandes avec `Ctrl/⌘+K`, la galerie d'images du
 > markdown, des icônes de fichiers colorées, des couleurs d'âge façon blame, la
@@ -29,6 +29,25 @@ d’issues et de pull requests.
 
 > Les `@updateURL` / `@downloadURL` du script pointent vers `main` sur GitHub —
 > l'URL d'installation ci-dessous mène toujours à la version la plus récente.
+
+## Captures d'écran
+
+Le userscript réel sur une vraie page GitHub.
+
+![Panneau de réglages avec la page « Fichiers » ouverte](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/settings-panel.png)
+
+**Panneau de réglages** — dix pages de réglages, un enregistrement par brouillon et une recherche instantanée dans tous les libellés.
+
+| | |
+|---|---|
+| ![Liste des fichiers du dépôt avec icônes, couleurs d'ancienneté, tailles et dossiers dépliés](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/file-browser.png)<br>**Fichiers** — icônes colorées, couleurs d'ancienneté façon blame, tailles avec téléchargement en un clic, dépliage des dossiers dans la liste et un bouton d'aperçu sur chaque ligne | ![Visionneuse d'images plein écran ouverte sur un README](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/image-gallery.png)<br>**Galerie d'images** — toute image markdown s'ouvre en plein écran avec l'ensemble du lot, les miniatures, le zoom, le déplacement et la rotation |
+| ![Palette de commandes limitée au dépôt](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/command-palette.png)<br>**Palette de commandes** — `Ctrl/⌘+K` ouvre une palette limitée au dépôt : pages, fichiers, issues, commandes, favoris et récents | ![Aperçu rapide d'un fichier avec la coloration syntaxique](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/quick-preview.png)<br>**Aperçu rapide** — tout fichier s'ouvre sans quitter la page : markdown rendu, code coloré, images, médias et PDF |
+| ![Menu contextuel de fichier sur une ligne du dépôt](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/context-menu.png)<br>**Menu contextuel** — un clic droit sur un fichier ou un dossier pour l'ouvrir, le télécharger, copier son contenu, son lien, son chemin ou son nom, et déplier ou replier un dossier | ![Badges de Conventional Commits dans la liste des commits](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/commit-badges.png)<br>**Badges de commit** — les types et portées des Conventional Commits deviennent un jeton coloré dans la liste des commits, la page du commit et le bloc du dernier commit |
+| ![Avatars des auteurs dans la liste des issues](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/issue-avatars.png)<br>**Avatars des auteurs** — l'avatar de l'auteur revient sur chaque ligne des listes d'issues et de pull requests | ![README traduit en allemand sur place](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/translation.png)<br>**Traduction** — traduisez un README, des commentaires, des commits ou des titres sur place, les liens, le code et les images gardant leur balisage |
+
+![Panneau des dépôts similaires dans la barre latérale](https://raw.githubusercontent.com/NemoKing1210/github-plus/main/docs/screenshots/similar-repositories.png)
+
+**Dépôts similaires** — un panneau latéral recommande des dépôts publics proches de celui que vous lisez, classés par sujets, langage et étoiles partagés.
 
 ## Installation rapide
 
